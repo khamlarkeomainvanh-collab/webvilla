@@ -1,391 +1,376 @@
 {% extends 'ecom/customer_base.html' %}
 {% load static %}
+{% load lao_filters %}
 {% block content %}
 
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800;900&family=Noto+Sans+Lao:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-
-  <style media="screen">
-    body,
-html {
-  height: 100%;
+<style>
+:root {
+  --pink:    #ec4899;
+  --pink2:   #f472b6;
+  --pink-lt: #fce7f3;
+  --purp:    #7c3aed;
+  --purp2:   #a855f7;
+  --lav:     #f5f3ff;
+  --lav2:    #ede9fe;
+  --lav3:    #ddd6fe;
+  --text:    #2d1457;
+  --gray:    #6b7280;
 }
 
-.d-flex {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-}
-
-.align-center {
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
-
-.flex-centerY-centerX {
-  justify-content: center;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
 body {
-  background-color:#8c9eff;
+  font-family:'Lexend','Noto Sans Lao',sans-serif;
+  background: linear-gradient(155deg,#fdf4ff 0%,#f5f3ff 50%,#fce7f3 100%);
+  background-attachment: fixed;
+  color: var(--text);
+  min-height:100vh; overflow-x:hidden;
 }
 
-.page-wrapper {
-  height: 100%;
-  display: table;
+/* ====== HERO BANNER ====== */
+.hero {
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 55%, #f9a8d4 100%);
+  padding: 20px 24px 22px;
+  text-align: center; position: relative; overflow: hidden;
+  border-bottom: 2px solid #f472b6;
+}
+.hero::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 120%, rgba(236,72,153,.10) 0%, transparent 70%);
+}
+.hero-inner { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; }
+.hero-emoji { font-size: 2rem; display: block; margin-bottom: 5px;
+  animation: bounce 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 3px 8px rgba(236,72,153,.3)); }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+.hero h1 {
+  font-size: 3rem; font-weight: 900;
+  color: #9d174d;
+  margin-bottom: 5px; line-height: 1.1;
+  letter-spacing: -.5px;
+  text-shadow: 0 2px 10px rgba(190,24,93,.15);
+}
+.hero p {
+  font-size: .98rem; color: #be185d;
+  font-weight: 700; margin-bottom: 0; letter-spacing: .3px;
+  opacity: .85;
 }
 
-.page-wrapper .page-inner {
-  display: table-cell;
-  vertical-align: middle;
+/* ====== CATEGORY BAR ====== */
+.cat-wrap {
+  position: sticky; top: 172px; z-index: 200;
+  background: rgba(255,255,255,.97);
+  border-bottom: 1.5px solid var(--lav2);
+  box-shadow: 0 4px 20px rgba(124,58,237,.10);
+  backdrop-filter: blur(16px);
+}
+@media(max-width:768px) { .cat-wrap { top: 215px; } }
+.cat-nav {
+  display: flex; gap: 10px;
+  overflow-x: auto; padding: 16px 20px;
+  scrollbar-width: none;
+  max-width: 1400px; margin: 0 auto;
+}
+.cat-nav::-webkit-scrollbar { display: none; }
+.cat-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 26px; border-radius: 50px;
+  font-size: 1.05rem; font-weight: 800; white-space: nowrap;
+  text-decoration: none; border: 2px solid var(--lav3);
+  transition: .25s; flex-shrink: 0; color: var(--purp);
+  background: var(--lav);
+  font-family:'Lexend','Noto Sans Lao',sans-serif;
+  letter-spacing: .2px;
+}
+.cat-btn:hover {
+  background: var(--pink-lt); border-color: var(--pink2);
+  color: var(--pink); transform: translateY(-2px);
+}
+.cat-btn.active {
+  background: linear-gradient(135deg,var(--pink),var(--purp));
+  color: #fff; border-color: transparent;
+  font-weight: 900;
+  box-shadow: 0 6px 20px rgba(124,58,237,.34);
+  transform: translateY(-2px);
 }
 
-.el-wrapper {
-  width: 360px;
-  padding: 15px;
-  margin: 15px auto;
-  background-color: #fff;
+/* ====== SECTION HEAD ====== */
+.sec-head {
+  max-width: 1400px; margin: 0 auto;
+  padding: 28px 24px 16px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+}
+.sec-head h2 {
+  font-size: 1.5rem; font-weight: 900; color: var(--text);
+  display: flex; align-items: center; gap: 12px;
+}
+.sec-head h2 .sh-line {
+  width: 5px; height: 26px; border-radius: 4px;
+  background: linear-gradient(135deg,var(--pink),var(--purp));
+  display: block; flex-shrink: 0;
+}
+.count-tag {
+  background: var(--pink-lt); color: var(--pink);
+  padding: 8px 20px; border-radius: 50px;
+  font-size: .9rem; font-weight: 900; border: 1.5px solid #fbcfe8;
 }
 
-@media (max-width: 991px) {
-  .el-wrapper {
-    width: 345px;
-  }
+/* ====== GRID ====== */
+.grid {
+  max-width: 1400px; margin: 0 auto;
+  padding: 0 20px 80px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 22px;
+}
+@media(max-width:640px) {
+  .grid { grid-template-columns: repeat(2,1fr); gap: 12px; padding: 0 12px 60px; }
 }
 
-@media (max-width: 767px) {
-  .el-wrapper {
-    width: 290px;
-    margin: 30px auto;
-  }
+/* ====== CARD ====== */
+.card {
+  background: #ffffff;
+  border-radius: 28px; overflow: hidden;
+  border: 1.5px solid var(--lav2);
+  box-shadow: 0 4px 20px rgba(124,58,237,.08);
+  transition: .35s; position: relative;
+}
+.card:hover {
+  transform: translateY(-9px);
+  border-color: #c4b5fd;
+  box-shadow: 0 22px 52px rgba(124,58,237,.20);
 }
 
-.el-wrapper:hover .h-bg {
-  left: 0px;
+/* badges */
+.card-badge {
+  position: absolute; top: 12px; left: 12px; z-index: 5;
+  background: linear-gradient(135deg,var(--pink),var(--purp));
+  color: #fff; padding: 5px 14px; border-radius: 50px;
+  font-size: .75rem; font-weight: 900; letter-spacing: .5px;
+  box-shadow: 0 4px 12px rgba(124,58,237,.35);
+}
+.cat-badge {
+  position: absolute; top: 12px; right: 12px; z-index: 5;
+  background: rgba(255,255,255,.94); backdrop-filter: blur(6px);
+  color: var(--purp); padding: 5px 14px; border-radius: 50px;
+  font-size: .75rem; font-weight: 800; border: 1.5px solid var(--lav3);
 }
 
-.el-wrapper:hover .price {
-  left: 20px;
-  -webkit-transform: translateY(-50%);
-  -ms-transform: translateY(-50%);
-  -o-transform: translateY(-50%);
-  transform: translateY(-50%);
-  color: #818181;
+/* image */
+.img-box {
+  height: 210px;
+  background: linear-gradient(135deg,var(--pink-lt),var(--lav));
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative;
+}
+.img-box img {
+  width: 100%; height: 100%; object-fit: cover;
+  object-position: center; transition: .5s;
+}
+.card:hover .img-box img { transform: scale(1.07); }
+.img-ph { font-size: 5rem; opacity: .35; }
+
+/* body */
+.card-body { padding: 18px 18px 20px; }
+
+.c-name {
+  font-size: 1.3rem; font-weight: 900; color: var(--text);
+  margin-bottom: 4px; line-height: 1.3;
+}
+.c-cat  { font-size: .8rem; color: var(--purp2); font-weight: 800; margin-bottom: 6px; }
+.c-desc {
+  font-size: .82rem; color: var(--gray); margin-bottom: 14px; line-height: 1.6;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 
-.el-wrapper:hover .add-to-cart {
-  left: 50%;
+/* price badge pill */
+.c-price { margin-bottom: 14px; }
+.price-pill {
+  display: inline-flex; align-items: baseline; gap: 6px;
+  background: linear-gradient(135deg,var(--pink),var(--purp));
+  color: #fff; padding: 9px 20px; border-radius: 50px;
+  box-shadow: 0 6px 20px rgba(124,58,237,.28);
+}
+.price-pill .amount { font-size: 1.5rem; font-weight: 900; letter-spacing: -.5px; }
+.price-pill .unit   { font-size: .8rem; font-weight: 700; opacity: .9; }
+
+/* qty */
+.qty-row {
+  display: flex; align-items: center; justify-content: center; gap: 18px;
+  background: var(--lav2); border-radius: 50px; padding: 10px 18px;
+  margin-bottom: 12px; border: 1.5px solid var(--lav3);
+}
+.q-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 2px solid var(--lav3);
+  background: #ffffff; color: var(--purp);
+  font-size: .95rem; font-weight: 900; cursor: pointer; transition: .22s;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(124,58,237,.12);
+}
+.q-btn:hover {
+  background: linear-gradient(135deg,var(--pink),var(--purp));
+  color: #fff; transform: scale(1.15); border-color: transparent;
+  box-shadow: 0 6px 18px rgba(124,58,237,.40);
+}
+.q-btn:active { transform: scale(.95); }
+.q-num { font-size: 1.2rem; font-weight: 900; color: var(--text); min-width: 32px; text-align: center; }
+
+/* add btn */
+.add-btn {
+  width: 100%; padding: 14px; border: none; border-radius: 18px;
+  background: linear-gradient(135deg,var(--pink),var(--purp));
+  color: #fff; font-size: 1rem; font-weight: 900;
+  font-family:'Lexend','Noto Sans Lao',sans-serif;
+  cursor: pointer; transition: .3s;
+  box-shadow: 0 8px 22px rgba(124,58,237,.30);
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  position: relative; overflow: hidden;
+}
+.add-btn::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  transform:translateX(-100%); transition:.5s;
+}
+.add-btn:hover::after { transform:translateX(100%); }
+.add-btn:hover { transform:translateY(-3px); box-shadow:0 14px 30px rgba(124,58,237,.42); }
+.add-btn:active { transform:scale(.97); }
+.add-btn.added {
+  background: linear-gradient(135deg,#be185d,#6d28d9);
+  box-shadow: 0 6px 18px rgba(109,40,217,.32);
 }
 
-.el-wrapper:hover .img {
-  webkit-filter: blur(7px);
-  -o-filter: blur(7px);
-  -ms-filter: blur(7px);
-  filter: blur(7px);
-  filter: progid:DXImageTransform.Microsoft.Blur(pixelradius='7', shadowopacity='0.0');
-  opacity: 0.4;
+/* ====== EMPTY ====== */
+.empty {
+  text-align: center; padding: 80px 24px;
+  max-width: 500px; margin: 0 auto;
 }
-
-.el-wrapper:hover .info-inner {
-  bottom: 155px;
+.empty .ei { font-size: 5rem; margin-bottom: 20px; display: block; opacity: .35; }
+.empty h3  { font-size: 1.5rem; font-weight: 900; color: var(--text); margin-bottom: 10px; }
+.empty p   { color: var(--gray); font-size: .95rem; margin-bottom: 24px; font-weight: 600; }
+.back-a {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px; border-radius: 50px;
+  background: linear-gradient(135deg,var(--pink),var(--purp));
+  color: #fff; text-decoration: none; font-weight: 900; font-size: .95rem;
+  box-shadow: 0 10px 24px rgba(124,58,237,.32); transition: .3s;
 }
+.back-a:hover { transform:translateY(-3px); color:#fff; }
+</style>
 
-.el-wrapper:hover .a-size {
-  -webkit-transition-delay: 300ms;
-  -o-transition-delay: 300ms;
-  transition-delay: 300ms;
-  bottom: 50px;
-  opacity: 1;
-}
+<!-- HERO BANNER -->
+<div class="hero">
+  <div class="hero-inner">
+    <span class="hero-emoji">🍓</span>
+    <h1>VILLA ນ້ຳໝາກໄມ້</h1>
+    <p>ສົດ · ໃໝ່ · ທຸກຈອກ · ປັ່ນສົດທຸກໂຄ້ດ 🥤</p>
+  </div>
+</div>
 
-.el-wrapper .box-down {
-  width: 100%;
-  height: 60px;
-  position: relative;
-  overflow: hidden;
-}
+<!-- CATEGORY NAV -->
+<div class="cat-wrap">
+  <div class="cat-nav">
+    <a href="/customer-home" class="cat-btn {% if not selected_cat %}active{% endif %}">
+      ✨ ທັງໝົດ
+    </a>
+    {% for cat in categories %}
+    <a href="/customer-home?cat={{ cat.id }}"
+       class="cat-btn {% if selected_cat == cat.id %}active{% endif %}">
+      {{ cat.name }}
+    </a>
+    {% endfor %}
+  </div>
+</div>
 
-.el-wrapper .box-up {
-  width: 100%;
-  height: 300px;
-  position: relative;
-  overflow: hidden;
-  text-align: center;
-}
+<!-- SECTION HEAD -->
+<div class="sec-head">
+  <h2>
+    <span class="sh-line"></span>
+    {% if selected_cat %}
+      {% for cat in categories %}{% if cat.id == selected_cat %}{{ cat.name }}{% endif %}{% endfor %}
+    {% else %}
+      ເມນູທັງໝົດ
+    {% endif %}
+  </h2>
+  <span class="count-tag">{{ products|length }} ລາຍການ</span>
+</div>
 
-.el-wrapper .img {
-  padding: 20px 0;
-  -webkit-transition: all 800ms cubic-bezier(0, 0, 0.18, 1);
-  -moz-transition: all 800ms cubic-bezier(0, 0, 0.18, 1);
-  -o-transition: all 800ms cubic-bezier(0, 0, 0.18, 1);
-  transition: all 800ms cubic-bezier(0, 0, 0.18, 1);
-  /* ease-out */
-  -webkit-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  -moz-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  -o-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  /* ease-out */
-}
+<!-- PRODUCTS GRID -->
+{% if products %}
+<div class="grid">
+  {% for p in products %}
+  <div class="card">
 
-.h-bg {
-  -webkit-transition: all 800ms cubic-bezier(0, 0, 0.18, 1);
-  -moz-transition: all 800ms cubic-bezier(0, 0, 0.18, 1);
-  -o-transition: all 800ms cubic-bezier(0, 0, 0.18, 1);
-  transition: all 800ms cubic-bezier(0, 0, 0.18, 1);
-  /* ease-out */
-  -webkit-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  -moz-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  -o-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  /* ease-out */
-  width: 660px;
-  height: 100%;
-  background-color: #3f96cd;
-  position: absolute;
-  left: -659px;
-}
+    <div class="card-badge">VILLA 🍒</div>
+    {% if p.category %}
+    <div class="cat-badge">{{ p.category.name }}</div>
+    {% endif %}
 
-.h-bg .h-bg-inner {
-  width: 50%;
-  height: 100%;
-  background-color: #464646;
-}
+    <div class="img-box">
+      {% if p.product_image %}
+        <img src="{{ p.product_image.url }}" alt="{{ p.name }}" loading="lazy">
+      {% else %}
+        <div class="img-ph">🥤</div>
+      {% endif %}
+    </div>
 
-.info-inner {
-  -webkit-transition: all 400ms cubic-bezier(0, 0, 0.18, 1);
-  -moz-transition: all 400ms cubic-bezier(0, 0, 0.18, 1);
-  -o-transition: all 400ms cubic-bezier(0, 0, 0.18, 1);
-  transition: all 400ms cubic-bezier(0, 0, 0.18, 1);
-  /* ease-out */
-  -webkit-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  -moz-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  -o-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  /* ease-out */
-  position: absolute;
-  width: 100%;
-  bottom: 25px;
-}
+    <div class="card-body">
+      <div class="c-name">{{ p.name }}</div>
+      {% if p.category %}<div class="c-cat">📂 {{ p.category.name }}</div>{% endif %}
+      <div class="c-desc">{{ p.description|default:"ດື່ມແລ້ວສົດຊື່ນທັນທີ ທຸກໂຄ້ດປັ່ນໃໝ່ 🌿" }}</div>
 
-.info-inner .p-name,
-.info-inner .p-company {
-  display: block;
-}
-
-.info-inner .p-name {
-  font-family: 'PT Sans', sans-serif;
-  font-size: 18px;
-  color: #252525;
-}
-
-.info-inner .p-company {
-  font-family: 'Lato', sans-serif;
-  font-size: 12px;
-  text-transform: uppercase;
-  color: #FFE11B;
-}
-
-.a-size {
-  -webkit-transition: all 300ms cubic-bezier(0, 0, 0.18, 1);
-  -moz-transition: all 300ms cubic-bezier(0, 0, 0.18, 1);
-  -o-transition: all 300ms cubic-bezier(0, 0, 0.18, 1);
-  transition: all 300ms cubic-bezier(0, 0, 0.18, 1);
-  /* ease-out */
-  -webkit-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  -moz-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  -o-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  /* ease-out */
-  position: absolute;
-  width: 100%;
-  bottom: -20px;
-  font-family: 'PT Sans', sans-serif;
-  color: #828282;
-  opacity: 0;
-}
-
-.a-size .size {
-  color: #252525;
-}
-
-.cart {
-  display: block;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  font-family: 'Lato', sans-serif;
-  font-weight: 700;
-}
-
-.cart .price {
-  -webkit-transition: all 600ms cubic-bezier(0, 0, 0.18, 1);
-  -moz-transition: all 600ms cubic-bezier(0, 0, 0.18, 1);
-  -o-transition: all 600ms cubic-bezier(0, 0, 0.18, 1);
-  transition: all 600ms cubic-bezier(0, 0, 0.18, 1);
-  /* ease-out */
-  -webkit-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  -moz-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  -o-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  /* ease-out */
-  -webkit-transition-delay: 100ms;
-  -o-transition-delay: 100ms;
-  transition-delay: 100ms;
-  display: block;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  -o-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-  font-size: 16px;
-  color: #252525;
-}
-
-.cart .add-to-cart {
-  -webkit-transition: all 600ms cubic-bezier(0, 0, 0.18, 1);
-  -moz-transition: all 600ms cubic-bezier(0, 0, 0.18, 1);
-  -o-transition: all 600ms cubic-bezier(0, 0, 0.18, 1);
-  transition: all 600ms cubic-bezier(0, 0, 0.18, 1);
-  /* ease-out */
-  -webkit-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  -moz-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  -o-transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  transition-timing-function: cubic-bezier(0, 0, 0.18, 1);
-  /* ease-out */
-  -webkit-transition-delay: 100ms;
-  -o-transition-delay: 100ms;
-  transition-delay: 100ms;
-  display: block;
-  position: absolute;
-  top: 50%;
-  left: 110%;
-  -webkit-transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  -o-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-}
-
-.cart .add-to-cart .txt {
-  font-size: 12px;
-  color: #fff;
-  letter-spacing: 0.045em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-* {
-  box-sizing: border-box;
-}
-
-/* Create three equal columns that floats next to each other */
-.column {
-  float: left;
-  width: 33.33%;
-  padding: 10px;
-  height: 300px; /* Should be removed. Only for demonstration */
-}
-
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
-/* Responsive layout - makes the three columns stack on top of each other instead of next to each other */
-@media screen and (max-width: 600px) {
-  .column {
-    width: 100%;
-  }
-}
-  </style>
-
-
-
-
-  {%if products%}
-  <h3 style="text-align:center; color:yellow;">{{word}}</h3>
-  <br>
-  <!-- products data starttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt -->
-  <div class="row">
-
-      {% for p in products %}
-      <!-- card1 -->
-      <div class="column">
-      <div class="container page-wrapper" style="width: 450px;">
-        <div class="page-inner">
-          <div class="row">
-            <div class="el-wrapper">
-              <div class="box-up">
-                <img class="img" src="{% static p.product_image.url %}" alt="product pic" height="300px" width="300px">
-                <div class="img-info">
-                  <div class="info-inner">
-                    <span style="background-color:#08050a; color:yellow;" class="p-company">{{p.name}}</span>
-
-                  </div>
-                  <div class="a-size">{{p.description}}</div>
-                </div>
-              </div>
-
-              <div class="box-down">
-                <div class="h-bg">
-                  <div class="h-bg-inner"></div>
-                </div>
-
-                <a class="cart" href="{% url 'add-to-cart' p.id  %}">
-                  <span class="price">₹ {{p.price}}</span>
-                  <span class="add-to-cart">
-                    <span class="txt">Add in cart</span>
-                  </span>
-                </a>
-              </div>
-            </div>
-          </div>
+      <div class="c-price">
+        <div class="price-pill">
+          <span class="amount">{{ p.price|dotformat }}</span>
+          <span class="unit">ກີບ</span>
         </div>
       </div>
-      </div>
-<!-- card1 end -->
-{% if forloop.counter|divisibleby:"3" %}
-    </div>
-    <div class="row">
-          <br><br><br><br><br>
-{% endif %}
 
+      <div class="qty-row">
+        <button class="q-btn" onclick="chgQty('{{ p.id }}',-1)">
+          <i class="fas fa-minus"></i>
+        </button>
+        <span class="q-num" id="qty-{{ p.id }}">1</span>
+        <button class="q-btn" onclick="chgQty('{{ p.id }}',1)">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+
+      <button class="add-btn" id="btn-{{ p.id }}" onclick="addCart('{{ p.id }}')">
+        <i class="fas fa-cart-plus"></i> ເພີ່ມລົງກະຕ່າ
+      </button>
+    </div>
+  </div>
   {% endfor %}
 </div>
-<!-- products data enddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd -->
 
-
-{%else%}
-<h3 style="text-align:center; color:yellow;">No Search Found</h3>
-{%endif%}
+{% else %}
+<div class="empty">
+  <span class="ei">🔍</span>
+  <h3>ບໍ່ພົບສິນຄ້າ</h3>
+  <p>ໃນໝວດນີ້ຍັງບໍ່ມີສິນຄ້າ ກາລຸນາລອງໝວດອື່ນ</p>
+  <a href="/customer-home" class="back-a"><i class="fas fa-store"></i> ດູທັງໝົດ</a>
+</div>
+{% endif %}
 
 <script>
-    {%if messages %}
-    {%for message in messages%}
-    alert('{{message}}');
-    {%endfor%}
-    {%endif%}
+function chgQty(id, d) {
+  const el = document.getElementById('qty-' + id);
+  const v = parseInt(el.textContent) + d;
+  if (v >= 1 && v <= 20) el.textContent = v;
+}
+function addCart(id) {
+  const qty = document.getElementById('qty-' + id).textContent;
+  const btn = document.getElementById('btn-' + id);
+  btn.innerHTML = '<i class="fas fa-check"></i> ເພີ່ມສຳເລັດ!';
+  btn.classList.add('added');
+  setTimeout(() => {
+    window.location.href = '/add-to-cart/' + id + '?quantity=' + qty;
+  }, 400);
+}
 </script>
-<br><br><br>
-<br><br><br><br><br><br><br><br><br><br><br><br>
-
-
-<!--
-developed By : sumit kumar
-facebook : fb.com/sumit.luv
-youtube : youtube.com/lazycoders
--->
-
-
 
 {% endblock content %}

@@ -1,26 +1,176 @@
 <!DOCTYPE html>
 {% load static %}
-{% load widget_tweaks %}
 
+<html lang="lo">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ສົ່ງຄຳຕິຊົມສຳເລັດ | VILLA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800;900&family=Noto+Sans+Lao:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+  :root {
+    --pk:  #ec4899; --pk2: #f472b6; --pk-lt: #fce7f3;
+    --pu:  #7c3aed; --pu2: #a855f7; --pu-lt: #f5f3ff;
+    --lav: #ede9fe; --lav2:#ddd6fe; --text:#2d1457; --gray:#94a3b8;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  html { font-size:17px; }
+  body {
+    font-family:'Lexend','Noto Sans Lao',sans-serif;
+    background: linear-gradient(155deg,#fdf4ff 0%,#f5f3ff 50%,#fce7f3 100%);
+    background-attachment: fixed; min-height:100vh; color:var(--text);
+    overflow-x:hidden;
+  }
 
+  .page-wrap {
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding: 40px 20px;
+  }
 
-  {%if request.user.is_authenticated%}
-    {% include "ecom/customer_navbar.html" %}
-  {%else%}
-    {% include "ecom/navbar.html" %}
-  {%endif%}
-<br><br><br>
-<h3 style="color:blue;text-align:center;">Your Feedback Sent Succesfully !</h3>
-<br>
-<div style="text-align:center;">
-  <img src="{% static "images/success.png" %}"  style="width:100px; height:100px; ">
+  .success-card {
+    background:#fff; border:2px solid var(--lav2); border-radius:40px;
+    overflow:hidden; width:100%; max-width:480px; text-align:center;
+    box-shadow: 0 28px 80px rgba(124,58,237,.18);
+    animation: pop .65s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes pop { from{opacity:0;transform:scale(.88) translateY(40px)} to{opacity:1;transform:none} }
+
+  .success-head {
+    background: linear-gradient(135deg,var(--pu),var(--pk));
+    padding: 56px 32px 44px; position:relative; overflow:hidden;
+  }
+  .success-head::before {
+    content:''; position:absolute; top:-40px; right:-40px;
+    width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.09);
+  }
+  .success-head::after {
+    content:''; position:absolute; bottom:-50px; left:-50px;
+    width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,.07);
+  }
+
+  .check-anim {
+    width:100px; height:100px; border-radius:50%; margin:0 auto 20px;
+    background:rgba(255,255,255,.22); border:3px solid rgba(255,255,255,.5);
+    display:flex; align-items:center; justify-content:center;
+    font-size:2.8rem; animation:checkPop .7s .2s cubic-bezier(.2,.8,.2,1) both;
+    position:relative; z-index:1;
+  }
+  @keyframes checkPop { from{transform:scale(0) rotate(-30deg)} to{transform:scale(1) rotate(0)} }
+
+  .confetti {
+    position:absolute; top:0; left:0; right:0; bottom:0; z-index:0;
+    pointer-events:none; overflow:hidden;
+  }
+  .c { position:absolute; width:8px; height:8px; border-radius:2px; animation:fall 3s ease-in infinite; }
+  @keyframes fall { 0%{transform:translateY(-20px) rotate(0); opacity:1} 100%{transform:translateY(300px) rotate(720deg); opacity:0} }
+
+  .success-head h1 {
+    color:#fff; font-size:2.2rem; font-weight:900; margin-bottom:8px;
+    position:relative; z-index:1;
+  }
+  .success-head p {
+    color:rgba(255,255,255,.82); font-size:1rem; font-weight:600;
+    position:relative; z-index:1;
+  }
+
+  .success-body { padding:36px 36px 40px; }
+
+  .thank-box {
+    background: linear-gradient(135deg,var(--pu-lt),var(--pk-lt));
+    border:1.5px solid var(--lav2); border-radius:20px;
+    padding:24px; margin-bottom:28px;
+    font-size:1.05rem; font-weight:700; color:var(--pu); line-height:1.9;
+  }
+  .thank-box .t-icon { font-size:2.5rem; display:block; margin-bottom:10px; }
+
+  .btn-home {
+    width:100%; padding:18px; border-radius:20px; margin-bottom:12px;
+    background:linear-gradient(135deg,var(--pk),var(--pu));
+    color:#fff !important; text-decoration:none !important;
+    font-size:1.05rem; font-weight:900;
+    display:flex; align-items:center; justify-content:center; gap:12px;
+    box-shadow:0 14px 38px rgba(124,58,237,.32); transition:.35s;
+    position:relative; overflow:hidden;
+  }
+  .btn-home::after {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+    transform:translateX(-100%); transition:.6s;
+  }
+  .btn-home:hover::after { transform:translateX(100%); }
+  .btn-home:hover { transform:translateY(-4px); box-shadow:0 22px 50px rgba(124,58,237,.44); }
+
+  .btn-more {
+    width:100%; padding:14px; border-radius:20px;
+    background:var(--pu-lt); border:2px solid var(--lav2);
+    color:var(--pu) !important; text-decoration:none !important;
+    font-size:.95rem; font-weight:800;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    transition:.3s;
+  }
+  .btn-more:hover { background:var(--lav); transform:translateY(-2px); }
+
+  .stars { color:var(--pk); font-size:1.5rem; margin-bottom:10px; }
+  </style>
+</head>
+<body>
+
+{% if request.user.is_authenticated %}
+  {% include "ecom/customer_navbar.html" %}
+{% else %}
+  {% include "ecom/navbar.html" %}
+{% endif %}
+
+<div class="page-wrap">
+  <div class="success-card">
+
+    <div class="success-head">
+      <div class="confetti" id="confettiWrap"></div>
+      <div class="check-anim">✅</div>
+      <h1>ສົ່ງສຳເລັດ!</h1>
+      <p>ຂໍ້ຄວາມຂອງທ່ານໄດ້ຖືກສົ່ງໃຫ້ທີມງານ VILLA ແລ້ວ 💌</p>
+    </div>
+
+    <div class="success-body">
+      <div class="thank-box">
+        <span class="t-icon">🙏</span>
+        <div class="stars">★★★★★</div>
+        ຂອບໃຈທີ່ສົ່ງຄຳຕິຊົມ!<br>
+        ທີມງານຈະນຳໄປປັບປຸງ ເພື່ອໃຫ້ <strong style="color:var(--pk)">VILLA</strong> ດີຂຶ້ນສຳລັບທ່ານ 💜
+      </div>
+
+      <a href="/" class="btn-home">
+        <i class="fas fa-store"></i> ກັບໄປໜ້າຫຼັກ
+      </a>
+      <a href="/about" class="btn-more">
+        <i class="fas fa-circle-info"></i> ກ່ຽວກັບ VILLA
+      </a>
+    </div>
+  </div>
 </div>
 
-<br><br><br><br><br><br><br><br>
-  {% include "ecom/footer.html" %}
+{% include "ecom/footer.html" %}
 
-<!--
-developed By : sumit kumar
-facebook : fb.com/sumit.luv
-youtube : youtube.com/lazycoders
--->
+<script>
+/* Confetti */
+const wrap = document.getElementById('confettiWrap');
+const colors = ['#fff','#fce7f3','#f5f3ff','#ede9fe','#fbbf24','#86efac'];
+for(let i=0;i<18;i++){
+  const c = document.createElement('div');
+  c.className='c';
+  c.style.cssText=`
+    left:${Math.random()*100}%;
+    top:${Math.random()*50}%;
+    background:${colors[i%colors.length]};
+    animation-delay:${Math.random()*2}s;
+    animation-duration:${2+Math.random()*2}s;
+    width:${6+Math.random()*8}px;
+    height:${6+Math.random()*8}px;
+    border-radius:${Math.random()>.5?'50%':'2px'};
+  `;
+  wrap.appendChild(c);
+}
+</script>
+</body>
+</html>

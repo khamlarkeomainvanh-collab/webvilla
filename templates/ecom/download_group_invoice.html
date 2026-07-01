@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+{% load lao_filters %}
+<html lang="lo">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ໃບບິນ #INV-{{ orderID }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700&family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Noto Sans Lao', 'Lexend', sans-serif;
+        background: #f0f4f8;
+        min-height: 100vh;
+        padding: 30px 20px;
+        color: #1a202c;
+    }
+
+    /* Print button - hidden on print */
+    .print-bar {
+        max-width: 800px;
+        margin: 0 auto 20px auto;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .btn-print {
+        background: #1e3a5f;
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-family: 'Noto Sans Lao', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+    }
+    .btn-print:hover { background: #2d5a8e; transform: translateY(-1px); }
+
+    .btn-back {
+        background: white;
+        color: #1e3a5f;
+        border: 2px solid #1e3a5f;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-family: 'Noto Sans Lao', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-back:hover { background: #f0f4f8; }
+
+    /* Invoice card */
+    .invoice {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    }
+
+    /* Top banner */
+    .invoice-top {
+        background: linear-gradient(135deg, #1e3a5f, #2d5a8e);
+        padding: 40px 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .brand h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        letter-spacing: 3px;
+    }
+
+    .brand p {
+        color: rgba(255,255,255,0.65);
+        font-size: 0.9rem;
+        margin-top: 4px;
+    }
+
+    .inv-number {
+        text-align: right;
+    }
+
+    .inv-number .label {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    .inv-number .value {
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-top: 4px;
+    }
+
+    .inv-number .date {
+        color: rgba(255,255,255,0.7);
+        font-size: 0.9rem;
+        margin-top: 6px;
+    }
+
+    /* Status badge */
+    .status-badge {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 5px 16px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+    .status-pending  { background: #fef3c7; color: #92400e; }
+    .status-processing { background: #dbeafe; color: #1e40af; }
+    .status-delivered { background: #d1fae5; color: #065f46; }
+    .status-confirmed { background: #dbeafe; color: #1e40af; }
+
+    /* Cancelled item row */
+    .item-cancelled td { opacity: .65; }
+    .item-cancelled .item-name { text-decoration: line-through; color: #94a3b8; }
+    .item-cancelled .item-amount { text-decoration: line-through; color: #94a3b8; }
+    .cancel-badge {
+        display: inline-block;
+        background: #fee2e2; color: #dc2626;
+        border: 1px solid #fca5a5;
+        border-radius: 6px; font-size: 0.72rem; font-weight: 700;
+        padding: 1px 8px; margin-left: 6px; vertical-align: middle;
+    }
+    .cancelled-notice {
+        margin: 0 50px 20px;
+        background: #fff8f0; border: 1.5px solid #fdba74;
+        border-radius: 14px; padding: 12px 18px;
+        font-size: 0.85rem; color: #92400e;
+        display: flex; align-items: flex-start; gap: 10px;
+    }
+    .cancelled-notice .cn-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* Info section */
+    .invoice-info {
+        padding: 40px 50px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        border-bottom: 1px solid #e8edf2;
+    }
+
+    .info-block .block-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #94a3b8;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .info-block .name {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1e3a5f;
+        margin-bottom: 6px;
+    }
+
+    .info-block .detail {
+        font-size: 0.9rem;
+        color: #64748b;
+        line-height: 1.8;
+    }
+
+    /* Items table */
+    .invoice-items { padding: 0 50px 10px; }
+
+    .items-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #94a3b8;
+        font-weight: 600;
+        padding: 25px 0 12px;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead tr {
+        background: #1e3a5f;
+    }
+
+    thead th {
+        padding: 14px 16px;
+        color: white;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-align: left;
+        font-family: 'Noto Sans Lao', sans-serif;
+    }
+
+    thead th:last-child { text-align: right; }
+    thead th:nth-child(3), thead th:nth-child(4) { text-align: center; }
+
+    tbody tr { border-bottom: 1px solid #f1f5f9; transition: 0.15s; }
+    tbody tr:hover { background: #f8faff; }
+    tbody tr:nth-child(even) { background: #f8faff; }
+    tbody tr:nth-child(even):hover { background: #eff6ff; }
+
+    tbody td {
+        padding: 14px 16px;
+        font-size: 0.95rem;
+        color: #374151;
+        font-family: 'Noto Sans Lao', sans-serif;
+    }
+
+    tbody td:last-child { text-align: right; font-weight: 600; color: #1e3a5f; }
+    tbody td:nth-child(3), tbody td:nth-child(4) { text-align: center; }
+
+    .num-cell {
+        width: 40px;
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+
+    /* Total */
+    .invoice-total {
+        padding: 20px 50px 40px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .total-box {
+        background: #f8faff;
+        border: 2px solid #e0e7ff;
+        border-radius: 16px;
+        padding: 20px 30px;
+        min-width: 260px;
+    }
+
+    .total-row-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+        font-size: 0.9rem;
+        color: #64748b;
+        font-family: 'Noto Sans Lao', sans-serif;
+    }
+
+    .total-row-item.grand {
+        border-top: 2px solid #c7d2fe;
+        margin-top: 10px;
+        padding-top: 14px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1e3a5f;
+    }
+
+    /* Footer */
+    .invoice-footer {
+        background: #f8faff;
+        border-top: 1px solid #e8edf2;
+        padding: 20px 50px;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 0.82rem;
+        font-family: 'Noto Sans Lao', sans-serif;
+    }
+
+    /* Print styles */
+    @media print {
+        body { background: white; padding: 0; }
+        .print-bar { display: none !important; }
+        .invoice { box-shadow: none; border-radius: 0; }
+        .invoice-top { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+</style>
+</head>
+<body>
+
+<!-- Print/Back bar -->
+<div class="print-bar no-print">
+    <a href="javascript:history.back()" class="btn-back">← ກັບຄືນ</a>
+    <button class="btn-print" onclick="window.print()">🖨 ພິມ / Save PDF</button>
+</div>
+
+<!-- Invoice -->
+<div class="invoice">
+
+    <!-- Top Banner -->
+    <div class="invoice-top">
+        <div class="brand">
+            <h1>VILLA</h1>
+            <p>ໃບເກັບເງິນ / Tax Invoice</p>
+        </div>
+        <div class="inv-number">
+            <div class="label">ເລກທີ Invoice</div>
+            <div class="value">#INV-{{ orderID }}</div>
+            <div class="date">{{ orderDate|date:"d/m/Y H:i" }}</div>
+            <div>
+                <span class="status-badge
+                    {% if orderStatus == 'Pending' %}status-pending
+                    {% elif orderStatus == 'Confirmed' %}status-confirmed
+                    {% elif orderStatus == 'Delivered' %}status-delivered
+                    {% else %}status-processing{% endif %}">
+                    {% if orderStatus == 'Pending' %}ລໍຖ້າກວດສອບ
+                    {% elif orderStatus == 'Confirmed' %}ຢືນຢັນແລ້ວ
+                    {% elif orderStatus == 'Processing' %}ກຳລັງຈັດສົ່ງ
+                    {% elif orderStatus == 'Delivered' %}ຈັດສົ່ງສຳເລັດ
+                    {% else %}{{ orderStatus }}{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Info -->
+    <div class="invoice-info">
+        <div class="info-block">
+            <div class="block-title">ຂໍ້ມູນລູກຄ້າ</div>
+            <div class="name">{{ customerName }}</div>
+            <div class="detail">
+                📧 {{ customerEmail }}<br>
+                📞 {{ customerMobile }}
+            </div>
+        </div>
+        <div class="info-block">
+            <div class="block-title">ທີ່ຢູ່ຈັດສົ່ງ</div>
+            <div class="detail" style="font-size:1rem; color:#374151; line-height:1.6;">
+                📍 {{ shipmentAddress }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancelled notice -->
+    {% if hasCancelled %}
+    <div class="cancelled-notice">
+        <span class="cn-icon">⚠️</span>
+        <div>
+            <b>ໝາຍເຫດ:</b> ລາຍການທີ່ຖືກຂີດຂ້ອງ (<span style="text-decoration:line-through;color:#dc2626;">ຊື່ສິນຄ້າ</span>)
+            ໝາຍຄວາມວ່າ<b>ຖືກຍົກເລີກ</b> ແລະ <b>ບໍ່ຮວມໃນລາຄາລວມ</b>.
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Items -->
+    <div class="invoice-items">
+        <div class="items-title">ລາຍການສິນຄ້າ</div>
+        <table>
+            <thead>
+                <tr>
+                    <th class="num-cell">#</th>
+                    <th>ຊື່ສິນຄ້າ</th>
+                    <th>ລາຄາ/ໜ່ວຍ</th>
+                    <th>ຈຳນວນ</th>
+                    <th>ລາຄາລວມ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr {% if item.cancelled %}class="item-cancelled"{% endif %}>
+                    <td class="num-cell">{{ forloop.counter }}</td>
+                    <td class="item-name" style="font-weight:600;">
+                        {{ item.name }}
+                        {% if item.cancelled %}<span class="cancel-badge">ຍົກເລີກ</span>{% endif %}
+                    </td>
+                    <td>{{ item.price|dotformat }} ກີບ</td>
+                    <td>{{ item.quantity }}</td>
+                    <td class="item-amount">
+                        {% if item.cancelled %}<s>{{ item.subtotal|dotformat }} ກີບ</s>
+                        {% else %}{{ item.subtotal|dotformat }} ກີບ{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Total -->
+    <div class="invoice-total">
+        <div class="total-box">
+            <div class="total-row-item">
+                <span>ຈຳນວນລາຍການ</span>
+                <span>{{ items|length }} ລາຍການ</span>
+            </div>
+            <div class="total-row-item">
+                <span>ລາຄາສິນຄ້າ</span>
+                <span>{{ subtotalSum|dotformat }} ກີບ</span>
+            </div>
+            {% if deliveryFee %}
+            <div class="total-row-item">
+                <span>ຄ່າຈັດສົ່ງ
+                    {% if deliveryType == 'Pickup' %}(ຮັບໜ້າຮ້ານ){% endif %}
+                </span>
+                <span>{{ deliveryFee|dotformat }} ກີບ</span>
+            </div>
+            {% else %}
+            <div class="total-row-item">
+                <span>ຄ່າຈັດສົ່ງ</span>
+                <span style="color:#16a34a;font-weight:700;">
+                    {% if deliveryType == 'Pickup' %}ຮັບໜ້າຮ້ານ (ຟຣີ){% else %}0 ກີບ{% endif %}
+                </span>
+            </div>
+            {% endif %}
+            <div class="total-row-item grand">
+                <span>ລວມທັງໝົດ</span>
+                <span>{{ grandTotal|dotformat }} ກີບ</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="invoice-footer">
+        ຂອບໃຈທີ່ໃຊ້ບໍລິການ VILLA &nbsp;·&nbsp; ໃບບິນນີ້ສ້າງໂດຍອັດຕະໂນມັດ
+    </div>
+
+</div>
+
+</body>
+</html>

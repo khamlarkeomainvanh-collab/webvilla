@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    body { font-family: Arial, sans-serif; font-size: 11px; color: #1a1a2e; }
+    h2 { text-align: center; color: #1e3a5f; margin-bottom: 5px; }
+    p.sub { text-align: center; color: #666; margin-top: 0; margin-bottom: 15px; font-size: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    thead th {
+        background-color: #1e3a5f;
+        color: white;
+        padding: 8px 6px;
+        text-align: center;
+        font-size: 10px;
+    }
+    tbody tr:nth-child(even) { background-color: #f0f4ff; }
+    tbody td { padding: 7px 6px; border-bottom: 1px solid #dde3f0; text-align: center; }
+    .status-pending { color: #d97706; font-weight: bold; }
+    .status-delivered { color: #059669; font-weight: bold; }
+</style>
+</head>
+<body>
+    <h2>ລາຍງານລາຍການສັ່ງຊື້</h2>
+    <p class="sub">ລາຍລະອຽດການສັ່ງຊື້ທັງໝົດໃນລະບົບ</p>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>ລະຫັດ</th>
+                <th>ສິນຄ້າ</th>
+                <th>ລູກຄ້າ</th>
+                <th>ເບີໂທ</th>
+                <th>ຈຳນວນ</th>
+                <th>ລາຄາ (ກີບ)</th>
+                <th>ວັນທີ</th>
+                <th>ສະຖານະ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row.num }}</td>
+                <td>#ORDID-{{ row.id }}</td>
+                <td>{{ row.product }}</td>
+                <td>{{ row.customer }}</td>
+                <td>{{ row.mobile }}</td>
+                <td>{{ row.quantity }}</td>
+                <td>{{ row.amount }}</td>
+                <td>{{ row.date }}</td>
+                <td class="{% if row.status == 'Pending' %}status-pending{% else %}status-delivered{% endif %}">
+                    {{ row.status }}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="9" style="text-align:center; padding:20px;">ບໍ່ມີຂໍ້ມູນ</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

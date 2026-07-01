@@ -2,98 +2,169 @@
 {% load widget_tweaks %}
 {% block content %}
 
-<head>
-  <style media="screen">
-    body {
-      background-color:#ffffff;
-    }
-    a:link {
-      text-decoration: none;
-    }
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800;900&family=Noto+Sans+Lao:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    .note {
-      text-align: center;
-      height: 80px;
-      background: -webkit-linear-gradient(left, #0072ff, #8811c5);
-      color: #fff;
-      font-weight: bold;
-      line-height: 80px;
-    }
+<style>
+:root {
+  --pk:  #ec4899; --pk2: #f472b6; --pk-lt: #fce7f3;
+  --pu:  #7c3aed; --pu2: #a855f7; --pu-lt: #f5f3ff;
+  --lav: #ede9fe; --lav2:#ddd6fe; --text:#2d1457; --gray:#94a3b8;
+}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:'Lexend','Noto Sans Lao',sans-serif;
+  background: linear-gradient(155deg,#fdf4ff 0%,#f5f3ff 50%,#fce7f3 100%);
+  background-attachment: fixed; min-height:100vh; color:var(--text);
+}
 
-    .form-content {
-      padding: 5%;
-      border: 1px solid #ced4da;
-      margin-bottom: 2%;
-    }
+.page-wrap {
+  min-height:90vh; display:flex; align-items:center; justify-content:center;
+  padding: 48px 20px 80px;
+}
 
-    .form-control {
-      border-radius: 1.5rem;
-    }
+/* ── CARD ── */
+.edit-card {
+  background:#fff; border:2px solid var(--lav2); border-radius:36px;
+  overflow:hidden; width:100%; max-width:660px;
+  box-shadow: 0 24px 72px rgba(124,58,237,.16);
+  animation: slideUp .55s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes slideUp { from{opacity:0;transform:translateY(36px)} to{opacity:1;transform:none} }
 
-    .btnSubmit {
-      border: none;
-      border-radius: 1.5rem;
-      padding: 1%;
-      width: 20%;
-      cursor: pointer;
-      background: #0062cc;
-      color: #fff;
-    }
+/* HEADER */
+.edit-head {
+  background: linear-gradient(135deg,var(--pu),var(--pk));
+  padding: 38px 36px 30px; text-align:center; position:relative; overflow:hidden;
+}
+.edit-head::before {
+  content:''; position:absolute; top:-30px; right:-30px;
+  width:170px; height:170px; border-radius:50%; background:rgba(255,255,255,.09);
+}
+.head-icon {
+  width:72px; height:72px; border-radius:24px; margin:0 auto 16px;
+  background:rgba(255,255,255,.22); border:2px solid rgba(255,255,255,.35);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.9rem; color:#fff; position:relative; z-index:1;
+}
+.edit-head h2 { color:#fff; font-size:1.75rem; font-weight:900; margin-bottom:6px; position:relative; z-index:1; }
+.edit-head p  { color:rgba(255,255,255,.8); font-size:.95rem; font-weight:600; position:relative; z-index:1; }
 
-    .menu{
-      top: 50px;
-    }
-  </style>
+/* BODY */
+.edit-body { padding:32px 36px 40px; }
 
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media(max-width:560px) { .form-grid { grid-template-columns:1fr; } }
 
-</head>
-<br><br><br><br><br><br>
-<!------ update page for doctor by admin(sumit)  ---------->
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  <div class="container register-form">
-    <div class="form">
-      <div class="note">
-        <p>EDIT PROFILE</p>
-      </div>
-      <div class="form-content">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              {% render_field userForm.first_name class="form-control" placeholder="First Name" %}
-            </div>
-            <div class="form-group">
-              {% render_field userForm.username class="form-control" placeholder="Username" %}
-            </div>
-            <div class="form-group">
-              {% render_field customerForm.mobile class="form-control" placeholder="Mobile" %}
-            </div>
-            <div class="form-group">
-              {% render_field customerForm.profile_pic class="form-control" placeholder="Profile Picture" %}
-            </div>
+.fg { margin-bottom:0; }
+.fg.full { grid-column:1/-1; }
+
+.fg label {
+  display:flex; align-items:center; gap:8px;
+  color:var(--text); font-weight:800; font-size:.9rem; margin-bottom:9px;
+}
+.fg label i { color:var(--pk); font-size:.82rem; width:16px; }
+
+.fg input, .fg textarea, .fg select, .fg-file {
+  width:100%; background:var(--pu-lt); border:2px solid var(--lav2);
+  border-radius:16px; padding:14px 18px;
+  font-size:.95rem; font-weight:700; color:var(--text);
+  font-family:'Lexend','Noto Sans Lao',sans-serif;
+  outline:none; transition:.25s;
+}
+.fg input::placeholder, .fg textarea::placeholder { color:var(--gray); font-weight:400; }
+.fg input:focus, .fg textarea:focus, .fg select:focus {
+  border-color:var(--pk2); background:#fff;
+  box-shadow:0 0 0 4px rgba(236,72,153,.12);
+}
+.fg input[type=file] {
+  padding:10px 16px; cursor:pointer;
+  font-size:.85rem;
+}
+
+.divider { height:1.5px; background:linear-gradient(90deg,transparent,var(--lav2),transparent); margin:28px 0; }
+
+.submit-btn {
+  width:100%; padding:18px; border:none; border-radius:20px; cursor:pointer;
+  background:linear-gradient(135deg,var(--pk),var(--pu));
+  color:#fff; font-size:1.05rem; font-weight:900;
+  font-family:'Lexend','Noto Sans Lao',sans-serif;
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  box-shadow:0 14px 38px rgba(124,58,237,.32); transition:.35s;
+  position:relative; overflow:hidden;
+}
+.submit-btn::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  transform:translateX(-100%); transition:.6s;
+}
+.submit-btn:hover::after { transform:translateX(100%); }
+.submit-btn:hover { transform:translateY(-4px); box-shadow:0 22px 52px rgba(124,58,237,.44); }
+
+.back-link {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  margin-top:16px; color:var(--pu); font-size:.9rem; font-weight:800;
+  text-decoration:none; transition:.25s;
+}
+.back-link:hover { color:var(--pk); }
+</style>
+
+<div class="page-wrap">
+  <div class="edit-card">
+
+    <div class="edit-head">
+      <div class="head-icon"><i class="fas fa-user-pen"></i></div>
+      <h2>ແກ້ໄຂໂປຣໄຟລ໌</h2>
+      <p>ອັບເດດຂໍ້ມູນສ່ວນຕົວຂອງທ່ານ</p>
+    </div>
+
+    <div class="edit-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-grid">
+          <div class="fg">
+            <label><i class="fas fa-signature"></i> ຊື່</label>
+            {% render_field userForm.first_name class="fg-input" placeholder="ຊື່" %}
           </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              {% render_field userForm.last_name class="form-control" placeholder="Last Name" %}
-            </div>
-            <div class="form-group">
-              {% render_field userForm.password class="form-control" placeholder="Password" %}
-            </div>
-            <div class="form-group">
-              {% render_field customerForm.address class="form-control" placeholder="Address" %}
-            </div>
-
+          <div class="fg">
+            <label><i class="fas fa-signature"></i> ນາມສະກຸນ</label>
+            {% render_field userForm.last_name class="fg-input" placeholder="ນາມສະກຸນ" %}
+          </div>
+          <div class="fg">
+            <label><i class="fas fa-at"></i> ຊື່ບັນຊີ</label>
+            {% render_field userForm.username class="fg-input" placeholder="Username" %}
+          </div>
+          <div class="fg">
+            <label><i class="fas fa-lock"></i> ລະຫັດຜ່ານ</label>
+            {% render_field userForm.password class="fg-input" placeholder="ລະຫັດຜ່ານໃໝ່" %}
+          </div>
+          <div class="fg">
+            <label><i class="fas fa-phone"></i> ເບີໂທ</label>
+            {% render_field customerForm.mobile class="fg-input" placeholder="020XXXXXXXX" %}
+          </div>
+          <div class="fg">
+            <label><i class="fas fa-location-dot"></i> ທີ່ຢູ່</label>
+            {% render_field customerForm.address class="fg-input" placeholder="ທີ່ຢູ່ຈັດສົ່ງ" %}
+          </div>
+          <div class="fg full">
+            <label><i class="fas fa-image"></i> ຮູບໂປຣໄຟລ໌</label>
+            {% render_field customerForm.profile_pic class="fg-input" %}
           </div>
         </div>
-        <button type="submit" class="btnSubmit">Edit</button>
-      </div>
+
+        <div class="divider"></div>
+
+        <button type="submit" class="submit-btn">
+          <i class="fas fa-floppy-disk"></i> ບັນທຶກການແກ້ໄຂ
+        </button>
+      </form>
+
+      <a href="/my-profile" class="back-link">
+        <i class="fas fa-arrow-left"></i> ກັບໄປໂປຣໄຟລ໌
+      </a>
     </div>
   </div>
-</form>
-<!--
-developed By : sumit kumar
-facebook : fb.com/sumit.luv
-youtube : youtube.com/lazycoders
--->
+</div>
 
 {% endblock content %}

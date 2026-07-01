@@ -1,0 +1,259 @@
+{% extends 'ecom/admin_base.html' %}
+{% load static %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;800&family=Noto+Sans+Lao:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --purple:  #7c3aed;
+        --pink:    #be185d;
+        --grad:    linear-gradient(135deg, #7c3aed, #be185d);
+        --red:     #ef4444;
+        --bright:  #2d1457;
+        --dim:     #64748b;
+        --border:  rgba(124,58,237,.13);
+        --lav:     #f5f3ff;
+        --lav2:    #fdf2f8;
+    }
+
+    body { background: #ffffff !important; }
+
+    .cat-section {
+        font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
+        padding: 34px;
+        background: #ffffff;
+        min-height: 100vh;
+        animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+    .page-header h2 { color: var(--bright); font-weight: 800; font-size: 2.8rem; margin: 0; }
+    .page-header h2 span {
+        background: var(--grad);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .page-header p { color: var(--dim); margin-top: 5px; font-size: 1.4rem; }
+
+    .count-pill {
+        background: var(--lav);
+        border: 1px solid var(--border);
+        padding: 10px 24px;
+        border-radius: 16px;
+        text-align: center;
+    }
+    .count-pill small { display: block; color: var(--dim); font-size: 0.9rem; }
+    .count-pill span { color: var(--purple); font-weight: 800; font-size: 1.8rem; }
+
+    /* Add form card */
+    .add-card {
+        background: #ffffff;
+        border: 1.5px solid var(--border);
+        border-radius: 24px;
+        padding: 28px 30px;
+        margin-bottom: 28px;
+        box-shadow: 0 6px 24px rgba(124,58,237,.07);
+    }
+    .add-card h5 {
+        color: var(--purple);
+        font-weight: 700;
+        margin-bottom: 18px;
+        font-size: 1.1rem;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .input-group-custom { display: flex; gap: 12px; }
+    .input-custom {
+        flex: 1;
+        padding: 14px 18px;
+        border-radius: 14px;
+        border: 1.5px solid var(--border);
+        background: var(--lav);
+        color: var(--bright);
+        font-size: 1.1rem;
+        outline: none;
+        transition: 0.25s;
+        font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
+    }
+    .input-custom:focus {
+        border-color: var(--purple);
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(124,58,237,.1);
+    }
+    .input-custom::placeholder { color: rgba(124,58,237,.38); }
+
+    .btn-add {
+        padding: 14px 28px;
+        border: none;
+        border-radius: 14px;
+        background: var(--grad);
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: 0.25s;
+        white-space: nowrap;
+        font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
+        box-shadow: 0 6px 20px rgba(124,58,237,.3);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-add:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(190,24,93,.38); }
+
+    /* Category grid */
+    .cat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 18px;
+    }
+
+    .cat-card {
+        background: #ffffff;
+        border: 1.5px solid var(--border);
+        border-radius: 22px;
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        transition: 0.28s cubic-bezier(0.23,1,0.32,1);
+        box-shadow: 0 4px 16px rgba(124,58,237,.06);
+        position: relative;
+        overflow: hidden;
+    }
+    .cat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: var(--grad);
+        opacity: 0;
+        transition: 0.28s;
+    }
+    .cat-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(124,58,237,.28);
+        box-shadow: 0 16px 40px rgba(124,58,237,.13);
+    }
+    .cat-card:hover::before { opacity: 1; }
+
+    .cat-icon {
+        width: 65px; height: 65px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(124,58,237,.12), rgba(190,24,93,.08));
+        border: 1.5px solid rgba(124,58,237,.2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.8rem;
+        flex-shrink: 0;
+    }
+
+    .cat-name { color: var(--bright); font-weight: 700; font-size: 1.3rem; }
+    .cat-count {
+        color: var(--dim);
+        font-size: 1rem;
+        margin-top: 3px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .cat-count i { color: var(--purple); font-size: .7rem; }
+
+    .btn-delete-cat {
+        align-self: flex-start;
+        background: rgba(239,68,68,.08);
+        color: var(--red);
+        border: 1px solid rgba(239,68,68,.2);
+        border-radius: 10px;
+        padding: 9px 18px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.22s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
+    }
+    .btn-delete-cat:hover { background: var(--red); color: #fff; border-color: var(--red); box-shadow: 0 6px 16px rgba(239,68,68,.3); }
+
+    .empty-state { text-align: center; padding: 80px 20px; color: var(--dim); }
+    .empty-state i { font-size: 4rem; opacity: 0.22; margin-bottom: 16px; display: block; color: var(--purple); }
+    .empty-state p { font-size: 1.1rem; }
+</style>
+
+<div class="cat-section">
+
+    <!-- Header -->
+    <div class="page-header">
+        <div>
+            <h2>ຈັດການ <span>ໝວດໝູ່ສິນຄ້າ</span></h2>
+            <p>ເພີ່ມ ຫຼື ລຶບໝວດໝູ່ສິນຄ້າໃນລະບົບ</p>
+        </div>
+        <div class="count-pill">
+            <small>ໝວດໝູ່ທັງໝົດ</small>
+            <span>{{ categories|length }}</span>
+        </div>
+    </div>
+
+    <!-- Add Form -->
+    <div class="add-card">
+        <h5><i class="fas fa-plus-circle"></i> ເພີ່ມໝວດໝູ່ໃໝ່</h5>
+        <form method="post">
+            {% csrf_token %}
+            <div class="input-group-custom">
+                <input type="text" name="name" class="input-custom"
+                       placeholder="ຕົວຢ່າງ: ອາຫານ, ເຄື່ອງດື່ມ, ຂອງຫວານ..." required>
+                <button type="submit" class="btn-add">
+                    <i class="fas fa-plus"></i> ບັນທຶກ
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Category Grid -->
+    {% if categories %}
+    <div class="cat-grid">
+        {% for cat in categories %}
+        <div class="cat-card">
+            <div style="display:flex; align-items:center; gap:14px;">
+                <div class="cat-icon">🏷️</div>
+                <div>
+                    <div class="cat-name">{{ cat.name }}</div>
+                    <div class="cat-count">
+                        <i class="fas fa-box"></i> {{ cat.product_count }} ສິນຄ້າ
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'delete-category' cat.id %}"
+               class="btn-delete-cat"
+               onclick="return confirm('ລຶບໝວດໝູ່ {{ cat.name }} ອອກ?')">
+                <i class="fas fa-trash-alt"></i> ລຶບ
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-tags"></i>
+        <p>ຍັງບໍ່ມີໝວດໝູ່ໃດໆ — ເພີ່ມໝວດໝູ່ທຳອິດດ້ານເທິງ</p>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock content %}

@@ -1,139 +1,435 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en">
+{% load webpush_notifications %}
+<html lang="lo">
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VILLA | ລະບົບຈັດການຫຼັງບ້ານລະດັບພຣີມ່ຽມ</title>
 
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700&family=Lexend:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
-  <style type="text/css">
-    .bs-example {
-      margin: 0px;
-
+  <style>
+    :root {
+      --sidebar-bg: #ffffff;
+      --purple:     #7c3aed;
+      --pink:       #be185d;
+      --grad:       linear-gradient(135deg, #7c3aed, #be185d);
+      --bright:     #2d1457;
+      --dim:        #64748b;
+      --border:     rgba(124,58,237,.13);
+      --lav:        #f5f3ff;
+      --lav2:       #fdf2f8;
+      --transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
     }
 
-    .navbar-brand {
-      font-size: 20px;
-      font-family: sans-serif;
+    html { font-size: 17px; }
+    *, *::before, *::after { box-sizing: border-box; }
 
+    body {
+      font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
+      font-size: 1rem;
+      background: #ffffff;
+      color: var(--bright);
+      overflow-x: hidden;
+      margin: 0;
     }
 
-        /*---------------------------------------
-           Social section
-        -----------------------------------------*/
-        footer {
-          padding: 0px 0px 0px 0px;
-          background-color: black;
-          margin: 0px;
-        }
+    /* ═══ SIDEBAR ═══ */
+    #sidebar {
+      width: 300px;
+      height: 100vh;
+      background: var(--sidebar-bg);
+      position: fixed;
+      left: 0; top: 0;
+      transition: var(--transition);
+      z-index: 1050;
+      border-right: 1.5px solid var(--border);
+      box-shadow: 4px 0 28px rgba(124,58,237,.08);
+      display: flex;
+      flex-direction: column;
+    }
 
+    #sidebar.collapsed { width: 100px; }
+    #sidebar.collapsed .nav-label { display: none; }
+    #sidebar.collapsed .sidebar-header .brand-text { display: none; }
+    #sidebar.collapsed .sidebar-header { padding: 32px 12px; }
 
-        #ftr {
+    /* SIDEBAR HEADER */
+    .sidebar-header {
+      padding: 36px 24px 28px;
+      border-bottom: 1.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
 
-          padding: 20px;
-        }
+    .brand-icon-wrap {
+      width: 62px; height: 62px;
+      border-radius: 20px;
+      background: var(--grad);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(124,58,237,.35);
+      flex-shrink: 0;
+    }
 
-        .fa {
+    .brand-text {
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--bright);
+      letter-spacing: -0.3px;
+      text-align: center;
+    }
+    .brand-text span {
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-          font-size: 23px;
-          width: 60px;
-          text-align: center;
-          text-decoration: none;
-          margin: 5px 2px;
-          border-radius: 50%;
-        }
+    /* NAV */
+    .nav-container {
+      padding: 22px 16px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .nav-container::-webkit-scrollbar { width: 6px; }
+    .nav-container::-webkit-scrollbar-track { background: transparent; }
+    .nav-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
 
-        .fa:hover {
-          opacity: 0.5;
-          text-decoration: none;
-        }
+    .nav-item-custom {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      color: var(--dim) !important;
+      text-decoration: none !important;
+      border-radius: 16px;
+      margin-bottom: 8px;
+      transition: var(--transition);
+      font-weight: 600;
+      font-size: 1rem;
+      position: relative;
+    }
 
-        .fa-facebook {
-          background: #3B5998;
-          color: white;
-          margin-top: 30px;
-        }
+    .nav-item-custom i {
+      font-size: 1.3rem;
+      width: 24px;
+      text-align: center;
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
 
-        .fa-whatsapp {
-          background: #25d366;
-          color: white;
-        }
+    .nav-item-custom:hover {
+      background: var(--lav);
+      color: var(--purple) !important;
+    }
+    .nav-item-custom:hover i { color: var(--purple); }
 
-        .fa-twitter {
-          background: #55ACEE;
-          color: white;
-        }
+    .nav-item-custom.active {
+      background: var(--grad);
+      color: #fff !important;
+      box-shadow: 0 6px 20px rgba(124,58,237,.28);
+    }
+    .nav-item-custom.active i { color: #fff; }
 
-        .fa-instagram {
-          background: #125688;
-          color: white;
-        }
+    /* LOGOUT SECTION */
+    .logout-section {
+      padding: 16px 16px 24px;
+      border-top: 1.5px solid var(--border);
+    }
 
-        p {
-          text-align: center;
+    .logout-btn {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 16px;
+      width: 100%;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.25s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
+      box-shadow: 0 4px 16px rgba(239,68,68,.25);
+    }
+    .logout-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(239,68,68,.4); }
 
-        }
+    /* ═══ MAIN WRAPPER ═══ */
+    #main-wrapper {
+      margin-left: 300px;
+      transition: var(--transition);
+      padding: 28px;
+      min-height: 100vh;
+      background: #f8f7ff;
+    }
+    #main-wrapper.expanded { margin-left: 100px; }
+
+    /* TOP NAVBAR */
+    .top-navbar {
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      padding: 16px 28px;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 16px rgba(124,58,237,.06);
+    }
+
+    .toggle-btn {
+      background: var(--lav);
+      border: 1.5px solid var(--border);
+      color: var(--purple);
+      width: 46px; height: 46px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: 0.25s;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .toggle-btn:hover { background: var(--purple); color: #fff; }
+
+    .admin-info { text-align: right; }
+    .admin-info .name { font-weight: 700; color: var(--bright); font-size: 1.1rem; }
+    .admin-info .role { color: var(--purple); letter-spacing: 0.8px; font-weight: 600; font-size: 0.88rem; }
+
+    .admin-avatar {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      border: 2.5px solid transparent;
+      background: linear-gradient(white, white) padding-box, var(--grad) border-box;
+    }
+
+    /* MAIN CARD */
+    .main-card {
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 36px;
+      border: 1.5px solid var(--border);
+      box-shadow: 0 6px 28px rgba(124,58,237,.07);
+    }
+
+    /* FOOTER */
+    .admin-footer {
+      margin-top: 40px;
+      text-align: center;
+      color: var(--dim);
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 992px) {
+      #sidebar { left: -100%; }
+      #sidebar.mobile-active { left: 0; }
+      #main-wrapper { margin-left: 0 !important; }
+    }
   </style>
+
+  {% webpush_header %}
 </head>
 
 <body>
 
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside id="sidebar">
 
+    <div class="sidebar-header">
+      <div class="brand-icon-wrap">
+        <i class="fa-solid fa-bolt-lightning"></i>
+      </div>
+      <div class="brand-text">VILLA <span>PRO</span></div>
+    </div>
 
-  <div class="bs-example">
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top" style="background:#337AB7;">
-      <a href="/" class="navbar-brand">Ecommerce</a>
-      <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-        <span class="navbar-toggler-icon"></span>
+    <div class="nav-container">
+      <a href="/" class="nav-item-custom {% if request.path == '/' or 'admin-dashboard' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span class="nav-label">ແຜງຄວບຄຸມ</span>
+      </a>
+      <a href="/view-customer" class="nav-item-custom {% if '/view-customer' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-user-astronaut"></i>
+        <span class="nav-label">ຂໍ້ມູນລູກຄ້າ</span>
+      </a>
+      <a href="/admin-view-booking" class="nav-item-custom {% if '/admin-view-booking' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-calendar-days"></i>
+        <span class="nav-label">ລາຍການຈອງຄິວ</span>
+      </a>
+      <a href="/admin-products" class="nav-item-custom {% if '/admin-products' in request.path or '/admin-add-product' in request.path or '/update-product' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-layer-group"></i>
+        <span class="nav-label">ຄັງສິນຄ້າ</span>
+      </a>
+      <a href="/admin-categories" class="nav-item-custom {% if '/admin-categories' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-tags"></i>
+        <span class="nav-label">ໝວດໝູ່ສິນຄ້າ</span>
+      </a>
+      <a href="/view-feedback" class="nav-item-custom {% if '/view-feedback' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-comment-dots"></i>
+        <span class="nav-label">ຄຳຕິຊົມ</span>
+      </a>
+      <a href="/admin-finance" class="nav-item-custom {% if '/admin-finance' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-chart-line"></i>
+        <span class="nav-label">ລາຍຮັບລາຍຈ່າຍ</span>
+      </a>
+    </div>
+
+    <div class="logout-section">
+      <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="logout-btn">
+          <i class="fa-solid fa-power-off"></i>
+          <span class="nav-label">ອອກຈາກລະບົບ</span>
+        </button>
+      </form>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════ MAIN CONTENT ═══════════ -->
+  <div id="main-wrapper">
+
+    <nav class="top-navbar">
+      <button class="toggle-btn" onclick="toggleMenu()">
+        <i class="fa-solid fa-bars-staggered"></i>
       </button>
 
-      <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-        <div class="navbar-nav">
-          <a href="/view-customer" class="nav-item nav-link">Customer</a>
-          <a href="/admin-view-booking" class="nav-item nav-link">Booking</a>
-          <a href="/admin-products" class="nav-item nav-link">Products</a>
-          <a href="/view-feedback" class="nav-item nav-link">Feedback</a>
+      <div class="d-flex align-items-center gap-3">
+        <div class="admin-info mr-3">
+          <div class="name">{{ user.username }}</div>
+          <div class="role">ຜູ້ດູແລລະບົບ</div>
         </div>
-
-        <div class="navbar-nav navbar-right">
-          <a href="/logout" class="nav-item nav-link">LOGOUT</a>
-        </div>
-
+        <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ user.username }}&backgroundColor=b6e3f4"
+             class="admin-avatar" alt="admin">
       </div>
     </nav>
+
+    <div class="main-card">
+      {% block content %}
+      {% endblock content %}
+    </div>
+
+    <footer class="admin-footer">
+      <p>© 2026 VILLA | ພັດທະນາດ້ວຍເຕັກໂນໂລຊີລຸ້ນໃໝ່</p>
+    </footer>
   </div>
 
-  <!-- content start-->
-  {% block content %}
+  <!-- ═══════════ FEEDBACK NOTIFICATION POPUP ═══════════ -->
+  <div id="fbNotif" style="
+    display:none; position:fixed; bottom:28px; right:28px; z-index:99999;
+    width:360px; max-width:calc(100vw - 40px);
+    background:#ffffff;
+    border:1.5px solid rgba(124,58,237,.18);
+    border-radius:22px; padding:20px 22px;
+    box-shadow:0 12px 48px rgba(124,58,237,.18), 0 2px 12px rgba(124,58,237,.08);
+    font-family:'Noto Sans Lao','Lexend',sans-serif;
+    animation:slideInRight 0.45s cubic-bezier(0.23,1,0.32,1);">
+    <style>
+      @keyframes slideInRight { from{opacity:0;transform:translateX(60px)} to{opacity:1;transform:translateX(0)} }
+      @keyframes fbPulse { 0%,100%{box-shadow:0 12px 48px rgba(124,58,237,.18)} 50%{box-shadow:0 16px 60px rgba(124,58,237,.32)} }
+      #fbNotif.pulse { animation:slideInRight .45s cubic-bezier(.23,1,.32,1), fbPulse 1.4s ease .45s 3; }
+    </style>
 
-  {% endblock content %}
-  <!-- content end-->
-<br><br><br><br><br><br><br><br>
-  <footer>
-    <p>
-      <a id="ftr" href="https://facebook.com/sumit.luv/" class="fa fa-facebook"></a>
-      <a id="ftr" href="https://api.whatsapp.com/send?phone=919572181024&text=Hello%20Sumit.%0d%0aHow%20are%20you%20%3f%0d%0aI%20came%20from%20your%20website.&source=&data=#" class="fa fa-whatsapp"></a>
-      <a id="ftr" href="https://instagram.com/sumit.luv" class="fa fa-instagram"></a>
-      <a id="ftr" href="https://twitter.com/sumitkumar1503" class="fa fa-twitter"></a>
-    </p>
-
-    <br>
-    <div class="container">
-      <div class="row">
-        <div class="col-md-12 col-sm-12">
-          <div style="color:#ffffff;" class="wow fadeInUp footer-copyright">
-            <p>Made in India <br>
-              Copyright &copy; 2020 LazyCoder </p>
-          </div>
-        </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+      <div style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#be185d);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 6px 18px rgba(124,58,237,.3);">💬</div>
+      <div style="flex:1;">
+        <div style="color:#7c3aed;font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;">ມີຄຳຕິຊົມໃໝ່!</div>
+        <div id="fbNotifTitle" style="color:#2d1457;font-size:1rem;font-weight:700;margin-top:2px;"></div>
       </div>
+      <button onclick="closeFbNotif()" style="background:#f5f3ff;border:1px solid rgba(124,58,237,.15);color:#64748b;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">✕</button>
     </div>
-  </footer>
-  <!--
-  developed By : sumit kumar
-  facebook : fb.com/sumit.luv
-  youtube : youtube.com/lazycoders
-  -->
+
+    <div id="fbNotifList" style="display:grid;gap:8px;margin-bottom:14px;"></div>
+
+    <div style="display:flex;gap:8px;">
+      <a href="/view-feedback" style="flex:1;text-align:center;background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff;padding:10px;border-radius:12px;font-weight:700;text-decoration:none;font-size:0.85rem;">ເບີ່ງຄຳຕິຊົມ</a>
+      <button onclick="closeFbNotif()" style="flex:1;background:#f5f3ff;border:1.5px solid rgba(124,58,237,.15);color:#64748b;padding:10px;border-radius:12px;cursor:pointer;font-size:0.85rem;font-family:'Lexend','Noto Sans Lao',sans-serif;font-weight:600;">ປິດ</button>
+    </div>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      const sidebar = document.getElementById('sidebar');
+      const wrapper = document.getElementById('main-wrapper');
+      if (window.innerWidth > 992) {
+        sidebar.classList.toggle('collapsed');
+        wrapper.classList.toggle('expanded');
+      } else {
+        sidebar.classList.toggle('mobile-active');
+      }
+    }
+
+    /* ═══ Feedback notification polling ═══ */
+    let fbLastId = null;
+    let fbTimer  = null;
+
+    fetch('/ajax-check-new-feedback?last_id=-1')
+      .then(r => r.json())
+      .then(d => {
+        fbLastId = d.latest_id;
+        setInterval(pollFeedback, 20000);
+      })
+      .catch(() => {});
+
+    function pollFeedback() {
+      if (fbLastId === null) return;
+      fetch(`/ajax-check-new-feedback?last_id=${fbLastId}`)
+        .then(r => r.json())
+        .then(d => {
+          if (d.new_count > 0) {
+            fbLastId = d.latest_id;
+            showFbNotif(d.new_count, d.items);
+          }
+        })
+        .catch(() => {});
+    }
+
+    function showFbNotif(count, items) {
+      document.getElementById('fbNotifTitle').textContent =
+        count === 1 ? `1 ຄຳຕິຊົມໃໝ່` : `${count} ຄຳຕິຊົມໃໝ່`;
+
+      document.getElementById('fbNotifList').innerHTML = items.map(f => `
+        <div style="background:#f5f3ff;border:1px solid rgba(124,58,237,.12);border-radius:12px;padding:10px 13px;display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#be185d);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.85rem;flex-shrink:0;">${f.name.charAt(0).toUpperCase()}</div>
+          <div style="min-width:0;">
+            <div style="color:#2d1457;font-weight:700;font-size:0.85rem;">${f.name}</div>
+            <div style="color:#64748b;font-size:0.78rem;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">"${f.preview}${f.preview.length >= 70 ? '...' : ''}"</div>
+          </div>
+        </div>`).join('');
+
+      const notif = document.getElementById('fbNotif');
+      notif.style.display = 'block';
+      notif.className = 'pulse';
+
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [440, 550].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.frequency.value = freq;
+          osc.type = 'triangle';
+          gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.18);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.4);
+          osc.start(ctx.currentTime + i * 0.18);
+          osc.stop(ctx.currentTime + i * 0.18 + 0.4);
+        });
+      } catch(e) {}
+
+      clearTimeout(fbTimer);
+      fbTimer = setTimeout(closeFbNotif, 12000);
+    }
+
+    function closeFbNotif() {
+      document.getElementById('fbNotif').style.display = 'none';
+      clearTimeout(fbTimer);
+    }
+  </script>
 </body>
 </html>

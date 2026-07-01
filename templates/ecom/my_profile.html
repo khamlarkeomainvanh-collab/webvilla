@@ -2,79 +2,191 @@
 {% load static %}
 {% block content %}
 
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800;900&family=Noto+Sans+Lao:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-<style media="screen">
-  body {
-    background-color:#8c9eff;
-  }
-  .button {
-  display: inline-block;
-  border-radius: 4px;
-  background-color: #f4511e;
-  border: none;
-  color: #FFFFFF;
-  text-align: center;
-  font-size: 28px;
-  padding: 20px;
-  width: 200px;
-  transition: all 0.5s;
-  cursor: pointer;
-  margin: 5px;
-  }
+<style>
+:root {
+  --pk:  #ec4899; --pk2: #f472b6; --pk-lt: #fce7f3;
+  --pu:  #7c3aed; --pu2: #a855f7; --pu-lt: #f5f3ff;
+  --lav: #ede9fe; --lav2:#ddd6fe; --text:#2d1457; --gray:#94a3b8;
+}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:'Lexend','Noto Sans Lao',sans-serif;
+  background: linear-gradient(155deg,#fdf4ff 0%,#f5f3ff 50%,#fce7f3 100%);
+  background-attachment: fixed; min-height:100vh; color:var(--text);
+}
 
-  .button span {
-  cursor: pointer;
-  display: inline-block;
-  position: relative;
-  transition: 0.5s;
-  }
+.page-wrap {
+  min-height:90vh; display:flex; align-items:center; justify-content:center;
+  padding: 48px 20px 80px;
+}
 
-  .button span:after {
-  content: '\00bb';
-  position: absolute;
-  opacity: 0;
-  top: 0;
-  right: -20px;
-  transition: 0.5s;
-  }
+/* ── PROFILE CARD ── */
+.profile-card {
+  background:#fff; border:2px solid var(--lav2); border-radius:40px;
+  overflow:hidden; width:100%; max-width:500px;
+  box-shadow: 0 24px 80px rgba(124,58,237,.16);
+  animation: slideUp .6s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes slideUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:none} }
 
-  .button:hover span {
-  padding-right: 25px;
-  }
+/* HEADER */
+.profile-head {
+  background: linear-gradient(135deg,var(--pu),var(--pk));
+  padding: 44px 32px 32px; text-align:center; position:relative; overflow:hidden;
+}
+.profile-head::before {
+  content:''; position:absolute; top:-40px; right:-40px;
+  width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.08);
+}
+.profile-head::after {
+  content:''; position:absolute; bottom:-50px; left:-50px;
+  width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,.07);
+}
 
-  .button:hover span:after {
-  opacity: 1;
-  right: 0;
-  }
+/* AVATAR */
+.avatar-wrap {
+  position:relative; width:130px; height:130px; margin:0 auto 20px;
+  z-index:1;
+}
+.avatar-ring {
+  position:absolute; inset:-6px; border-radius:50%;
+  background: conic-gradient(#fff 0%, rgba(255,255,255,.25) 100%);
+  animation: spin 8s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.avatar-img {
+  width:100%; height:100%; border-radius:50%; object-fit:cover;
+  border:4px solid #fff;
+  box-shadow: 0 12px 36px rgba(0,0,0,.18);
+  position:relative; z-index:1; display:block;
+}
+.avatar-ph {
+  width:100%; height:100%; border-radius:50%;
+  background: rgba(255,255,255,.25); border:4px solid #fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:3rem; color:#fff; position:relative; z-index:1;
+  font-weight:900; text-shadow:0 4px 12px rgba(0,0,0,.2);
+}
 
+.profile-name {
+  color:#fff; font-size:2rem; font-weight:900; margin-bottom:8px;
+  letter-spacing:-.5px; position:relative; z-index:1;
+}
+.profile-badge {
+  display:inline-flex; align-items:center; gap:7px;
+  background:rgba(255,255,255,.22); border:1.5px solid rgba(255,255,255,.35);
+  color:#fff; padding:7px 20px; border-radius:50px;
+  font-size:.88rem; font-weight:800; backdrop-filter:blur(8px);
+  position:relative; z-index:1;
+}
 
+/* BODY */
+.profile-body { padding:30px 32px 36px; }
+
+.info-row {
+  display:flex; align-items:center; gap:18px;
+  padding:18px 0; border-bottom:1.5px solid var(--lav);
+  transition:.25s;
+}
+.info-row:last-of-type { border-bottom:none; }
+.info-row:hover { padding-left:6px; }
+
+.info-icon {
+  width:52px; height:52px; border-radius:18px; flex-shrink:0;
+  background:var(--pu-lt); border:2px solid var(--lav2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.2rem; color:var(--pu); transition:.3s;
+}
+.info-row:hover .info-icon {
+  background:linear-gradient(135deg,var(--pk),var(--pu));
+  color:#fff; border-color:transparent;
+  transform:scale(1.08) rotate(8deg);
+}
+.info-lbl { font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:1.2px; color:var(--gray); margin-bottom:4px; }
+.info-val { font-size:1.05rem; font-weight:800; color:var(--text); }
+
+/* EDIT BUTTON */
+.btn-edit {
+  width:100%; padding:18px; border-radius:20px; margin-top:26px;
+  background:linear-gradient(135deg,var(--pk),var(--pu));
+  color:#fff !important; text-decoration:none !important;
+  font-size:1.05rem; font-weight:900;
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  box-shadow:0 14px 36px rgba(124,58,237,.32); transition:.35s;
+  position:relative; overflow:hidden;
+}
+.btn-edit::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  transform:translateX(-100%); transition:.6s;
+}
+.btn-edit:hover::after { transform:translateX(100%); }
+.btn-edit:hover { transform:translateY(-4px); box-shadow:0 22px 50px rgba(124,58,237,.44); }
+.btn-edit i { transition:.4s; }
+.btn-edit:hover i { transform:rotate(180deg); }
+
+/* ORDERS LINK */
+.btn-orders {
+  width:100%; padding:14px; border-radius:20px; margin-top:12px;
+  background:var(--pu-lt); border:2px solid var(--lav2);
+  color:var(--pu) !important; text-decoration:none !important;
+  font-size:.95rem; font-weight:800;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  transition:.3s;
+}
+.btn-orders:hover { background:var(--lav); transform:translateY(-2px); }
 </style>
-<br><br><br>
-<div style="padding-left:300px;" class="container">
 
-        <div class="col-sm-2 col-md-2">
-            <img src="{% static customer.profile_pic.url %}"   alt="profile pic" class="img-rounded img-responsive" />
+<div class="page-wrap">
+  <div class="profile-card">
+
+    <div class="profile-head">
+      <div class="avatar-wrap">
+        <div class="avatar-ring"></div>
+        {% if customer.profile_pic %}
+          <img src="{{ customer.profile_pic.url }}" alt="Profile" class="avatar-img">
+        {% else %}
+          <div class="avatar-ph">{{ request.user.username|first|upper }}</div>
+        {% endif %}
+      </div>
+      <div class="profile-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+      <div class="profile-badge"><i class="fas fa-crown fa-xs"></i> VIP Customer</div>
+    </div>
+
+    <div class="profile-body">
+      <div class="info-row">
+        <div class="info-icon"><i class="fas fa-user"></i></div>
+        <div>
+          <div class="info-lbl">ຊື່ບັນຊີ</div>
+          <div class="info-val">{{ request.user.username }}</div>
         </div>
-        <div class="col-sm-4 col-md-4">
-            <blockquote>
-                <p>{{request.user}}</p> <small><cite title="Source Title">{{customer.address}}  <i class="glyphicon glyphicon-map-marker"></i></cite></small>
-            </blockquote>
-            <p> <i class="glyphicon glyphicon-phone"></i> {{customer.mobile}}
-            </p>
+      </div>
+      <div class="info-row">
+        <div class="info-icon"><i class="fas fa-location-dot"></i></div>
+        <div>
+          <div class="info-lbl">ທີ່ຢູ່ຈັດສົ່ງ</div>
+          <div class="info-val">{{ customer.address|default:"ຍັງບໍ່ໄດ້ໃສ່ທີ່ຢູ່" }}</div>
         </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon"><i class="fas fa-phone"></i></div>
+        <div>
+          <div class="info-lbl">ເບີໂທ</div>
+          <div class="info-val">{{ customer.mobile|default:"ຍັງບໍ່ໄດ້ໃສ່ເບີ" }}</div>
+        </div>
+      </div>
 
+      <a href="/edit-profile" class="btn-edit">
+        <i class="fas fa-wand-magic-sparkles"></i> ແກ້ໄຂໂປຣໄຟລ໌
+      </a>
+      <a href="/my-order" class="btn-orders">
+        <i class="fas fa-bag-shopping"></i> ປະຫວັດການສັ່ງຊື້
+      </a>
+    </div>
+  </div>
 </div>
-<br>
-<div style="text-align: center;">
-  <a href="/edit-profile"><button class="button" ><span>Edit Profile </span></button></a>
-</div>
-<br><br><br><br><br><br>
-<!--
-developed By : sumit kumar
-facebook : fb.com/sumit.luv
-youtube : youtube.com/lazycoders
--->
-
-
 
 {% endblock content %}

@@ -1,44 +1,262 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en" dir="ltr">
-
+{% load widget_tweaks %}
+<html lang="lo">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ຄຳຕິຊົມ | VILLA</title>
 
-  <title>LazyCoder || sumit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800;900&family=Noto+Sans+Lao:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
+  <style>
+  :root {
+    --pk:   #ec4899; --pk2:  #f472b6; --pk-lt: #fce7f3;
+    --pu:   #7c3aed; --pu2:  #a855f7; --pu-lt: #f5f3ff;
+    --lav:  #ede9fe; --lav2: #ddd6fe;
+    --text: #2d1457; --gray: #94a3b8;
+  }
 
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; font-size:17px; }
+
+  body {
+    font-family:'Lexend','Noto Sans Lao',sans-serif;
+    min-height:100vh; overflow-x:hidden;
+    background: linear-gradient(155deg,#fdf4ff 0%,#f5f3ff 50%,#fce7f3 100%);
+    background-attachment: fixed;
+    color: var(--text);
+  }
+
+  /* ===== PAGE WRAPPER ===== */
+  .page-wrap {
+    min-height:calc(100vh - 172px);
+    display:flex; align-items:center; justify-content:center;
+    padding:60px 20px;
+  }
+
+  /* ===== CARD ===== */
+  .card-outer {
+    width:100%; max-width:640px;
+    animation:fadeUp .7s cubic-bezier(.16,1,.3,1);
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(36px)} to{opacity:1;transform:translateY(0)} }
+
+  .card {
+    background:#ffffff;
+    border:1.5px solid var(--lav2);
+    border-radius:36px;
+    overflow:hidden;
+    box-shadow: 0 20px 60px rgba(124,58,237,.14), 0 4px 16px rgba(236,72,153,.08);
+  }
+
+  /* card header */
+  .card-hero {
+    background: linear-gradient(135deg,var(--pu-lt) 0%,var(--pk-lt) 100%);
+    border-bottom: 1.5px solid var(--lav2);
+    padding:52px 40px 40px;
+    text-align:center; position:relative; overflow:hidden;
+  }
+  .card-hero::before {
+    content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:80%; height:2px;
+    background:linear-gradient(90deg,transparent,rgba(124,58,237,.5),transparent);
+  }
+
+  /* floating fruit deco */
+  .fr-deco {
+    position:absolute; font-size:2rem; opacity:.30; pointer-events:none;
+    animation:floatFr 5s ease-in-out infinite;
+  }
+  .fr1 { top:22px; left:28px; animation-delay:0s; }
+  .fr2 { top:18px; right:28px; animation-delay:1.5s; font-size:1.6rem; }
+  .fr3 { bottom:14px; left:50px; animation-delay:.8s; font-size:1.4rem; }
+  .fr4 { bottom:16px; right:50px; animation-delay:2s; font-size:1.8rem; }
+  @keyframes floatFr { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-10px) rotate(8deg)} }
+
+  .hero-icon {
+    width:84px; height:84px; border-radius:28px; margin:0 auto 24px;
+    background: linear-gradient(135deg,var(--pk),var(--pu));
+    display:flex; align-items:center; justify-content:center;
+    font-size:2.3rem; color:#fff;
+    box-shadow: 0 16px 40px rgba(124,58,237,.32);
+    position:relative; z-index:1; transition:.4s;
+  }
+  .card:hover .hero-icon { transform:rotate(-8deg) scale(1.08); }
+
+  .hero-badge {
+    display:inline-flex; align-items:center; gap:8px;
+    background: rgba(255,255,255,.85); border: 1.5px solid var(--lav2);
+    color: var(--pu); padding:6px 20px; border-radius:50px;
+    font-size:.75rem; font-weight:800; letter-spacing:1.5px;
+    text-transform:uppercase; margin-bottom:20px;
+    position:relative; z-index:1;
+  }
+  .hero-badge .bdot {
+    width:7px; height:7px; border-radius:50%; background:var(--pk);
+    box-shadow:0 0 8px var(--pk2); animation:blink 1.8s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+  .card-hero h1 {
+    font-size:2.1rem; font-weight:900; color:var(--text);
+    letter-spacing:-1px; margin-bottom:12px; position:relative; z-index:1;
+    line-height:1.25;
+  }
+  .card-hero h1 .g {
+    background: linear-gradient(135deg,var(--pk),var(--pu));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  .card-hero p {
+    color:var(--pu); font-size:.95rem; line-height:1.85;
+    position:relative; z-index:1; font-weight:600;
+  }
+
+  /* card body */
+  .card-body { padding:40px 40px 48px; background:#ffffff; }
+
+  .fg { margin-bottom:26px; }
+  .fg-label {
+    display:flex; align-items:center; gap:9px;
+    color:var(--text); font-weight:800; font-size:.95rem; margin-bottom:11px;
+  }
+  .fg-label i { color:var(--pk); font-size:.88rem; }
+
+  .fg-input {
+    width:100%;
+    background: var(--pu-lt);
+    border: 1.5px solid var(--lav2);
+    border-radius:16px; padding:16px 20px;
+    font-size:1rem; font-weight:700; color:var(--text); outline:none;
+    font-family:'Lexend','Noto Sans Lao',sans-serif; transition:.3s;
+  }
+  .fg-input::placeholder { color:var(--gray); font-weight:400; }
+  .fg-input:focus {
+    border-color: var(--pk2);
+    background:#ffffff;
+    box-shadow:0 0 0 4px rgba(236,72,153,.12);
+    transform:translateY(-2px);
+  }
+  textarea.fg-input { min-height:140px; resize:none; }
+
+  .field-error { color:#be123c; font-size:.82rem; margin-top:7px; padding-left:4px; font-weight:700; }
+
+  .divider { height:1.5px; background:linear-gradient(90deg,transparent,var(--lav2),transparent); margin:30px 0; }
+
+  .submit-btn {
+    width:100%; border:none; padding:20px; border-radius:20px; cursor:pointer;
+    background: linear-gradient(135deg,var(--pk),var(--pu));
+    color:#ffffff; font-size:1.1rem; font-weight:900;
+    font-family:'Lexend','Noto Sans Lao',sans-serif;
+    display:flex; align-items:center; justify-content:center; gap:12px;
+    box-shadow:0 14px 38px rgba(124,58,237,.32);
+    transition:.35s; position:relative; overflow:hidden;
+  }
+  .submit-btn::after {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+    transform:translateX(-100%); transition:.6s;
+  }
+  .submit-btn:hover::after { transform:translateX(100%); }
+  .submit-btn:hover { transform:translateY(-4px); box-shadow:0 22px 52px rgba(124,58,237,.44); }
+  .submit-btn:active { transform:translateY(-1px); }
+
+  .card-footer-note {
+    text-align:center; margin-top:24px;
+    color:var(--gray); font-size:.82rem; line-height:2;
+    font-weight:600;
+  }
+  .card-footer-note span { color:var(--pk); font-weight:800; }
+
+  @media(max-width:640px) {
+    .card-hero { padding:38px 24px 30px; }
+    .card-body { padding:28px 24px 38px; }
+    .card-hero h1 { font-size:1.65rem; }
+  }
+  </style>
 </head>
+<body>
 
-<body style="background-color: #B3E5FC;">
+{% if request.user.is_authenticated %}
+  {% include "ecom/customer_navbar.html" %}
+{% else %}
+  {% include "ecom/navbar.html" %}
+{% endif %}
 
-  {%if request.user.is_authenticated%}
-    {% include "ecom/customer_navbar.html" %}
-  {%else%}
-    {% include "ecom/navbar.html" %}
-  {%endif%}
+<!-- MAIN -->
+<div class="page-wrap">
+  <div class="card-outer">
+    <div class="card">
 
-  <center>
-    <h3 class='alert alert-success'>Send Us Your Valuable Feedback !</h3>
+      <!-- HERO -->
+      <div class="card-hero">
+        <span class="fr-deco fr1">🍓</span>
+        <span class="fr-deco fr2">🥝</span>
+        <span class="fr-deco fr3">🍊</span>
+        <span class="fr-deco fr4">🫐</span>
 
-    <form method="POST">
-      <!-- Very Important csrf Token -->
-      {% csrf_token %}
-      <div class="form-group">
-        <p>
-        <h3>{{ form.as_p }}</h3>
-        </p>
-        <br>
-        <input type="submit" value="Send Message" class='btn btn-primary btn-lg'>
+        <div class="hero-icon">
+          <i class="fa-solid fa-comment-dots"></i>
+        </div>
+
+        <div class="hero-badge">
+          <span class="bdot"></span> ຄຳຕິຊົມ & ຄຳແນະນຳ
+        </div>
+
+        <h1>ແບ່ງປັນ<span class="g">ຄວາມຮູ້ສຶກ</span><br>ຂອງທ່ານ</h1>
+        <p>ຄຳຕິຊົມຂອງທ່ານຊ່ວຍໃຫ້ພວກເຮົາພັດທະນາດີຂຶ້ນ<br>ທຸກຄຳເວົ້າຂອງທ່ານມີຄ່າສຳລັບ VILLA 💜</p>
       </div>
-    </form>
-  </center>
-  {% include "ecom/footer.html" %}
-</body>
-<!--
-developed By : sumit kumar
-facebook : fb.com/sumit.luv
-youtube : youtube.com/lazycoders
--->
 
+      <!-- FORM BODY -->
+      <div class="card-body">
+        <form method="POST" id="feedbackForm">
+          {% csrf_token %}
+
+          {% for field in form %}
+          <div class="fg">
+            <label class="fg-label" for="{{ field.id_for_label }}">
+              {% if 'ຊື່' in field.label or 'name' in field.label|lower %}
+                <i class="fa-solid fa-user"></i>
+              {% elif 'ໂທ' in field.label or 'phone' in field.label|lower or 'ເບີ' in field.label %}
+                <i class="fa-solid fa-phone"></i>
+              {% elif 'email' in field.label|lower or 'ອີເມວ' in field.label %}
+                <i class="fa-solid fa-envelope"></i>
+              {% elif 'ຕິຊົມ' in field.label or 'ຄວາມ' in field.label or 'comment' in field.label|lower %}
+                <i class="fa-solid fa-comment-dots"></i>
+              {% elif 'ຄະ' in field.label or 'rating' in field.label|lower %}
+                <i class="fa-solid fa-star"></i>
+              {% else %}
+                <i class="fa-solid fa-circle-dot"></i>
+              {% endif %}
+              {{ field.label }}
+            </label>
+
+            {{ field|add_class:"fg-input" }}
+
+            {% if field.errors %}
+              <div class="field-error">{{ field.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+
+          <div class="divider"></div>
+
+          <button type="submit" class="submit-btn">
+            <i class="fa-solid fa-paper-plane"></i>
+            ສົ່ງຄວາມຄິດເຫັນ
+          </button>
+        </form>
+
+        <div class="card-footer-note">
+          💜 ຂອບໃຈທີ່ໃຊ້ <span>VILLA</span> ແລະ ໃຫ້ຄຳຕິຊົມດີໆ<br>
+          ທີມງານຈະນຳໄປປັບປຸງໃຫ້ດີຂຶ້ນ 🌸
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
 </html>

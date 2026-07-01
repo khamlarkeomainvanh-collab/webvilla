@@ -27,13 +27,15 @@ SECRET_KEY = '#vw(03o=(9kbvg!&2d5i!2$_58x@_-3l4wujpow6(ym37jxnza'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.0.205','192.168.0.95','localhost', '127.0.0.1',]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'simpleui', # <---- HERE
     'django.contrib.admin',
+    'webpush',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -44,6 +46,19 @@ INSTALLED_APPS = [
 
 ]
 
+# ຕັ້ງຄ່າ Webpush (ສາມາດສ້າງ Key ໄດ້ທີ່ https://glitch.me)
+WEBPUSH_SETTINGS = {
+    "VAPID_PUBLIC_KEY": "BXXXXXXXX...",
+    "VAPID_PRIVATE_KEY": "XXXXXXXX...",
+    "VAPID_ADMIN_EMAIL": "admin@milinda.com"
+}
+
+# ── Twilio SMS ──────────────────────────────────────────────────
+# ຄັດລອກຈາກ https://console.twilio.com
+TWILIO_ACCOUNT_SID  = 'ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'   # ໃສ່ SID ຂອງທ່ານ
+TWILIO_AUTH_TOKEN   = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'     # ໃສ່ Auth Token ຂອງທ່ານ
+TWILIO_FROM_NUMBER  = '+1XXXXXXXXXX'                         # ໃສ່ Twilio phone number ຂອງທ່ານ
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -52,7 +67,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 ]
 
 ROOT_URLCONF = 'ecommerce.urls'
@@ -68,6 +82,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                 'ecom.context_processors.cart_count',
             ],
         },
     },
@@ -111,7 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Bangkok'
 
 USE_I18N = True
 
@@ -127,11 +142,14 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS=[STATIC_DIR,]
 
-MEDIA_ROOT=os.path.join(BASE_DIR,'static')
-
-
+MEDIA_URL  = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'static')
 
 LOGIN_REDIRECT_URL='/afterlogin'
+
+LOGOUT_REDIRECT_URL = '/'  # ຫຼັງຈາກອອກລະບົບ ໃຫ້ກັບມາໜ້າ Login
+
+SESSION_SAVE_EVERY_REQUEST = True
 
 #for contact us give your gmail id and password
 EMAIL_BACKEND ='django.core.mail.backends.smtp.EmailBackend'

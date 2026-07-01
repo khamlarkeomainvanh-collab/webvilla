@@ -1,17 +1,136 @@
 {% extends 'ecom/homebase.html' %}
 {% load static %}
 {% block content %}
-<br><br><br>
-<img src="{% static "images/logout_img.png" %}"  style="width:800px; height:100px; padding-left:400px;">
 
-<br><br><br><br><br>
-<br><br><br><br><br>
-<br><br><br>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800;900&family=Noto+Sans+Lao:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-<!--
-developed By : sumit kumar
-facebook : fb.com/sumit.luv
-youtube : youtube.com/lazycoders
--->
+<style>
+:root {
+  --pk:  #ec4899; --pk2: #f472b6; --pk-lt: #fce7f3;
+  --pu:  #7c3aed; --pu2: #a855f7; --pu-lt: #f5f3ff;
+  --lav: #ede9fe; --lav2:#ddd6fe; --text:#2d1457; --gray:#94a3b8;
+}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body {
+  font-family:'Lexend','Noto Sans Lao',sans-serif;
+  background: linear-gradient(155deg,#fdf4ff 0%,#f5f3ff 50%,#fce7f3 100%);
+  background-attachment: fixed; min-height:100vh; color:var(--text);
+}
+
+.page-wrap {
+  min-height: calc(100vh - 80px);
+  display:flex; align-items:center; justify-content:center;
+  padding: 40px 20px;
+}
+
+.logout-card {
+  background:#fff; border:2px solid var(--lav2); border-radius:40px;
+  overflow:hidden; width:100%; max-width:480px; text-align:center;
+  box-shadow: 0 28px 80px rgba(124,58,237,.18);
+  animation: pop .6s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes pop { from{opacity:0;transform:scale(.9) translateY(30px)} to{opacity:1;transform:none} }
+
+.logout-head {
+  background: linear-gradient(135deg,var(--pu),var(--pk));
+  padding: 52px 32px 40px; position:relative; overflow:hidden;
+}
+.logout-head::before {
+  content:''; position:absolute; top:-40px; right:-40px;
+  width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.09);
+}
+.logout-head::after {
+  content:''; position:absolute; bottom:-50px; left:-50px;
+  width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,.07);
+}
+
+.logout-icon {
+  font-size:5rem; display:block; margin-bottom:18px;
+  animation: wave 2.5s ease-in-out infinite; position:relative; z-index:1;
+}
+@keyframes wave { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(15deg)} 75%{transform:rotate(-10deg)} }
+
+.logout-head h1 {
+  color:#fff; font-size:2rem; font-weight:900; margin-bottom:8px;
+  position:relative; z-index:1;
+}
+.logout-head p {
+  color:rgba(255,255,255,.82); font-size:1rem; font-weight:600;
+  position:relative; z-index:1;
+}
+
+.logout-body { padding:36px 36px 40px; }
+
+.info-box {
+  background: linear-gradient(135deg,var(--pu-lt),var(--pk-lt));
+  border:1.5px solid var(--lav2); border-radius:20px;
+  padding:22px 24px; margin-bottom:28px;
+  font-size:1rem; font-weight:700; color:var(--pu); line-height:1.8;
+}
+.info-box i { margin-right:6px; }
+
+.btn-login {
+  width:100%; padding:18px; border-radius:20px; margin-bottom:12px;
+  background:linear-gradient(135deg,var(--pk),var(--pu));
+  color:#fff !important; text-decoration:none !important;
+  font-size:1.05rem; font-weight:900;
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  box-shadow:0 14px 38px rgba(124,58,237,.32); transition:.35s;
+  position:relative; overflow:hidden;
+}
+.btn-login::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  transform:translateX(-100%); transition:.6s;
+}
+.btn-login:hover::after { transform:translateX(100%); }
+.btn-login:hover { transform:translateY(-4px); box-shadow:0 22px 50px rgba(124,58,237,.44); }
+
+.btn-home {
+  width:100%; padding:14px; border-radius:20px;
+  background:var(--pu-lt); border:2px solid var(--lav2);
+  color:var(--pu) !important; text-decoration:none !important;
+  font-size:.95rem; font-weight:800;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  transition:.3s;
+}
+.btn-home:hover { background:var(--lav); transform:translateY(-2px); }
+
+.bye-note {
+  margin-top:20px; color:var(--gray); font-size:.85rem; font-weight:600;
+}
+.bye-note span { color:var(--pk); font-weight:900; }
+</style>
+
+<div class="page-wrap">
+  <div class="logout-card">
+    <div class="logout-head">
+      <span class="logout-icon">👋</span>
+      <h1>ລາກ່ອນ!</h1>
+      <p>ທ່ານອອກຈາກລະບົບສຳເລັດແລ້ວ 🍓</p>
+    </div>
+
+    <div class="logout-body">
+      <div class="info-box">
+        <i class="fas fa-shield-halved"></i>
+        ຂໍ້ມູນຂອງທ່ານຖືກຮັກສາໄວ້ຢ່າງປອດໄພ<br>
+        <i class="fas fa-heart" style="color:var(--pk)"></i>
+        ຂອບໃຈທີ່ໃຊ້ <strong>VILLA Smoothie</strong> 💜
+      </div>
+
+      <a href="/customerlogin" class="btn-login">
+        <i class="fas fa-right-to-bracket"></i> ເຂົ້າສູ່ລະບົບອີກຄັ້ງ
+      </a>
+      <a href="/" class="btn-home">
+        <i class="fas fa-store"></i> ໄປໜ້າຫຼັກ
+      </a>
+
+      <div class="bye-note">
+        ຢາກສັ່ງໃໝ່? <span>ສະໝັກ / ເຂົ້າໃຊ້</span> ໄດ້ທຸກເວລາ 🥤
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock content %}

@@ -1,224 +1,634 @@
 {% extends 'ecom/customer_base.html' %}
 {% load static %}
-
+{% load lao_filters %}
 {% block content %}
-<style media="screen">
-  @import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
 
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<style>
+:root {
+    --pu:   #7c3aed; --pu2: #a855f7; --pu-lt: #f5f3ff;
+    --pk:   #ec4899; --pk2: #f472b6; --pk-lt: #fce7f3;
+    --lav:  #ede9fe; --lav2:#ddd6fe;
+    --text: #2d1457; --gray: #94a3b8;
+    --nav-h: 172px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── FULLPAGE SNAP SETUP ── */
 body {
-    background-color: #8C9EFF;
-    font-family: 'Open Sans', serif
+    overflow: hidden !important;
+    font-family: 'Noto Sans Lao', sans-serif;
 }
 
-.container {
-    margin-top: 0px;
-    margin-bottom: 0px
+.main-content {
+    position: fixed !important;
+    inset: 0 !important;
+    overflow-y: scroll !important;
+    scroll-snap-type: y mandatory !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: linear-gradient(155deg,#fdf4ff 0%,#f5f3ff 50%,#fce7f3 100%);
+    background-attachment: fixed;
+    /* hide scrollbar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+.main-content::-webkit-scrollbar { display: none; }
 
-.card {
-    position: relative;
-    display: -webkit-box;
-    display: -ms-flexbox;
+/* ── EACH ORDER = 1 FULL VIEWPORT SLIDE ── */
+.order-slide {
+    height: 100vh;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
     display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--nav-h, 172px) 10px 14px;
+    position: relative;
+}
+
+/* ── ORDER CARD fills slide ── */
+.order-card {
+    background: #ffffff;
+    border: 1.5px solid var(--lav2);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(124,58,237,.12);
+    width: 98%;
+    max-width: none;
+    max-height: calc(100vh - var(--nav-h,172px) - 24px);
+    display: flex;
     flex-direction: column;
-    min-width: 0;
-    word-wrap: break-word;
-    background-color: #fff;
-    background-clip: border-box;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 0.10rem
+    animation: fadeUp .45s ease both;
 }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
-.card-header:first-child {
-    border-radius: calc(0.37rem - 1px) calc(0.37rem - 1px) 0 0
+/* card header: fixed inside card */
+.c-head {
+    background: linear-gradient(135deg, var(--pu), var(--pk));
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px;
+    position: relative; overflow: hidden;
+    flex-shrink: 0;
 }
-
-.card-header {
-    padding: 0.75rem 1.25rem;
-    margin-bottom: 0;
-    background-color: #fff;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1)
+.c-head::before {
+    content: ''; position: absolute;
+    top: -14px; right: -14px; width: 100px; height: 100px;
+    border-radius: 50%; background: rgba(255,255,255,.10);
 }
+.c-head .order-id { color: #fff; font-size: 1.25rem; font-weight: 900; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.c-head .order-id > span:first-child { opacity: .75; font-weight: 500; font-size: 1rem; }
+.order-date-tag { background:rgba(255,255,255,.22); border:1px solid rgba(255,255,255,.4); border-radius:20px; padding:3px 10px; font-size:.8rem; font-weight:700; }
 
-.track {
-    position: relative;
-    background-color: #ddd;
-    height: 7px;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    margin-bottom: 60px;
-    margin-top: 50px
+/* card body: scrolls inside card */
+.c-body {
+    padding: 16px 20px;
+    overflow-y: auto;
+    flex: 1;
+    scrollbar-width: thin;
+    scrollbar-color: var(--lav2) transparent;
 }
+.c-body::-webkit-scrollbar { width: 5px; }
+.c-body::-webkit-scrollbar-thumb { background: var(--lav2); border-radius: 4px; }
 
-.track .step {
-    -webkit-box-flex: 1;
-    -ms-flex-positive: 1;
-    flex-grow: 1;
-    width: 25%;
-    margin-top: -18px;
-    text-align: center;
-    position: relative
+/* ── QUEUE BADGE ── */
+.queue-badge {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,.22); border: 2px solid rgba(255,255,255,.4);
+    border-radius: 50px; padding: 8px 18px;
+    color: #fff; font-weight: 800;
+    backdrop-filter: blur(8px); box-shadow: 0 6px 20px rgba(0,0,0,.15);
 }
+.q-num-big { font-size: 2rem; font-weight: 900; line-height: 1; color: #fff; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(0,0,0,.25); }
+.q-info { display: flex; flex-direction: column; }
+.q-pos   { font-size: .8rem; color: rgba(255,255,255,.95); font-weight: 800; }
+.q-ahead { font-size: .8rem; color: #fde68a; font-weight: 900; margin-top: 2px; }
+.q-pending { animation: glow 2s ease-in-out infinite; }
+@keyframes glow { 0%,100%{box-shadow:0 6px 20px rgba(0,0,0,.15)} 50%{box-shadow:0 8px 30px rgba(255,255,255,.3)} }
 
-.track .step.active:before {
-    background: #FF5722
+/* ── STATUS PILLS (group header) ── */
+.status-pill { display: inline-flex; align-items: center; gap: 7px; border-radius: 50px; padding: 8px 16px; font-weight: 900; font-size: .85rem; }
+.sp-confirmed { background: var(--lav); border:1.5px solid var(--lav2); color:var(--pu); }
+.sp-process   { background: #fef9c3; border:1.5px solid #fde68a; color:#b45309; }
+.sp-done      { background: #dcfce7; border:1.5px solid #86efac; color:#16a34a; }
+.sp-cancel    { background: #fff1f2; border:1.5px solid #fecdd3; color:#be123c; }
+.sp-mixed     { background: rgba(255,255,255,.25); border:1.5px solid rgba(255,255,255,.45); color:#fff; }
+
+.ldot { width: 8px; height: 8px; border-radius: 50%; background: #fef08a; box-shadow: 0 0 8px #fef08a; animation: blink 1.4s ease-in-out infinite; flex-shrink:0; display:inline-block; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+/* ── PER-ITEM STATUS BADGE ── */
+.item-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: 50px;
+    font-size: .8rem; font-weight: 900; white-space: nowrap; flex-shrink: 0;
 }
+.ib-pending   { background: #fef3c7; border:1.5px solid #fde68a; color:#92400e; }
+.ib-confirmed { background: var(--lav); border:1.5px solid var(--lav2); color:var(--pu); }
+.ib-process   { background: #fef9c3; border:1.5px solid #fde68a; color:#b45309; }
+.ib-done      { background: #dcfce7; border:1.5px solid #86efac; color:#16a34a; }
+.ib-cancel    { background: #fff1f2; border:1.5px solid #fecdd3; color:#be123c; }
 
-.track .step::before {
-    height: 7px;
+/* ── MINI TRACKER per item ── */
+.mini-tracker {
+    margin: 8px 0 4px 0;
+    padding: 12px 14px;
+    background: #faf8ff;
+    border-radius: 12px;
+    border: 1px solid var(--lav2);
+}
+.mini-track-bar { display:flex; align-items:center; position:relative; }
+.mt-step {
+    display: flex; flex-direction: column; align-items: center;
+    flex: 1; position: relative; z-index:1;
+}
+.mt-dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #e2e8f0; border: 2.5px solid #cbd5e1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; transition: .3s;
+}
+.mt-step.done .mt-dot  { background: linear-gradient(135deg,var(--pu),var(--pk)); border-color:var(--pk2); box-shadow:0 3px 10px rgba(124,58,237,.3); }
+.mt-step.curr .mt-dot  { animation: pulse 1.4s ease-in-out infinite; }
+.mt-line {
+    flex:1; height:3px; background:#e2e8f0; border-radius:4px;
+    position:relative; z-index:0; margin-top:-16px;
+}
+.mt-line.filled { background: linear-gradient(90deg,var(--pu),var(--pk)); }
+.mt-lbl { font-size:.7rem; font-weight:800; color:#94a3b8; margin-top:5px; text-align:center; }
+.mt-step.done .mt-lbl  { color: var(--pu); }
+.mt-step.curr .mt-lbl  { color: var(--pk); }
+
+/* ── PRODUCTS ── */
+.prod-list { margin-bottom: 10px; }
+.prod-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--lav); }
+.prod-row:last-child { border-bottom: none; }
+.prod-img { width: 62px; height: 62px; border-radius: 13px; object-fit: cover; border: 2px solid var(--lav2); flex-shrink: 0; box-shadow: 0 3px 8px rgba(124,58,237,.12); }
+.prod-img-ph { width: 62px; height: 62px; border-radius: 13px; background: var(--pk-lt); border: 2px dashed var(--pk2); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
+.prod-name  { color: var(--text); font-size: .98rem; font-weight: 900; }
+.prod-price { font-size: .88rem; font-weight: 900; margin-top: 4px; background: linear-gradient(135deg,var(--pk),var(--pu)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* ── DELIVERY CHIPS ── */
+.del-info { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.del-chip { padding: 5px 12px; border-radius: 50px; font-size: .8rem; font-weight: 800; background: var(--lav); border: 1.5px solid var(--lav2); color: var(--pu); }
+
+/* ── INFO ROW ── */
+.info-row { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: .88rem; margin-bottom: 6px; font-weight: 600; }
+.info-row i { color: var(--pu2); width: 16px; flex-shrink: 0; font-size: .9rem; }
+.info-row a { color: var(--pu); font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1.5px solid var(--lav2); border-radius: 10px; font-size: .82rem; transition: .2s; background: var(--lav); }
+.info-row a:hover { background: var(--lav2); }
+
+/* ── STATUS TRACKER ── */
+.tracker { margin-top: 20px; padding-top: 18px; border-top: 1.5px solid var(--lav); }
+.track-bar { display: flex; position: relative; justify-content: space-between; padding: 0 8px; }
+.track-bar::before { content: ''; position: absolute; top: 26px; left: 12%; right: 12%; height: 5px; background: var(--lav); border-radius: 10px; }
+.track-fill { position: absolute; top: 26px; left: 12%; height: 5px; border-radius: 10px; background: linear-gradient(90deg,var(--pu),var(--pk)); transition: width .6s ease; }
+.t-step { width: 25%; text-align: center; position: relative; z-index: 1; }
+.t-icon { width: 54px; height: 54px; border-radius: 50%; background: #f1f5f9; border: 2.5px solid var(--lav); display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto; transition: .3s; }
+.t-step.done .t-icon { background: linear-gradient(135deg,var(--pu),var(--pk)); border-color: var(--pk2); box-shadow: 0 6px 18px rgba(124,58,237,.35); }
+.t-step.curr .t-icon { animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+.t-lbl { color: var(--text); font-size: .85rem; font-weight: 800; margin-top: 9px; }
+.t-sub { color: var(--gray); font-size: .72rem; margin-top: 3px; }
+.t-step.done .t-lbl { color: var(--pu); }
+.t-step.curr .t-lbl { color: var(--pk); }
+
+/* ── CANCELLED ── */
+.cancelled-banner { margin-top: 14px; padding: 12px 16px; background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 14px; color: #be123c; display: flex; align-items: center; gap: 10px; font-size: .9rem; font-weight: 800; }
+.prod-row.item-cancelled { opacity: .6; background: #fff8f8; border-radius: 10px; }
+.prod-row.item-cancelled .prod-name { text-decoration: line-through; color: var(--gray); }
+.prod-row.item-cancelled .prod-price { -webkit-text-fill-color: #fca5a5; text-decoration: line-through; }
+.cancel-chip { display: inline-block; background: #fff1f2; border: 1px solid #fecdd3; color: #be123c; border-radius: 6px; font-size: .7rem; font-weight: 900; padding: 2px 8px; margin-top: 3px; }
+
+/* ── SCROLL INDICATOR ── */
+.scroll-hint {
     position: absolute;
-    content: "";
-    width: 100%;
-    left: 0;
-    top: 18px
+    bottom: 14px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: rgba(124,58,237,.45); font-size: .75rem; font-weight: 700;
+    animation: bounce 2s ease-in-out infinite;
+    pointer-events: none;
 }
+.scroll-hint i { font-size: 1rem; }
+@keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
 
-.track .step.active .icon {
-    background: #ee5435;
-    color: #fff
-}
+/* hide scroll hint on last slide */
+.order-slide:last-child .scroll-hint { display: none; }
 
-.track .icon {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
-    position: relative;
-    border-radius: 100%;
-    background: #ddd
-}
-
-.track .step.active .text {
-    font-weight: 400;
-    color: #000
-}
-
-.track .text {
-    display: block;
-    margin-top: 7px
-}
-
-.itemside {
-    position: relative;
-    display: -webkit-box;
-    display: -ms-flexbox;
+/* ── DOT NAVIGATION ── */
+.dot-nav {
+    position: fixed;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 9999;
     display: flex;
-    width: 100%
+    flex-direction: column;
+    gap: 10px;
+}
+.dot-nav .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(124,58,237,.25);
+    border: 2px solid rgba(124,58,237,.4);
+    cursor: pointer;
+    transition: .25s;
+}
+.dot-nav .dot.active {
+    background: var(--pu);
+    transform: scale(1.35);
+    border-color: var(--pu);
+}
+.dot-nav .dot:hover { background: var(--pk); border-color: var(--pk); }
+
+/* ── STICKY PAGE LABEL ── */
+.slide-counter {
+    position: fixed;
+    top: calc(var(--nav-h,172px) + 10px);
+    left: 50%; transform: translateX(-50%);
+    z-index: 9998;
+    background: rgba(245,243,255,.88);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid var(--lav2);
+    border-radius: 50px;
+    padding: 6px 20px;
+    font-size: .82rem; font-weight: 800; color: var(--pu);
+    pointer-events: none;
+    transition: opacity .3s;
 }
 
-.itemside .aside {
-    position: relative;
-    -ms-flex-negative: 0;
-    flex-shrink: 0
+/* ── EMPTY ── */
+.empty-slide {
+    height: 100vh; scroll-snap-align: start;
+    display: flex; align-items: center; justify-content: center;
+    padding: var(--nav-h,172px) 24px 24px;
 }
+.empty-box { text-align: center; padding: 60px 32px; background: #fff; border: 1.5px solid var(--lav2); border-radius: 28px; box-shadow: 0 8px 28px rgba(124,58,237,.09); }
+.empty-box .ei { font-size: 4.5rem; opacity: .3; }
+.empty-box h2 { font-size: 1.45rem; font-weight: 900; margin: 14px 0 8px; color: var(--text); }
+.empty-box p  { color: var(--gray); font-size: .9rem; }
+.btn-shop { display: inline-flex; align-items: center; gap: 9px; margin-top: 22px; padding: 13px 32px; background: linear-gradient(135deg,var(--pu),var(--pk)); color: #fff; border-radius: 16px; text-decoration: none; font-weight: 900; font-size: .95rem; box-shadow: 0 10px 26px rgba(124,58,237,.35); transition: .3s; }
+.btn-shop:hover { transform: translateY(-3px); color: #fff; }
 
-.img-sm {
-    width: 80px;
-    height: 80px;
-    padding: 7px
+/* ── MOBILE ── */
+@media(max-width:768px) {
+    .order-slide, .empty-slide { padding-top: calc(var(--nav-h,172px) + 8px); padding-left: 12px; padding-right: 12px; }
+    .c-head { padding: 16px 18px; }
+    .c-body { padding: 16px 18px; }
+    .prod-img, .prod-img-ph { width: 60px; height: 60px; font-size: 1.6rem; }
+    .t-icon { width: 44px; height: 44px; font-size: 18px; }
+    .dot-nav { right: 10px; }
+    .slide-counter { font-size: .74rem; }
 }
-
-ul.row,
-ul.row-sm {
-    list-style: none;
-    padding: 0
-}
-
-.itemside .info {
-    padding-left: 15px;
-    padding-right: 7px
-}
-
-.itemside .title {
-    display: block;
-    margin-bottom: 5px;
-    color: #212529
-}
-
-p {
-    margin-top: 0;
-    margin-bottom: 1rem
-}
-
-.btn-warning {
-    color: #ffffff;
-    background-color: #ee5435;
-    border-color: #ee5435;
-    border-radius: 1px
-}
-
-.btn-warning:hover {
-    color: #ffffff;
-    background-color: #ff2b00;
-    border-color: #ff2b00;
-    border-radius: 1px
-}
-
 </style>
-<br>
-<h3 style="text-align:center;">Thank You For Your Order  <strong>{{request.user}}</strong> !</h3> <br><br>
-<div class="container">
-    <header class="card-header" style="text-align:center;"> My Orders / Tracking </header>
 
-    {% for products,order in data %}
+<!-- Dot navigation -->
+{% if groups %}
+<div class="dot-nav" id="dotNav">
+    {% for g in groups %}
+    <div class="dot {% if forloop.first %}active{% endif %}" data-idx="{{ forloop.counter0 }}" onclick="goToSlide({{ forloop.counter0 }})"></div>
+    {% endfor %}
+</div>
 
-    <article class="card">
-        <div class="card-body">
-            <ul class="row" style="margin-left:20px;margin-top:20px;">
-                <li class="col-md-4">
-                  <figure class="itemside mb-3">
-                    {%for product in products%}
-                      <div class="aside"><img src="{% static product.product_image.url %}" class="img-sm border"></div>
-                      <figcaption class="info align-self-center">
+<!-- Slide counter label -->
+<div class="slide-counter" id="slideCounter">📦 1 / {{ groups|length }}</div>
+{% endif %}
 
-                          <p class="title"><strong>Name : </strong>{{product.name}} <br> <strong>Description : </strong>{{product.description}}</p> <span class="text-muted"><strong>Price : </strong>{{product.price}} </span>
+{% if groups %}
 
-                      </figcaption>
+    {% for g in groups %}
+    {% with o=g.rep_order gs=g.group_status %}
+    <div class="order-slide" id="slide-{{ forloop.counter0 }}" style="animation-delay:{{ forloop.counter0 }}00ms">
 
-                  </figure>
-                </li>
-                <li class="col-md-4">
-                    <div class="col"> <strong>Shipment Address:</strong> <br> {{order.address}}</div>
-                </li>
-                <li class="col-md-4">
-                    <div class="col"> <strong>Status:</strong> <br> {{order.status}} </div> <br>
-                    <h4><a style="text-decoration:none; color:blue;" href="{% url 'download-invoice' order.id product.id  %}" >Download Invoice</a></h4>
-                </li>
-                {%endfor%}
-            </ul>
-            <hr>
+        <div class="order-card">
 
-            <div class="track">
-                {%if order.status == 'Pending' %}
-                <div class="step active"> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-frown-o"></i> </span> <span class="text">Order Pending</span> </div>
-                <div class="step "> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-check"></i> </span> <span class="text"> Order Confirmed</span> </div>
-                <div class="step "> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-truck"></i> </span> <span class="text"> On the way </span> </div>
-                <div class="step "> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-home"></i> </span> <span class="text">Delivered</span> </div>
-                {%elif order.status == 'Order Confirmed' %}
-                <div class="step active"> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-frown-o"></i> </span> <span class="text">Order Pending</span> </div>
-                <div class="step active"> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-check"></i> </span> <span class="text"> Order Confirmed</span> </div>
-                <div class="step "> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-truck"></i> </span> <span class="text"> On the way </span> </div>
-                <div class="step "> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-home"></i> </span> <span class="text">Delivered</span> </div>
-                {%elif order.status == 'Out for Delivery'%}
-                <div class="step active"> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-frown-o"></i> </span> <span class="text">Order Pending</span> </div>
-                <div class="step active"> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-check"></i> </span> <span class="text"> Order Confirmed</span> </div>
-                <div class="step active"> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-truck"></i> </span> <span class="text"> On the way </span> </div>
-                <div class="step "> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-home"></i> </span> <span class="text">Delivered</span> </div>
-                {%else%}
-                <div class="step active"> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-frown-o"></i> </span> <span class="text">Order Pending</span> </div>
-                <div class="step active"> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-check"></i> </span> <span class="text"> Order Confirmed</span> </div>
-                <div class="step active"> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-truck"></i> </span> <span class="text"> On the way </span> </div>
-                <div class="step active"> <span class="icon"> <i style="padding-top:5px; padding-right:20px;" class="fa fa-home"></i> </span> <span class="text">Delivered</span> </div>
-                {%endif%}
+            <!-- HEADER -->
+            <div class="c-head">
+                <div class="order-id">
+                    <span>ອໍເດີ </span>#{{ g.daily_seq }}
+                    <span class="order-date-tag">{% if g.is_today %}ມື້ນີ້{% else %}{{ g.order_date|date:"d/m/Y" }}{% endif %}</span>
+                </div>
+
+                {% if g.is_mixed %}
+                <div class="status-pill sp-mixed" id="grp-badge-{{ g.first_order.id }}">
+                    <i class="fas fa-layer-group fa-xs"></i>
+                    {% if g.status_counts.Delivered %}<span>✅{{ g.status_counts.Delivered }}</span>{% endif %}
+                    {% if g.status_counts.Processing %}<span>🚚{{ g.status_counts.Processing }}</span>{% endif %}
+                    {% if g.status_counts.Confirmed %}<span>☑️{{ g.status_counts.Confirmed }}</span>{% endif %}
+                    {% if g.status_counts.Pending %}<span>⏳{{ g.status_counts.Pending }}</span>{% endif %}
+                    {% if g.status_counts.Cancelled %}<span>❌{{ g.status_counts.Cancelled }}</span>{% endif %}
+                </div>
+                {% elif gs == 'Pending' and g.queue %}
+                <div class="queue-badge q-pending" id="qbadge-{{ g.first_order.order_group }}">
+                    <span class="q-num-big">Q{{ g.queue }}</span>
+                    <div class="q-info">
+                        <span class="q-pos">🎟 ຄິວທີ{{ g.queue }} / {{ g.total_pending }}</span>
+                        <span class="q-ahead" id="qahead-{{ g.first_order.order_group }}">
+                            {% if g.queue == 1 %}🎉 ຄິວທ່ານຕໍ່ໄປ!
+                            {% else %}<span class="ldot"></span>ລໍ {{ g.queue|add:"-1" }} ຄົນ{% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% elif gs == 'Confirmed' %}
+                <div class="status-pill sp-confirmed"><i class="fas fa-check fa-xs"></i> ຢືນຢັນແລ້ວ</div>
+                {% elif gs == 'Processing' %}
+                <div class="status-pill sp-process"><i class="fas fa-truck-fast fa-xs"></i> ກຳລັງຈັດສົ່ງ</div>
+                {% elif gs == 'Delivered' %}
+                <div class="status-pill sp-done"><i class="fas fa-check-circle fa-xs"></i> ຈັດສົ່ງສຳເລັດ</div>
+                {% elif gs == 'Cancelled' %}
+                <div class="status-pill sp-cancel"><i class="fas fa-ban fa-xs"></i> ຍົກເລີກທັງໝົດ</div>
+                {% endif %}
             </div>
 
+            <!-- BODY (scrollable if content tall) -->
+            <div class="c-body">
+
+                <!-- PRODUCTS with per-item status -->
+                <div class="prod-list">
+                    {% for item in g.items %}
+                    <div class="prod-row {% if item.status == 'Cancelled' %}item-cancelled{% endif %}"
+                         id="item-row-{{ item.id }}">
+                        {% if item.product.product_image %}
+                            <img src="{{ item.product.product_image.url }}" class="prod-img" alt="{{ item.product.name }}">
+                        {% else %}
+                            <div class="prod-img-ph">🍱</div>
+                        {% endif %}
+                        <div style="flex:1; min-width:0;">
+                            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+                                <div class="prod-name">{{ item.product.name }}</div>
+                                <!-- Per-item status badge -->
+                                <span class="item-badge
+                                    {% if item.status == 'Pending' %}ib-pending
+                                    {% elif item.status == 'Confirmed' %}ib-confirmed
+                                    {% elif item.status == 'Processing' %}ib-process
+                                    {% elif item.status == 'Delivered' %}ib-done
+                                    {% elif item.status == 'Cancelled' %}ib-cancel
+                                    {% endif %}"
+                                    id="item-badge-{{ item.id }}">
+                                    {% if item.status == 'Pending' %}⏳ ລໍຖ້າການຢືນຢັນ
+                                    {% elif item.status == 'Confirmed' %}✅ ຮັບອໍເດີ້
+                                    {% elif item.status == 'Processing' %}🚚 ກຳລັງຈັດສົ່ງ
+                                    {% elif item.status == 'Delivered' %}🏠 ຈັດສົ່ງສຳເລັດ
+                                    {% elif item.status == 'Cancelled' %}❌ ຍົກເລີກ
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="prod-price">{{ item.amount|dotformat }} ກີບ × {{ item.quantity }}</div>
+
+                            {% if item.status == 'Cancelled' %}
+                            <!-- cancelled: no tracker -->
+                            {% else %}
+                            <!-- Mini tracker per item -->
+                            <div class="mini-tracker" id="item-tracker-{{ item.id }}">
+                                <div class="mini-track-bar">
+                                    <div class="mt-step done">
+                                        <div class="mt-dot">⏳</div>
+                                        <div class="mt-lbl">ລໍຖ້າການຢືນຢັນ</div>
+                                    </div>
+                                    <div class="mt-line {% if item.status == 'Confirmed' or item.status == 'Processing' or item.status == 'Delivered' %}filled{% endif %}"></div>
+                                    <div class="mt-step {% if item.status == 'Confirmed' or item.status == 'Processing' or item.status == 'Delivered' %}done{% endif %} {% if item.status == 'Confirmed' %}curr{% endif %}">
+                                        <div class="mt-dot">✅</div>
+                                        <div class="mt-lbl">ຮັບອໍເດີ້</div>
+                                    </div>
+                                    <div class="mt-line {% if item.status == 'Processing' or item.status == 'Delivered' %}filled{% endif %}"></div>
+                                    <div class="mt-step {% if item.status == 'Processing' or item.status == 'Delivered' %}done{% endif %} {% if item.status == 'Processing' %}curr{% endif %}">
+                                        <div class="mt-dot">🚚</div>
+                                        <div class="mt-lbl">ກຳລັງຈັດສົ່ງ</div>
+                                    </div>
+                                    <div class="mt-line {% if item.status == 'Delivered' %}filled{% endif %}"></div>
+                                    <div class="mt-step {% if item.status == 'Delivered' %}done curr{% endif %}">
+                                        <div class="mt-dot">🏠</div>
+                                        <div class="mt-lbl">ຈັດສົ່ງສຳເລັດ</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- DELIVERY CHIPS -->
+                <div class="del-info">
+                    {% if o.delivery_type == 'Pickup' %}
+                        <span class="del-chip">🏪 ຮັບໜ້າຮ້ານ</span>
+                    {% else %}
+                        <span class="del-chip">🛵 ຈັດສົ່ງ</span>
+                        {% if o.delivery_km %}<span class="del-chip">📏 {{ o.delivery_km }} ກມ</span>{% endif %}
+                        {% if o.delivery_fee %}<span class="del-chip">💰 {{ o.delivery_fee|dotformat }} ກີບ</span>{% endif %}
+                    {% endif %}
+                    {% if o.payment_method == 'COD' %}
+                        <span class="del-chip" style="border-color:#fde68a;color:#b45309;background:#fef9c3;">💵 ຈ່າຍປາຍທາງ</span>
+                    {% elif o.payment_method == 'InStore' %}
+                        <span class="del-chip" style="border-color:#7dd3fc;color:#0369a1;background:#f0f9ff;">🏬 ຈ່າຍໜ້າຮ້ານ</span>
+                    {% endif %}
+                </div>
+
+                <!-- CONTACT -->
+                <div style="margin-top:12px;">
+                    {% if o.delivery_type != 'Pickup' %}
+                    <div class="info-row"><i class="fas fa-location-dot"></i> {{ o.address }}</div>
+                    {% endif %}
+                    <div class="info-row"><i class="fas fa-phone"></i> {{ o.mobile }}</div>
+                    <div class="info-row">
+                        <i class="fas fa-file-invoice"></i>
+                        <a href="{% url 'download-group-invoice' g.first_order.id %}">
+                            <i class="fas fa-download"></i> ດາວໂຫຼດ Invoice
+                        </a>
+                    </div>
+                </div>
+
+                <!-- STATUS SUMMARY (show only if all cancelled) -->
+                {% if gs == 'Cancelled' and not g.is_mixed %}
+                <div class="cancelled-banner">
+                    <i class="fas fa-ban"></i> ອໍເດີທັງໝົດໃນກຸ່ມນີ້ຖືກຍົກເລີກ
+                </div>
+                {% endif %}
+
+            </div><!-- /c-body -->
+        </div><!-- /order-card -->
+
+        <!-- scroll hint (not on last slide) -->
+        {% if not forloop.last %}
+        <div class="scroll-hint">
+            <i class="fas fa-chevron-down"></i>
+            <span>ອໍເດີ #{{ g.items.0.id }}</span>
         </div>
-    </article><br>
-    {%endfor%}
+        {% endif %}
+
+    </div><!-- /order-slide -->
+    {% endwith %}
+    {% endfor %}
+
+{% else %}
+<div class="empty-slide">
+    <div class="empty-box">
+        <div class="ei">📦</div>
+        <h2>ຍັງບໍ່ມີອໍເດີມື້ນີ້</h2>
+        <p>ສັ່ງຊື້ສິນຄ້າເພື່ອຕິດຕາມໄດ້ທີ່ນີ້</p>
+        <a href="/customer-home" class="btn-shop"><i class="fas fa-store"></i> ໄປເລືອກສິນຄ້າ</a>
+    </div>
 </div>
-<br><br><br><br><br>
+{% endif %}
+
+<script>
+/* ── Sync navbar height to --nav-h ── */
+function syncNavH() {
+    const nav = document.getElementById('navbar');
+    if (nav) {
+        document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px');
+    }
+}
+syncNavH();
+window.addEventListener('resize', syncNavH);
+
+/* ── Dot indicator update on scroll ── */
+const mainContent = document.querySelector('.main-content');
+const slides      = document.querySelectorAll('.order-slide');
+const dots        = document.querySelectorAll('.dot-nav .dot');
+const counter     = document.getElementById('slideCounter');
+const total       = slides.length;
+
+function getActiveIdx() {
+    if (!mainContent || !slides.length) return 0;
+    const scrollY = mainContent.scrollTop;
+    const vh = mainContent.clientHeight;
+    return Math.round(scrollY / vh);
+}
+
+function updateDots() {
+    const idx = getActiveIdx();
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    if (counter) counter.textContent = '📦 ' + (idx + 1) + ' / ' + total;
+}
+
+if (mainContent) {
+    mainContent.addEventListener('scroll', updateDots, { passive: true });
+}
+
+function goToSlide(idx) {
+    if (!mainContent) return;
+    mainContent.scrollTo({ top: idx * mainContent.clientHeight, behavior: 'smooth' });
+}
+
+/* ── Per-item status data from Django ── */
+const ALL_ITEM_IDS = [
+    {% for g in groups %}{% for item in g.items %}"{{ item.id }}",{% endfor %}{% endfor %}
+].filter(Boolean);
+
+const STATUS_LABEL = {
+    Pending:   '⏳ ລໍຖ້າການຢືນຢັນ',
+    Confirmed: '✅ ຮັບອໍເດີ້',
+    Processing:'🚚 ກຳລັງຈັດສົ່ງ',
+    Delivered: '🏠 ຈັດສົ່ງສຳເລັດ',
+    Cancelled: '❌ ຍົກເລີກ',
+};
+const STATUS_CLASS = {
+    Pending: 'ib-pending', Confirmed: 'ib-confirmed',
+    Processing: 'ib-process', Delivered: 'ib-done', Cancelled: 'ib-cancel',
+};
+const TRACKER_FILL = { Pending:0, Confirmed:1, Processing:2, Delivered:3, Cancelled:-1 };
+
+function buildMiniTracker(st) {
+    const s = TRACKER_FILL[st] ?? 0;
+    return `<div class="mini-track-bar">
+        <div class="mt-step done"><div class="mt-dot">⏳</div><div class="mt-lbl">ລໍຖ້າການຢືນຢັນ</div></div>
+        <div class="mt-line ${s>=1?'filled':''}"></div>
+        <div class="mt-step ${s>=1?'done':''} ${s===1?'curr':''}"><div class="mt-dot">✅</div><div class="mt-lbl">ຮັບອໍເດີ້</div></div>
+        <div class="mt-line ${s>=2?'filled':''}"></div>
+        <div class="mt-step ${s>=2?'done':''} ${s===2?'curr':''}"><div class="mt-dot">🚚</div><div class="mt-lbl">ກຳລັງຈັດສົ່ງ</div></div>
+        <div class="mt-line ${s>=3?'filled':''}"></div>
+        <div class="mt-step ${s>=3?'done curr':''}"><div class="mt-dot">🏠</div><div class="mt-lbl">ຈັດສົ່ງສຳເລັດ</div></div>
+    </div>`;
+}
+
+function updateItemDOM(id, newStatus) {
+    const badge   = document.getElementById('item-badge-' + id);
+    const tracker = document.getElementById('item-tracker-' + id);
+    const row     = document.getElementById('item-row-' + id);
+
+    if (badge) {
+        badge.className = 'item-badge ' + (STATUS_CLASS[newStatus] || '');
+        badge.textContent = STATUS_LABEL[newStatus] || newStatus;
+    }
+    if (newStatus === 'Cancelled') {
+        if (row)     row.classList.add('item-cancelled');
+        if (tracker) tracker.remove();
+    } else {
+        if (row)     row.classList.remove('item-cancelled');
+        if (tracker) tracker.innerHTML = buildMiniTracker(newStatus);
+        else if (badge && badge.parentElement) {
+            const newTr = document.createElement('div');
+            newTr.className = 'mini-tracker'; newTr.id = 'item-tracker-' + id;
+            newTr.innerHTML = buildMiniTracker(newStatus);
+            badge.parentElement.parentElement.appendChild(newTr);
+        }
+    }
+}
+
+/* ── Poll all item statuses every 10 s ── */
+let lastStatuses = {};
+
+function pollItemStatuses() {
+    if (!ALL_ITEM_IDS.length) return;
+    fetch('/ajax-item-statuses?ids=' + ALL_ITEM_IDS.join(','))
+        .then(r => r.json())
+        .then(d => {
+            if (!d.ok) return;
+            Object.entries(d.statuses).forEach(([id, st]) => {
+                if (lastStatuses[id] !== st) {
+                    lastStatuses[id] = st;
+                    updateItemDOM(id, st);
+                }
+            });
+        })
+        .catch(() => {});
+}
+
+if (ALL_ITEM_IDS.length) {
+    // Set initial known statuses
+    {% for g in groups %}{% for item in g.items %}lastStatuses["{{ item.id }}"] = "{{ item.status }}";{% endfor %}{% endfor %}
+    setInterval(pollItemStatuses, 10000);
+}
+
+/* ── Live queue polling ── */
+const PENDING_GROUPS = [
+    {% for g in groups %}
+        {% if g.group_status == 'Pending' and g.queue %}
+        { group: "{{ g.first_order.order_group }}", queue: {{ g.queue }} },
+        {% endif %}
+    {% endfor %}
+];
+
+function updateQueueBadge(group, data) {
+    const badgeEl = document.getElementById('qbadge-' + group);
+    const aheadEl = document.getElementById('qahead-' + group);
+    if (!badgeEl) return;
+    if (data.status === 'Processing') { badgeEl.outerHTML = `<div class="status-pill sp-process"><i class="fas fa-truck-fast fa-xs"></i> ກຳລັງຈັດສົ່ງ</div>`; return; }
+    if (data.status === 'Delivered')  { badgeEl.outerHTML = `<div class="status-pill sp-done"><i class="fas fa-check-circle fa-xs"></i> ຈັດສົ່ງສຳເລັດ</div>`; return; }
+    if (data.status === 'Cancelled')  { badgeEl.outerHTML = `<div class="status-pill sp-cancel"><i class="fas fa-ban fa-xs"></i> ຍົກເລີກ</div>`; return; }
+    if (data.pos && aheadEl) {
+        const numEl = badgeEl.querySelector('.q-num-big');
+        const posEl = badgeEl.querySelector('.q-pos');
+        if (numEl) numEl.textContent = 'Q' + data.pos;
+        if (posEl) posEl.textContent = '🎟 ຄິວທີ ' + data.pos + ' / ' + data.total_pending;
+        aheadEl.innerHTML = data.ahead === 0 ? '🎉 ຄິວທ່ານຕໍ່ໄປ!' : '<span class="ldot"></span> ລໍ ' + data.ahead + ' ກຸ່ມ';
+    }
+}
+
+function pollQueues() {
+    PENDING_GROUPS.forEach(item => {
+        fetch('/ajax-queue-position?group=' + encodeURIComponent(item.group))
+            .then(r => r.json()).then(d => { if (d.ok) updateQueueBadge(item.group, d); })
+            .catch(() => {});
+    });
+}
+if (PENDING_GROUPS.length > 0) setInterval(pollQueues, 12000);
+</script>
+
 {% endblock content %}

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Customer,Product,Orders,Feedback
+from .models import Customer, Product, Orders, Feedback, Expense
 # Register your models here.
 class CustomerAdmin(admin.ModelAdmin):
     pass
@@ -16,4 +16,8 @@ admin.site.register(Orders, OrderAdmin)
 class FeedbackAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Feedback, FeedbackAdmin)
-# Register your models here.
+
+class ExpenseAdmin(admin.ModelAdmin):
+    list_display = ['date', 'category', 'description', 'amount']
+    list_filter  = ['category', 'date']
+admin.site.register(Expense, ExpenseAdmin)

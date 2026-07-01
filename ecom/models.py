@@ -16,7 +16,14 @@ class Customer(models.Model):
         return self.user.first_name
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=60)
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
     name=models.CharField(max_length=40)
     product_image= models.ImageField(upload_to='product_image/',null=True,blank=True)
     price = models.PositiveIntegerField()
@@ -25,25 +32,67 @@ class Product(models.Model):
         return self.name
 
 
+STATUS_CHOICES = (
+    ('Pending',    'ລໍຖ້າການຢືນຢັນ'),
+    ('Confirmed',  'ຮັບ/ຢືນຢັນອໍເດີ'),
+    ('Processing', 'ກຳລັງຈັດສົ່ງ'),
+    ('Delivered',  'ຈັດສົ່ງສຳເລັດ'),
+    ('Cancelled',  'ຍົກເລີກ'),
+)
+
+
 class Orders(models.Model):
-    STATUS =(
-        ('Pending','Pending'),
-        ('Order Confirmed','Order Confirmed'),
-        ('Out for Delivery','Out for Delivery'),
-        ('Delivered','Delivered'),
-    )
-    customer=models.ForeignKey('Customer', on_delete=models.CASCADE,null=True)
-    product=models.ForeignKey('Product',on_delete=models.CASCADE,null=True)
-    email = models.CharField(max_length=50,null=True)
-    address = models.CharField(max_length=500,null=True)
-    mobile = models.CharField(max_length=20,null=True)
-    order_date= models.DateField(auto_now_add=True,null=True)
-    status=models.CharField(max_length=50,null=True,choices=STATUS)
+    customer    = models.ForeignKey('Customer', on_delete=models.CASCADE, null=True)
+    product     = models.ForeignKey('Product',  on_delete=models.CASCADE, null=True)
+    quantity    = models.PositiveIntegerField(default=1)
+    amount      = models.DecimalField(max_digits=15, decimal_places=2, null=True)
+    order_group = models.CharField(max_length=36, null=True, blank=True)
+    email       = models.CharField(max_length=50,  null=True)
+    address     = models.CharField(max_length=500, null=True)
+    mobile      = models.CharField(max_length=20,  null=True)
+    order_date     = models.DateTimeField(auto_now_add=True, null=True)
+    status         = models.CharField(max_length=50, null=True, choices=STATUS_CHOICES, default='Pending')
+    delivery_type  = models.CharField(max_length=20, null=True, blank=True, default='Delivery')
+    delivery_km    = models.DecimalField(max_digits=6, decimal_places=1, null=True, blank=True)
+    delivery_fee   = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True)
+    payment_method = models.CharField(max_length=20, null=True, blank=True, default='COD')
+    note           = models.CharField(max_length=300, blank=True, default='')
+
 
 
 class Feedback(models.Model):
-    name=models.CharField(max_length=40)
-    feedback=models.CharField(max_length=500)
-    date= models.DateField(auto_now_add=True,null=True)
+    name = models.CharField(max_length=40)
+    feedback = models.TextField(max_length=500) # ປ່ຽນເປັນ TextField ເພື່ອໃຫ້ກອກໄດ້ຍາວ
+    date = models.DateField(auto_now_add=True, null=True)
+
     def __str__(self):
         return self.name
+
+
+EXPENSE_CATEGORY_CHOICES = (
+    ('ຈອກ',          'ຈອກ'),
+    ('ທໍ່ດູດ',        'ທໍ່ດູດ'),
+    ('ໝາກໄມ້ສົດ',    'ໝາກໄມ້ສົດ'),
+    ('ນ້ຳກ້ອນ',       'ນ້ຳກ້ອນ'),
+    ('ນົມ',           'ນົມ'),
+    ('ນ້ຳຕານ',        'ນ້ຳຕານ'),
+    ('ຖົງ/ບັນຈຸ',     'ຖົງ/ບັນຈຸ'),
+    ('ຜັກ/ສ່ວນປຸ່ງ',  'ຜັກ/ສ່ວນປຸ່ງ'),
+    ('ນ້ຳ/ວັດຖຸດິບ',  'ນ້ຳ/ວັດຖຸດິບ'),
+    ('ອຸປະກອນຮ້ານ',   'ອຸປະກອນຮ້ານ'),
+    ('ຄ່າໄຟ/ນ້ຳ',     'ຄ່າໄຟ/ນ້ຳ'),
+    ('ອື່ນໆ',          'ອື່ນໆ'),
+)
+
+
+class Expense(models.Model):
+    date        = models.DateField()
+    category    = models.CharField(max_length=30, choices=EXPENSE_CATEGORY_CHOICES, default='ອື່ນໆ')
+    description = models.CharField(max_length=200, blank=True, default='')
+    amount      = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ['-date', '-id']
+
+    def __str__(self):
+        return f"{self.date} | {self.category} | {self.amount:,} ກີບ"

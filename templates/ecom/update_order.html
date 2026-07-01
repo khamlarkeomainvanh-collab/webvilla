@@ -2,74 +2,128 @@
 {% load widget_tweaks %}
 {% block content %}
 
-<head>
-  <style media="screen">
-    a:link {
-      text-decoration: none;
-    }
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;800&family=Noto+Sans+Lao:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-    .note {
-      text-align: center;
-      height: 80px;
-      background: -webkit-linear-gradient(left, #0072ff, #8811c5);
-      color: #fff;
-      font-weight: bold;
-      line-height: 80px;
-    }
+<style>
+:root{
+    --bg:#0a0f1d;
+    --card:#111827;
+    --blue:#00d2ff;
+    --purple:#7000ff;
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --border:rgba(255,255,255,0.06);
+}
 
-    .form-content {
-      padding: 5%;
-      border: 1px solid #ced4da;
-      margin-bottom: 2%;
-    }
+body{
+    font-family:'Lexend','Noto Sans Lao',sans-serif;
+    background:var(--bg);
+}
 
-    .form-control {
-      border-radius: 1.5rem;
-    }
+/* CARD */
+.wrapper{
+    max-width:600px;
+    margin:100px auto;
+    background:var(--card);
+    padding:30px;
+    border-radius:25px;
+    border:1px solid var(--border);
+    box-shadow:0 40px 80px rgba(0,0,0,0.4);
+    animation:fade 0.5s ease;
+}
 
-    .btnSubmit {
-      border: none;
-      border-radius: 1.5rem;
-      padding: 1%;
-      width: 20%;
-      cursor: pointer;
-      background: #0062cc;
-      color: #fff;
-      margin-left:100px;
-    }
+@keyframes fade{
+    from{opacity:0; transform:translateY(20px);}
+    to{opacity:1; transform:translateY(0);}
+}
 
-    .menu {
-      top: 50px;
-    }
-  </style>
+/* HEADER */
+.header{
+    text-align:center;
+    margin-bottom:25px;
+}
 
-  <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-</head>
-<br><br><br><br><br><br>
-<!------ update page for doctor by admin(sumit)  ---------->
+.header h2{
+    color:var(--text);
+    font-weight:800;
+}
+
+.header span{
+    background:linear-gradient(to right,var(--blue),var(--purple));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+/* LABEL */
+label{
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:8px;
+    display:block;
+}
+
+/* INPUT */
+.form-control{
+    width:100%;
+    padding:14px;
+    border-radius:14px;
+    background:#0f172a;
+    border:1px solid var(--border);
+    color:#fff;
+    outline:none;
+    transition:0.3s;
+}
+
+.form-control:focus{
+    border-color:var(--blue);
+    box-shadow:0 0 10px rgba(0,210,255,0.3);
+}
+
+/* BUTTON */
+.btn-submit{
+    width:100%;
+    margin-top:20px;
+    padding:14px;
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(135deg,var(--blue),var(--purple));
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn-submit:hover{
+    transform:translateY(-3px);
+    box-shadow:0 15px 30px rgba(0,210,255,0.3);
+}
+
+</style>
+
 <form method="post">
-  {% csrf_token %}
-  <div class="container register-form">
-    <div class="form">
-      <div class="note">
-        <p>Update Status Of Order</p>
-      </div>
-      <div class="form-content">
+    {% csrf_token %}
 
-              {% render_field orderForm.status class="form-control" placeholder="Address" %}
-            </div>
+    <div class="wrapper">
 
-          </div>
+        <!-- TITLE -->
+        <div class="header">
+            <h2>🔄 ອັບເດດ <span>ສະຖານະອໍເດີ</span></h2>
+            <p style="color:var(--muted);font-size:14px">
+                ກະລຸນາເລືອກສະຖານະການຈັດສົ່ງ
+            </p>
         </div>
-        <button type="submit" class="btnSubmit">Update</button>
+
+        <!-- FIELD -->
+        <label>📦 ສະຖານະອໍເດີ</label>
+        {% render_field orderForm.status class="form-control" %}
+
+        <!-- BUTTON -->
+        <button type="submit" class="btn-submit">
+            💾 ບັນທຶກການປ່ຽນແປງ
+        </button>
+
+    </div>
 
 </form>
-<!--
-developed By : sumit kumar
-facebook : fb.com/sumit.luv
-youtube : youtube.com/lazycoders
--->
 
 {% endblock content %}

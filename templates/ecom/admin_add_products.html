@@ -2,90 +2,256 @@
 {% load widget_tweaks %}
 {% block content %}
 
-<head>
-  <style media="screen">
-    a:link {
-      text-decoration: none;
-    }
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;800&family=Noto+Sans+Lao:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-    .note {
-      text-align: center;
-      height: 80px;
-      background: -webkit-linear-gradient(left, #0072ff, #8811c5);
-      color: #fff;
-      font-weight: bold;
-      line-height: 80px;
-    }
+<style>
+:root {
+    --purple:  #7c3aed;
+    --pink:    #be185d;
+    --grad:    linear-gradient(135deg, #7c3aed, #be185d);
+    --bright:  #2d1457;
+    --dim:     #64748b;
+    --border:  rgba(124,58,237,.15);
+    --lav:     #f5f3ff;
+    --lav2:    #ede9fe;
+}
 
-    .form-content {
-      padding: 5%;
-      border: 1px solid #ced4da;
-      margin-bottom: 2%;
-    }
+body {
+    font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
+    background: #ffffff !important;
+}
 
-    .form-control {
-      border-radius: 1.5rem;
-    }
+/* WRAPPER */
+.form-wrapper {
+    max-width: 860px;
+    margin: 48px auto;
+    background: #ffffff;
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 24px 70px rgba(124,58,237,.14), 0 0 0 1.5px rgba(124,58,237,.12);
+    animation: fade 0.5s ease;
+}
 
-    .btnSubmit {
-      border: none;
-      border-radius: 1.5rem;
-      padding: 1%;
-      width: 20%;
-      cursor: pointer;
-      background: #0062cc;
-      color: #fff;
-    }
+@keyframes fade {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 
-    .menu {
-      top: 50px;
-    }
-  </style>
+/* GRADIENT TOP BANNER */
+.form-top {
+    background: var(--grad);
+    padding: 36px 40px 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.form-top::before {
+    content: '';
+    position: absolute; top: -50px; right: -50px;
+    width: 160px; height: 160px; border-radius: 50%;
+    background: rgba(255,255,255,.08);
+}
+.form-top::after {
+    content: '';
+    position: absolute; bottom: -35px; left: -35px;
+    width: 110px; height: 110px; border-radius: 50%;
+    background: rgba(255,255,255,.06);
+}
+.form-top h2 {
+    color: #fff;
+    font-weight: 800;
+    font-size: 1.7rem;
+    margin: 0 0 6px;
+    position: relative; z-index: 1;
+}
+.form-top p {
+    color: rgba(255,255,255,.72);
+    font-size: 0.88rem;
+    position: relative; z-index: 1;
+}
+.top-icon {
+    width: 72px; height: 72px;
+    background: rgba(255,255,255,.18);
+    border: 2px solid rgba(255,255,255,.35);
+    border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.9rem;
+    margin: 0 auto 18px;
+    position: relative; z-index: 1;
+    box-shadow: 0 10px 28px rgba(0,0,0,.15);
+}
 
-  <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-</head>
-<br><br><br><br><br><br>
-<!------ update page for doctor by admin(sumit)  ---------->
+/* FORM BODY */
+.form-body {
+    padding: 36px 40px 42px;
+}
+
+/* DIVIDER */
+.divider {
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, #ddd6fe, #fbcfe8, transparent);
+    margin-bottom: 28px;
+}
+
+/* FIELD GROUP */
+.field-group { margin-bottom: 20px; }
+
+label {
+    color: var(--bright);
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: block;
+    letter-spacing: 0.3px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    background: var(--lav);
+    color: var(--bright);
+    font-size: 0.95rem;
+    font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
+    outline: none;
+    transition: 0.25s;
+    box-sizing: border-box;
+}
+.form-control::placeholder { color: rgba(124,58,237,.38); }
+.form-control:focus {
+    border-color: var(--purple);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(124,58,237,.1);
+}
+
+/* file input */
+input[type="file"].form-control {
+    padding: 11px 16px;
+    cursor: pointer;
+}
+input[type="file"].form-control::-webkit-file-upload-button {
+    background: var(--grad);
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    padding: 7px 16px;
+    font-family: 'Lexend', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-right: 12px;
+}
+
+/* SECTION LABEL */
+.section-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* PRICE ICON WRAPPER */
+.price-wrap { position: relative; }
+.price-wrap .price-prefix {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    color: var(--purple); font-weight: 800; font-size: 0.9rem; pointer-events: none;
+}
+.price-wrap .form-control { padding-left: 36px; }
+
+/* SUBMIT */
+.btn-submit {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    background: var(--grad);
+    color: #fff;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
+    box-shadow: 0 10px 28px rgba(124,58,237,.32);
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-top: 8px;
+    position: relative; overflow: hidden;
+}
+.btn-submit::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+    transform: translateX(-100%); transition: .5s;
+}
+.btn-submit:hover::after { transform: translateX(100%); }
+.btn-submit:hover { transform: translateY(-3px); box-shadow: 0 16px 38px rgba(190,24,93,.42); }
+.btn-submit:active { transform: translateY(0); }
+</style>
+
 <form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  <div class="container register-form">
-    <div class="form">
-      <div class="note">
-        <p>ADD PRODUCTS</p>
-      </div>
-      <div class="form-content">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              {% render_field productForm.name class="form-control" placeholder="Product Name" %}
-            </div>
-            <div class="form-group">
-              {% render_field productForm.description class="form-control" placeholder="Description" %}
-            </div>
+    {% csrf_token %}
 
-          </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              {% render_field productForm.price class="form-control" placeholder="Price" %}
-            </div>
-            <div class="form-group">
-              {% render_field productForm.product_image class="form-control" placeholder="product_image" %}
-            </div>
+    <div class="form-wrapper">
 
-
-          </div>
+        <!-- Gradient Top -->
+        <div class="form-top">
+            <div class="top-icon">📦</div>
+            <h2>ເພີ່ມສິນຄ້າໃໝ່</h2>
+            <p>ກະລຸນາກອກຂໍ້ມູນສິນຄ້າໃຫ້ຄົບ</p>
         </div>
-        <button type="submit" class="btnSubmit">ADD</button>
-      </div>
+
+        <!-- White Body -->
+        <div class="form-body">
+            <div class="divider"></div>
+
+            <!-- Basic Info -->
+            <div class="section-label"><i class="fas fa-tag"></i> ຂໍ້ມູນພື້ນຖານ</div>
+
+            <div class="field-group">
+                <label>ໝວດໝູ່ສິນຄ້າ</label>
+                {% render_field productForm.category class="form-control" %}
+            </div>
+
+            <div class="field-group">
+                <label>ຊື່ສິນຄ້າ</label>
+                {% render_field productForm.name class="form-control" placeholder="ປ້ອນຊື່ສິນຄ້າ" %}
+            </div>
+
+            <div class="field-group">
+                <label>ລາຍລະອຽດ</label>
+                {% render_field productForm.description class="form-control" placeholder="ອະທິບາຍສິນຄ້າ..." %}
+            </div>
+
+            <!-- Price & Image -->
+            <div class="section-label" style="margin-top:8px;"><i class="fas fa-image"></i> ລາຄາ & ຮູບສິນຄ້າ</div>
+
+            <div style="display:flex; gap:18px; flex-wrap:wrap;">
+                <div style="flex:1; min-width:180px;" class="field-group">
+                    <label>ລາຄາ (₭)</label>
+                    <div class="price-wrap">
+                        <span class="price-prefix">₭</span>
+                        {% render_field productForm.price class="form-control" placeholder="0" %}
+                    </div>
+                </div>
+                <div style="flex:1.5; min-width:220px;" class="field-group">
+                    <label>ຮູບສິນຄ້າ</label>
+                    {% render_field productForm.product_image class="form-control" %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-save"></i> ບັນທຶກສິນຄ້າ
+            </button>
+        </div>
+
     </div>
-  </div>
 </form>
-<!--
-developed By : sumit kumar
-facebook : fb.com/sumit.luv
-youtube : youtube.com/lazycoders
--->
 
 {% endblock content %}

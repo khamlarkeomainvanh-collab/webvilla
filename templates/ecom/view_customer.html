@@ -2,63 +2,396 @@
 {% load static %}
 {% block content %}
 
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700&family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-<head>
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-
-  <style media="screen">
-    a:link {
-      text-decoration: none;
+<style>
+    :root {
+        --purple:  #7c3aed;
+        --pink:    #be185d;
+        --grad:    linear-gradient(135deg, #7c3aed, #be185d);
+        --green:   #10b981;
+        --red:     #ef4444;
+        --bright:  #2d1457;
+        --dim:     #64748b;
+        --border:  rgba(124,58,237,.13);
+        --lav:     #f5f3ff;
+        --lav2:    #fdf2f8;
     }
 
-    h6 {
-      text-align: center;
+    body { background: #ffffff !important; }
+
+    .page-wrap {
+        font-family: 'Lexend','Noto Sans Lao',sans-serif;
+        padding: 34px;
+        background: #ffffff;
+        min-height: 100vh;
+        animation: fadeUp 0.6s cubic-bezier(0.23,1,0.32,1);
+    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ===== TOP BAR ===== */
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+    .top-bar h1 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: var(--bright);
+        margin: 0;
+    }
+    .top-bar h1 span {
+        background: var(--grad);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .top-bar p { color: var(--dim); margin: 6px 0 0; font-size: 1.4rem; }
+
+    .badge-count {
+        background: rgba(124,58,237,.1);
+        border: 1px solid rgba(124,58,237,.22);
+        color: var(--purple);
+        padding: 8px 18px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
     }
 
-    .row {
-      margin: 100px;
+    .btn-excel {
+        background: linear-gradient(135deg,#1d6f42,#2ea05a);
+        color: #fff;
+        padding: 13px 22px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+        display: flex; align-items: center; gap: 8px;
+        transition: 0.25s;
+        box-shadow: 0 6px 20px rgba(29,111,66,.25);
     }
-  </style>
-</head>
-<!--
-written By : sumit kumar
-facebook : fb.com/sumit.luv
--->
-<div class="container">
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h6 class="panel-title">Total Customer List</h6>
+    .btn-excel:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(29,111,66,.4); color:#fff; }
+
+    /* ===== SEARCH BAR ===== */
+    .search-wrap {
+        margin-bottom: 28px;
+        position: relative;
+    }
+    .search-wrap input {
+        width: 100%;
+        background: var(--lav);
+        border: 1.5px solid var(--border);
+        border-radius: 16px;
+        padding: 14px 22px 14px 52px;
+        color: var(--bright);
+        font-family: 'Lexend','Noto Sans Lao',sans-serif;
+        font-size: 1.1rem;
+        outline: none;
+        transition: 0.25s;
+        box-sizing: border-box;
+    }
+    .search-wrap input::placeholder { color: rgba(124,58,237,.38); }
+    .search-wrap input:focus { border-color: var(--purple); background: #fff; box-shadow: 0 0 0 4px rgba(124,58,237,.1); }
+    .search-wrap .search-icon {
+        position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+        color: var(--purple); font-size: 1.2rem; pointer-events: none; opacity: .5;
+    }
+
+    /* ===== CARD GRID ===== */
+    .customer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 22px;
+    }
+
+    /* ===== CUSTOMER CARD ===== */
+    .c-card {
+        background: #ffffff;
+        border-radius: 40px;
+        border: 2px solid var(--border);
+        overflow: hidden;
+        transition: 0.3s cubic-bezier(0.23,1,0.32,1);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        box-shadow: 0 6px 24px rgba(124,58,237,.08);
+    }
+    .c-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(124,58,237,.3);
+        box-shadow: 0 24px 60px rgba(124,58,237,.16), 0 6px 20px rgba(190,24,93,.07);
+    }
+
+    /* top accent bar */
+    .c-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 6px;
+        background: var(--grad);
+        opacity: 0;
+        transition: 0.3s;
+    }
+    .c-card:hover::before { opacity: 1; }
+
+    /* ===== PHOTO SECTION ===== */
+    .photo-section {
+        position: relative;
+        background: linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 100%);
+        padding: 52px 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .photo-ring {
+        width: 110px; height: 110px;
+        border-radius: 50%;
+        padding: 3px;
+        background: var(--grad);
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .photo-ring img {
+        width: 100%; height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #fff;
+        display: block;
+    }
+
+    .no-pic {
+        width: 100%; height: 100%;
+        border-radius: 50%;
+        background: var(--lav);
+        border: 3px solid #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 3rem;
+        color: var(--purple);
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .online-dot {
+        position: absolute; bottom: 4px; right: 4px;
+        width: 18px; height: 18px;
+        background: var(--green);
+        border: 3px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 0 8px rgba(16,185,129,.5);
+    }
+
+    .cust-name {
+        color: var(--bright);
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin: 14px 0 4px;
+        text-align: center;
+        padding: 0 16px;
+    }
+    .cust-role {
+        font-size: 0.9rem;
+        color: var(--purple);
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 14px;
+    }
+
+    /* wave separator */
+    .wave-sep {
+        width: 100%;
+        overflow: hidden;
+        line-height: 0;
+        margin-top: 6px;
+    }
+    .wave-sep svg { display: block; }
+
+    /* ===== INFO SECTION ===== */
+    .info-section {
+        padding: 28px 30px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        flex: 1;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        background: var(--lav);
+        border-radius: 20px;
+        padding: 20px 26px;
+        border: 1.5px solid var(--border);
+    }
+
+    .info-icon {
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .icon-id    { background: rgba(124,58,237,.14); color: var(--purple); }
+    .icon-phone { background: rgba(190,24,93,.12);  color: var(--pink); }
+    .icon-addr  { background: rgba(16,185,129,.12); color: var(--green); }
+
+    .info-text {
+        display: flex; flex-direction: column; min-width: 0;
+    }
+    .info-label { font-size: 0.82rem; color: var(--dim); letter-spacing: 0.5px; text-transform: uppercase; }
+    .info-value { font-size: 1.05rem; color: var(--bright); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ===== ACTION FOOTER ===== */
+    .card-footer {
+        display: flex;
+        gap: 16px;
+        padding: 28px 30px 32px;
+        margin-top: 10px;
+    }
+
+    .btn-edit, .btn-del {
+        flex: 1;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 13px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: 0.2s;
+        border: none;
+        cursor: pointer;
+        font-family: 'Lexend','Noto Sans Lao',sans-serif;
+    }
+    .btn-edit { background: rgba(124,58,237,.1); color: var(--purple); border: 2px solid rgba(124,58,237,.22); }
+    .btn-edit:hover { background: var(--purple); color: #fff; border-color: var(--purple); }
+    .btn-del  { background: rgba(239,68,68,.1); color: var(--red); border: 2px solid rgba(239,68,68,.2); }
+    .btn-del:hover  { background: var(--red); color: #fff; }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        grid-column: 1/-1;
+    }
+    .empty-state .icon { font-size: 4rem; margin-bottom: 16px; opacity: 0.3; }
+    .empty-state p { color: var(--dim); font-size: 1.1rem; }
+</style>
+
+<div class="page-wrap">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div>
+            <h1>ຂໍ້ມູນ <span>ລູກຄ້າ</span></h1>
+            <p>ສະມາຊິກທັງໝົດທີ່ລົງທະບຽນໃນລະບົບ</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <span class="badge-count">👥 {{ customers|length }} ຄົນ</span>
+            <a href="{% url 'export-customers-excel' %}" class="btn-excel">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </a>
+        </div>
     </div>
-    <table class="table table-hover" id="dev-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Profile Picture</th>
-          <th>Mobile</th>
-          <th>Address</th>
-          <th>Update</th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-      {% for c in customers %}
-      <tr>
-        <td> {{c.get_name}}</td>
-        <td> <img src="{% static c.profile_pic.url %}" alt="Profile Pic" height="40px" width="40px" /></td>
-        <td>{{c.mobile}}</td>
-        <td>{{c.address}}</td>
-        <td><a class="btn btn-primary btn-xs" href="{% url 'update-customer' c.id  %}"><span class="glyphicon glyphicon-edit"></span></a></td>
-        <td><a class="btn btn-danger btn-xs" href="{% url 'delete-customer' c.id  %}"><span class="glyphicon glyphicon-trash"></span></a></td>
 
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
+    <!-- Search -->
+    <div class="search-wrap">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="searchInput" placeholder="ຄົ້ນຫາຊື່ລູກຄ້າ, ເບີໂທ, ທີ່ຢູ່..." oninput="filterCards()">
+    </div>
+
+    <!-- Cards -->
+    <div class="customer-grid" id="cardGrid">
+        {% for c in customers %}
+        <div class="c-card" data-search="{{ c.get_name|lower }} {{ c.mobile }} {{ c.address|lower }}">
+
+            <!-- Photo Section -->
+            <div class="photo-section">
+                <div class="photo-ring">
+                    {% if c.profile_pic %}
+                        <img src="{{ c.profile_pic.url }}" alt="{{ c.get_name }}">
+                    {% else %}
+                        <div class="no-pic">{{ c.get_name|first }}</div>
+                    {% endif %}
+                    <div class="online-dot"></div>
+                </div>
+                <div class="cust-name">{{ c.get_name }}</div>
+                <div class="cust-role">ລູກຄ້າສະມາຊິກ</div>
+                <!-- wave -->
+                <div class="wave-sep">
+                    <svg viewBox="0 0 360 20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" height="20" width="100%">
+                        <path d="M0,10 C60,20 120,0 180,10 C240,20 300,0 360,10 L360,20 L0,20 Z" fill="#ffffff"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="info-section">
+                <div class="info-row">
+                    <div class="info-icon icon-id"><i class="fas fa-hashtag"></i></div>
+                    <div class="info-text">
+                        <span class="info-label">ລະຫັດລູກຄ້າ</span>
+                        <span class="info-value">#CUST-{{ c.id }}</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-icon icon-phone"><i class="fas fa-phone-alt"></i></div>
+                    <div class="info-text">
+                        <span class="info-label">ເບີໂທລະສັບ</span>
+                        <span class="info-value">{{ c.mobile }}</span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-icon icon-addr"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="info-text">
+                        <span class="info-label">ທີ່ຢູ່</span>
+                        <span class="info-value" title="{{ c.address }}">{{ c.address }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="card-footer">
+                <a href="{% url 'update-customer' c.id %}" class="btn-edit">
+                    <i class="fas fa-user-edit"></i> ແກ້ໄຂ
+                </a>
+                <a href="{% url 'delete-customer' c.id %}" class="btn-del"
+                   onclick="return confirm('ທ່ານແນ່ໃຈບໍ່ວ່າຈະລຶບ {{ c.get_name }}?')">
+                    <i class="fas fa-trash-alt"></i> ລຶບ
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <div class="icon">👤</div>
+            <p>ບໍ່ມີຂໍ້ມູນລູກຄ້າໃນລະບົບ</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- No results message -->
+    <div id="noResults" style="display:none; text-align:center; padding:60px; color:#64748b;">
+        <div style="font-size:2.5rem;margin-bottom:12px;">🔍</div>
+        <p>ບໍ່ພົບຂໍ້ມູນທີ່ຄົ້ນຫາ</p>
+    </div>
 </div>
-<!--
-developed By : sumit kumar
-facebook : fb.com/sumit.luv
-youtube : youtube.com/lazycoders
--->
+
+<script>
+function filterCards() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('.c-card');
+    let found = 0;
+    cards.forEach(card => {
+        const match = card.dataset.search.includes(q);
+        card.style.display = match ? '' : 'none';
+        if (match) found++;
+    });
+    document.getElementById('noResults').style.display = found === 0 ? 'block' : 'none';
+}
+</script>
+
 {% endblock content %}

@@ -1,77 +1,844 @@
 {% extends 'ecom/admin_base.html' %}
 {% load static %}
+{% load lao_filters %}
 {% block content %}
 
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;800&family=Noto+Sans+Lao:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-<head>
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<style>
+:root {
+    --bg:     #ffffff;
+    --card:   #ffffff;
+    --blue:   #7c3aed;
+    --purple: #be185d;
+    --green:  #10b981;
+    --amber:  #f59e0b;
+    --red:    #ef4444;
+    --dim:    #64748b;
+    --bright: #2d1457;
+    --border: rgba(124,58,237,.13);
+    --lav:    #f5f3ff;
+    --lav2:   #fdf2f8;
+    --grad:   linear-gradient(135deg, #7c3aed, #be185d);
+}
 
-  <style media="screen">
-    a:link {
-      text-decoration: none;
-    }
+body { background: #ffffff !important; }
 
-    h6 {
-      text-align: center;
-    }
+.page { font-family:'Lexend','Noto Sans Lao',sans-serif; padding:34px; background:#ffffff; min-height:100vh; color:var(--dim); animation:fadeUp .6s cubic-bezier(.23,1,.32,1); font-size:16px; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
 
-    .row {
-      margin: 100px;
-    }
-  </style>
-</head>
-<!--
-written By : sumit kumar
-facebook : fb.com/sumit.luv
--->
-<div class="container">
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h6 class="panel-title">Total Orders</h6>
+/* TOP BAR */
+.top-bar { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:32px; flex-wrap:wrap; }
+.top-bar h1 { font-size:2.8rem; font-weight:800; color:var(--bright); margin:0; }
+.top-bar h1 span { background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.top-bar p { color:var(--dim); font-size:1.4rem; margin:6px 0 0; }
+
+.btn-excel {
+    background:linear-gradient(135deg,#1d6f42,#2ea05a);
+    color:#fff; padding:13px 22px; border-radius:15px; font-weight:700;
+    font-size:1rem; text-decoration:none; display:flex; align-items:center;
+    gap:10px; transition:.25s; box-shadow:0 6px 20px rgba(29,111,66,.35);
+}
+.btn-excel:hover { transform:translateY(-2px); color:#fff; box-shadow:0 10px 28px rgba(29,111,66,.5); }
+
+/* DATE NAV */
+.date-nav {
+    display:flex; align-items:center; justify-content:space-between;
+    background:#ffffff; border-radius:22px; padding:20px 28px;
+    border:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; gap:16px;
+    box-shadow:0 4px 18px rgba(124,58,237,.06);
+}
+.date-arrows { display:flex; align-items:center; gap:12px; }
+.arrow-btn {
+    width:52px; height:52px; border-radius:14px; background:var(--lav);
+    border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+    color:var(--dim); text-decoration:none; font-size:1.6rem; transition:.2s;
+}
+.arrow-btn:hover { background:rgba(124,58,237,.12); color:var(--blue); border-color:rgba(124,58,237,.25); }
+.arrow-btn.disabled { opacity:.3; pointer-events:none; }
+.date-label { text-align:center; }
+.date-label .d-main { color:var(--bright); font-size:1.7rem; font-weight:700; }
+.date-label .d-sub  { color:var(--dim); font-size:1.1rem; margin-top:4px; }
+.btn-today { padding:10px 20px; border-radius:13px; background:rgba(124,58,237,.08); color:var(--blue); text-decoration:none; font-weight:700; font-size:1.1rem; border:1px solid rgba(124,58,237,.2); transition:.2s; }
+.btn-today:hover { background:rgba(124,58,237,.16); color:var(--blue); }
+.count-badge { background:rgba(124,58,237,.08); border:1px solid rgba(124,58,237,.2); color:var(--blue); padding:8px 18px; border-radius:50px; font-weight:700; font-size:1.1rem; }
+
+/* DATE PICKER WRAP */
+.date-pick-wrap {
+    position: relative; cursor: pointer;
+    padding: 12px 18px; border-radius: 16px;
+    border: 1.5px solid rgba(124,58,237,.18);
+    background: var(--lav);
+    transition: .22s;
+    display: flex; align-items: center; gap: 12px;
+    user-select: none;
+}
+.date-pick-wrap:hover {
+    border-color: rgba(124,58,237,.42);
+    background: #ede9fe;
+    box-shadow: 0 4px 14px rgba(124,58,237,.12);
+}
+.date-pick-wrap .cal-icon {
+    font-size: 1.6rem; color: var(--blue); flex-shrink:0;
+}
+.date-pick-input {
+    position: absolute; inset: 0;
+    opacity: 0; width: 100%; height: 100%;
+    cursor: pointer; border: none; background: transparent;
+    z-index: 2;
+}
+.date-pick-input::-webkit-calendar-picker-indicator {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: pointer;
+}
+
+/* STATUS FILTER TABS */
+.status-tabs {
+    display:flex; gap:10px; flex-wrap:wrap;
+    background:#ffffff; border-radius:20px; padding:16px 22px;
+    border:1px solid var(--border); margin-bottom:18px; align-items:center;
+    box-shadow:0 4px 18px rgba(124,58,237,.06);
+}
+.status-tabs .tabs-label {
+    color:var(--dim); font-size:1.1rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:1.2px; margin-right:4px; white-space:nowrap;
+}
+.stab {
+    display:flex; align-items:center; gap:9px;
+    padding:10px 18px; border-radius:50px; text-decoration:none;
+    font-size:1.1rem; font-weight:700; transition:.2s; white-space:nowrap;
+    border:1.5px solid transparent;
+    font-family:'Noto Sans Lao','Lexend',sans-serif;
+}
+.stab .stab-count {
+    background:rgba(0,0,0,.06); border-radius:20px;
+    padding:2px 10px; font-size:1rem; font-weight:800;
+    min-width:24px; text-align:center;
+}
+.stab.s-all { color:var(--bright); border-color:rgba(124,58,237,.18); background:var(--lav); }
+.stab.s-all:hover { background:#ede9fe; }
+.stab.s-all.active { background:var(--grad); color:#fff; border-color:transparent; box-shadow:0 4px 16px rgba(124,58,237,.3); }
+.stab.s-all.active .stab-count { background:rgba(255,255,255,.25); }
+.stab.s-pending { color:#0891b2; background:rgba(8,145,178,.06); border-color:rgba(8,145,178,.2); }
+.stab.s-pending:hover { background:rgba(8,145,178,.12); }
+.stab.s-pending.active { background:#0891b2; color:#fff; border-color:#0891b2; box-shadow:0 4px 16px rgba(8,145,178,.35); }
+.stab.s-pending.active .stab-count { background:rgba(255,255,255,.25); }
+.stab.s-confirmed { color:var(--blue); background:rgba(124,58,237,.06); border-color:rgba(124,58,237,.15); }
+.stab.s-confirmed:hover { background:rgba(124,58,237,.12); }
+.stab.s-confirmed.active { background:var(--blue); color:#fff; border-color:var(--blue); box-shadow:0 4px 16px rgba(124,58,237,.35); }
+.stab.s-confirmed.active .stab-count { background:rgba(255,255,255,.25); }
+.stab.s-processing { color:var(--amber); background:rgba(245,158,11,.06); border-color:rgba(245,158,11,.15); }
+.stab.s-processing:hover { background:rgba(245,158,11,.14); }
+.stab.s-processing.active { background:var(--amber); color:#fff; border-color:var(--amber); box-shadow:0 4px 16px rgba(245,158,11,.4); }
+.stab.s-processing.active .stab-count { background:rgba(255,255,255,.25); }
+.stab.s-delivered { color:var(--green); background:rgba(16,185,129,.06); border-color:rgba(16,185,129,.15); }
+.stab.s-delivered:hover { background:rgba(16,185,129,.14); }
+.stab.s-delivered.active { background:var(--green); color:#fff; border-color:var(--green); box-shadow:0 4px 16px rgba(16,185,129,.4); }
+.stab.s-delivered.active .stab-count { background:rgba(255,255,255,.25); }
+.stab.s-cancelled { color:var(--red); background:rgba(239,68,68,.06); border-color:rgba(239,68,68,.15); }
+.stab.s-cancelled:hover { background:rgba(239,68,68,.14); }
+.stab.s-cancelled.active { background:var(--red); color:#fff; border-color:var(--red); box-shadow:0 4px 16px rgba(239,68,68,.4); }
+.stab.s-cancelled.active .stab-count { background:rgba(255,255,255,.25); }
+
+/* TABLE */
+.t-wrap { background:#ffffff; border-radius:26px; border:1px solid var(--border); overflow:hidden; box-shadow:0 8px 32px rgba(124,58,237,.08); }
+.t-wrap table { width:100%; border-collapse:collapse; }
+.t-wrap thead th { background:var(--lav); color:var(--blue); padding:20px 20px; font-size:1.1rem; text-transform:uppercase; letter-spacing:1.4px; border-bottom:1px solid var(--border); white-space:nowrap; }
+
+/* GROUP ROW */
+.group-row { border-bottom:2px solid rgba(124,58,237,.07); transition:background .25s; }
+.group-row:hover { background:rgba(124,58,237,.03); }
+.group-row td { padding:20px 20px; vertical-align:middle; }
+
+/* ITEM ROW */
+.item-row { border-bottom:1px solid rgba(124,58,237,.06); background:var(--lav2); }
+.item-row td { padding:16px 20px; vertical-align:middle; }
+.item-row:last-of-type { border-bottom:2px solid rgba(124,58,237,.07); }
+
+/* Queue badge */
+.q-badge {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:64px; height:64px; border-radius:18px;
+    background:linear-gradient(135deg, rgba(124,58,237,.12), rgba(190,24,93,.08));
+    border:1.5px solid rgba(124,58,237,.22);
+    font-size:1.3rem; font-weight:800; color:var(--blue);
+    flex-shrink:0; font-family:'Lexend',sans-serif;
+}
+
+/* Product summary (group row) */
+.prod-summary { display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap; }
+.thumbs { display:flex; gap:6px; flex-shrink:0; }
+.img-ring-sm { width:54px; height:54px; padding:2px; background:var(--grad); border-radius:14px; flex-shrink:0; }
+.img-ring-sm img { width:100%; height:100%; border-radius:12px; object-fit:cover; border:2px solid #fff; display:block; }
+.img-ring-sm .emoji-ph { width:100%; height:100%; border-radius:12px; background:var(--lav); display:flex; align-items:center; justify-content:center; font-size:1.6rem; border:2px solid #fff; }
+.item-count-chip { background:rgba(124,58,237,.08); border:1px solid rgba(124,58,237,.2); color:var(--blue); border-radius:10px; padding:4px 12px; font-size:1rem; font-weight:800; white-space:nowrap; align-self:center; }
+.summary-list { display:flex; flex-direction:column; gap:4px; min-width:0; }
+.summary-line { font-size:1.1rem; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:260px; }
+.summary-line.cancelled { color:var(--red); text-decoration:line-through; opacity:.65; }
+
+/* Product wrap (item row) */
+.prod-wrap { display:flex; align-items:center; gap:14px; }
+.img-ring { width:64px; height:64px; padding:2px; background:var(--grad); border-radius:16px; flex-shrink:0; }
+.img-ring img { width:100%; height:100%; border-radius:14px; object-fit:cover; border:2px solid #fff; display:block; }
+.item-dot { width:10px; height:10px; background:rgba(124,58,237,.35); border-radius:50%; margin:auto; }
+
+/* time display */
+.time-chip {
+    display:inline-flex; align-items:center; gap:7px;
+    background:rgba(124,58,237,.08); border:1px solid rgba(124,58,237,.18);
+    color:var(--blue); border-radius:10px; padding:7px 14px;
+    font-size:1.1rem; font-weight:700;
+}
+
+/* status buttons row */
+.status-btns { display:flex; gap:7px; flex-wrap:wrap; }
+.sb {
+    padding:9px 14px; border-radius:11px; border:none; cursor:pointer;
+    font-family:'Noto Sans Lao','Lexend',sans-serif;
+    font-size:1rem; font-weight:700; transition:.18s; white-space:nowrap;
+}
+.sb-pending    { background:rgba(8,145,178,.1);   color:#0891b2; }
+.sb-confirmed  { background:rgba(124,58,237,.1);  color:var(--blue); }
+.sb-processing { background:rgba(245,158,11,.1);  color:var(--amber); }
+.sb-delivered  { background:rgba(16,185,129,.1);  color:var(--green); }
+.sb-cancelled  { background:rgba(239,68,68,.1);   color:var(--red); }
+.sb-pending.active    { background:#0891b2;        color:#fff; box-shadow:0 4px 14px rgba(8,145,178,.35); }
+.sb-confirmed.active  { background:var(--blue);   color:#fff; box-shadow:0 4px 14px rgba(124,58,237,.35); }
+.sb-processing.active { background:var(--amber);  color:#fff; box-shadow:0 4px 14px rgba(245,158,11,.4); }
+.sb-delivered.active  { background:var(--green);  color:#fff; box-shadow:0 4px 14px rgba(16,185,129,.4); }
+.sb-cancelled.active  { background:var(--red);    color:#fff; box-shadow:0 4px 14px rgba(239,68,68,.4); }
+.sb:hover { filter:brightness(1.1); transform:translateY(-1px); }
+
+/* actions */
+.act { display:flex; gap:8px; justify-content:flex-end; align-items:center; }
+.ic-btn { width:46px; height:46px; border-radius:13px; display:flex; align-items:center; justify-content:center; text-decoration:none; border:none; cursor:pointer; font-size:1.1rem; transition:.2s; flex-shrink:0; }
+.ic-inv { background:rgba(16,185,129,.1); color:var(--green); }
+.ic-inv:hover { background:var(--green); color:#fff; }
+.ic-del { background:rgba(239,68,68,.1);  color:var(--red); }
+.ic-del:hover { background:var(--red); color:#fff; }
+.ic-expand { background:rgba(124,58,237,.08); color:var(--blue); border:1px solid rgba(124,58,237,.2) !important; }
+.ic-expand:hover { background:rgba(124,58,237,.16); }
+.ic-expand i { transition:transform .25s; }
+.ic-cancel-item { width:auto; padding:0 14px; font-size:1rem; font-weight:700; background:rgba(239,68,68,.08); color:var(--red); border:1px solid rgba(239,68,68,.2); border-radius:10px; height:38px; }
+.ic-cancel-item:hover { background:var(--red); color:#fff; }
+.ic-restore-item { width:auto; padding:0 14px; font-size:1rem; font-weight:700; background:rgba(16,185,129,.08); color:var(--green); border:1px solid rgba(16,185,129,.2); border-radius:10px; height:38px; }
+.ic-restore-item:hover { background:var(--green); color:#fff; }
+
+/* cancelled item row style */
+.item-row.is-cancelled td { opacity:.6; }
+
+/* empty */
+.empty-row td { text-align:center; padding:100px 20px; }
+.empty-ico { font-size:5.5rem; opacity:.25; margin-bottom:18px; }
+</style>
+
+<div class="page">
+
+    <!-- Top -->
+    <div class="top-bar">
+        <div>
+            {% if show_all %}
+            <h1>ລາຍການຈອງ <span>ທັງໝົດ</span> 📋</h1>
+            <p>ສະແດງທຸກລາຍການສັ່ງຊື້ທັງໝົດໃນລະບົບ</p>
+            {% else %}
+            <h1>ຈັດການ <span>ລາຍການຈອງ</span> 📦</h1>
+            <p>ຕິດຕາມ ແລະ ອັບເດດສະຖານະການຈັດສົ່ງທັງໝົດ</p>
+            {% endif %}
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            {% if not show_all %}
+            <a href="{% url 'export-orders-excel' %}?date={{ selected_date|date:'Y-m-d' }}{% if active_status != 'All' %}&status={{ active_status }}{% endif %}" class="btn-excel">
+                <i class="fas fa-file-excel"></i> Export ວັນທີນີ້
+            </a>
+            {% endif %}
+            <button onclick="openMonthModal()" class="btn-excel" style="background:linear-gradient(135deg,#7c3aed,#be185d);border:none;cursor:pointer;">
+                <i class="fas fa-calendar-alt"></i> Export ທັງໝົດເດືອນ
+            </button>
+            <button onclick="openYearModal()" class="btn-excel" style="background:linear-gradient(135deg,#7c3aed,#be185d);border:none;cursor:pointer;">
+                <i class="fas fa-calendar-days"></i> Export ທັງໝົດປີ
+            </button>
+            <a href="{% url 'export-orders-excel' %}" class="btn-excel" style="background:linear-gradient(135deg,#1d6f42,#2ea05a);">
+                <i class="fas fa-file-excel"></i> Export ທັງໝົດ
+            </a>
+            {% if show_all %}
+            <a href="{% url 'admin-view-booking' %}" class="btn-excel" style="background:linear-gradient(135deg,#7c3aed,#be185d);text-decoration:none;">
+                <i class="fas fa-calendar-day"></i> ກັບໄປລາຍວັນ
+            </a>
+            {% else %}
+            <a href="?show_all=1&status={{ active_status }}" class="btn-excel" style="background:linear-gradient(135deg,#be185d,#9d174d);text-decoration:none;">
+                <i class="fas fa-list"></i> ລາຍການຈອງທັງໝົດ
+            </a>
+            {% endif %}
+        </div>
     </div>
-    <table class="table table-hover" id="dev-table">
-      <thead>
-        <tr>
-          <th>Customer Name</th>
-          <th>Customer Mobile</th>
-          <th>Shipment Address</th>
-          <th>Product Name</th>
-          <th>Product Picture</th>
-          <th>Status</th>
-          <th>Update Status</th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-      <!-- p for product, c for customer-->
-      {% for product,customer,order in data %}
-      <tr>
-        {% for c in customer %}
-        <td> {{c.get_name}}</td>
-        <td>{{c.mobile}}</td>
-        <td>{{order.address}}</td>
 
-        {% endfor %}
-        {% for p in product %}
-        <td> {{p.name}}</td>
-        <td> <img src="{% static p.product_image.url %}" alt="Profile Pic" height="40px" width="40px" /></td>
-        <td>{{order.status}}</td>
-        <td><a class="btn btn-primary btn-xs" href="{% url 'update-order' order.id  %}"><span class="glyphicon glyphicon-edit"></span></a></td>
-        <td><a class="btn btn-danger btn-xs" href="{% url 'delete-order' order.id  %}"><span class="glyphicon glyphicon-trash"></span></a></td>
+    <!-- Date Navigation -->
+    {% if not show_all %}
+    <div class="date-nav">
+        <div class="date-arrows">
+            <a href="?date={{ prev_date|date:'Y-m-d' }}&status={{ active_status }}" class="arrow-btn" title="ວັນກ່ອນ">‹</a>
 
-        {% endfor %}
+            <!-- Clickable date label — opens native calendar picker -->
+            <div class="date-pick-wrap" onclick="document.getElementById('datePicker').showPicker()">
+                <i class="fas fa-calendar-alt cal-icon"></i>
+                <div class="date-label" style="margin:0;">
+                    <div class="d-main">
+                        {% if is_today %}ມື້ນີ້ — {% endif %}{{ selected_date|date:"d F Y" }}
+                    </div>
+                    <div class="d-sub">{{ selected_date|date:"l" }} &nbsp;·&nbsp; <span style="color:rgba(124,58,237,.6);font-size:.7rem;">📅 ຄິກເພື່ອເລືອກວັນ</span></div>
+                </div>
+                <input type="date" id="datePicker" class="date-pick-input"
+                       value="{{ selected_date|date:'Y-m-d' }}"
+                       onchange="goToDate(this.value)">
+            </div>
 
+            <a href="?date={{ next_date|date:'Y-m-d' }}&status={{ active_status }}" class="arrow-btn {% if is_today %}disabled{% endif %}" title="ວັນຖັດໄປ">›</a>
+        </div>
 
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span class="count-badge">📋 {{ day_count }} ກຸ່ມທັງໝົດ</span>
+            {% if not is_today %}
+            <a href="?status={{ active_status }}" class="btn-today">ກັບມາມື້ນີ້</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 
-      </tr>
-      {% endfor %}
-    </table>
+    <!-- Status Filter Tabs -->
+    <div class="status-tabs">
+        <span class="tabs-label"><i class="fas fa-filter"></i> ສະຖານະ:</span>
+        {% if show_all %}
+        <a href="?show_all=1&status=All"       class="stab s-all       {% if active_status == 'All'        %}active{% endif %}"><i class="fas fa-border-all fa-xs"></i> ທັງໝົດ<span class="stab-count">{{ status_counts.All }}</span></a>
+        <a href="?show_all=1&status=Pending"   class="stab s-pending   {% if active_status == 'Pending'    %}active{% endif %}"><i class="fas fa-clock fa-xs"></i> ລໍຖ້າ<span class="stab-count">{{ status_counts.Pending }}</span></a>
+        <a href="?show_all=1&status=Confirmed" class="stab s-confirmed {% if active_status == 'Confirmed'  %}active{% endif %}"><i class="fas fa-inbox fa-xs"></i> ຢືນຢັນ<span class="stab-count">{{ status_counts.Confirmed }}</span></a>
+        <a href="?show_all=1&status=Processing"class="stab s-processing{% if active_status == 'Processing' %}active{% endif %}"><i class="fas fa-truck fa-xs"></i> ຈັດສົ່ງ<span class="stab-count">{{ status_counts.Processing }}</span></a>
+        <a href="?show_all=1&status=Delivered" class="stab s-delivered {% if active_status == 'Delivered'  %}active{% endif %}"><i class="fas fa-check-circle fa-xs"></i> ສຳເລັດ<span class="stab-count">{{ status_counts.Delivered }}</span></a>
+        <a href="?show_all=1&status=Cancelled" class="stab s-cancelled {% if active_status == 'Cancelled'  %}active{% endif %}"><i class="fas fa-ban fa-xs"></i> ຍົກເລີກ<span class="stab-count">{{ status_counts.Cancelled }}</span></a>
+        {% else %}
+        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=All"
+           class="stab s-all {% if active_status == 'All' %}active{% endif %}">
+            <i class="fas fa-border-all fa-xs"></i> ທັງໝົດ
+            <span class="stab-count">{{ status_counts.All }}</span>
+        </a>
+        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Pending"
+           class="stab s-pending {% if active_status == 'Pending' %}active{% endif %}">
+            <i class="fas fa-clock fa-xs"></i> ລໍຖ້າການຢືນຢັນ
+            <span class="stab-count">{{ status_counts.Pending }}</span>
+        </a>
+        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Confirmed"
+           class="stab s-confirmed {% if active_status == 'Confirmed' %}active{% endif %}">
+            <i class="fas fa-inbox fa-xs"></i> ຮັບ/ຢືນຢັນ
+            <span class="stab-count">{{ status_counts.Confirmed }}</span>
+        </a>
+        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Processing"
+           class="stab s-processing {% if active_status == 'Processing' %}active{% endif %}">
+            <i class="fas fa-truck fa-xs"></i> ກຳລັງຈັດສົ່ງ
+            <span class="stab-count">{{ status_counts.Processing }}</span>
+        </a>
+        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Delivered"
+           class="stab s-delivered {% if active_status == 'Delivered' %}active{% endif %}">
+            <i class="fas fa-check-circle fa-xs"></i> ຈັດສົ່ງສຳເລັດ
+            <span class="stab-count">{{ status_counts.Delivered }}</span>
+        </a>
+        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Cancelled"
+           class="stab s-cancelled {% if active_status == 'Cancelled' %}active{% endif %}">
+            <i class="fas fa-ban fa-xs"></i> ຍົກເລີກ
+            <span class="stab-count">{{ status_counts.Cancelled }}</span>
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Table -->
+    <div class="t-wrap">
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="text-align:center; width:56px;">Q#</th>
+                        <th>ສິນຄ້າ</th>
+                        <th>ຂໍ້ມູນລູກຄ້າ</th>
+                        <th>ເວລາ / ລາຄາ</th>
+                        <th>ອັບເດດສະຖານະ</th>
+                        <th style="text-align:right; padding-right:20px;">ຈັດການ</th>
+                    </tr>
+                </thead>
+                <tbody id="order-tbody">
+                    {% for group in data %}
+
+                    <!-- ═══════════ GROUP ROW ═══════════ -->
+                    <tr class="group-row" id="grp-{{ forloop.counter }}"
+                        data-group-key="{{ group.key }}"
+                        data-order-ids="{% for oid in group.order_ids %}{{ oid }}{% if not forloop.last %},{% endif %}{% endfor %}">
+
+                        <!-- Queue # -->
+                        <td style="text-align:center;">
+                            <div class="q-badge">Q{{ group.queue_num }}</div>
+                        </td>
+
+                        <!-- Products summary -->
+                        <td>
+                            <div class="prod-summary">
+                                <div class="thumbs">
+                                    {% for order in group.orders %}{% if forloop.counter <= 3 %}
+                                    <div class="img-ring-sm">
+                                        {% if order.product and order.product.product_image %}
+                                        <img src="{{ order.product.product_image.url }}" alt="{{ order.product.name }}">
+                                        {% else %}<div class="emoji-ph">🥤</div>{% endif %}
+                                    </div>
+                                    {% endif %}{% endfor %}
+                                    {% if group.item_count > 3 %}
+                                    <div class="item-count-chip">+{{ group.item_count|add:"-3" }}</div>
+                                    {% elif group.item_count > 1 %}
+                                    <div class="item-count-chip">{{ group.item_count }} ລາຍ</div>
+                                    {% endif %}
+                                </div>
+                                <div class="summary-list">
+                                    {% for order in group.orders %}
+                                    <div class="summary-line {% if order.status == 'Cancelled' %}cancelled{% endif %}">
+                                        {{ order.product.name }}
+                                        {% if order.quantity > 1 %}<span style="color:var(--dim);">×{{ order.quantity }}</span>{% endif %}
+                                        <span style="color:var(--green); font-weight:700;">₭{{ order.amount|dotformat }}</span>
+                                        {% if order.status == 'Cancelled' %}<span style="font-size:.65rem;">(ຍົກເລີກ)</span>{% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Customer -->
+                        <td>
+                            {% if group.customer %}
+                            <div style="font-weight:700; color:var(--bright); font-size:1.15rem;">{{ group.customer.get_name }}</div>
+                            <div style="font-size:1rem; margin-top:6px;">
+                                <i class="fas fa-phone-alt" style="color:var(--purple); font-size:.9rem;"></i>
+                                {{ group.customer.mobile }}
+                            </div>
+                            {% endif %}
+                            {% if group.canonical.address %}
+                            <div style="font-size:.95rem; color:var(--dim); margin-top:4px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                <i class="fas fa-map-marker-alt" style="color:var(--green); font-size:.9rem;"></i>
+                                {{ group.canonical.address }}
+                            </div>
+                            {% endif %}
+                        </td>
+
+                        <!-- Time + Total -->
+                        <td style="white-space:nowrap;">
+                            <div style="color:var(--bright); font-weight:700; font-size:1.1rem; margin-bottom:7px;">
+                                {{ group.canonical.order_date|date:"d/m/Y" }}
+                            </div>
+                            <div class="time-chip">
+                                <i class="fas fa-clock fa-xs"></i> {{ group.local_time }} ນ.
+                            </div>
+                            <div style="color:var(--green); font-weight:800; font-size:1.2rem; margin-top:8px;">
+                                ₭ {{ group.total_amount|dotformat }}
+                            </div>
+                        </td>
+
+                        <!-- Status Buttons (update whole group) -->
+                        <td>
+                            <div class="status-btns" id="grp-btns-{{ forloop.counter }}">
+                                <button class="sb sb-pending {% if group.canonical.status == 'Pending' %}active{% endif %}"
+                                        onclick="setGroupStatus('{{ group.key }}', {{ forloop.counter }}, 'Pending')">
+                                    <i class="fas fa-clock fa-xs"></i> ລໍຖ້າ
+                                </button>
+                                <button class="sb sb-confirmed {% if group.canonical.status == 'Confirmed' %}active{% endif %}"
+                                        onclick="setGroupStatus('{{ group.key }}', {{ forloop.counter }}, 'Confirmed')">
+                                    <i class="fas fa-inbox fa-xs"></i> ຢືນຢັນ
+                                </button>
+                                <button class="sb sb-processing {% if group.canonical.status == 'Processing' %}active{% endif %}"
+                                        onclick="setGroupStatus('{{ group.key }}', {{ forloop.counter }}, 'Processing')">
+                                    <i class="fas fa-truck fa-xs"></i> ຈັດສົ່ງ
+                                </button>
+                                <button class="sb sb-delivered {% if group.canonical.status == 'Delivered' %}active{% endif %}"
+                                        onclick="setGroupStatus('{{ group.key }}', {{ forloop.counter }}, 'Delivered')">
+                                    <i class="fas fa-check-circle fa-xs"></i> ສຳເລັດ
+                                </button>
+                                <button class="sb sb-cancelled {% if group.canonical.status == 'Cancelled' %}active{% endif %}"
+                                        onclick="setGroupStatus('{{ group.key }}', {{ forloop.counter }}, 'Cancelled')">
+                                    <i class="fas fa-ban fa-xs"></i> ຍົກເລີກທັງໝົດ
+                                </button>
+                            </div>
+                        </td>
+
+                        <!-- Actions -->
+                        <td>
+                            <div class="act">
+                                {% if group.item_count > 1 %}
+                                <button class="ic-btn ic-expand" onclick="toggleItems({{ forloop.counter }})"
+                                        title="ດູລາຍການທັງໝົດ">
+                                    <i class="fas fa-chevron-down" id="chevron-{{ forloop.counter }}"></i>
+                                </button>
+                                {% endif %}
+                                <a href="{% url 'download-group-invoice' group.canonical.id %}" class="ic-btn ic-inv" title="ໃບບິນ">
+                                    <i class="fas fa-file-invoice"></i>
+                                </a>
+                                <button onclick="deleteGroup('{{ group.key }}', {{ group.item_count }}, {{ forloop.counter }})"
+                                        class="ic-btn ic-del" title="ລຶບກຸ່ມ">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- ═══════════ ITEM ROWS (hidden by default) ═══════════ -->
+                    {% for order in group.orders %}
+                    <tr class="item-row item-grp-{{ forloop.parentloop.counter }} {% if order.status == 'Cancelled' %}is-cancelled{% endif %}"
+                        style="display:none;" id="item-row-{{ order.id }}">
+
+                        <!-- indent dot -->
+                        <td style="text-align:center;">
+                            <div class="item-dot"></div>
+                        </td>
+
+                        <!-- Product detail -->
+                        <td>
+                            <div class="prod-wrap">
+                                <div class="img-ring">
+                                    {% if order.product and order.product.product_image %}
+                                    <img src="{{ order.product.product_image.url }}" alt="{{ order.product.name }}">
+                                    {% else %}
+                                    <div style="width:100%;height:100%;border-radius:10px;background:var(--lav);display:flex;align-items:center;justify-content:center;font-size:1.3rem;border:2px solid #fff;">🥤</div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div style="font-weight:700; font-size:1.1rem;
+                                        color:{% if order.status == 'Cancelled' %}var(--red){% else %}var(--bright){% endif %};
+                                        {% if order.status == 'Cancelled' %}text-decoration:line-through; opacity:.75;{% endif %}">
+                                        {{ order.product.name }}
+                                    </div>
+                                    <div style="font-size:1rem; margin-top:5px; display:flex; gap:9px; align-items:center; flex-wrap:wrap;">
+                                        <code style="color:var(--blue); font-size:.95rem;">#{{ order.id }}</code>
+                                        <span style="color:var(--green); font-weight:700;">₭{{ order.amount|dotformat }}</span>
+                                        <span style="color:var(--dim);">×{{ order.quantity }}</span>
+                                        {% if order.status == 'Cancelled' %}
+                                        <span style="background:rgba(239,68,68,.12); color:var(--red); border:1px solid rgba(239,68,68,.3); border-radius:8px; padding:3px 10px; font-weight:700; font-size:.9rem;">ຍົກເລີກ</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Customer (empty — shown in group row) -->
+                        <td style="color:var(--dim);font-size:1rem;font-style:italic;">— ລາຍຍ່ອຍ —</td>
+
+                        <!-- Time (empty) -->
+                        <td></td>
+
+                        <!-- Per-item status buttons -->
+                        <td>
+                            <div class="status-btns" id="item-btns-{{ order.id }}">
+                                <button class="sb sb-pending {% if order.status == 'Pending' %}active{% endif %}"
+                                        onclick="setStatus({{ order.id }}, 'Pending')">
+                                    <i class="fas fa-clock fa-xs"></i> ລໍຖ້າ
+                                </button>
+                                <button class="sb sb-confirmed {% if order.status == 'Confirmed' %}active{% endif %}"
+                                        onclick="setStatus({{ order.id }}, 'Confirmed')">
+                                    <i class="fas fa-inbox fa-xs"></i> ຢືນຢັນ
+                                </button>
+                                <button class="sb sb-processing {% if order.status == 'Processing' %}active{% endif %}"
+                                        onclick="setStatus({{ order.id }}, 'Processing')">
+                                    <i class="fas fa-truck fa-xs"></i> ຈັດສົ່ງ
+                                </button>
+                                <button class="sb sb-delivered {% if order.status == 'Delivered' %}active{% endif %}"
+                                        onclick="setStatus({{ order.id }}, 'Delivered')">
+                                    <i class="fas fa-check-circle fa-xs"></i> ສຳເລັດ
+                                </button>
+                                <button class="sb sb-cancelled {% if order.status == 'Cancelled' %}active{% endif %}"
+                                        onclick="setStatus({{ order.id }}, 'Cancelled')">
+                                    <i class="fas fa-ban fa-xs"></i> ຍົກເລີກ
+                                </button>
+                            </div>
+                        </td>
+
+                        <!-- Delete -->
+                        <td>
+                            <div class="act">
+                                <a href="{% url 'delete-order' order.id %}" class="ic-btn ic-del" title="ລຶບ"
+                                   onclick="return confirm('ລຶບ {{ order.product.name }} ອອກ?')">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <!-- ═══════════════════════════════════════════════════════ -->
+
+                    {% empty %}
+                    <tr class="empty-row" id="empty-row">
+                        <td colspan="6">
+                            <div class="empty-ico">📭</div>
+                            <div style="color:var(--dim); font-weight:600; margin-bottom:6px;">
+                                ບໍ່ມີລາຍການ
+                                {% if active_status == 'Pending' %}ລໍຖ້າຮັບ
+                                {% elif active_status == 'Confirmed' %}ທີ່ຢືນຢັນ
+                                {% elif active_status == 'Processing' %}ກຳລັງຈັດສົ່ງ
+                                {% elif active_status == 'Delivered' %}ຈັດສົ່ງສຳເລັດ
+                                {% else %}ທີ່ຍົກເລີກ
+                                {% endif %}
+                            </div>
+                            <div style="color:var(--dim); font-size:.82rem; opacity:.6;">ວັນທີ {{ selected_date|date:"d/m/Y" }}</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MONTH EXPORT MODAL ══ -->
+<div id="monthModal" style="
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,.35); backdrop-filter:blur(6px);
+    align-items:center; justify-content:center;
+">
+  <div style="
+    background:#ffffff; border:1.5px solid rgba(124,58,237,.15);
+    border-radius:24px; padding:32px 28px; width:360px; max-width:92vw;
+    box-shadow:0 24px 70px rgba(124,58,237,.18);
+    animation:popIn .3s cubic-bezier(.34,1.56,.64,1);
+    position:relative;
+  ">
+    <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:70%;height:3px;background:linear-gradient(90deg,transparent,#7c3aed,#be185d,transparent);border-radius:2px;"></div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;">
+      <div style="width:48px;height:48px;border-radius:14px;flex-shrink:0;background:linear-gradient(135deg,#7c3aed,#be185d);display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 8px 22px rgba(124,58,237,.3);">📅</div>
+      <div>
+        <div style="color:#2d1457;font-weight:800;font-size:1.05rem;">Export ທັງໝົດເດືອນ</div>
+        <div style="color:#64748b;font-size:.8rem;margin-top:2px;">ເລືອກເດືອນທີ່ຕ້ອງການ export</div>
+      </div>
+    </div>
+    <label style="display:block;color:#64748b;font-size:.8rem;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">ເດືອນ / ປີ</label>
+    <input type="month" id="monthInput" value="{{ selected_date|date:'Y-m' }}"
+      style="width:100%;padding:13px 16px;border-radius:14px;background:#f5f3ff;border:1.5px solid rgba(124,58,237,.2);color:#2d1457;font-size:1rem;font-weight:700;outline:none;font-family:'Lexend','Noto Sans Lao',sans-serif;transition:.2s;"
+      onfocus="this.style.borderColor='rgba(124,58,237,.5)';this.style.boxShadow='0 0 0 3px rgba(124,58,237,.12)'"
+      onblur="this.style.borderColor='rgba(124,58,237,.2)';this.style.boxShadow='none'">
+    <div style="display:flex;gap:10px;margin-top:22px;">
+      <button onclick="closeMonthModal()" style="flex:1;padding:13px;border-radius:14px;border:1.5px solid rgba(124,58,237,.15);background:rgba(124,58,237,.06);color:#64748b;font-size:.9rem;font-weight:700;cursor:pointer;transition:.2s;font-family:'Lexend','Noto Sans Lao',sans-serif;">ຍົກເລີກ</button>
+      <button onclick="doMonthExport()" style="flex:2;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff;font-size:.9rem;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(124,58,237,.3);transition:.3s;font-family:'Lexend','Noto Sans Lao',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <i class="fas fa-file-excel"></i> Export Excel
+      </button>
+    </div>
   </div>
 </div>
-<!--
-developed By : sumit kumar
-facebook : fb.com/sumit.luv
-youtube : youtube.com/lazycoders
--->
+
+<!-- ══ YEAR EXPORT MODAL ══ -->
+<div id="yearModal" style="
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,.35); backdrop-filter:blur(6px);
+    align-items:center; justify-content:center;
+">
+  <div style="
+    background:#ffffff; border:1.5px solid rgba(124,58,237,.15);
+    border-radius:24px; padding:32px 28px; width:360px; max-width:92vw;
+    box-shadow:0 24px 70px rgba(124,58,237,.18);
+    animation:popIn .3s cubic-bezier(.34,1.56,.64,1);
+    position:relative;
+  ">
+    <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:70%;height:3px;background:linear-gradient(90deg,transparent,#7c3aed,#be185d,transparent);border-radius:2px;"></div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;">
+      <div style="width:48px;height:48px;border-radius:14px;flex-shrink:0;background:linear-gradient(135deg,#7c3aed,#be185d);display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 8px 22px rgba(124,58,237,.3);">📅</div>
+      <div>
+        <div style="color:#2d1457;font-weight:800;font-size:1.05rem;">Export ທັງໝົດປີ</div>
+        <div style="color:#64748b;font-size:.8rem;margin-top:2px;">ເລືອກປີທີ່ຕ້ອງການ export</div>
+      </div>
+    </div>
+    <label style="display:block;color:#64748b;font-size:.8rem;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">ປີ (YYYY)</label>
+    <input type="number" id="yearInput" min="2020" max="2099" value="{{ selected_date|date:'Y' }}"
+      style="width:100%;padding:13px 16px;border-radius:14px;background:#f5f3ff;border:1.5px solid rgba(124,58,237,.2);color:#2d1457;font-size:1.1rem;font-weight:700;outline:none;font-family:'Lexend','Noto Sans Lao',sans-serif;transition:.2s;letter-spacing:2px;"
+      onfocus="this.style.borderColor='rgba(124,58,237,.5)';this.style.boxShadow='0 0 0 3px rgba(124,58,237,.12)'"
+      onblur="this.style.borderColor='rgba(124,58,237,.2)';this.style.boxShadow='none'">
+    <div style="display:flex;gap:10px;margin-top:22px;">
+      <button onclick="closeYearModal()" style="flex:1;padding:13px;border-radius:14px;border:1.5px solid rgba(124,58,237,.15);background:rgba(124,58,237,.06);color:#64748b;font-size:.9rem;font-weight:700;cursor:pointer;transition:.2s;font-family:'Lexend','Noto Sans Lao',sans-serif;">ຍົກເລີກ</button>
+      <button onclick="doYearExport()" style="flex:2;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff;font-size:.9rem;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(124,58,237,.3);transition:.3s;font-family:'Lexend','Noto Sans Lao',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <i class="fas fa-file-excel"></i> Export Excel
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes popIn { from{opacity:0;transform:scale(.85) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+</style>
+
+<script>
+const CSRF = '{{ csrf_token }}';
+const ACTIVE_STATUS = '{{ active_status }}';
+
+/* ─── Toggle expand/collapse item rows ─── */
+function toggleItems(groupIdx) {
+    const rows = document.querySelectorAll(`.item-grp-${groupIdx}`);
+    const chevron = document.getElementById(`chevron-${groupIdx}`);
+    const isHidden = rows.length > 0 && (rows[0].style.display === 'none' || rows[0].style.display === '');
+    rows.forEach(r => { r.style.display = isHidden ? 'table-row' : 'none'; });
+    if (chevron) chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+/* ─── Update ALL orders in a group ─── */
+function setGroupStatus(groupKey, groupIdx, newStatus) {
+    fetch('/ajax-update-group-status', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `group_key=${encodeURIComponent(groupKey)}&status=${newStatus}`,
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (!d.ok) { alert('ອັບເດດບໍ່ສຳເລັດ'); return; }
+
+        // Update button active states
+        const container = document.getElementById(`grp-btns-${groupIdx}`);
+        if (container) {
+            const STATUS_CLS = { 'Pending':'sb-pending', 'Confirmed':'sb-confirmed', 'Processing':'sb-processing', 'Delivered':'sb-delivered', 'Cancelled':'sb-cancelled' };
+            container.querySelectorAll('.sb').forEach(btn => {
+                Object.entries(STATUS_CLS).forEach(([st, cls]) => {
+                    if (btn.classList.contains(cls)) {
+                        st === newStatus ? btn.classList.add('active') : btn.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        // If new status doesn't match current filter → remove group from view
+        if (newStatus !== ACTIVE_STATUS) {
+            removeGroup(groupIdx);
+        }
+    })
+    .catch(() => alert('ອັບເດດບໍ່ສຳເລັດ'));
+}
+
+/* ─── Update a single item's status ─── */
+function setStatus(orderId, newStatus) {
+    fetch(`/ajax-update-order-status/${orderId}`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `status=${newStatus}`,
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (!d.ok) { alert('ອັບເດດບໍ່ສຳເລັດ'); return; }
+
+        // Update button active states in this item's button row
+        const container = document.getElementById(`item-btns-${orderId}`);
+        if (container) {
+            const STATUS_CLS = { 'Pending':'sb-pending', 'Confirmed':'sb-confirmed', 'Processing':'sb-processing', 'Delivered':'sb-delivered', 'Cancelled':'sb-cancelled' };
+            container.querySelectorAll('.sb').forEach(btn => {
+                Object.entries(STATUS_CLS).forEach(([st, cls]) => {
+                    if (btn.classList.contains(cls)) {
+                        st === newStatus ? btn.classList.add('active') : btn.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        // Update item row visual style for cancelled
+        const itemRow = document.getElementById(`item-row-${orderId}`);
+        if (itemRow) {
+            if (newStatus === 'Cancelled') {
+                itemRow.classList.add('is-cancelled');
+            } else {
+                itemRow.classList.remove('is-cancelled');
+            }
+        }
+    })
+    .catch(() => alert('ອັບເດດບໍ່ສຳເລັດ'));
+}
+
+/* ─── Delete entire group ─── */
+function deleteGroup(groupKey, itemCount, groupIdx) {
+    const msg = itemCount > 1
+        ? `ທ່ານແນ່ໃຈບໍ່ທີ່ຈະລຶບ ${itemCount} ລາຍການໃນກຸ່ມນີ້ທັງໝົດ?`
+        : 'ທ່ານແນ່ໃຈບໍ່ທີ່ຈະລຶບລາຍການນີ້?';
+    if (!confirm(msg)) return;
+    fetch('/ajax-delete-group', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `group_key=${encodeURIComponent(groupKey)}`,
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.ok) removeGroup(groupIdx);
+        else alert('ລຶບບໍ່ສຳເລັດ');
+    })
+    .catch(() => alert('ລຶບບໍ່ສຳເລັດ'));
+}
+
+/* ─── Animate group row + its item rows out of the table ─── */
+function removeGroup(groupIdx) {
+    const groupRow  = document.getElementById(`grp-${groupIdx}`);
+    const itemRows  = [...document.querySelectorAll(`.item-grp-${groupIdx}`)];
+    const allRows   = [groupRow, ...itemRows].filter(Boolean);
+
+    allRows.forEach(row => {
+        row.style.transition = 'opacity .45s ease, transform .45s ease';
+        row.style.opacity    = '0';
+        row.style.transform  = 'translateY(30px)';
+    });
+
+    setTimeout(() => {
+        allRows.forEach(r => r.remove());
+
+        // Update count badge
+        const badge = document.querySelector('.count-badge');
+        if (badge) {
+            const n = Math.max(0, parseInt(badge.textContent.match(/\d+/)?.[0] || '1') - 1);
+            badge.innerHTML = `📋 ${n} ກຸ່ມທັງໝົດ`;
+        }
+        // Update active tab count
+        const activeTab = document.querySelector('.stab.active .stab-count');
+        if (activeTab) {
+            activeTab.textContent = Math.max(0, parseInt(activeTab.textContent) - 1);
+        }
+        // Show empty state if no group rows left
+        const tbody = document.getElementById('order-tbody');
+        const groupRows = tbody ? tbody.querySelectorAll('tr.group-row') : [];
+        if (groupRows.length === 0 && !document.getElementById('empty-row')) {
+            const emptyTr = document.createElement('tr');
+            emptyTr.className = 'empty-row'; emptyTr.id = 'empty-row';
+            emptyTr.innerHTML = `<td colspan="6" style="text-align:center;padding:80px 20px;">
+                <div style="font-size:3.5rem;opacity:.25;margin-bottom:14px;">📭</div>
+                <div style="color:var(--dim);font-weight:600;">ບໍ່ມີລາຍການໃນສະຖານະນີ້</div>
+            </td>`;
+            tbody.appendChild(emptyTr);
+        }
+    }, 480);
+}
+
+/* ─── Date Picker navigation ─── */
+function goToDate(val) {
+    if (!val) return;
+    window.location.href = '?date=' + val + '&status={{ active_status }}';
+}
+
+/* ─── Month export modal ─── */
+function openMonthModal()  { document.getElementById('monthModal').style.display = 'flex'; }
+function closeMonthModal() { document.getElementById('monthModal').style.display = 'none'; }
+function doMonthExport() {
+    const val = document.getElementById('monthInput').value;
+    if (!val) { alert('ກາລຸນາເລືອກເດືອນ'); return; }
+    let url = '{% url "export-orders-excel" %}?month=' + val;
+    if (ACTIVE_STATUS && ACTIVE_STATUS !== 'All') url += '&status=' + ACTIVE_STATUS;
+    window.location.href = url;
+    closeMonthModal();
+}
+document.getElementById('monthModal').addEventListener('click', function(e) {
+    if (e.target === this) closeMonthModal();
+});
+
+/* ─── Year export modal ─── */
+function openYearModal()  { document.getElementById('yearModal').style.display = 'flex'; }
+function closeYearModal() { document.getElementById('yearModal').style.display = 'none'; }
+function doYearExport() {
+    const val = document.getElementById('yearInput').value;
+    if (!val || val < 2020 || val > 2099) { alert('ກາລຸນາໃສ່ປີໃຫ້ຖືກຕ້ອງ (2020–2099)'); return; }
+    let url = '{% url "export-orders-excel" %}?year=' + val;
+    if (ACTIVE_STATUS && ACTIVE_STATUS !== 'All') url += '&status=' + ACTIVE_STATUS;
+    window.location.href = url;
+    closeYearModal();
+}
+document.getElementById('yearModal').addEventListener('click', function(e) {
+    if (e.target === this) closeYearModal();
+});
+</script>
+
 {% endblock content %}

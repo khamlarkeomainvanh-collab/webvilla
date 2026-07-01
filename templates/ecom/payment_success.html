@@ -1,51 +1,345 @@
 {% extends 'ecom/customer_base.html' %}
 {% load static %}
-
+{% load lao_filters %}
 {% block content %}
-<style media="screen">
-  .success-page{
-  max-width:300px;
-  display:block;
-  margin: 0 auto;
-  text-align: center;
-      position: relative;
-    top: 50%;
-    transform: perspective(1px) translateY(50%)
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800;900&family=Noto+Sans+Lao:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --pk:  #ec4899; --pk2: #f472b6; --pk-lt: #fce7f3;
+  --pu:  #7c3aed; --pu2: #a855f7; --pu-lt: #f5f3ff;
+  --lav: #ede9fe; --lav2:#ddd6fe; --text:#2d1457;
 }
-.success-page img{
-  max-width:62px;
-  display: block;
-  margin: 0 auto;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Lexend','Noto Sans Lao', sans-serif;
+  background: linear-gradient(155deg,#fdf4ff 0%,#f5f3ff 50%,#fce7f3 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
-.btn-view-orders{
-  display: block;
-  border:1px solid #47c7c5;
-  width:100px;
-  margin: 0 auto;
-  margin-top: 45px;
-  padding: 10px;
-  color:#fff;
-  background-color:#47c7c5;
-  text-decoration: none;
-  margin-bottom: 20px;
-}
-h2{
-  color:#0014ff;
-    margin-top: 25px;
+.page { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 20px; }
 
+/* ── MAIN WRAPPER ── */
+.success-wrap {
+  width: 100%; max-width: 1100px;
+  animation: slideUp .65s cubic-bezier(.2,.8,.2,1) both;
 }
-a{
-  text-decoration: none;
+@keyframes slideUp { from{opacity:0;transform:translateY(32px) scale(.97)} to{opacity:1;transform:none} }
+
+/* ── HEADER BANNER ── */
+.banner {
+  background: linear-gradient(135deg, var(--pk), var(--pu));
+  border-radius: 28px 28px 0 0;
+  padding: 32px 40px;
+  display: flex; align-items: center; gap: 24px;
+  position: relative; overflow: hidden;
+}
+.banner::before {
+  content:''; position:absolute; top:-40px; right:-40px;
+  width:200px; height:200px; border-radius:50%;
+  background:rgba(255,255,255,.1);
+}
+.banner::after {
+  content:''; position:absolute; bottom:-60px; left:30%;
+  width:160px; height:160px; border-radius:50%;
+  background:rgba(255,255,255,.07);
+}
+.banner-icon {
+  width:80px; height:80px; border-radius:24px; flex-shrink:0;
+  background:rgba(255,255,255,.2); border:2px solid rgba(255,255,255,.35);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2.4rem;
+  box-shadow:0 8px 28px rgba(0,0,0,.15);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{box-shadow:0 8px 28px rgba(0,0,0,.15)} 50%{box-shadow:0 14px 44px rgba(236,72,153,.5)} }
+.banner-text h1 { font-size:2rem; font-weight:900; color:#fff; margin-bottom:4px; }
+.banner-text p  { font-size:1rem; color:rgba(255,255,255,.88); font-weight:700; }
+.queue-badge {
+  margin-left:auto; flex-shrink:0;
+  background:rgba(255,255,255,.22); border:2px solid rgba(255,255,255,.4);
+  border-radius:22px; padding:16px 28px; text-align:center;
+  backdrop-filter:blur(6px);
+}
+.queue-badge .qb-lbl { font-size:.68rem; font-weight:900; letter-spacing:2px; color:rgba(255,255,255,.8); text-transform:uppercase; }
+.queue-badge .qb-num { font-size:3rem; font-weight:900; color:#fff; line-height:1.1; }
+.queue-badge .qb-sub { font-size:.78rem; color:rgba(255,255,255,.85); font-weight:700; margin-top:2px; }
+
+/* ── GRID ── */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 0;
+  background: #fff;
+  border: 1.5px solid var(--lav2);
+  border-top: none;
+  border-radius: 0 0 28px 28px;
+  overflow: hidden;
+  box-shadow: 0 16px 60px rgba(124,58,237,.12);
+}
+@media(max-width:860px) {
+  .content-grid { grid-template-columns:1fr; }
+  .right-col { border-left:none !important; border-top:1.5px solid var(--lav2); }
+  .banner { border-radius:24px 24px 0 0; padding:24px 20px; flex-wrap:wrap; }
+  .queue-badge { margin-left:0; width:100%; }
+}
+
+/* LEFT COL */
+.left-col { padding:28px 32px; }
+
+.sec-title {
+  font-size:.72rem; font-weight:900; letter-spacing:1.8px;
+  text-transform:uppercase; color:var(--pk);
+  margin-bottom:14px; display:flex; align-items:center; gap:7px;
+}
+
+/* items list */
+.order-list { display:grid; gap:10px; margin-bottom:28px; }
+.order-item {
+  background:linear-gradient(135deg,var(--pu-lt),var(--pk-lt));
+  border:1.5px solid var(--lav2); border-radius:18px;
+  padding:14px 16px;
+  display:flex; align-items:flex-start; gap:14px;
+}
+.oi-img {
+  width:56px; height:56px; border-radius:14px; flex-shrink:0;
+  overflow:hidden; border:1.5px solid #e9d5ff;
+  background:var(--pk-lt); display:flex; align-items:center; justify-content:center;
+}
+.oi-img img { width:100%; height:100%; object-fit:cover; }
+.oi-img span { font-size:1.6rem; }
+.oi-info { flex:1; min-width:0; }
+.oi-name  { font-size:1rem; font-weight:900; color:var(--pu); margin-bottom:4px; }
+.oi-qty   { font-size:.82rem; color:var(--pk); font-weight:700; }
+.oi-note  { font-size:.75rem; color:#64748b; font-weight:600; margin-top:5px; line-height:1.5; }
+.oi-cust  { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
+.oi-pill  { background:#fff; border:1px solid #ddd6fe; border-radius:50px; padding:3px 10px; font-size:.72rem; font-weight:800; color:var(--pu); }
+.oi-sub   { font-size:1.1rem; font-weight:900; color:var(--pk); flex-shrink:0; white-space:nowrap; align-self:center; }
+
+/* TOTAL BAR */
+.total-bar {
+  background:linear-gradient(135deg,var(--pk-lt),var(--lav));
+  border:1.5px solid var(--lav2); border-radius:20px;
+  padding:18px 24px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.total-bar .tb-l { font-size:.95rem; font-weight:800; color:#4c1d95; }
+.total-bar .tb-v { font-size:2rem; font-weight:900; color:var(--pk); }
+.total-bar .tb-v small { font-size:.85rem; color:var(--pu2); font-weight:700; }
+
+/* RIGHT COL */
+.right-col {
+  padding:28px 28px;
+  border-left:1.5px solid var(--lav2);
+  display:flex; flex-direction:column; gap:0;
+}
+
+/* info rows */
+.info-rows { display:grid; gap:10px; margin-bottom:24px; }
+.info-row {
+  background:var(--pu-lt); border:1.5px solid var(--lav);
+  border-radius:16px; padding:14px 18px;
+  display:flex; align-items:center; gap:14px;
+}
+.info-row i { font-size:1.1rem; color:var(--pk); width:20px; text-align:center; flex-shrink:0; }
+.ir-label { font-size:.75rem; color:var(--pu2); font-weight:700; margin-bottom:3px; }
+.ir-val   { font-size:.95rem; font-weight:900; color:var(--text); }
+
+/* queue detail */
+.queue-detail {
+  background:linear-gradient(135deg,var(--pu-lt),var(--pk-lt));
+  border:1.5px solid var(--lav2); border-radius:18px;
+  padding:18px 20px; margin-bottom:20px; text-align:center;
+}
+.qd-title { font-size:1rem; font-weight:900; color:var(--pu); margin-bottom:4px; }
+.qd-sub   { font-size:.85rem; color:var(--pk); font-weight:700; }
+
+/* action buttons */
+.actions { display:grid; gap:12px; margin-top:auto; }
+.btn-track {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  padding:16px; border-radius:18px;
+  background:linear-gradient(135deg,var(--pk),var(--pu));
+  color:#fff; text-decoration:none; font-size:.95rem; font-weight:900;
+  box-shadow:0 8px 24px rgba(124,58,237,.32); transition:.3s;
+  position:relative; overflow:hidden;
+}
+.btn-track::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent); transform:translateX(-100%); transition:.5s; }
+.btn-track:hover::after { transform:translateX(100%); }
+.btn-track:hover { transform:translateY(-3px); box-shadow:0 14px 36px rgba(124,58,237,.45); color:#fff; }
+.btn-shop {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  padding:16px; border-radius:18px;
+  background:#fff; border:1.5px solid var(--lav2);
+  color:var(--text); text-decoration:none; font-size:.95rem; font-weight:900;
+  box-shadow:0 4px 14px rgba(124,58,237,.08); transition:.3s;
+}
+.btn-shop:hover { background:var(--pu-lt); border-color:var(--pu2); color:var(--pu); transform:translateY(-3px); }
+
+.footer-note {
+  margin-top:20px; text-align:center; color:var(--pu2);
+  font-size:.8rem; font-weight:700; line-height:2;
 }
 </style>
-<div class="success-page" style="top:auto;">
-   <img  src="http://share.ashiknesin.com/green-checkmark.png" class="center" alt="" />
-  <h2>Payment Successful !</h2>
-  <p>We are delighted to inform you that we received your payments</p>
-  <a style="text-decoration:none;" href="/my-order" class="btn-view-orders">View Orders</a>
-  <a style="text-decoration:none;" href="/customer-home">Continue Shopping</a>
-</div>
-<br><br><br><br>
-<br><br><br><br>
+
+<div class="page">
+<div class="success-wrap">
+
+  <!-- BANNER -->
+  <div class="banner">
+    <div class="banner-icon">🎉</div>
+    <div class="banner-text">
+      <h1>ສັ່ງຊື້ສຳເລັດ!</h1>
+      <p>ຂອບໃຈທີ່ໃຊ້ VILLA ນ້ຳໝາກໄມ້ 🍓 — ກຳລັງກຽມໃຫ້ທ່ານ</p>
+    </div>
+    <div class="queue-badge">
+      <div class="qb-lbl">ຄິວທີ</div>
+      <div class="qb-num">{{ queue_number }}</div>
+      <div class="qb-sub">
+        {% if queue_number == 1 %}ທຳອິດຂອງມື້ 🎉
+        {% else %}ລໍ {{ queue_number|add:"-1" }} ຄົນ{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div class="content-grid">
+
+    <!-- LEFT: items + total -->
+    <div class="left-col">
+
+      {% if ordered_products %}
+      <div class="sec-title"><i class="fas fa-bag-shopping"></i> ລາຍການທີ່ສັ່ງ</div>
+      <div class="order-list">
+        {% for item in ordered_products %}
+        <div class="order-item">
+          <div class="oi-img">
+            {% if item.product.product_image %}
+            <img src="{{ item.product.product_image.url }}" alt="">
+            {% else %}<span>🥤</span>{% endif %}
+          </div>
+          <div class="oi-info">
+            <div class="oi-name">{{ item.product.name }}</div>
+            <div class="oi-qty">×{{ item.qty }} × {{ item.unit_price|dotformat }} ກີບ</div>
+            <!-- customization pills -->
+            {% if item.cust %}
+            <div class="oi-cust">
+              {% if item.cust.size %}
+              <span class="oi-pill">📏
+                {% if item.cust.size == 'S' %}S — ນ້ອຍ
+                {% elif item.cust.size == 'M' %}M — ກາງ
+                {% elif item.cust.size == 'L' %}L — ໃຫຍ່
+                {% else %}{{ item.cust.size }}{% endif %}
+              </span>{% endif %}
+              {% if item.cust.sweet %}   <span class="oi-pill">🍬 {{ item.cust.sweet }}</span>{% endif %}
+              {% if item.cust.pearl %}   <span class="oi-pill">🫧 {{ item.cust.pearl }}</span>{% endif %}
+              {% if item.cust.topping %} <span class="oi-pill">🍓 {{ item.cust.topping }}</span>{% endif %}
+            </div>
+            {% if item.cust.note %}
+            <div class="oi-note">📝 {{ item.cust.note }}</div>
+            {% endif %}
+            {% endif %}
+          </div>
+          <div class="oi-sub">{{ item.subtotal|dotformat }}<small style="font-size:.7rem;color:#94a3b8;font-weight:600;"> ກີບ</small></div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if grand_total %}
+      <div class="total-bar">
+        <span class="tb-l">💰 ລາຄາລວມທັງໝົດ</span>
+        <span class="tb-v">{{ grand_total|dotformat }}<small> ກີບ</small></span>
+      </div>
+      {% endif %}
+
+    </div><!-- /.left-col -->
+
+    <!-- RIGHT: delivery info + actions -->
+    <div class="right-col">
+
+      <div class="queue-detail">
+        <div class="qd-title">🎟 ຄິວທີ #{{ queue_number }} ຂອງທ່ານ</div>
+        <div class="qd-sub">
+          {% if queue_number == 1 %}🎉 ທ່ານເປັນລູກຄ້າທຳອິດ — ເລີ່ມໄດ້ທັນທີ!
+          {% else %}ມີ {{ queue_number|add:"-1" }} ອໍເດີ້ກ່ອນຂອງທ່ານ{% endif %}
+        </div>
+      </div>
+
+      <div class="sec-title"><i class="fas fa-circle-info"></i> ຂໍ້ມູນການຈັດສົ່ງ</div>
+      <div class="info-rows">
+        <div class="info-row">
+          <i class="fas fa-truck"></i>
+          <div>
+            <div class="ir-label">ຮູບແບບຮັບສິນຄ້າ</div>
+            <div class="ir-val">
+              {% if delivery_type == 'Pickup' %}🏪 ຮັບໜ້າຮ້ານ
+              {% else %}🛵 ຈັດສົ່ງເຖິງທີ່{% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="info-row">
+          <i class="fas fa-credit-card"></i>
+          <div>
+            <div class="ir-label">ວິທີຊຳລະ</div>
+            <div class="ir-val">
+              {% if payment_method == 'COD' %}💵 ຈ່າຍປາຍທາງ
+              {% else %}🏬 ຈ່າຍໜ້າຮ້ານ{% endif %}
+            </div>
+          </div>
+        </div>
+        {% if address and delivery_type != 'Pickup' %}
+        <div class="info-row">
+          <i class="fas fa-location-dot"></i>
+          <div>
+            <div class="ir-label">ທີ່ຢູ່ຈັດສົ່ງ</div>
+            <div class="ir-val">{{ address }}</div>
+          </div>
+        </div>
+        {% endif %}
+        {% if mobile %}
+        <div class="info-row">
+          <i class="fas fa-phone"></i>
+          <div>
+            <div class="ir-label">ເບີໂທ</div>
+            <div class="ir-val">{{ mobile }}</div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="actions">
+        <a href="/my-order" class="btn-track">
+          <i class="fas fa-magnifying-glass"></i> ຕິດຕາມສະຖານະ
+        </a>
+        <a href="/customer-home" class="btn-shop">
+          <i class="fas fa-store"></i> ກັບໄປເລືອກຊື້
+        </a>
+      </div>
+
+      <div class="footer-note">🍹 VILLA PRO &nbsp;·&nbsp; ນ້ຳປັ່ນສົດໃໝ່ທຸກແກ້ວ</div>
+
+    </div><!-- /.right-col -->
+
+  </div><!-- /.content-grid -->
+
+</div><!-- /.success-wrap -->
+</div><!-- /.page -->
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+(function() {
+  var end = Date.now() + 2800;
+  var colors = ['#ec4899','#a855f7','#f472b6','#ddd6fe','#fce7f3','#ffffff'];
+  (function frame() {
+    confetti({ particleCount: 4, angle: 60,  spread: 55, origin: {x:0}, colors: colors });
+    confetti({ particleCount: 4, angle: 120, spread: 55, origin: {x:1}, colors: colors });
+    if (Date.now() < end) requestAnimationFrame(frame);
+  }());
+})();
+</script>
+
 {% endblock content %}

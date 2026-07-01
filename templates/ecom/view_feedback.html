@@ -2,56 +2,224 @@
 {% load static %}
 {% block content %}
 
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700&family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-<head>
-  <style media="screen">
-    .alert {
-      margin-left: 25%;
-      margin-right: 25%;
-      padding: 20px;
-      background-color: #f44336;
-      color: white;
-    }
+<style>
+:root {
+    --purple: #7c3aed;
+    --pink:   #be185d;
+    --grad:   linear-gradient(135deg, #7c3aed, #be185d);
+    --red:    #ef4444;
+    --bright: #2d1457;
+    --dim:    #64748b;
+    --border: rgba(124,58,237,.13);
+    --lav:    #f5f3ff;
+    --lav2:   #fdf2f8;
+}
 
-    .w3-panel p {
-      padding-top: 10px;
-    }
+body { background: #ffffff !important; }
 
-    .closebtn {
-      margin-left: 15px;
-      color: white;
-      font-weight: bold;
-      float: right;
-      font-size: 22px;
-      line-height: 20px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+.fb-page {
+    font-family: 'Lexend','Noto Sans Lao',sans-serif;
+    padding: 34px;
+    background: #ffffff;
+    min-height: 100vh;
+    animation: fadeUp .6s cubic-bezier(.23,1,.32,1);
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
 
-    .closebtn:hover {
-      color: black;
-    }
-  </style>
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+/* TOP BAR */
+.top-bar { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:28px; flex-wrap:wrap; }
+.top-bar h1 { font-size:2.8rem; font-weight:800; color:var(--bright); margin:0; }
+.top-bar h1 span { background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.top-bar p { color:var(--dim); font-size:1.4rem; margin:5px 0 0; }
 
-</head>
-<!--
-written By : sumit kumar
-facebook : fb.com/sumit.luv
--->
+.count-pill {
+    background: var(--grad);
+    color: #fff;
+    padding: 9px 22px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    white-space: nowrap;
+    box-shadow: 0 6px 20px rgba(124,58,237,.3);
+}
 
-<br><br><br><br>
-<h2 style="text-align:center; color:blue;">Feedbacks By User</h2>
-<hr>
-{%for f in feedbacks%}
-<div class="alert">
-  <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-  <strong>{{f.date}} ||By : {{f.name}} </strong><br> {{f.feedback}}
+/* SEARCH */
+.search-wrap { position:relative; margin-bottom:28px; }
+.search-wrap input {
+    width: 100%;
+    background: var(--lav);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 22px 14px 52px;
+    color: var(--bright);
+    font-family: 'Lexend','Noto Sans Lao',sans-serif;
+    font-size: 1.1rem;
+    outline: none;
+    transition: .25s;
+    box-sizing: border-box;
+}
+.search-wrap input::placeholder { color: rgba(124,58,237,.38); }
+.search-wrap input:focus {
+    border-color: var(--purple);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(124,58,237,.1);
+}
+.search-wrap .s-icon { position:absolute; left:17px; top:50%; transform:translateY(-50%); color:var(--purple); opacity:.5; pointer-events:none; }
+
+/* GRID */
+.fb-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:22px; }
+
+/* CARD */
+.fb-card {
+    background: #ffffff;
+    border-radius: 22px;
+    border: 1.5px solid var(--border);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: .3s cubic-bezier(.23,1,.32,1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(124,58,237,.06);
+}
+.fb-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--grad);
+    opacity: 0;
+    transition: .3s;
+}
+.fb-card:hover { transform:translateY(-5px); border-color:rgba(124,58,237,.28); box-shadow:0 18px 44px rgba(124,58,237,.12); }
+.fb-card:hover::before { opacity: 1; }
+
+/* SENDER */
+.sender-row { display:flex; align-items:center; gap:12px; }
+.avatar {
+    width: 62px; height: 62px;
+    border-radius: 16px;
+    flex-shrink: 0;
+    background: var(--grad);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; font-weight: 800; color: #fff;
+    box-shadow: 0 6px 16px rgba(124,58,237,.28);
+}
+.sender-name { color: var(--bright); font-weight: 700; font-size: 1.2rem; }
+.sender-date { color: var(--dim); font-size: 0.9rem; margin-top: 3px; display:flex; align-items:center; gap:4px; }
+.sender-date i { color: var(--purple); }
+
+/* QUOTE BLOCK */
+.quote-block {
+    background: var(--lav);
+    border-left: 3px solid var(--purple);
+    border-radius: 0 14px 14px 0;
+    padding: 14px 16px 14px 20px;
+    color: var(--bright);
+    font-size: 1.05rem;
+    line-height: 1.8;
+    position: relative;
+}
+.q-mark { position:absolute; top:-4px; left:10px; font-size:2rem; color:var(--purple); opacity:.2; line-height:1; }
+
+/* FOOTER */
+.card-foot { display:flex; justify-content:flex-end; }
+.btn-del {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(239,68,68,.08);
+    color: var(--red);
+    border: 1px solid rgba(239,68,68,.2);
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-family: 'Noto Sans Lao','Lexend',sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: .2s;
+}
+.btn-del:hover { background: var(--red); color: #fff; border-color: var(--red); box-shadow: 0 6px 16px rgba(239,68,68,.3); }
+
+/* EMPTY */
+.empty { text-align:center; padding:80px 20px; grid-column:1/-1; color:var(--dim); }
+.empty-ico { font-size:4rem; opacity:.3; margin-bottom:16px; }
+</style>
+
+<div class="fb-page">
+
+    <div class="top-bar">
+        <div>
+            <h1>ຄຳຕິຊົມ <span>ທັ້ງໝົດ 💬</span></h1>
+            <p>ລວມທຸກຄວາມຄິດເຫັນຈາກລູກຄ້າຂອງທ່ານ</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <span class="count-pill">{{ feedbacks|length }} ຂໍ້ຄວາມ</span>
+            <a href="{% url 'export-feedbacks-excel' %}"
+               style="background:linear-gradient(135deg,#1d6f42,#2ea05a);color:#fff;padding:11px 20px;border-radius:14px;font-weight:700;font-size:0.85rem;text-decoration:none;display:flex;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(29,111,66,.28);transition:.25s;font-family:'Lexend','Noto Sans Lao',sans-serif;"
+               onmouseover="this.style.transform='translateY(-2px)'"
+               onmouseout="this.style.transform='translateY(0)'">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </a>
+        </div>
+    </div>
+
+    <div class="search-wrap">
+        <i class="fas fa-search s-icon"></i>
+        <input type="text" id="searchInput" placeholder="ຄົ້ນຫາຊື່ ຫຼື ຂໍ້ຄວາມ..." oninput="filterFb()">
+    </div>
+
+    <div class="fb-grid" id="fbGrid">
+        {% for f in feedbacks %}
+        <div class="fb-card" data-search="{{ f.name|lower }} {{ f.feedback|lower }}">
+            <div class="sender-row">
+                <div class="avatar">{{ f.name|first|upper }}</div>
+                <div>
+                    <div class="sender-name">{{ f.name }}</div>
+                    <div class="sender-date">
+                        <i class="fas fa-clock" style="font-size:.65rem;"></i>
+                        {{ f.date|date:"d M Y" }}
+                    </div>
+                </div>
+            </div>
+            <div class="quote-block">
+                <span class="q-mark">"</span>
+                {{ f.feedback }}
+            </div>
+            <div class="card-foot">
+                <a href="/delete-feedback/{{ f.id }}" class="btn-del"
+                   onclick="return confirm('ລຶບຄຳຕິຊົມຂອງ {{ f.name }} ອອກບໍ?')">
+                    <i class="fas fa-trash-alt"></i> ລຶບອອກ
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty">
+            <div class="empty-ico">💬</div>
+            <p>ຍັງບໍ່ມີຄຳຕິຊົມ</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="noResults" style="display:none; text-align:center; padding:60px; color:var(--dim);">
+        <div style="font-size:2.5rem; margin-bottom:12px;">🔍</div>
+        <p>ບໍ່ພົບຂໍ້ມູນທີ່ຄົ້ນຫາ</p>
+    </div>
 </div>
-{%endfor%}
-<!--
-developed By : sumit kumar
-facebook : fb.com/sumit.luv
-youtube : youtube.com/lazycoders
--->
+
+<script>
+function filterFb() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('.fb-card');
+    let found = 0;
+    cards.forEach(c => {
+        const match = c.dataset.search.includes(q);
+        c.style.display = match ? '' : 'none';
+        if (match) found++;
+    });
+    document.getElementById('noResults').style.display = found === 0 ? 'block' : 'none';
+}
+</script>
+
 {% endblock content %}

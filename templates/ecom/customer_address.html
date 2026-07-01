@@ -1,121 +1,703 @@
 {% extends 'ecom/customer_base.html' %}
 {% load static %}
-{% load widget_tweaks %}
+{% load lao_filters %}
 {% block content %}
 
-  <style type="text/css">
-.form-style-1 {
-	margin:10px auto;
-	max-width: 400px;
-	padding: 20px 12px 10px 20px;
-	font: 13px "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800;900&family=Noto+Sans+Lao:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<style>
+:root {
+  --pk:  #ec4899; --pk2: #f472b6; --pk-lt: #fce7f3;
+  --pu:  #7c3aed; --pu2: #a855f7; --pu-lt: #f5f3ff;
+  --lav: #ede9fe; --lav2:#ddd6fe;
+  --text:#2d1457; --gray:#94a3b8;
 }
-.form-style-1 li {
-	padding: 0;
-	display: block;
-	list-style: none;
-	margin: 10px 0 0 0;
-}
-.form-style-1 label{
-	margin:0 0 3px 0;
-	padding:0px;
-	display:block;
-	font-weight: bold;
-}
-.form-style-1 input[type=text],
-.form-style-1 input[type=date],
-.form-style-1 input[type=datetime],
-.form-style-1 input[type=number],
-.form-style-1 input[type=search],
-.form-style-1 input[type=time],
-.form-style-1 input[type=url],
-.form-style-1 input[type=email],
-textarea,
-select{
-	box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	border:1px solid #BEBEBE;
-	padding: 7px;
-	margin:0px;
-	-webkit-transition: all 0.30s ease-in-out;
-	-moz-transition: all 0.30s ease-in-out;
-	-ms-transition: all 0.30s ease-in-out;
-	-o-transition: all 0.30s ease-in-out;
-	outline: none;
-}
-.form-style-1 input[type=text]:focus,
-.form-style-1 input[type=date]:focus,
-.form-style-1 input[type=datetime]:focus,
-.form-style-1 input[type=number]:focus,
-.form-style-1 input[type=search]:focus,
-.form-style-1 input[type=time]:focus,
-.form-style-1 input[type=url]:focus,
-.form-style-1 input[type=email]:focus,
-.form-style-1 textarea:focus,
-.form-style-1 select:focus{
-	-moz-box-shadow: 0 0 8px #88D5E9;
-	-webkit-box-shadow: 0 0 8px #88D5E9;
-	box-shadow: 0 0 8px #88D5E9;
-	border: 1px solid #88D5E9;
-}
-.form-style-1 .field-divided{
-	width: 49%;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family:'Lexend','Noto Sans Lao',sans-serif;
+  background: linear-gradient(155deg,#fdf4ff 0%,#f5f3ff 50%,#fce7f3 100%);
+  background-attachment: fixed;
+  color: var(--text); min-height:100vh;
 }
 
-.form-style-1 .field-long{
-	width: 100%;
+/* ── PAGE LAYOUT ── */
+.checkout-wrap {
+    max-width: 1440px; margin: 0 auto;
+    padding: 16px 24px 32px;
+    display: grid;
+    grid-template-columns: 1fr 460px;
+    gap: 20px;
+    align-items: start;
 }
-.form-style-1 .field-select{
-	width: 100%;
+@media(max-width: 960px) {
+    .checkout-wrap { grid-template-columns: 1fr; padding: 12px 12px 24px; }
+    .col-summary   { order: -1; }
 }
-.form-style-1 .field-textarea{
-	height: 100px;
+
+/* ── PAGE TITLE ── */
+.page-title {
+    grid-column: 1/-1;
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 2px;
 }
-.form-style-1 input[type=submit], .form-style-1 input[type=button]{
-	background: #4B99AD;
-	padding: 8px 15px 8px 15px;
-	border: none;
-	color: #fff;
+.title-icon {
+    width: 50px; height: 50px; border-radius: 16px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--pk), var(--pu));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: #fff;
+    box-shadow: 0 8px 20px rgba(236,72,153,.35);
+    animation: bob 3s ease-in-out infinite;
 }
-.form-style-1 input[type=submit]:hover, .form-style-1 input[type=button]:hover{
-	background: #4691A4;
-	box-shadow:none;
-	-moz-box-shadow:none;
-	-webkit-box-shadow:none;
+@keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+.title-text h1 { font-size: 1.5rem; font-weight: 900; color: var(--text); }
+.title-text p  { font-size: .9rem; color: #be185d; margin-top: 3px; font-weight: 700; }
+
+/* ── CARD BASE ── */
+.card {
+    background: #ffffff;
+    border-radius: 26px;
+    border: 1.5px solid var(--lav2);
+    box-shadow: 0 8px 32px rgba(124,58,237,.10);
+    overflow: hidden;
 }
-.form-style-1 .required{
-	color:red;
+
+/* ── FORM SECTION ── */
+.form-sec {
+    padding: 14px 20px 12px;
+    border-bottom: 1.5px solid var(--lav);
+}
+.form-sec:last-of-type { border-bottom: none; }
+
+.sec-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: .85rem; font-weight: 900; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--pk); margin-bottom: 12px;
+}
+
+/* INPUTS */
+.f-group { margin-bottom: 12px; }
+.f-group label {
+    display: block; font-size: .95rem; font-weight: 900;
+    color: var(--text); margin-bottom: 6px;
+}
+.f-group input,
+.f-group textarea,
+.f-group select {
+    width: 100%; padding: 10px 14px;
+    border: 2px solid var(--lav2);
+    border-radius: 14px;
+    font-size: 1rem; font-weight: 700;
+    font-family:'Lexend','Noto Sans Lao',sans-serif;
+    color: var(--text);
+    background: var(--pk-lt);
+    outline: none; resize: none; transition: .25s;
+    appearance: none; -webkit-appearance: none;
+}
+.f-group input::placeholder,
+.f-group textarea::placeholder { color: var(--gray); font-weight: 400; }
+.f-group input:focus,
+.f-group textarea:focus,
+.f-group select:focus {
+    border-color: var(--pk2);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(236,72,153,.12);
+    transform: translateY(-1px);
+}
+.select-wrap { position: relative; }
+.select-wrap::after {
+    content: '▾'; position: absolute; right: 16px; top: 50%;
+    transform: translateY(-50%); color: var(--pu); font-size: 1rem;
+    pointer-events: none; font-weight: 900;
+}
+
+/* ── DELIVERY CARDS ── */
+.del-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.del-card {
+    border: 1.5px solid var(--lav2);
+    border-radius: 16px; padding: 12px 10px 10px;
+    cursor: pointer; text-align: center;
+    background: var(--pu-lt);
+    transition: .25s; user-select: none; position: relative;
+}
+.del-card:hover { border-color: var(--pk2); transform: translateY(-2px); background: var(--pk-lt); }
+.del-card .dc-ico  { font-size: 2rem; display: block; margin-bottom: 6px; }
+.del-card .dc-name { font-size: 1rem; font-weight: 900; color: var(--text); display: block; }
+.del-card .dc-sub  { font-size: .82rem; color: var(--gray); margin-top: 4px; display: block; font-weight: 600; }
+.del-card .check-dot {
+    position: absolute; top: 10px; right: 10px;
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid var(--lav2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .6rem; color: transparent; transition: .2s;
+}
+.del-card.active-d {
+    border-color: var(--pk2);
+    background: var(--pk-lt);
+    box-shadow: 0 6px 20px rgba(236,72,153,.18);
+}
+.del-card.active-d .dc-name { color: var(--pk); }
+.del-card.active-d .check-dot {
+    background: linear-gradient(135deg, var(--pk), var(--pu2));
+    border-color: transparent; color: #fff;
+}
+.del-card.active-p {
+    border-color: var(--pu2);
+    background: var(--pu-lt);
+    box-shadow: 0 6px 20px rgba(124,58,237,.18);
+}
+.del-card.active-p .dc-name { color: var(--pu); }
+.del-card.active-p .check-dot {
+    background: linear-gradient(135deg, var(--pu), var(--pk));
+    border-color: transparent; color: #fff;
+}
+
+/* ZONE SELECTOR */
+.zone-box { margin-bottom: 10px; }
+.zone-warning {
+    display: none;
+    background: #fff1f2; border: 2px solid #f87171;
+    border-radius: 12px; padding: 12px 16px; margin-top: 8px;
+    color: #9f1239; font-size: .92rem; font-weight: 900;
+    line-height: 1.8;
+}
+.zone-warning .zw-ico { font-size: 1.3rem; margin-right: 8px; }
+
+/* KM */
+.km-field { display: flex; gap: 10px; align-items: center; }
+.km-field input { flex: 1; text-align: center; font-size: 1.1rem; font-weight: 900; padding: 10px 8px; }
+.km-label { font-size: .9rem; font-weight: 800; color: var(--pu); flex-shrink: 0; }
+
+.fee-pill {
+    margin-top: 8px;
+    background: var(--pu-lt); border: 1px solid var(--lav2);
+    border-radius: 12px; padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.fee-pill span:first-child { font-size: .85rem; color: var(--pu); font-weight: 700; }
+.fee-pill .fee-amt { font-size: 1.1rem; font-weight: 900; color: var(--pk); }
+
+/* PICKUP INFO */
+.pickup-info {
+    background: var(--pu-lt); border: 1.5px solid var(--lav2);
+    border-radius: 14px; padding: 12px; text-align: center; margin-bottom: 4px;
+}
+.pickup-info .pi-ico  { font-size: 1.8rem; margin-bottom: 4px; }
+.pickup-info .pi-name { font-size: .95rem; font-weight: 900; color: var(--pu); }
+.pickup-info .pi-sub  { font-size: .82rem; color: var(--text); margin-top: 4px; line-height: 1.6; font-weight: 600; }
+
+/* ── PAYMENT CARDS ── */
+.pay-grid { display: flex; gap: 10px; }
+.pay-card {
+    flex: 1;
+    border: 1.5px solid var(--lav2);
+    border-radius: 14px; padding: 12px 10px 10px;
+    cursor: pointer; text-align: center;
+    background: var(--pu-lt);
+    transition: .25s; user-select: none; position: relative;
+}
+.pay-card:hover { border-color: var(--pk2); transform: translateY(-2px); background: var(--pk-lt); }
+.pay-card .pc-ico  { font-size: 1.8rem; display: block; margin-bottom: 6px; }
+.pay-card .pc-name { font-size: .95rem; font-weight: 900; color: var(--text); display: block; }
+.pay-card .check-dot {
+    position: absolute; top: 10px; right: 10px;
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid var(--lav2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .6rem; color: transparent; transition: .2s;
+}
+.pay-card.active-cod {
+    border-color: var(--pk2); background: var(--pk-lt);
+    box-shadow: 0 6px 20px rgba(236,72,153,.15);
+}
+.pay-card.active-cod .pc-name { color: var(--pk); }
+.pay-card.active-cod .check-dot {
+    background: linear-gradient(135deg, var(--pk), var(--pk2));
+    border-color: transparent; color: #fff;
+}
+.pay-card.active-store {
+    border-color: var(--pu2); background: var(--pu-lt);
+    box-shadow: 0 6px 20px rgba(124,58,237,.15);
+}
+.pay-card.active-store .pc-name { color: var(--pu); }
+.pay-card.active-store .check-dot {
+    background: linear-gradient(135deg, var(--pu), var(--pu2));
+    border-color: transparent; color: #fff;
+}
+
+/* ── WARNING NOTICE ── */
+.cancel-notice {
+    margin: 0 20px 12px;
+    background: var(--pk-lt); border: 1.5px solid #fbcfe8;
+    border-radius: 12px; padding: 10px 14px;
+    display: flex; gap: 10px; align-items: flex-start;
+}
+.cancel-notice .cn-ico { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+.cancel-notice .cn-text { font-size: .88rem; line-height: 1.7; color: var(--text); font-weight: 700; }
+.cancel-notice .cn-text b { color: var(--pk); font-weight: 900; font-size: .95rem; }
+
+/* ── SUBMIT ── */
+.submit-sec { padding: 4px 20px 20px; }
+.btn-order {
+    width: 100%; padding: 14px 20px;
+    border: none; border-radius: 16px;
+    background: linear-gradient(135deg, #f472b6, #ec4899, #db2777);
+    color: #fff; font-size: 1.1rem; font-weight: 900;
+    font-family:'Lexend','Noto Sans Lao',sans-serif;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
+    box-shadow: 0 8px 24px rgba(236,72,153,.45); transition: .3s;
+    position: relative; overflow: hidden;
+}
+.btn-order::after {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+    transform:translateX(-100%); transition:.6s;
+}
+.btn-order:hover::after { transform:translateX(100%); }
+.btn-order:hover { transform: translateY(-3px); box-shadow: 0 18px 44px rgba(124,58,237,.42); }
+.btn-order:active { transform: scale(.98); }
+.btn-order:disabled {
+    background: #e2e8f0; color: #94a3b8;
+    box-shadow: none; cursor: not-allowed; transform: none;
+}
+
+.order-meta {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-top: 12px; font-size: .95rem; color: var(--gray); font-weight: 700;
+}
+.order-meta b { color: var(--pk); }
+
+/* ── SUMMARY CARD ── */
+.col-summary { position: sticky; top: 16px; }
+
+.sum-head {
+    padding: 16px 20px 14px;
+    border-bottom: 2px solid #fbcfe8;
+    background: linear-gradient(135deg, #fce7f3, #fdf4ff);
+}
+.sum-head h3 { font-size: 1.2rem; font-weight: 900; color: #be185d; }
+.sum-head p  { font-size: .9rem; color: var(--pk); margin-top: 4px; font-weight: 800; }
+
+/* no max-height → grows as long as needed */
+.sum-items { padding: 0 18px; }
+
+.sum-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; border-bottom: 1.5px solid #fce7f3;
+}
+.sum-item:last-child { border-bottom: none; }
+.si-img {
+    width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+    overflow: hidden; background: var(--pk-lt);
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid #fbcfe8;
+}
+.si-img img { width: 100%; height: 100%; object-fit: cover; }
+.si-img .si-ph { font-size: 1.6rem; }
+.si-info { flex: 1; min-width: 0; }
+.si-name  { font-size: 1rem; font-weight: 900; color: #be185d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.si-qty   { font-size: .88rem; color: var(--pk); margin-top: 4px; font-weight: 800; }
+.si-price { font-size: 1.05rem; font-weight: 900; color: #9d174d; flex-shrink: 0; }
+
+/* TOTALS */
+.sum-totals { padding: 12px 20px; border-top: 2px solid #fbcfe8; }
+.tot-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; font-size: .95rem;
+    border-bottom: 1px solid #fce7f3;
+}
+.tot-row:last-of-type { border-bottom: none; }
+.tot-row .tl { color: #db2777; font-weight: 800; }
+.tot-row .tv { font-weight: 900; color: #9d174d; font-size: 1rem; }
+.tot-grand {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 18px; margin-top: 10px;
+    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+    border-radius: 16px; border: 2.5px solid #f472b6;
+    box-shadow: 0 4px 16px rgba(236,72,153,.15);
+}
+.tot-grand .tg-l { font-size: 1rem; font-weight: 900; color: #be185d; }
+.tot-grand .tg-v { font-size: 1.7rem; font-weight: 900; color: #9d174d; }
+
+/* EMPTY */
+.empty-wrap {
+    max-width: 480px; margin: 80px auto; padding: 0 16px;
+    text-align: center;
+}
+.empty-ico { font-size: 5rem; opacity: .3; margin-bottom: 16px; }
+.empty-wrap h2 { font-size: 1.5rem; font-weight: 900; color: var(--text); margin-bottom: 8px; }
+.empty-wrap p  { color: var(--gray); margin-bottom: 24px; font-weight: 600; }
+.btn-shop {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 28px; border-radius: 16px;
+    background: linear-gradient(135deg, var(--pk), var(--pu));
+    color: #fff; text-decoration: none; font-weight: 800;
+    box-shadow: 0 8px 24px rgba(124,58,237,.3); transition: .3s;
+}
+.btn-shop:hover { transform: translateY(-3px); color: #fff; }
+
+/* ERROR BOX */
+.err-box {
+    margin: 16px 28px 0;
+    background: #fff1f2; border: 1px solid #fecdd3;
+    border-radius: 14px; padding: 12px 16px;
+    color: #be123c; font-size: .88rem; font-weight: 700;
+    display: flex; gap: 10px; align-items: flex-start;
 }
 </style>
-{%if product_in_cart%}
-<form method="post">
-  {% csrf_token %}
-<ul class="form-style-1">
-    <li>
-        <label>Email <span class="required">*</span></label>
-        {% render_field addressForm.Email class="field-long" placeholder="Email" %}
 
-    </li>
-    <li>
-        <label>Mobile <span class="required">*</span></label>
-        {% render_field addressForm.Mobile class="field-long" placeholder="Mobile" %}
-    </li>
+{% if product_in_cart %}
 
-    <li>
-        <label>Shipment Address <span class="required">*</span></label>
-        {% render_field addressForm.Address id="field5" class="field-long field-textarea" placeholder="Building Number,city, pin" %}
+<div class="checkout-wrap">
 
-    </li>
-    <li>
-        <input type="submit" value="Proceed To Pay" />
-    </li>
-</ul>
-</form>
-{%else%}
-<br><br>
-<h1 style="text-align:center; color:red;"> First Add Product In Cart </h1>
-<br><br><br><br><br><br><br><br><br><br>
-{%endif%}
+    <!-- PAGE TITLE -->
+    <div class="page-title">
+        <div class="title-icon">🛍</div>
+        <div class="title-text">
+            <h1>ຢືນຢັນການສັ່ງຊື້</h1>
+            <p>ກວດສອບຂໍ້ມູນ ແລ້ວກົດ "ສັ່ງຊື້" ໄດ້ເລີຍ</p>
+        </div>
+    </div>
+
+    <!-- LEFT COL: FORM -->
+    <div class="col-form">
+        <form method="post" action="{% url 'customer-address' %}" id="mainForm">
+        {% csrf_token %}
+        <input type="hidden" name="delivery_type"  id="h_dtype" value="Delivery">
+        <input type="hidden" name="payment_method" id="h_pay"   value="COD">
+        <input type="hidden" name="delivery_fee"   id="h_fee"   value="0">
+        <input type="hidden" name="delivery_km"    id="h_km"    value="0">
+
+        <div class="card">
+
+            {% if addressForm.errors %}
+            <div class="err-box">
+                <i class="fas fa-exclamation-circle" style="margin-top:2px;flex-shrink:0;"></i>
+                <div>{% for f in addressForm %}{% for e in f.errors %}<div>{{ e }}</div>{% endfor %}{% endfor %}</div>
+            </div>
+            {% endif %}
+
+            <!-- CONTACT -->
+            <div class="form-sec">
+                <div class="sec-label"><i class="fas fa-phone-alt"></i> ຂໍ້ມູນຕິດຕໍ່</div>
+                <div class="f-group">
+                    <label>📞 ເບີໂທ</label>
+                    <input type="tel" name="Mobile" id="f_mobile"
+                           value="{{ prefill.Mobile }}"
+                           placeholder="020 xxxx xxxx">
+                </div>
+            </div>
+
+            <!-- DELIVERY TYPE -->
+            <div class="form-sec">
+                <div class="sec-label"><i class="fas fa-truck"></i> ຮູບແບບຈັດສົ່ງ</div>
+                <div class="del-grid">
+                    <div class="del-card active-d" id="opt-d" onclick="setDel('Delivery')">
+                        <span class="check-dot"><i class="fas fa-check fa-xs"></i></span>
+                        <span class="dc-ico">🛵</span>
+                        <span class="dc-name">ຈັດສົ່ງເຖິງບ້ານ</span>
+                        <span class="dc-sub">5,000 ກີບ / ກິໂລ</span>
+                    </div>
+                    <div class="del-card" id="opt-p" onclick="setDel('Pickup')">
+                        <span class="check-dot"><i class="fas fa-check fa-xs"></i></span>
+                        <span class="dc-ico">🏪</span>
+                        <span class="dc-name">ຮັບໜ້າຮ້ານ</span>
+                        <span class="dc-sub">ບໍ່ມີຄ່າສົ່ງ 🎉</span>
+                    </div>
+                </div>
+
+                <!-- Delivery inputs -->
+                <div id="box-del">
+                    <div class="f-group">
+                        <label>📍 ທີ່ຢູ່ຈັດສົ່ງ</label>
+                        <textarea name="Address" id="f_addr" rows="2"
+                                  placeholder="ບ້ານ, ເມືອງ, ຈຸດໝາຍ...">{{ prefill.Address }}</textarea>
+                    </div>
+                    <div class="f-group zone-box">
+                        <label>🗺 ເລືອກເຂດຈັດສົ່ງ</label>
+                        <div class="select-wrap">
+                            <select id="zone-sel" onchange="checkZone()">
+                                <option value="">-- ເລືອກເຂດ --</option>
+                                <option value="ຫົວຊຽງ">ຫົວຊຽງ</option>
+                                <option value="ນິຄົມ">ເຂດນິຄົມອຸດສາຫະກຳ</option>
+                                <option value="ບ້ານໃໝ່">ເຂດບ້ານໃໝ່ໄຊສົມບູນ</option>
+                                <option value="ຫລັກ21">ເຂດຫລັກ 21</option>
+                                <option value="ຫລັກ23">ເຂດຫລັກ 23</option>
+                                <option value="ນອກເຂດ">ອື່ນໆ (ນອກເຂດ)</option>
+                            </select>
+                        </div>
+                        <div class="zone-warning" id="zone-warn">
+                            <span class="zw-ico">🚫</span>
+                            <strong>ໝາຍເຫດ:</strong> ທ່ານຢູ່ນອກເຂດທີ່ສາມາດຈັດສົ່ງໄດ້<br>
+                            ເນື່ອງຈາກສິນຄ້າຂອງເຮົາເປັນ<strong>ນໍ້າປັ່ນ</strong> ຈຶ່ງບໍ່ສາມາດສົ່ງໄລຍະໄກໄດ້<br>
+                            ກາລຸນາ <strong>ຮັບໜ້າຮ້ານ</strong> ຫລື ເລືອກເຂດທີ່ຮອງຮັບ
+                        </div>
+                    </div>
+                    <div class="fee-pill" style="margin-top:4px;">
+                        <span>ຄ່າຈັດສົ່ງ</span>
+                        <span class="fee-amt" id="fee-show">-- ກີບ</span>
+                    </div>
+                </div>
+
+                <!-- Pickup info -->
+                <div id="box-pick" style="display:none;">
+                    <div class="pickup-info">
+                        <div class="pi-ico">📍</div>
+                        <div class="pi-name">ຮ້ານ VILLA PRO</div>
+                        <div class="pi-sub">ມາຮັບສິນຄ້າໄດ້ທີ່ຮ້ານ<br>ບໍ່ມີຄ່າຈັດສົ່ງ — ຟຣີ! 🎉</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAYMENT -->
+            <div class="form-sec">
+                <div class="sec-label"><i class="fas fa-wallet"></i> ວິທີຊຳລະ</div>
+                <div class="pay-grid">
+                    <div class="pay-card active-cod" id="opt-cod" onclick="setPay('COD')">
+                        <span class="check-dot"><i class="fas fa-check fa-xs"></i></span>
+                        <span class="pc-ico">💵</span>
+                        <span class="pc-name">ຈ່າຍປາຍທາງ</span>
+                    </div>
+                    <div class="pay-card" id="opt-store" onclick="setPay('InStore')">
+                        <span class="check-dot"><i class="fas fa-check fa-xs"></i></span>
+                        <span class="pc-ico">🏬</span>
+                        <span class="pc-name">ຈ່າຍໜ້າຮ້ານ</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CANCEL NOTICE -->
+            <div class="cancel-notice">
+                <span class="cn-ico">⚠️</span>
+                <div class="cn-text">
+                    <b>ໝາຍເຫດສຳຄັນ:</b> ເມື່ອທ່ານກົດ "ຢືນຢັນ ແລະ ສັ່ງຊື້" ແລ້ວ
+                    <b>ຈະຍົກເລີກການສັ່ງຊື້ບໍ່ໄດ້ທຸກກໍລະນີ</b>
+                    ກາລຸນາກວດສອບຂໍ້ມູນ ແລະ ລາຍການສິນຄ້າໃຫ້ຖືກຕ້ອງກ່ອນຢືນຢັນ
+                </div>
+            </div>
+
+            <!-- SUBMIT -->
+            <div class="submit-sec">
+                <button type="submit" class="btn-order" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i>
+                    ຢືນຢັນ ແລະ ສັ່ງຊື້
+                </button>
+            </div>
+
+        </div>
+        </form>
+    </div>
+
+    <!-- RIGHT COL: ORDER SUMMARY -->
+    <div class="col-summary">
+        <div class="card">
+
+            <div class="sum-head">
+                <h3>🧾 ສະຫຼຸບລາຍການ</h3>
+                <p>{{ product_count_in_cart }} ລາຍການໃນກະຕ່າ</p>
+            </div>
+
+            <div class="sum-items">
+                {% for item in cart_items %}
+                <div class="sum-item" style="flex-direction:column; align-items:stretch; gap:10px;">
+
+                    <!-- row: image + name + price -->
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div class="si-img">
+                            {% if item.product.product_image %}
+                            <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}">
+                            {% else %}
+                            <span class="si-ph">🥤</span>
+                            {% endif %}
+                        </div>
+                        <div class="si-info" style="flex:1;">
+                            <div class="si-name">{{ item.product.name }}</div>
+                            <div class="si-qty">×{{ item.qty }} × {{ item.unit_price|dotformat }} ກີບ</div>
+                        </div>
+                        <div class="si-price">{{ item.total|dotformat }}<small style="font-size:.7rem;font-weight:600;color:#94a3b8;"> ກີບ</small></div>
+                    </div>
+
+                    <!-- customization detail rows -->
+                    {% if item.cust.size or item.cust.sweet or item.cust.pearl or item.cust.topping or item.cust.note %}
+                    <div style="background:linear-gradient(135deg,#fdf4ff,#fce7f3); border:1.5px solid #fbcfe8; border-radius:14px; padding:10px 14px; display:grid; gap:6px;">
+
+                        {% if item.cust.size %}
+                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
+                            <span style="color:#9d174d; font-weight:700; display:flex; align-items:center; gap:5px;">
+                                <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">📏 ຂະໜາດຈອກ</span>
+                            </span>
+                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">
+                                {% if item.cust.size == 'S' %}S — ນ້ອຍ (25.000ກີບ)
+                                {% elif item.cust.size == 'M' %}M — ກາງ (30.000ກີບ)
+                                {% elif item.cust.size == 'L' %}L — ໃຫຍ່ (35.000ກີບ)
+                                {% else %}{{ item.cust.size }}{% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        {% if item.cust.topping %}
+                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
+                            <span style="color:#9d174d; font-weight:700; display:flex; align-items:center; gap:5px;">
+                                <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">🍓 ທອັບປີ້ງ</span>
+                            </span>
+                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">
+                                {{ item.cust.topping }}
+                                {% if item.cust.topping != 'ບໍ່ໃສ່' %}<span style="color:#a855f7;font-size:.75rem;">(+5.000ກີບ)</span>{% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        {% if item.cust.sweet %}
+                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
+                            <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">🍬 ຄວາມຫວານ</span>
+                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">{{ item.cust.sweet }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if item.cust.pearl %}
+                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
+                            <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">🫧 ໄຂ່ມຸກ</span>
+                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">{{ item.cust.pearl }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if item.cust.note %}
+                        <div style="font-size:.8rem; color:#7c3aed; font-weight:700; border-top:1px dashed #fbcfe8; padding-top:6px; margin-top:2px;">
+                            📝 <span style="color:#1e1040;">{{ item.cust.note }}</span>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                    {% endif %}
+
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="sum-totals">
+                <div class="tot-row">
+                    <span class="tl">ລາຄາສິນຄ້າ</span>
+                    <span class="tv">{{ subtotal|dotformat }} ກີບ</span>
+                </div>
+                <div class="tot-row">
+                    <span class="tl">ຄ່າຈັດສົ່ງ</span>
+                    <span class="tv" id="sum-fee">5,000 ກີບ</span>
+                </div>
+                <div class="tot-grand">
+                    <span class="tg-l">ຍອດລວມທັງໝົດ</span>
+                    <span class="tg-v" id="sum-grand">{{ subtotal|dotformat }} ກີບ</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div><!-- /.checkout-wrap -->
+
+{% else %}
+<div class="empty-wrap">
+    <div class="empty-ico">🛒</div>
+    <h2>ກະຕ່າຫວ່າງ</h2>
+    <p>ເລືອກເມນູກ່ອນ ແລ້ວຄ່ອຍມາຢືນຢັນ</p>
+    <a href="/customer-home" class="btn-shop"><i class="fas fa-store"></i> ໄປເລືອກເມນູ</a>
+</div>
+{% endif %}
+
+<script>
+const SUBTOTAL = {{ subtotal|default:0 }};
+const ZONE_FEES = {
+    'ຫົວຊຽງ':  15000,
+    'ນິຄົມ':   10000,
+    'ບ້ານໃໝ່': 10000,
+    'ຫລັກ21':  15000,
+    'ຫລັກ23':  15000,
+};
+
+var _currentDel = 'Delivery';
+
+function fmtNum(n) {
+    return n.toLocaleString('en').replace(/,/g, '.');
+}
+
+function _setFeeDisplay(fee) {
+    var feeText = fee > 0 ? fmtNum(fee) + ' ກີບ' : '-- ກີບ';
+    try { document.getElementById('fee-show').textContent = feeText; } catch(e) {}
+    try { document.getElementById('sum-fee').textContent  = feeText; } catch(e) {}
+    try { document.getElementById('sum-grand').textContent = fmtNum(SUBTOTAL + fee) + ' ກີບ'; } catch(e) {}
+    document.getElementById('h_fee').value = fee;
+    document.getElementById('h_km').value  = 0;
+}
+
+function setDel(t) {
+    _currentDel = t;
+    var isD = (t === 'Delivery');
+    document.getElementById('h_dtype').value = t;
+
+    document.getElementById('opt-d').className = 'del-card' + (isD  ? ' active-d' : '');
+    document.getElementById('opt-p').className = 'del-card' + (!isD ? ' active-p' : '');
+    document.getElementById('box-del').style.display  = isD ? '' : 'none';
+    document.getElementById('box-pick').style.display = isD ? 'none' : '';
+
+    if (!isD) {
+        // ── PICKUP: ຈ່າຍໜ້າຮ້ານອຍ່າງດຽວ, ບໍ່ຕ້ອງເລືອກເຂດ ──
+        document.getElementById('opt-cod').style.display   = 'none';
+        document.getElementById('opt-store').style.display = '';
+        setPay('InStore');
+        _setFeeDisplay(0);
+        document.getElementById('sum-fee').textContent   = '0 ກີບ';
+        document.getElementById('sum-grand').textContent = fmtNum(SUBTOTAL) + ' ກີບ';
+        document.getElementById('zone-warn').style.display = 'none';
+        document.getElementById('submitBtn').disabled = false;
+        var addr = document.getElementById('f_addr');
+        if (addr) addr.value = 'ຮັບໜ້າຮ້ານ';
+    } else {
+        // ── DELIVERY: ຈ່າຍປາຍທາງອຍ່າງດຽວ, ຕ້ອງເລືອກເຂດ ──
+        document.getElementById('opt-cod').style.display   = '';
+        document.getElementById('opt-store').style.display = 'none';
+        setPay('COD');
+        var sel = document.getElementById('zone-sel');
+        if (sel) sel.value = '';
+        _setFeeDisplay(0);
+        document.getElementById('zone-warn').style.display = 'none';
+        document.getElementById('submitBtn').disabled = true;
+    }
+}
+
+function setPay(m) {
+    document.getElementById('h_pay').value = m;
+    var cod   = document.getElementById('opt-cod');
+    var store = document.getElementById('opt-store');
+    if (cod)   cod.className   = 'pay-card' + (m === 'COD'     ? ' active-cod'   : '');
+    if (store) store.className = 'pay-card' + (m === 'InStore' ? ' active-store' : '');
+}
+
+function checkZone() {
+    var sel  = document.getElementById('zone-sel');
+    var warn = document.getElementById('zone-warn');
+    var btn  = document.getElementById('submitBtn');
+    if (!sel) return;
+
+    var v    = sel.value;
+    var isOut = (v === 'ນອກເຂດ');
+    var noSel = (v === '');
+
+    warn.style.display = isOut ? 'block' : 'none';
+    btn.disabled = isOut || noSel;
+
+    var fee = (!isOut && !noSel) ? (ZONE_FEES[v] || 0) : 0;
+    _setFeeDisplay(fee);
+}
+
+document.getElementById('submitBtn').addEventListener('click', function(e) {
+    if (this.disabled) { e.preventDefault(); return; }
+    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ກຳລັງດຳເນີນການ...';
+    this.style.opacity = '0.7';
+});
+
+// init: delivery mode → hide InStore, disable submit until zone chosen
+document.getElementById('opt-store').style.display = 'none';
+document.getElementById('submitBtn').disabled = true;
+_setFeeDisplay(0);
+</script>
 
 {% endblock content %}

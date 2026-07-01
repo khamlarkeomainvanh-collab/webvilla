@@ -59,6 +59,8 @@
       -o-transition: 0.5s all;
     }
 
+    .market-update-block { cursor: pointer; }
+
     .market-update-block.clr-block-1:hover {
       background: #3C3C3C;
       transition: 0.5s all;
@@ -138,37 +140,38 @@
 <body>
   <div class="market-updates">
     <div class="col-md-4 market-update-gd">
-      <div class="market-update-block clr-block-1">
-        <div class="col-md-8 market-update-left">
-          <h3>{{customercount}}</h3>
-          <h4>Total Customer</h4>
-
+      <a href="/view-customer" style="text-decoration:none;">
+        <div class="market-update-block clr-block-1">
+          <div class="col-md-8 market-update-left">
+            <h3>{{customercount}}</h3>
+            <h4>Total Customer</h4>
+          </div>
+          <div class="col-md-4 market-update-right">
+            <i class="fa fa-user-o"></i>
+          </div>
+          <div class="clearfix"> </div>
         </div>
-        <div class="col-md-4 market-update-right">
-          <i class="fa fa-user-o"></i>
-        </div>
-        <div class="clearfix"> </div>
-      </div>
+      </a>
     </div>
     <div class="col-md-4 market-update-gd">
-      <div class="market-update-block clr-block-2">
-        <div class="col-md-8 market-update-left">
-          <h3>{{productcount}}</h3>
-          <h4>Total Product</h4>
-
+      <a href="/admin-products" style="text-decoration:none;">
+        <div class="market-update-block clr-block-2">
+          <div class="col-md-8 market-update-left">
+            <h3>{{productcount}}</h3>
+            <h4>Total Product</h4>
+          </div>
+          <div class="col-md-4 market-update-right">
+            <i class="fa fa-shopping-basket"></i>
+          </div>
+          <div class="clearfix"> </div>
         </div>
-        <div class="col-md-4 market-update-right">
-          <i class="fa fa-shopping-basket"></i>
-        </div>
-        <div class="clearfix"> </div>
-      </div>
+      </a>
     </div>
     <div class="col-md-4 market-update-gd">
-      <div class="market-update-block clr-block-3">
+      <div class="market-update-block clr-block-3" onclick="openSalesModal()">
         <div class="col-md-8 market-update-left">
           <h3>{{ordercount}}</h3>
           <h4>Total Orders</h4>
-
         </div>
         <div class="col-md-4 market-update-right">
           <i class="fa fa-bar-chart"> </i>
@@ -180,10 +183,6 @@
   </div>
   <br><br>
 </body>
-<!--
-  developed By : sumit kumar
-  facebook : fb.com/sumit.luv
-  youtube : youtube.com/lazycoders
-  -->
+
 
 </html>

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; cd \"c:\\\\Users\\\\Touk4\\\\Downloads\\\\thipdavan\\\\thipdavan\"; python manage.py check 2>&1)",
+      "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; cd \"c:\\\\Users\\\\Touk4\\\\Downloads\\\\thipdavan\\\\thipdavan\"; python -c \"import django; print\\(django.__version__\\)\")"
+    ]
+  }
+}
