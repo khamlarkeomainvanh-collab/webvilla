@@ -90,3 +90,6 @@ urlpatterns = [
     path('export-finance-excel', views.export_finance_excel, name='export-finance-excel'),
     path('finance-month-data', views.finance_month_daily_data, name='finance-month-data'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# ຕື່ມ 2 ບັນທັດນີ້ໃສ່ທາງລຸ່ມສຸດ (ນອກວົງເລັບ urlpatterns)
+if settings.DEBUG or not settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
