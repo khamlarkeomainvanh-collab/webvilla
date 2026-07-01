@@ -27,9 +27,11 @@ SECRET_KEY = '#vw(03o=(9kbvg!&2d5i!2$_58x@_-3l4wujpow6(ym37jxnza'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['webvilla-production.up.railway.app', '127.0.0.1', 'localhost']
 
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://railway.app',
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -135,14 +137,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-
 
 
 STATICFILES_DIRS=[STATIC_DIR,]
