@@ -388,6 +388,14 @@
 .tip-key { color:#a5b4fc; }
 .tip-val { color:#fff; font-weight:800; }
 .tip-head { font-size:.9rem; font-weight:800; color:#c4b5fd; letter-spacing:.5px; text-transform:uppercase; margin-bottom:8px; }
+
+/* ── PRINT: only the expense table ── */
+@media print {
+    body * { visibility: hidden; }
+    #expTableCard, #expTableCard * { visibility: visible; }
+    #expTableCard { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; border: none; }
+    #expFilterForm, .del-btn { display: none !important; }
+}
 </style>
 
 <div class="fin-title">
@@ -729,7 +737,7 @@
 </div>
 
 <!-- ── Expense Table ── -->
-<div class="exp-table-card">
+<div class="exp-table-card" id="expTableCard">
     <!-- Table header -->
     <div class="exp-table-head" style="flex-wrap:wrap;gap:12px;align-items:flex-start;">
         <div class="exp-table-title">
@@ -776,16 +784,62 @@
                 {% endfor %}
             </select>
 
-            <!-- Export button -->
+            <!-- Export button (month) -->
             <button type="button" id="expExportBtn"
                     onclick="doExpExport()"
+                    title="ສົ່ງອອກລາຍຈ່າຍ+ລາຍຮັບ ຂອງເດືອນ/ປີ ທີ່ເລືອກ"
                     style="padding:7px 16px;border-radius:12px;border:none;cursor:pointer;
                            background:linear-gradient(135deg,#10b981,#059669);color:#fff;
                            font-weight:800;font-size:.82rem;
                            font-family:'Lexend','Noto Sans Lao',sans-serif;
                            display:flex;align-items:center;gap:6px;
                            box-shadow:0 4px 14px rgba(16,185,129,.3);">
-                <i class="fas fa-file-excel"></i> Export .xlsx
+                <i class="fas fa-file-excel"></i> Export ເດືອນນີ້
+            </button>
+
+            <!-- Export button (whole year) -->
+            <button type="button" id="expExportYearBtn"
+                    onclick="doExpExportYear()"
+                    title="ສົ່ງອອກລາຍຈ່າຍທັງໝົດຂອງປີ ທີ່ເລືອກ"
+                    style="padding:7px 16px;border-radius:12px;border:none;cursor:pointer;
+                           background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;
+                           font-weight:800;font-size:.82rem;
+                           font-family:'Lexend','Noto Sans Lao',sans-serif;
+                           display:flex;align-items:center;gap:6px;
+                           box-shadow:0 4px 14px rgba(99,102,241,.3);">
+                <i class="fas fa-file-excel"></i> Export ທັງປີ
+            </button>
+
+            <!-- Divider -->
+            <span style="width:1.5px;align-self:stretch;background:#ede9fe;"></span>
+
+            <!-- Single-day export -->
+            <input type="date" id="expDaySel"
+                   style="padding:6px 10px;border-radius:12px;border:1.5px solid #ddd6fe;
+                          background:#f5f3ff;color:#7c3aed;font-weight:700;font-size:.82rem;
+                          font-family:'Lexend','Noto Sans Lao',sans-serif;outline:none;">
+            <button type="button" id="expExportDayBtn"
+                    onclick="doExpExportDay()"
+                    title="ສົ່ງອອກລາຍຈ່າຍສະເພາະວັນທີ່ເລືອກ"
+                    style="padding:7px 16px;border-radius:12px;border:none;cursor:pointer;
+                           background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;
+                           font-weight:800;font-size:.82rem;
+                           font-family:'Lexend','Noto Sans Lao',sans-serif;
+                           display:flex;align-items:center;gap:6px;
+                           box-shadow:0 4px 14px rgba(245,158,11,.3);">
+                <i class="fas fa-calendar-day"></i> Export ວັນທີ່ເລືອກ
+            </button>
+
+            <!-- Print -->
+            <button type="button" id="expPrintBtn"
+                    onclick="window.print()"
+                    title="ພິມລາຍການລາຍຈ່າຍທີ່ສະແດງຢູ່ຕາຕະລາງ"
+                    style="padding:7px 16px;border-radius:12px;border:1.5px solid #ddd6fe;cursor:pointer;
+                           background:#fff;color:#7c3aed;
+                           font-weight:800;font-size:.82rem;
+                           font-family:'Lexend','Noto Sans Lao',sans-serif;
+                           display:flex;align-items:center;gap:6px;">
+                <i class="fas fa-print"></i> ພິມ
             </button>
         </form>
     </div>
@@ -888,7 +942,7 @@
     </div>
 
     <!-- Donut status -->
-    <div class="chart-card">
+    <div class="chart-card" style="grid-column:span 2 / auto;">
         <h3><i class="fas fa-circle-half-stroke"></i> ສະຖານະ {% if is_sel_today %}ມື້ນີ້{% else %}{{ sel_date_str }}{% endif %}</h3>
         <div class="chart-wrap" style="height:200px;">
             <canvas id="statusDonut"></canvas>
@@ -918,27 +972,6 @@
                 <span class="sp-lbl">❌ ຍົກເລີກ</span>
                 <span class="sp-num" style="color:#ef4444;">{{ today_status.Cancelled }}</span>
             </a>
-        </div>
-    </div>
-
-    <!-- Monthly table with profit -->
-    <div class="chart-card">
-        <h3>
-            <i class="fas fa-table-list"></i> ຕາຕະລາງລາຍຮັບ-ລາຍຈ່າຍ-ກຳໄລ 12 ເດືອນ
-            <span style="margin-left:auto;font-size:.72rem;color:rgba(124,58,237,.5);font-weight:600;text-transform:none;letter-spacing:0;">— ຄລິກແຖວເພື່ອເບິ່ງລາຍວັນ</span>
-        </h3>
-        <div style="overflow-y:auto;max-height:400px;">
-            <table class="month-table">
-                <thead>
-                    <tr>
-                        <th>ເດືອນ</th>
-                        <th>ລາຍຮັບ</th>
-                        <th>ລາຍຈ່າຍ</th>
-                        <th>ກຳໄລ</th>
-                    </tr>
-                </thead>
-                <tbody id="monthlyTbody"></tbody>
-            </table>
         </div>
     </div>
 </div>
@@ -1035,38 +1068,6 @@ const STATUS_DATA    = [{{ today_status.Pending }}, {{ today_status.Processing }
     });
 })();
 
-/* ── Fill monthly table ── */
-(function(){
-    const MONTH_TH = ['ມັງກອນ','ກຸມພາ','ມີນາ','ເມສາ','ພຶດສະພາ','ມິຖຸນາ','ກໍລະກົດ','ສິງຫາ','ກັນຍາ','ຕຸລາ','ພະຈິກ','ທັນວາ'];
-    const tbl = document.getElementById('monthlyTbody');
-    MONTH_TH.forEach((m,i) => {
-        const rev  = MONTHLY_REV[i];
-        const exp  = MONTHLY_EXP[i];
-        const prof = MONTHLY_PROFIT[i];
-        const hasData = rev > 0 || exp > 0;
-        const profColor = prof >= 0 ? '#10b981' : '#ef4444';
-        const profSign  = prof >= 0 ? '+' : '';
-        const dash = '<span style="color:#cbd5e1;font-size:1rem;">—</span>';
-        const tr = document.createElement('tr');
-        tr.style.cursor = 'pointer';
-        tr.title = 'ຄລິກເພື່ອເບິ່ງລາຍວັນ';
-        tr.onclick = () => openDailyModal(i + 1);
-        tr.innerHTML = `
-            <td style="font-weight:800;font-size:.95rem;color:#2d1457;">${m} <span style="font-size:.7rem;color:rgba(124,58,237,.4);">🔍</span></td>
-            <td>${rev>0
-                ? `<span style="color:#7c3aed;font-weight:900;font-size:1.05rem;">${dotFmt(rev)}</span><span style="color:#a78bfa;font-size:.72rem;margin-left:3px;">ກີບ</span>`
-                : dash}</td>
-            <td>${exp>0
-                ? `<span style="color:#ef4444;font-weight:900;font-size:1.05rem;">${dotFmt(exp)}</span><span style="color:#fca5a5;font-size:.72rem;margin-left:3px;">ກີບ</span>`
-                : dash}</td>
-            <td>${hasData
-                ? `<span style="color:${profColor};font-weight:900;font-size:1.1rem;">${profSign}${dotFmt(prof)}</span><span style="color:${profColor};font-size:.72rem;margin-left:3px;opacity:.7;">ກີບ</span>`
-                : dash}</td>
-        `;
-        tbl.appendChild(tr);
-    });
-})();
-
 /* ── Dot formatter (Lao style) ── */
 function dotFmt(n){
     return Math.round(n).toLocaleString('en-US').replace(/,/g,'.');
@@ -1123,6 +1124,20 @@ function doExpExport(){
     const y = document.getElementById('expYearSel');
     if(!m || !y) return;
     const url = '/export-finance-excel?year=' + y.value + '&month=' + m.value;
+    window.location.href = url;
+}
+
+function doExpExportYear(){
+    const y = document.getElementById('expYearSel');
+    if(!y) return;
+    const url = '/export-finance-excel?year=' + y.value + '&scope=year&type=expense';
+    window.location.href = url;
+}
+
+function doExpExportDay(){
+    const d = document.getElementById('expDaySel');
+    if(!d || !d.value){ alert('ກາລຸນາເລືອກວັນທີ່ກ່ອນ'); return; }
+    const url = '/export-finance-excel?date=' + d.value + '&type=expense';
     window.location.href = url;
 }
 

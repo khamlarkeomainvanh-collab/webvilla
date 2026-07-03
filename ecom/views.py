@@ -2301,6 +2301,7 @@ def export_finance_excel(request):
     sel_month = int(request.GET.get('month', today.month))
     sel_type  = request.GET.get('type', 'all')  # 'revenue' | 'expense' | 'profit' | 'all'
     sel_date_param = request.GET.get('date', None)   # YYYY-MM-DD → single-day export
+    sel_scope = request.GET.get('scope', None)       # 'year' → whole-year export
 
     _LAO_FONT = "Phetsarath OT"
 
@@ -2536,6 +2537,73 @@ def export_finance_excel(request):
         )
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         wb_d.save(response)
+        return response
+
+    # ═══════════════════════════════════════════════════════════════
+    # WHOLE-YEAR EXPENSE EXPORT — triggered by ?scope=year&type=expense
+    # ═══════════════════════════════════════════════════════════════
+    if sel_scope == 'year' and sel_type == 'expense':
+        def _dotfmt_y(n):
+            if n is None: return '—'
+            return f"{int(round(float(n))):,}".replace(',', '.') + ' ກີບ'
+
+        expenses_y = list(models.Expense.objects.filter(
+            date__year=sel_year
+        ).order_by('date').values('date', 'category', 'description', 'amount'))
+        total_exp_y = sum(float(e['amount'] or 0) for e in expenses_y)
+
+        wb_y = openpyxl.Workbook()
+        ws = wb_y.active
+        ws.title = f"ລາຍຈ່າຍ {sel_year}"
+        ws.sheet_view.showGridLines = False
+
+        ws.merge_cells("A1:E1")
+        c = ws["A1"]; c.value = f"ລາຍຈ່າຍທັງໝົດ ປີ {sel_year}"
+        c.font = _hfont(size=14); c.fill = _fill("B91C1C"); c.alignment = _center
+        ws.row_dimensions[1].height = 36
+        ws.merge_cells("A2:E2")
+        s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+        s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
+        ws.row_dimensions[2].height = 22
+
+        for ci, (h, fc) in enumerate(zip(
+            ["ລຳດັບ","ວັນທີ","ໝວດໝູ່","ລາຍລະອຽດ","ຈຳນວນ (ກີບ)"],
+            ["1E3A5F","1E3A5F","B91C1C","1E3A5F","B91C1C"]
+        ), 1):
+            cell = ws.cell(row=3, column=ci, value=h)
+            cell.font = _hfont(size=11); cell.fill = _fill(fc); cell.alignment = _center; cell.border = _border
+        ws.row_dimensions[3].height = 28
+
+        for i, e in enumerate(expenses_y):
+            amt = float(e['amount'] or 0)
+            r = i + 4; rf = _fill("FEF2F2") if i % 2 == 0 else _fill("FFFFFF")
+            for ci, (v, a) in enumerate(zip(
+                [i+1, e['date'].strftime('%d/%m/%Y'), e['category'], e['description'] or '—', _dotfmt_y(amt) if amt else '—'],
+                [_center, _center, _center, _left, _right]
+            ), 1):
+                cell = ws.cell(row=r, column=ci, value=v)
+                cell.font = _dfont(color="EF4444" if ci == 5 else "374151", bold=(ci == 5))
+                cell.fill = rf; cell.alignment = a; cell.border = _border
+            ws.row_dimensions[r].height = 22
+
+        tr = len(expenses_y) + 4
+        for ci, (v, a) in enumerate(zip(
+            ["", f"ລວມ {len(expenses_y)} ລາຍການ", "", "", _dotfmt_y(total_exp_y)],
+            [_center, _center, _center, _center, _right]
+        ), 1):
+            cell = ws.cell(row=tr, column=ci, value=v)
+            cell.font = _hfont(size=12)
+            cell.fill = _fill("B91C1C") if ci == 5 else _fill("1E3A5F")
+            cell.alignment = a; cell.border = _border
+        ws.row_dimensions[tr].height = 28
+        for col, w in zip("ABCDE", [8, 14, 20, 32, 18]):
+            ws.column_dimensions[col].width = w
+
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename="VILLA_ລາຍຈ່າຍ_ປີ{sel_year}.xlsx"'
+        wb_y.save(response)
         return response
 
     wb = openpyxl.Workbook()

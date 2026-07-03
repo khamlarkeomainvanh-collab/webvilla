@@ -332,6 +332,7 @@
                         <i class="fas fa-rotate-left"></i> ສະແກນໃໝ່
                     </button>
                 </div>
+                <div id="modelStatus" style="font-size:12px;color:rgba(124,58,237,.5);margin-top:6px;min-height:16px;text-align:center;">ກຳລັງກຽມລະບົບກວດໃບໜ້າ...</div>
                 <div id="faceResult"></div>
             </div>
 
@@ -373,7 +374,24 @@
 
 {% include "ecom/footer.html" %}
 
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script>
+const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights';
+let modelsReady   = false;
+let modelsFailed  = false;
+(async () => {
+    try {
+        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        modelsReady = true;
+        const st = document.getElementById('modelStatus');
+        if (st) st.textContent = '✅ ລະບົບກວດໃບໜ້າພ້ອມໃຊ້ງານ';
+    } catch (e) {
+        modelsFailed = true;
+        const st = document.getElementById('modelStatus');
+        if (st) st.textContent = '⚠️ ໂຫລດລະບົບກວດໃບໜ້າບໍ່ສຳເລັດ — ລອງ reload ໜ້ານີ້';
+    }
+})();
+
 let stream        = null;
 let photoApproved = false;
 let selfieBlob    = null;
@@ -448,7 +466,7 @@ btnOpen.addEventListener('click', async () => {
     }
 });
 
-/* ── LIVENESS SCAN (no AI — plain frame-motion detection) ── */
+/* ── LIVENESS SCAN (frame-motion detection + face-api.js face check) ── */
 const LIVENESS_FRAMES    = 10;
 const LIVENESS_INTERVAL  = 130; // ms between samples
 const LIVENESS_THRESHOLD = 25;  // cumulative avg per-pixel luma delta needed to count as "live"
@@ -469,8 +487,17 @@ function frameDiffScore(prev, curr) {
     return diff / (prev.length / 4); // avg per-pixel delta
 }
 
-/* ── SHOOT (starts liveness scan) ── */
+/* ── SHOOT (starts liveness + face scan) ── */
 btnShoot.addEventListener('click', async () => {
+    if (modelsFailed) {
+        showFace('err','⚠️ ລະບົບກວດໃບໜ້າໂຫລດບໍ່ສຳເລັດ — ກະລຸນາ reload ໜ້ານີ້ ແລ້ວລອງໃໝ່');
+        return;
+    }
+    if (!modelsReady) {
+        showFace('','⏳ ກຳລັງກຽມລະບົບກວດໃບໜ້າ ລໍຖ້າແປບນຶ່ງ...');
+        return;
+    }
+
     btnShoot.style.display = 'none';
     btnRetry.style.display = 'none';
 
@@ -499,6 +526,26 @@ btnShoot.addEventListener('click', async () => {
         btnRetry.style.display = 'flex';
         return;
     }
+
+    showFace('','🔍 ກຳລັງກວດວ່າມີໃບໜ້າແທ້ໆ...');
+    let faces = [];
+    try {
+        faces = await faceapi.detectAllFaces(canvas, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.5 }));
+    } catch (e) { faces = []; }
+
+    if (!faces || faces.length === 0) {
+        showFace('err','❌ ບໍ່ພົບໃບໜ້າຄົນ — ນີ້ອາດເປັນວັດຖຸ ຫຼື ຮູບອື່ນ. ກາລຸນາໃຫ້ໃບໜ້າຂອງທ່ານຢູ່ໃນກອບ ແລ້ວລອງໃໝ່');
+        photoApproved = false; btnSubmit.disabled = true;
+        btnRetry.style.display = 'flex';
+        return;
+    }
+    if (faces.length > 1) {
+        showFace('err','❌ ພົບຫຼາຍໃບໜ້າໃນຮູບ — ກາລຸນາໃຫ້ມີແຕ່ໃບໜ້າຂອງທ່ານຄົນດຽວ ແລ້ວລອງໃໝ່');
+        photoApproved = false; btnSubmit.disabled = true;
+        btnRetry.style.display = 'flex';
+        return;
+    }
+
     confirmPhoto();
 });
 
@@ -522,7 +569,7 @@ btnRetry.addEventListener('click', async () => {
     }
 });
 
-/* ── CONFIRM PHOTO (no AI check) ── */
+/* ── CONFIRM PHOTO (motion + face check both passed) ── */
 function confirmPhoto() {
     /* save selfie as default profile pic */
     canvas.toBlob(blob => {
