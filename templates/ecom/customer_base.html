@@ -176,7 +176,19 @@
     }
 
     @media(max-width:768px) {
-        .top-bar { display: none; }
+        .top-bar { padding: 8px 0; }
+        .upper-links {
+            justify-content: flex-start; flex-wrap: nowrap;
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; -ms-overflow-style: none;
+            gap: 6px; padding: 0 14px;
+        }
+        .upper-links::-webkit-scrollbar { display: none; }
+        .links {
+            font-size: .78rem; padding: 6px 13px;
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .av { width: 24px; height: 24px; font-size: .65rem; }
         .main-navbar { flex-direction: column; align-items: stretch; gap: 10px; }
         .brand-logo { justify-content: center; }
         .cart-link { justify-content: center; }
