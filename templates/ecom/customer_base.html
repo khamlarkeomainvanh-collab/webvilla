@@ -198,6 +198,13 @@
         .search-btn { padding: 8px 14px; font-size: .82rem; }
         .cart-link { justify-content: center; padding: 9px 16px; font-size: .85rem; gap: 8px; }
         .badge-count { min-width: 20px; height: 20px; font-size: .72rem; }
+        /* dropdown must escape .upper-links' overflow-x:auto clipping, or it becomes unopenable */
+        .dropdown-menu {
+            position: fixed !important;
+            top: calc(var(--nav-h, 172px) + 4px) !important;
+            left: 14px !important; right: 14px !important;
+            width: auto !important; max-width: none !important;
+        }
     }
     </style>
 </head>
