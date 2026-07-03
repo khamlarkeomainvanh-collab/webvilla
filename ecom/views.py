@@ -1564,6 +1564,56 @@ def download_group_invoice_view(request, orderID):
 
 
 @login_required(login_url='adminlogin')
+def expense_invoice_view(request):
+    import datetime as _dt
+    from django.utils import timezone as _tz
+
+    scope      = request.GET.get('scope', '')
+    date_param = request.GET.get('date', '')
+    month_param = request.GET.get('month')
+    year = int(request.GET.get('year', _tz.localdate().year))
+
+    if date_param:
+        try:
+            d = _dt.date.fromisoformat(date_param)
+        except (ValueError, TypeError):
+            d = _tz.localdate()
+        expenses = models.Expense.objects.filter(date=d).order_by('id')
+        period_label = f"ວັນທີ {d.strftime('%d/%m/%Y')}"
+        invoice_no = d.strftime('%Y%m%d')
+    elif scope == 'year':
+        expenses = models.Expense.objects.filter(date__year=year).order_by('date', 'id')
+        period_label = f"ປີ {year}"
+        invoice_no = f"Y{year}"
+    elif month_param:
+        month = int(month_param)
+        expenses = models.Expense.objects.filter(date__year=year, date__month=month).order_by('date', 'id')
+        period_label = f"ເດືອນ {month:02d}/{year}"
+        invoice_no = f"M{month:02d}{year}"
+    else:
+        today = _tz.localdate()
+        expenses = models.Expense.objects.filter(date=today).order_by('id')
+        period_label = f"ວັນທີ {today.strftime('%d/%m/%Y')}"
+        invoice_no = today.strftime('%Y%m%d')
+
+    items = []
+    total = 0.0
+    for e in expenses:
+        amt = float(e.amount or 0)
+        total += amt
+        items.append({'date': e.date, 'category': e.category, 'description': e.description, 'amount': amt})
+
+    context = {
+        'items': items,
+        'total': total,
+        'period_label': period_label,
+        'invoice_no': invoice_no,
+        'generated_at': _tz.localtime(),
+    }
+    return render(request, 'ecom/expense_invoice.html', context)
+
+
+@login_required(login_url='adminlogin')
 @require_POST
 def ajax_update_group_status(request):
     group_key = request.POST.get('group_key', '').strip()

@@ -852,16 +852,16 @@
                 <i class="fas fa-calendar-day"></i> Export ວັນທີ່ເລືອກ
             </button>
 
-            <!-- Print -->
+            <!-- Print as branded invoice -->
             <button type="button" id="expPrintBtn"
-                    onclick="window.print()"
-                    title="ພິມລາຍການລາຍຈ່າຍທີ່ສະແດງຢູ່ຕາຕະລາງ"
+                    onclick="openExpenseInvoice()"
+                    title="ອອກໃບບິນລາຍຈ່າຍຂອງເດືອນ/ປີ ທີ່ເລືອກ"
                     style="padding:7px 16px;border-radius:12px;border:1.5px solid #ddd6fe;cursor:pointer;
                            background:#fff;color:#7c3aed;
                            font-weight:800;font-size:.82rem;
                            font-family:'Lexend','Noto Sans Lao',sans-serif;
                            display:flex;align-items:center;gap:6px;">
-                <i class="fas fa-print"></i> ພິມ
+                <i class="fas fa-print"></i> ອອກໃບບິນ
             </button>
         </form>
     </div>
@@ -1021,6 +1021,14 @@ function doExpExportDay(){
     if(!d || !d.value){ alert('ກາລຸນາເລືອກວັນທີ່ກ່ອນ'); return; }
     const url = '/export-finance-excel?date=' + d.value + '&type=expense';
     window.location.href = url;
+}
+
+/* ── Open the branded expense invoice (for the month/year currently filtered) ── */
+function openExpenseInvoice(){
+    const m = document.getElementById('expMonthSel');
+    const y = document.getElementById('expYearSel');
+    if(!m || !y) return;
+    window.open('/expense-invoice?year=' + y.value + '&month=' + m.value, '_blank');
 }
 
 /* ── Date picker navigation ── */
@@ -1413,6 +1421,20 @@ function exportModalDay(){
     const base = _modalBaseType();
     window.location.href = `/export-finance-excel?date=${d.value}&type=${base}`;
 }
+
+/* ── Print button in modal: expense views get the branded invoice, others get plain print ── */
+function printOrInvoiceModal(){
+    if(_modalBaseType() !== 'expense'){ window.print(); return; }
+    let url;
+    if(_currentModalType && _currentModalType.startsWith('month_')){
+        url = `/expense-invoice?year=${SEL_YEAR}&month=${SEL_MONTH}`;
+    } else if(_currentModalType && _currentModalType.startsWith('year_')){
+        url = `/expense-invoice?year=${SEL_YEAR}&scope=year`;
+    } else {
+        url = `/expense-invoice?date=${SEL_DATE_LBL}`;
+    }
+    window.open(url, '_blank');
+}
 </script>
 
 <!-- ── Detail Modals ── -->
@@ -1434,7 +1456,7 @@ function exportModalDay(){
                            display:flex;align-items:center;gap:6px;">
                 <i class="fas fa-file-excel"></i> Export .xlsx
             </button>
-            <button type="button" onclick="window.print()"
+            <button type="button" onclick="printOrInvoiceModal()"
                     style="padding:8px 16px;border-radius:12px;border:1.5px solid #ddd6fe;cursor:pointer;
                            background:#fff;color:#7c3aed;font-weight:800;font-size:.82rem;
                            font-family:'Lexend','Noto Sans Lao',sans-serif;
