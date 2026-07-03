@@ -2540,70 +2540,213 @@ def export_finance_excel(request):
         return response
 
     # ═══════════════════════════════════════════════════════════════
-    # WHOLE-YEAR EXPENSE EXPORT — triggered by ?scope=year&type=expense
+    # MONTH / YEAR, TYPE-SPECIFIC EXPORT
+    # triggered by ?scope=month|year&type=revenue|expense|profit
     # ═══════════════════════════════════════════════════════════════
-    if sel_scope == 'year' and sel_type == 'expense':
-        def _dotfmt_y(n):
+    if sel_scope in ('month', 'year') and sel_type in ('revenue', 'expense', 'profit'):
+        def _dotfmt_s(n):
             if n is None: return '—'
             return f"{int(round(float(n))):,}".replace(',', '.') + ' ກີບ'
 
-        expenses_y = list(models.Expense.objects.filter(
-            date__year=sel_year
-        ).order_by('date').values('date', 'category', 'description', 'amount'))
-        total_exp_y = sum(float(e['amount'] or 0) for e in expenses_y)
+        if sel_scope == 'month':
+            _, _dim = _cal.monthrange(sel_year, sel_month)
+            range_start = _dt.date(sel_year, sel_month, 1)
+            range_end   = _dt.date(sel_year, sel_month, _dim)
+            period_lbl  = f"ເດືອນ {sel_month:02d}/{sel_year}"
+            fname_lbl   = f"ເດືອນ{sel_month:02d}-{sel_year}"
+        else:
+            range_start = _dt.date(sel_year, 1, 1)
+            range_end   = _dt.date(sel_year, 12, 31)
+            period_lbl  = f"ປີ {sel_year}"
+            fname_lbl   = f"ປີ{sel_year}"
 
-        wb_y = openpyxl.Workbook()
-        ws = wb_y.active
-        ws.title = f"ລາຍຈ່າຍ {sel_year}"
+        wb_s = openpyxl.Workbook()
+        ws = wb_s.active
         ws.sheet_view.showGridLines = False
 
-        ws.merge_cells("A1:E1")
-        c = ws["A1"]; c.value = f"ລາຍຈ່າຍທັງໝົດ ປີ {sel_year}"
-        c.font = _hfont(size=14); c.fill = _fill("B91C1C"); c.alignment = _center
-        ws.row_dimensions[1].height = 36
-        ws.merge_cells("A2:E2")
-        s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
-        s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
-        ws.row_dimensions[2].height = 22
+        _tz_start = _dt.datetime(range_start.year, range_start.month, range_start.day, tzinfo=_LAO_TZ)
+        _tz_end   = _dt.datetime(range_end.year, range_end.month, range_end.day, 23, 59, 59, tzinfo=_LAO_TZ)
 
-        for ci, (h, fc) in enumerate(zip(
-            ["ລຳດັບ","ວັນທີ","ໝວດໝູ່","ລາຍລະອຽດ","ຈຳນວນ (ກີບ)"],
-            ["1E3A5F","1E3A5F","B91C1C","1E3A5F","B91C1C"]
-        ), 1):
-            cell = ws.cell(row=3, column=ci, value=h)
-            cell.font = _hfont(size=11); cell.fill = _fill(fc); cell.alignment = _center; cell.border = _border
-        ws.row_dimensions[3].height = 28
+        if sel_type == 'revenue':
+            orders = list(models.Orders.objects.filter(
+                order_date__gte=_tz_start, order_date__lte=_tz_end
+            ).select_related('product').order_by('order_date').values(
+                'id', 'order_date', 'product__name', 'quantity', 'amount', 'status'
+            ))
+            total = sum(float(o['amount'] or 0) for o in orders)
+            STATUS_LAO = {'Delivered':'ສຳເລັດ','Cancelled':'ຍົກເລີກ','Processing':'ກຳລັງຈັດ','Confirmed':'ຢືນຢັນ','Pending':'ລໍຖ້າ'}
 
-        for i, e in enumerate(expenses_y):
-            amt = float(e['amount'] or 0)
-            r = i + 4; rf = _fill("FEF2F2") if i % 2 == 0 else _fill("FFFFFF")
-            for ci, (v, a) in enumerate(zip(
-                [i+1, e['date'].strftime('%d/%m/%Y'), e['category'], e['description'] or '—', _dotfmt_y(amt) if amt else '—'],
-                [_center, _center, _center, _left, _right]
+            ws.title = f"ລາຍຮັບ {fname_lbl}"[:31]
+            ws.merge_cells("A1:F1")
+            c = ws["A1"]; c.value = f"ລາຍຮັບ — {period_lbl}"
+            c.font = _hfont(size=14); c.fill = _fill("1D4ED8"); c.alignment = _center
+            ws.row_dimensions[1].height = 36
+            ws.merge_cells("A2:F2")
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
+            ws.row_dimensions[2].height = 22
+            for ci, (h, fc) in enumerate(zip(
+                ["ລຳດັບ","ວັນທີ","ສິນຄ້າ","ຈຳນວນ","ລາຍຮັບ (ກີບ)","ສະຖານະ"],
+                ["1E3A5F","1E3A5F","1E3A5F","1E3A5F","1D4ED8","1E3A5F"]
             ), 1):
-                cell = ws.cell(row=r, column=ci, value=v)
-                cell.font = _dfont(color="EF4444" if ci == 5 else "374151", bold=(ci == 5))
-                cell.fill = rf; cell.alignment = a; cell.border = _border
-            ws.row_dimensions[r].height = 22
+                cell = ws.cell(row=3, column=ci, value=h)
+                cell.font = _hfont(size=11); cell.fill = _fill(fc); cell.alignment = _center; cell.border = _border
+            ws.row_dimensions[3].height = 28
+            for i, o in enumerate(orders):
+                amt = float(o['amount'] or 0)
+                r = i + 4; rf = _fill("EFF6FF") if i % 2 == 0 else _fill("FFFFFF")
+                odate = o['order_date'].astimezone(_LAO_TZ).strftime('%d/%m/%Y') if o['order_date'] else '—'
+                for ci, (v, a) in enumerate(zip(
+                    [i+1, odate, o['product__name'] or '—', o['quantity'] or 1, _dotfmt_s(amt) if amt else '—', STATUS_LAO.get(o['status'], o['status'])],
+                    [_center, _center, _left, _center, _right, _center]
+                ), 1):
+                    cell = ws.cell(row=r, column=ci, value=v)
+                    cell.font = _dfont(color="1D4ED8" if ci == 5 else "374151", bold=(ci == 5))
+                    cell.fill = rf; cell.alignment = a; cell.border = _border
+                ws.row_dimensions[r].height = 22
+            tr = len(orders) + 4
+            for ci, (v, a) in enumerate(zip(
+                ["", f"ລວມ {len(orders)} ອໍເດີ", "", "", _dotfmt_s(total), ""],
+                [_center, _center, _center, _center, _right, _center]
+            ), 1):
+                cell = ws.cell(row=tr, column=ci, value=v)
+                cell.font = _hfont(size=12)
+                cell.fill = _fill("1D4ED8") if ci == 5 else _fill("1E3A5F")
+                cell.alignment = a; cell.border = _border
+            ws.row_dimensions[tr].height = 28
+            for col, w in zip("ABCDEF", [8, 13, 26, 10, 16, 14]):
+                ws.column_dimensions[col].width = w
+            filename = f"VILLA_ລາຍຮັບ_{fname_lbl}.xlsx"
 
-        tr = len(expenses_y) + 4
-        for ci, (v, a) in enumerate(zip(
-            ["", f"ລວມ {len(expenses_y)} ລາຍການ", "", "", _dotfmt_y(total_exp_y)],
-            [_center, _center, _center, _center, _right]
-        ), 1):
-            cell = ws.cell(row=tr, column=ci, value=v)
-            cell.font = _hfont(size=12)
-            cell.fill = _fill("B91C1C") if ci == 5 else _fill("1E3A5F")
-            cell.alignment = a; cell.border = _border
-        ws.row_dimensions[tr].height = 28
-        for col, w in zip("ABCDE", [8, 14, 20, 32, 18]):
-            ws.column_dimensions[col].width = w
+        elif sel_type == 'expense':
+            expenses = list(models.Expense.objects.filter(
+                date__gte=range_start, date__lte=range_end
+            ).order_by('date').values('date', 'category', 'description', 'amount'))
+            total = sum(float(e['amount'] or 0) for e in expenses)
+
+            ws.title = f"ລາຍຈ່າຍ {fname_lbl}"[:31]
+            ws.merge_cells("A1:E1")
+            c = ws["A1"]; c.value = f"ລາຍຈ່າຍ — {period_lbl}"
+            c.font = _hfont(size=14); c.fill = _fill("B91C1C"); c.alignment = _center
+            ws.row_dimensions[1].height = 36
+            ws.merge_cells("A2:E2")
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
+            ws.row_dimensions[2].height = 22
+            for ci, (h, fc) in enumerate(zip(
+                ["ລຳດັບ","ວັນທີ","ໝວດໝູ່","ລາຍລະອຽດ","ຈຳນວນ (ກີບ)"],
+                ["1E3A5F","1E3A5F","B91C1C","1E3A5F","B91C1C"]
+            ), 1):
+                cell = ws.cell(row=3, column=ci, value=h)
+                cell.font = _hfont(size=11); cell.fill = _fill(fc); cell.alignment = _center; cell.border = _border
+            ws.row_dimensions[3].height = 28
+            for i, e in enumerate(expenses):
+                amt = float(e['amount'] or 0)
+                r = i + 4; rf = _fill("FEF2F2") if i % 2 == 0 else _fill("FFFFFF")
+                for ci, (v, a) in enumerate(zip(
+                    [i+1, e['date'].strftime('%d/%m/%Y'), e['category'], e['description'] or '—', _dotfmt_s(amt) if amt else '—'],
+                    [_center, _center, _center, _left, _right]
+                ), 1):
+                    cell = ws.cell(row=r, column=ci, value=v)
+                    cell.font = _dfont(color="EF4444" if ci == 5 else "374151", bold=(ci == 5))
+                    cell.fill = rf; cell.alignment = a; cell.border = _border
+                ws.row_dimensions[r].height = 22
+            tr = len(expenses) + 4
+            for ci, (v, a) in enumerate(zip(
+                ["", f"ລວມ {len(expenses)} ລາຍການ", "", "", _dotfmt_s(total)],
+                [_center, _center, _center, _center, _right]
+            ), 1):
+                cell = ws.cell(row=tr, column=ci, value=v)
+                cell.font = _hfont(size=12)
+                cell.fill = _fill("B91C1C") if ci == 5 else _fill("1E3A5F")
+                cell.alignment = a; cell.border = _border
+            ws.row_dimensions[tr].height = 28
+            for col, w in zip("ABCDE", [8, 14, 20, 32, 18]):
+                ws.column_dimensions[col].width = w
+            filename = f"VILLA_ລາຍຈ່າຍ_{fname_lbl}.xlsx"
+
+        else:  # profit — aggregated per-day (month scope) or per-month (year scope)
+            rev_map, exp_map = {}, {}
+            for o in models.Orders.objects.filter(order_date__gte=_tz_start, order_date__lte=_tz_end).values('order_date', 'amount'):
+                d = o['order_date'].astimezone(_LAO_TZ).date()
+                rev_map[d] = rev_map.get(d, 0.0) + float(o['amount'] or 0)
+            for e in models.Expense.objects.filter(date__gte=range_start, date__lte=range_end).values('date', 'amount'):
+                exp_map[e['date']] = exp_map.get(e['date'], 0.0) + float(e['amount'] or 0)
+
+            ws.title = f"ກຳໄລ {fname_lbl}"[:31]
+            ws.merge_cells("A1:D1")
+            c = ws["A1"]; c.value = f"ສະຫຼຸບກຳໄລ — {period_lbl}"
+            c.font = _hfont(size=14); c.fill = _fill("065F46"); c.alignment = _center
+            ws.row_dimensions[1].height = 36
+            ws.merge_cells("A2:D2")
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
+            ws.row_dimensions[2].height = 22
+            LAO_DAYS3 = ['ຈັນ','ອັງຄານ','ພຸດ','ພະຫັດ','ສຸກ','ເສົາ','ອາທິດ']
+            LAO_MONTHS3 = ['ມັງກອນ','ກຸມພາ','ມີນາ','ເມສາ','ພຶດສະພາ','ມິຖຸນາ','ກໍລະກົດ','ສິງຫາ','ກັນຍາ','ຕຸລາ','ພະຈິກ','ທັນວາ']
+            headers_p = ["ວັນ/ເດືອນ","ລາຍຮັບ (ກີບ)","ລາຍຈ່າຍ (ກີບ)","ກຳໄລ (ກີບ)"]
+            for ci, (h, fc) in enumerate(zip(headers_p, ["1E3A5F","1D4ED8","B91C1C","065F46"]), 1):
+                cell = ws.cell(row=3, column=ci, value=h)
+                cell.font = _hfont(size=11); cell.fill = _fill(fc); cell.alignment = _center; cell.border = _border
+            ws.row_dimensions[3].height = 28
+
+            total_r = total_e = total_p = 0.0
+            if sel_scope == 'month':
+                _, dim = _cal.monthrange(sel_year, sel_month)
+                for i in range(dim):
+                    cur = _dt.date(sel_year, sel_month, i + 1)
+                    r = rev_map.get(cur, 0.0); e = exp_map.get(cur, 0.0); p = r - e
+                    total_r += r; total_e += e; total_p += p
+                    row = i + 4; rf = _fill("F8F7FF") if i % 2 == 0 else _fill("FFFFFF")
+                    lbl = f"{cur.day:02d} ({LAO_DAYS3[cur.weekday()]})"
+                    pcolor = "065F46" if p >= 0 else "B91C1C"
+                    for ci, (v, a) in enumerate(zip(
+                        [lbl, _dotfmt_s(r) if r else '—', _dotfmt_s(e) if e else '—', (('+' if p >= 0 else '') + _dotfmt_s(p)) if (r or e) else '—'],
+                        [_left, _right, _right, _right]
+                    ), 1):
+                        cell = ws.cell(row=row, column=ci, value=v)
+                        cell.font = _dfont(color=pcolor if ci == 4 else "374151", bold=(ci == 4))
+                        cell.fill = rf; cell.alignment = a; cell.border = _border
+                    ws.row_dimensions[row].height = 22
+                tr = dim + 4
+            else:
+                for m in range(1, 13):
+                    _, dim = _cal.monthrange(sel_year, m)
+                    r = sum(rev_map.get(_dt.date(sel_year, m, dd), 0.0) for dd in range(1, dim + 1))
+                    e = sum(exp_map.get(_dt.date(sel_year, m, dd), 0.0) for dd in range(1, dim + 1))
+                    p = r - e
+                    total_r += r; total_e += e; total_p += p
+                    row = m + 3; rf = _fill("F8F7FF") if m % 2 == 0 else _fill("FFFFFF")
+                    pcolor = "065F46" if p >= 0 else "B91C1C"
+                    for ci, (v, a) in enumerate(zip(
+                        [LAO_MONTHS3[m-1], _dotfmt_s(r) if r else '—', _dotfmt_s(e) if e else '—', (('+' if p >= 0 else '') + _dotfmt_s(p)) if (r or e) else '—'],
+                        [_left, _right, _right, _right]
+                    ), 1):
+                        cell = ws.cell(row=row, column=ci, value=v)
+                        cell.font = _dfont(color=pcolor if ci == 4 else "374151", bold=(ci == 4))
+                        cell.fill = rf; cell.alignment = a; cell.border = _border
+                    ws.row_dimensions[row].height = 22
+                tr = 16
+
+            total_pcolor = "065F46" if total_p >= 0 else "B91C1C"
+            for ci, (v, a) in enumerate(zip(
+                [f"ລວມ {period_lbl}", _dotfmt_s(total_r), _dotfmt_s(total_e), ('+' if total_p >= 0 else '') + _dotfmt_s(total_p)],
+                [_left, _right, _right, _right]
+            ), 1):
+                cell = ws.cell(row=tr, column=ci, value=v)
+                cell.font = _hfont(size=12, color=total_pcolor if ci == 4 else "FFFFFF")
+                cell.fill = _fill(total_pcolor) if ci == 4 else _fill("1E3A5F")
+                cell.alignment = a; cell.border = _border
+            ws.row_dimensions[tr].height = 28
+            for col, w in zip("ABCD", [18, 18, 18, 18]):
+                ws.column_dimensions[col].width = w
+            filename = f"VILLA_ກຳໄລ_{fname_lbl}.xlsx"
 
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
-        response['Content-Disposition'] = f'attachment; filename="VILLA_ລາຍຈ່າຍ_ປີ{sel_year}.xlsx"'
-        wb_y.save(response)
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        wb_s.save(response)
         return response
 
     wb = openpyxl.Workbook()

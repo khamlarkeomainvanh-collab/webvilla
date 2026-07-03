@@ -418,6 +418,21 @@
         background: none !important; border: 1px solid #000 !important;
         color: #000 !important; padding: 2px 8px !important;
     }
+
+    /* ── When a stat-card / day modal is open, print THAT instead of the expense table ── */
+    body.fin-modal-open .main-card > *:not(#finModalOverlay),
+    body.fin-modal-open .main-card > #expTableCard { display: none !important; }
+    body.fin-modal-open #finModalOverlay { position: static !important; display: block !important; background: none !important; }
+    body.fin-modal-open #finModalBox {
+        position: static !important; box-shadow: none !important; border: none !important;
+        max-width: 100% !important; width: 100% !important; max-height: none !important; margin: 0 !important;
+    }
+    body.fin-modal-open #finModalFoot, body.fin-modal-open .fin-modal-close { display: none !important; }
+    body.fin-modal-open .fin-modal-head { background: #fff !important; border-bottom: 2px solid #000 !important; }
+    body.fin-modal-open #finModalHead { color: #000 !important; font-size: 18px !important; font-weight: 900 !important; }
+    body.fin-modal-open .fin-modal-table { font-size: 13px !important; width: 100% !important; }
+    body.fin-modal-open .fin-modal-table th { background: #eee !important; color: #000 !important; border: 1px solid #000 !important; }
+    body.fin-modal-open .fin-modal-table td { border: 1px solid #999 !important; color: #000 !important; }
 }
 </style>
 
@@ -1113,11 +1128,15 @@ const SEL_MONTH    = {{ sel_month }};
 const SEL_YEAR     = {{ sel_year }};
 const LAO_MONTHS_FULL = ['ມັງກອນ','ກຸມພາ','ມີນາ','ເມສາ','ພຶດສະພາ','ມິຖຸນາ','ກໍລະກົດ','ສິງຫາ','ກັນຍາ','ຕຸລາ','ພະຈິກ','ທັນວາ'];
 
+let _currentModalType = null;
+
 function openModal(type){
+    _currentModalType = type;
     const overlay = document.getElementById('finModalOverlay');
     const head    = document.getElementById('finModalHead');
     const body    = document.getElementById('finModalBody');
     overlay.classList.add('active');
+    document.body.classList.add('fin-modal-open');
 
     if(type === 'revenue'){
         head.textContent = '📦 ລາຍຮັບ  ' + SEL_DATE_LBL;
@@ -1367,17 +1386,75 @@ function openModal(type){
 }
 function closeModal(){
     document.getElementById('finModalOverlay').classList.remove('active');
+    document.body.classList.remove('fin-modal-open');
+}
+
+/* ── Export straight from whichever stat-card modal is open ── */
+function _modalBaseType(){
+    if(!_currentModalType) return 'revenue';
+    return _currentModalType.replace('month_','').replace('year_','');
+}
+function exportModalData(){
+    if(!_currentModalType) return;
+    const base = _modalBaseType();
+    let url;
+    if(_currentModalType.startsWith('month_')){
+        url = `/export-finance-excel?year=${SEL_YEAR}&month=${SEL_MONTH}&scope=month&type=${base}`;
+    } else if(_currentModalType.startsWith('year_')){
+        url = `/export-finance-excel?year=${SEL_YEAR}&scope=year&type=${base}`;
+    } else {
+        url = `/export-finance-excel?date=${SEL_DATE_LBL}&type=${base}`;
+    }
+    window.location.href = url;
+}
+function exportModalDay(){
+    const d = document.getElementById('modalDaySel');
+    if(!d || !d.value){ alert('ກາລຸນາເລືອກວັນທີ່ກ່ອນ'); return; }
+    const base = _modalBaseType();
+    window.location.href = `/export-finance-excel?date=${d.value}&type=${base}`;
 }
 </script>
 
 <!-- ── Detail Modals ── -->
 <div id="finModalOverlay" class="fin-modal-overlay" onclick="if(event.target===this)closeModal()">
-    <div class="fin-modal-box">
+    <div class="fin-modal-box" id="finModalBox">
         <div class="fin-modal-head">
             <span id="finModalHead"></span>
             <button class="fin-modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
         </div>
         <div class="fin-modal-body" id="finModalBody"></div>
+
+        <div class="fin-modal-foot" id="finModalFoot" style="
+                display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+                padding:14px 22px;border-top:1.5px solid #ede9fe;background:#faf9ff;">
+            <button type="button" onclick="exportModalData()"
+                    style="padding:8px 16px;border-radius:12px;border:none;cursor:pointer;
+                           background:linear-gradient(135deg,#10b981,#059669);color:#fff;
+                           font-weight:800;font-size:.82rem;font-family:'Lexend','Noto Sans Lao',sans-serif;
+                           display:flex;align-items:center;gap:6px;">
+                <i class="fas fa-file-excel"></i> Export .xlsx
+            </button>
+            <button type="button" onclick="window.print()"
+                    style="padding:8px 16px;border-radius:12px;border:1.5px solid #ddd6fe;cursor:pointer;
+                           background:#fff;color:#7c3aed;font-weight:800;font-size:.82rem;
+                           font-family:'Lexend','Noto Sans Lao',sans-serif;
+                           display:flex;align-items:center;gap:6px;">
+                <i class="fas fa-print"></i> ພິມ / ອອກບິນ
+            </button>
+            <span style="width:1.5px;align-self:stretch;background:#ede9fe;"></span>
+            <input type="date" id="modalDaySel"
+                   style="padding:6px 10px;border-radius:12px;border:1.5px solid #ddd6fe;
+                          background:#f5f3ff;color:#7c3aed;font-weight:700;font-size:.82rem;
+                          font-family:'Lexend','Noto Sans Lao',sans-serif;outline:none;">
+            <button type="button" onclick="exportModalDay()"
+                    title="ສົ່ງອອກສະເພາະວັນທີ່ເລືອກ"
+                    style="padding:8px 16px;border-radius:12px;border:none;cursor:pointer;
+                           background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;
+                           font-weight:800;font-size:.82rem;font-family:'Lexend','Noto Sans Lao',sans-serif;
+                           display:flex;align-items:center;gap:6px;">
+                <i class="fas fa-calendar-day"></i> Export ວັນທີ່ເລືອກ
+            </button>
+        </div>
     </div>
 </div>
 
