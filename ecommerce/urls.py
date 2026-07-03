@@ -58,6 +58,8 @@ urlpatterns = [
     path('download-invoice/<int:orderID>/<int:productID>', views.download_invoice_view,name='download-invoice'),
     path('download-group-invoice/<int:orderID>', views.download_group_invoice_view, name='download-group-invoice'),
     path('expense-invoice', views.expense_invoice_view, name='expense-invoice'),
+    path('revenue-invoice', views.revenue_invoice_view, name='revenue-invoice'),
+    path('profit-invoice', views.profit_invoice_view, name='profit-invoice'),
 
     path('add-to-cart/<int:pk>', views.add_to_cart_view,name='add-to-cart'),
     path('cart', views.cart_view,name='cart'),

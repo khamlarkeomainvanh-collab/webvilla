@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+{% load lao_filters %}
+<html lang="lo">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ໃບບິນສະຫຼຸບກຳໄລ #{{ invoice_no }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700&family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Noto Sans Lao', 'Lexend', sans-serif;
+        background: #f0f4f8;
+        min-height: 100vh;
+        padding: 30px 20px;
+        color: #1a202c;
+    }
+
+    .print-bar { max-width: 800px; margin: 0 auto 20px auto; display: flex; justify-content: flex-end; gap: 10px; }
+    .btn-print {
+        background: #065f46; color: white; border: none; padding: 12px 28px; border-radius: 12px;
+        font-family: 'Noto Sans Lao', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer;
+        display: flex; align-items: center; gap: 8px; transition: 0.2s;
+    }
+    .btn-print:hover { background: #059669; transform: translateY(-1px); }
+    .btn-back {
+        background: white; color: #065f46; border: 2px solid #065f46; padding: 12px 24px; border-radius: 12px;
+        font-family: 'Noto Sans Lao', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer;
+        transition: 0.2s; text-decoration: none; display: flex; align-items: center; gap: 8px;
+    }
+    .btn-back:hover { background: #f0f4f8; }
+
+    .invoice { max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.12); }
+
+    .invoice-top { background: linear-gradient(135deg, #065f46, #059669); padding: 40px 50px; display: flex; justify-content: space-between; align-items: center; }
+    .brand h1 { font-size: 2.5rem; font-weight: 700; color: white; letter-spacing: 3px; }
+    .brand p  { color: rgba(255,255,255,0.75); font-size: 0.9rem; margin-top: 4px; }
+    .inv-number { text-align: right; }
+    .inv-number .label { color: rgba(255,255,255,0.6); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; }
+    .inv-number .value { color: white; font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
+    .inv-number .date  { color: rgba(255,255,255,0.75); font-size: 0.9rem; margin-top: 6px; }
+
+    .invoice-info { padding: 40px 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; border-bottom: 1px solid #e8edf2; }
+    .info-block .block-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #94a3b8; font-weight: 600; margin-bottom: 12px; }
+    .info-block .name   { font-size: 1.15rem; font-weight: 700; color: #065f46; margin-bottom: 6px; }
+    .info-block .detail { font-size: 0.9rem; color: #64748b; line-height: 1.8; }
+
+    /* Summary strip: revenue / expense / profit */
+    .summary-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; padding: 30px 50px 10px; }
+    .sum-tile { border-radius: 16px; padding: 18px 20px; text-align: center; }
+    .sum-tile .lbl { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 6px; }
+    .sum-tile .val { font-size: 1.25rem; font-weight: 800; }
+    .sum-tile.rev { background: #eff6ff; } .sum-tile.rev .lbl { color: #1d4ed8; } .sum-tile.rev .val { color: #1d4ed8; }
+    .sum-tile.exp { background: #fef2f2; } .sum-tile.exp .lbl { color: #991b1b; } .sum-tile.exp .val { color: #991b1b; }
+    .sum-tile.prof { background: #f0fdf4; } .sum-tile.prof .lbl { color: #065f46; } .sum-tile.prof .val { color: #065f46; }
+    .sum-tile.prof.neg { background: #fef2f2; } .sum-tile.prof.neg .lbl,
+    .sum-tile.prof.neg .val { color: #991b1b; }
+
+    .invoice-items { padding: 10px 50px; }
+    .table-scroll { overflow-x: auto; }
+    .items-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #94a3b8; font-weight: 600; padding: 22px 0 12px; }
+
+    table { width: 100%; min-width: 480px; border-collapse: collapse; }
+    thead.rev-head tr { background: #1d4ed8; }
+    thead.exp-head tr { background: #991b1b; }
+    thead th { padding: 12px 16px; color: white; font-size: 0.8rem; font-weight: 600; text-align: left; font-family: 'Noto Sans Lao', sans-serif; }
+    thead th:last-child { text-align: right; }
+
+    tbody tr { border-bottom: 1px solid #f1f5f9; }
+    tbody tr:nth-child(even) { background: #f8faff; }
+    tbody td { padding: 12px 16px; font-size: 0.9rem; color: #374151; font-family: 'Noto Sans Lao', sans-serif; }
+    tbody td:last-child { text-align: right; font-weight: 600; }
+    .rev-table tbody td:last-child { color: #1d4ed8; }
+    .exp-table-inv tbody td:last-child { color: #991b1b; }
+    .num-cell { width: 36px; color: #94a3b8; font-size: 0.82rem; }
+    .empty-mini { padding: 24px; text-align: center; color: #94a3b8; font-size: 0.88rem; }
+
+    .invoice-total { padding: 10px 50px 40px; display: flex; justify-content: flex-end; }
+    .total-box { background: #f0fdf4; border: 2px solid #bbf7d0; border-radius: 16px; padding: 20px 30px; min-width: 280px; }
+    .total-box.neg { background: #fef2f2; border-color: #fecaca; }
+    .total-row-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 0.9rem; color: #64748b; font-family: 'Noto Sans Lao', sans-serif; }
+    .total-row-item.grand { border-top: 2px solid #86efac; margin-top: 10px; padding-top: 14px; font-size: 1.15rem; font-weight: 700; color: #065f46; }
+    .total-box.neg .total-row-item.grand { border-top-color: #fca5a5; color: #991b1b; }
+
+    .invoice-footer { background: #f0fdf4; border-top: 1px solid #e8edf2; padding: 20px 50px; text-align: center; color: #94a3b8; font-size: 0.82rem; font-family: 'Noto Sans Lao', sans-serif; }
+
+    @media(max-width:640px) {
+        body { padding: 16px 10px; }
+        .print-bar { flex-wrap: wrap; }
+        .btn-print, .btn-back { padding: 10px 16px; font-size: 13px; }
+        .invoice-top { padding: 26px 20px; flex-wrap: wrap; gap: 16px; }
+        .brand h1 { font-size: 1.9rem; letter-spacing: 1.5px; }
+        .inv-number { text-align: left; }
+        .inv-number .value { font-size: 1.4rem; }
+        .invoice-info { grid-template-columns: 1fr; padding: 26px 20px; gap: 20px; }
+        .summary-strip { grid-template-columns: 1fr; padding: 20px 20px 4px; }
+        .invoice-items { padding: 4px 20px; }
+        thead th, tbody td { padding: 9px; font-size: .8rem; }
+        .invoice-total { padding: 10px 20px 30px; }
+        .total-box { min-width: 0; width: 100%; padding: 16px 18px; }
+        .invoice-footer { padding: 16px 20px; font-size: .78rem; }
+    }
+
+    @media print {
+        body { background: white; padding: 0; }
+        .print-bar { display: none !important; }
+        .invoice { box-shadow: none; border-radius: 0; }
+        .invoice-top, .sum-tile, thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+</style>
+</head>
+<body>
+
+<div class="print-bar no-print">
+    <a href="javascript:history.back()" class="btn-back">← ກັບຄືນ</a>
+    <button class="btn-print" onclick="window.print()">🖨 ພິມ / Save PDF</button>
+</div>
+
+<div class="invoice">
+
+    <div class="invoice-top">
+        <div class="brand">
+            <h1>VILLA</h1>
+            <p>ໃບບິນສະຫຼຸບກຳໄລ / Profit Summary</p>
+        </div>
+        <div class="inv-number">
+            <div class="label">ເລກທີ ໃບບິນ</div>
+            <div class="value">#{{ invoice_no }}</div>
+            <div class="date">ພິມ: {{ generated_at|date:"d/m/Y H:i" }}</div>
+        </div>
+    </div>
+
+    <div class="invoice-info">
+        <div class="info-block">
+            <div class="block-title">ໄລຍະເວລາ</div>
+            <div class="name">{{ period_label }}</div>
+            <div class="detail">🏪 ຮ້ານ ນ້ຳປັ່ນ VILLA</div>
+        </div>
+        <div class="info-block">
+            <div class="block-title">ສະຫຼຸບ</div>
+            <div class="detail" style="font-size:1rem; color:#374151; line-height:1.6;">
+                📦 {{ revenue_items|length }} ອໍເດີ &nbsp;·&nbsp; 🛒 {{ expense_items|length }} ລາຍຈ່າຍ
+            </div>
+        </div>
+    </div>
+
+    <div class="summary-strip">
+        <div class="sum-tile rev">
+            <div class="lbl">ລາຍຮັບ</div>
+            <div class="val">{{ total_revenue|dotformat }}</div>
+        </div>
+        <div class="sum-tile exp">
+            <div class="lbl">ລາຍຈ່າຍ</div>
+            <div class="val">{{ total_expense|dotformat }}</div>
+        </div>
+        <div class="sum-tile prof {% if total_profit < 0 %}neg{% endif %}">
+            <div class="lbl">ກຳໄລສຸດທິ</div>
+            <div class="val">{% if total_profit >= 0 %}+{% endif %}{{ total_profit|dotformat }}</div>
+        </div>
+    </div>
+
+    <div class="invoice-items">
+        <div class="items-title">ລາຍລະອຽດລາຍຮັບ</div>
+        <div class="table-scroll">
+        {% if revenue_items %}
+        <table class="rev-table">
+            <thead class="rev-head"><tr><th class="num-cell">#</th><th>ວັນທີ</th><th>ຊື່ສິນຄ້າ</th><th>ຈຳນວນ</th><th>ລາຄາລວມ</th></tr></thead>
+            <tbody>
+                {% for item in revenue_items %}
+                <tr>
+                    <td class="num-cell">{{ forloop.counter }}</td>
+                    <td>{{ item.date|date:"d/m/Y" }}</td>
+                    <td style="font-weight:600;">{{ item.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.subtotal|dotformat }} ກີບ</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<div class="empty-mini">📭 ບໍ່ມີລາຍຮັບໃນໄລຍະເວລານີ້</div>{% endif %}
+        </div>
+    </div>
+
+    <div class="invoice-items">
+        <div class="items-title">ລາຍລະອຽດລາຍຈ່າຍ</div>
+        <div class="table-scroll">
+        {% if expense_items %}
+        <table class="exp-table-inv">
+            <thead class="exp-head"><tr><th class="num-cell">#</th><th>ວັນທີ</th><th>ໝວດໝູ່</th><th>ລາຍລະອຽດ</th><th>ຈຳນວນ</th></tr></thead>
+            <tbody>
+                {% for item in expense_items %}
+                <tr>
+                    <td class="num-cell">{{ forloop.counter }}</td>
+                    <td>{{ item.date|date:"d/m/Y" }}</td>
+                    <td style="font-weight:600;">{{ item.category }}</td>
+                    <td>{{ item.description|default:"—" }}</td>
+                    <td>{{ item.amount|dotformat }} ກີບ</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<div class="empty-mini">📭 ບໍ່ມີລາຍຈ່າຍໃນໄລຍະເວລານີ້</div>{% endif %}
+        </div>
+    </div>
+
+    <div class="invoice-total">
+        <div class="total-box {% if total_profit < 0 %}neg{% endif %}">
+            <div class="total-row-item">
+                <span>ລາຍຮັບລວມ</span>
+                <span>{{ total_revenue|dotformat }} ກີບ</span>
+            </div>
+            <div class="total-row-item">
+                <span>ລາຍຈ່າຍລວມ</span>
+                <span>{{ total_expense|dotformat }} ກີບ</span>
+            </div>
+            <div class="total-row-item grand">
+                <span>ກຳໄລສຸດທິ</span>
+                <span>{% if total_profit >= 0 %}+{% endif %}{{ total_profit|dotformat }} ກີບ</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="invoice-footer">
+        ໃບບິນສະຫຼຸບກຳໄລ ຮ້ານ ນ້ຳປັ່ນ VILLA &nbsp;·&nbsp; ໃບບິນນີ້ສ້າງໂດຍອັດຕະໂນມັດ
+    </div>
+
+</div>
+
+</body>
+</html>

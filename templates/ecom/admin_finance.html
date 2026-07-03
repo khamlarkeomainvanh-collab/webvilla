@@ -1424,14 +1424,17 @@ function exportModalDay(){
 
 /* ── Print button in modal: expense views get the branded invoice, others get plain print ── */
 function printOrInvoiceModal(){
-    if(_modalBaseType() !== 'expense'){ window.print(); return; }
+    const base = _modalBaseType();
+    const INVOICE_PATH = { revenue: '/revenue-invoice', expense: '/expense-invoice', profit: '/profit-invoice' };
+    const path = INVOICE_PATH[base];
+    if(!path){ window.print(); return; }
     let url;
     if(_currentModalType && _currentModalType.startsWith('month_')){
-        url = `/expense-invoice?year=${SEL_YEAR}&month=${SEL_MONTH}`;
+        url = `${path}?year=${SEL_YEAR}&month=${SEL_MONTH}`;
     } else if(_currentModalType && _currentModalType.startsWith('year_')){
-        url = `/expense-invoice?year=${SEL_YEAR}&scope=year`;
+        url = `${path}?year=${SEL_YEAR}&scope=year`;
     } else {
-        url = `/expense-invoice?date=${SEL_DATE_LBL}`;
+        url = `${path}?date=${SEL_DATE_LBL}`;
     }
     window.open(url, '_blank');
 }

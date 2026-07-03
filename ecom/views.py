@@ -1613,6 +1613,121 @@ def expense_invoice_view(request):
     return render(request, 'ecom/expense_invoice.html', context)
 
 
+def _resolve_invoice_period(request):
+    """Shared date/month/year → (start_date, end_date, period_label, invoice_no) resolver."""
+    import datetime as _dt
+    from django.utils import timezone as _tz
+
+    scope       = request.GET.get('scope', '')
+    date_param  = request.GET.get('date', '')
+    month_param = request.GET.get('month')
+    year        = int(request.GET.get('year', _tz.localdate().year))
+
+    if date_param:
+        try:
+            d = _dt.date.fromisoformat(date_param)
+        except (ValueError, TypeError):
+            d = _tz.localdate()
+        return d, d, f"ວັນທີ {d.strftime('%d/%m/%Y')}", d.strftime('%Y%m%d')
+    elif scope == 'year':
+        return _dt.date(year, 1, 1), _dt.date(year, 12, 31), f"ປີ {year}", f"Y{year}"
+    elif month_param:
+        import calendar as _cal
+        month = int(month_param)
+        _, dim = _cal.monthrange(year, month)
+        return _dt.date(year, month, 1), _dt.date(year, month, dim), f"ເດືອນ {month:02d}/{year}", f"M{month:02d}{year}"
+    else:
+        today = _tz.localdate()
+        return today, today, f"ວັນທີ {today.strftime('%d/%m/%Y')}", today.strftime('%Y%m%d')
+
+
+@login_required(login_url='adminlogin')
+def revenue_invoice_view(request):
+    from datetime import datetime as _dtt, timezone as _dtz, timedelta as _td
+    from django.utils import timezone as _tz
+
+    start_d, end_d, period_label, invoice_no = _resolve_invoice_period(request)
+    _lao_tz = _dtz(_td(hours=7))
+    r_start = _tz.make_aware(_dtt(start_d.year, start_d.month, start_d.day, 0, 0, 0))
+    r_end   = _tz.make_aware(_dtt(end_d.year, end_d.month, end_d.day, 23, 59, 59))
+
+    orders = models.Orders.objects.filter(
+        order_date__gte=r_start, order_date__lte=r_end
+    ).select_related('product').order_by('order_date')
+
+    STATUS_LAO = {'Delivered':'ສຳເລັດ','Cancelled':'ຍົກເລີກ','Processing':'ກຳລັງຈັດ','Confirmed':'ຢືນຢັນ','Pending':'ລໍຖ້າ'}
+    items = []
+    total = 0.0
+    for o in orders:
+        amt = float(o.amount or 0)
+        total += amt
+        qty = o.quantity or 1
+        items.append({
+            'name': o.product.name if o.product else '—',
+            'unit_price': amt / qty if qty else amt,
+            'quantity': qty,
+            'subtotal': amt,
+            'status': STATUS_LAO.get(o.status, o.status),
+            'date': o.order_date.astimezone(_lao_tz) if o.order_date else None,
+        })
+
+    context = {
+        'items': items,
+        'total': total,
+        'period_label': period_label,
+        'invoice_no': invoice_no,
+        'generated_at': _tz.localtime(),
+    }
+    return render(request, 'ecom/revenue_invoice.html', context)
+
+
+@login_required(login_url='adminlogin')
+def profit_invoice_view(request):
+    from datetime import datetime as _dtt, timezone as _dtz, timedelta as _td
+    from django.utils import timezone as _tz
+
+    start_d, end_d, period_label, invoice_no = _resolve_invoice_period(request)
+    _lao_tz = _dtz(_td(hours=7))
+    r_start = _tz.make_aware(_dtt(start_d.year, start_d.month, start_d.day, 0, 0, 0))
+    r_end   = _tz.make_aware(_dtt(end_d.year, end_d.month, end_d.day, 23, 59, 59))
+
+    orders = models.Orders.objects.filter(order_date__gte=r_start, order_date__lte=r_end).select_related('product').order_by('order_date')
+    expenses = models.Expense.objects.filter(date__gte=start_d, date__lte=end_d).order_by('date', 'id')
+
+    STATUS_LAO = {'Delivered':'ສຳເລັດ','Cancelled':'ຍົກເລີກ','Processing':'ກຳລັງຈັດ','Confirmed':'ຢືນຢັນ','Pending':'ລໍຖ້າ'}
+    revenue_items = []
+    total_rev = 0.0
+    for o in orders:
+        amt = float(o.amount or 0)
+        total_rev += amt
+        revenue_items.append({
+            'name': o.product.name if o.product else '—',
+            'quantity': o.quantity or 1,
+            'subtotal': amt,
+            'status': STATUS_LAO.get(o.status, o.status),
+            'date': o.order_date.astimezone(_lao_tz) if o.order_date else None,
+        })
+
+    expense_items = []
+    total_exp = 0.0
+    for e in expenses:
+        amt = float(e.amount or 0)
+        total_exp += amt
+        expense_items.append({'date': e.date, 'category': e.category, 'description': e.description, 'amount': amt})
+
+    context = {
+        'revenue_items': revenue_items,
+        'expense_items': expense_items,
+        'total_revenue': total_rev,
+        'total_expense': total_exp,
+        'total_profit': total_rev - total_exp,
+        'period_label': period_label,
+        'invoice_no': invoice_no,
+        'generated_at': _tz.localtime(),
+    }
+    return render(request, 'ecom/profit_invoice.html', context)
+
+
 @login_required(login_url='adminlogin')
 @require_POST
 def ajax_update_group_status(request):
