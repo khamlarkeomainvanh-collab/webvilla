@@ -198,12 +198,11 @@
         .search-btn { padding: 8px 14px; font-size: .82rem; }
         .cart-link { justify-content: center; padding: 9px 16px; font-size: .85rem; gap: 8px; }
         .badge-count { min-width: 20px; height: 20px; font-size: .72rem; }
-        /* dropdown must escape .upper-links' overflow-x:auto clipping, or it becomes unopenable */
+        /* dropdown must escape .upper-links' overflow-x:auto clipping, or it becomes unopenable;
+           JS (syncDropdownPos) sets exact top/right against the account button on open */
         .dropdown-menu {
             position: fixed !important;
-            top: calc(var(--nav-h, 172px) + 4px) !important;
-            left: 14px !important; right: 14px !important;
-            width: auto !important; max-width: none !important;
+            width: 210px !important; max-width: calc(100vw - 28px) !important;
         }
     }
     </style>
@@ -307,6 +306,23 @@ function _fitNavOffset() {
 }
 document.addEventListener('DOMContentLoaded', _fitNavOffset);
 window.addEventListener('resize', _fitNavOffset);
+
+/* anchor the account dropdown right under its toggle button (avoids it stretching
+   full-width / landing in the wrong spot when the dropdown escapes overflow-clipping) */
+function _syncDropdownPos() {
+    document.querySelectorAll('.dropdown-toggle').forEach(function (toggle) {
+        var menu = toggle.parentElement.querySelector('.dropdown-menu');
+        if (!menu) return;
+        var rect = toggle.getBoundingClientRect();
+        menu.style.top   = (rect.bottom + 6) + 'px';
+        menu.style.right = (window.innerWidth - rect.right) + 'px';
+        menu.style.left  = 'auto';
+    });
+}
+document.querySelectorAll('.dropdown-toggle').forEach(function (toggle) {
+    toggle.addEventListener('click', function () { setTimeout(_syncDropdownPos, 0); });
+});
+window.addEventListener('resize', _syncDropdownPos);
 
 function addToCart(productId) {
     const qty = (document.getElementById('qty-' + productId) || {value:1}).value;
