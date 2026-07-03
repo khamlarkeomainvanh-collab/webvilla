@@ -232,6 +232,50 @@
       #sidebar.mobile-active { left: 0; }
       #main-wrapper { margin-left: 0 !important; }
     }
+
+    /* ═══ NEW ORDER NOTIFICATION (site-wide across all admin pages) ═══ */
+    .notif-popup {
+      display: none; position: fixed; top: 24px;
+      left: 50%; transform: translateX(-50%);
+      z-index: 99999; width: 90%; max-width: 460px;
+      background: #ffffff;
+      border: 2px solid rgba(124,58,237,.25); border-radius: 20px;
+      padding: 20px 24px;
+      box-shadow: 0 12px 50px rgba(124,58,237,.22), 0 0 0 4px rgba(124,58,237,.06);
+      font-family: 'Noto Sans Lao','Lexend',sans-serif;
+    }
+    @keyframes orderNotifSlideDown {
+      from { opacity:0; transform:translateX(-50%) translateY(-24px); }
+      to   { opacity:1; transform:translateX(-50%) translateY(0); }
+    }
+    .notif-popup.show { animation: orderNotifSlideDown .35s ease; }
+    .notif-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .notif-icon {
+      width: 44px; height: 44px; border-radius: 13px;
+      background: rgba(124,58,237,.1); display: flex;
+      align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;
+    }
+    .notif-title { color: var(--purple); font-size: .72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .notif-body  { color: var(--bright); font-size: 1rem; font-weight: 700; margin-top: 2px; }
+    .notif-close {
+      background: var(--lav); border: none; color: var(--dim);
+      width: 32px; height: 32px; border-radius: 9px; cursor: pointer;
+      font-size: .9rem; margin-left: auto;
+    }
+    .notif-items { display: grid; gap: 6px; margin-bottom: 12px; }
+    .notif-item {
+      background: var(--lav); border-radius: 10px; border: 1px solid var(--border);
+      padding: 9px 12px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .ni-prod { color: var(--bright); font-weight: 600; font-size: .85rem; }
+    .ni-cust { color: var(--dim); font-size: .74rem; margin-top: 2px; }
+    .ni-amt  { color: #10b981; font-weight: 700; font-size: .85rem; }
+    .notif-foot { display: flex; gap: 8px; }
+    .notif-foot a, .notif-foot button {
+      flex: 1; padding: 9px; border-radius: 11px; font-size: .85rem; font-weight: 700;
+      font-family: 'Noto Sans Lao','Lexend',sans-serif; cursor: pointer; border: none;
+      text-align: center; text-decoration: none; transition: .2s;
+    }
   </style>
 
   {% webpush_header %}
@@ -353,6 +397,23 @@
     </div>
   </div>
 
+  <!-- ═══════════ NEW ORDER NOTIFICATION POPUP (site-wide) ═══════════ -->
+  <div class="notif-popup" id="notifPopup">
+    <div class="notif-head">
+      <div class="notif-icon">📦</div>
+      <div>
+        <div class="notif-title">ມີອໍເດີໃໝ່!</div>
+        <div class="notif-body" id="notifBody"></div>
+      </div>
+      <button class="notif-close" onclick="closeNotif()">✕</button>
+    </div>
+    <div class="notif-items" id="notifItems"></div>
+    <div class="notif-foot">
+      <a href="/admin-view-booking" style="background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff;">ເບີ່ງອໍເດີ</a>
+      <button onclick="closeNotif()" style="background:#f5f3ff;border:1.5px solid rgba(124,58,237,.18);color:#64748b;">ປິດ</button>
+    </div>
+  </div>
+
   <script>
     function toggleMenu() {
       const sidebar = document.getElementById('sidebar');
@@ -429,6 +490,59 @@
     function closeFbNotif() {
       document.getElementById('fbNotif').style.display = 'none';
       clearTimeout(fbTimer);
+    }
+
+    /* ═══ New-order notification polling (fires on every admin page) ═══ */
+    let orderLastId  = null;
+    let orderNotifTimer = null;
+
+    fetch('/ajax-check-new-orders?last_id=0')
+      .then(r => r.json())
+      .then(d => {
+        orderLastId = d.latest_id;
+        setInterval(pollNewOrders, 15000);
+      })
+      .catch(() => {});
+
+    function pollNewOrders() {
+      if (orderLastId === null) return;
+      fetch(`/ajax-check-new-orders?last_id=${orderLastId}`)
+        .then(r => r.json())
+        .then(d => {
+          if (d.new_count > 0) {
+            orderLastId = d.latest_id;
+            showOrderNotification(d.new_count, d.orders);
+          }
+        })
+        .catch(() => {});
+    }
+
+    function showOrderNotification(count, orders) {
+      document.getElementById('notifBody').textContent = count + ' ອໍເດີໃໝ່ເຂົ້າມາ';
+      document.getElementById('notifItems').innerHTML = orders.map(o => `
+        <div class="notif-item">
+          <div><div class="ni-prod">${o.product}</div><div class="ni-cust">${o.customer}</div></div>
+          <div class="ni-amt">₭ ${Number(o.amount).toLocaleString()}</div>
+        </div>`).join('');
+      const p = document.getElementById('notifPopup');
+      p.style.display = 'block'; p.className = 'notif-popup show';
+      try {
+        const ac = new (window.AudioContext || window.webkitAudioContext)();
+        [523, 659, 784].forEach((f, i) => {
+          const o = ac.createOscillator(), g = ac.createGain();
+          o.connect(g); g.connect(ac.destination);
+          o.frequency.value = f; o.type = 'sine';
+          g.gain.setValueAtTime(.3, ac.currentTime + i * .12);
+          g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + i * .12 + .3);
+          o.start(ac.currentTime + i * .12); o.stop(ac.currentTime + i * .12 + .3);
+        });
+      } catch (e) {}
+      clearTimeout(orderNotifTimer);
+      orderNotifTimer = setTimeout(closeNotif, 10000);
+    }
+    function closeNotif() {
+      document.getElementById('notifPopup').style.display = 'none';
+      clearTimeout(orderNotifTimer);
     }
   </script>
 </body>
