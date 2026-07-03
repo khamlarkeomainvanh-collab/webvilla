@@ -500,7 +500,7 @@
       .then(r => r.json())
       .then(d => {
         orderLastId = d.latest_id;
-        setInterval(pollNewOrders, 15000);
+        setInterval(pollNewOrders, 3000);
       })
       .catch(() => {});
 

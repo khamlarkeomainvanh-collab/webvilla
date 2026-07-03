@@ -1177,6 +1177,40 @@ def customer_home_view(request):
 
 
 
+SHOP_CLOSED_MSG = 'ຂໍອະໄພ ຮ້ານຂອງເຮົາໄດ້ປິດແລ້ວ ເລີ່ມເປີດການຈອງຄິວໃໝ່ຂອງມື້ອື່ນໃນເວລາ 09:00 ຂໍຂອບໃຈ'
+
+
+def _is_shop_open():
+    from django.utils import timezone as _tz
+    from datetime import time as _time
+    now_t = _tz.localtime().time()
+    return _time(9, 0) <= now_t < _time(18, 0)
+
+
+# ── Batch capacity: shop can only actively work on BATCH_CAPACITY cups at once.
+# Once staff mark orders Delivered/Cancelled they drop out of the active count,
+# freeing up room for the next batch — this is not a fixed timer, it tracks real kitchen load.
+BATCH_CAPACITY = 10
+BATCH_WAIT_ESTIMATE_MIN = 30
+
+
+def _active_batch_qty():
+    from django.db.models import Sum
+    total = models.Orders.objects.filter(
+        status__in=['Pending', 'Confirmed', 'Processing']
+    ).aggregate(s=Sum('quantity'))['s']
+    return total or 0
+
+
+def _batch_full_message(active_qty, cart_qty):
+    remaining = max(0, BATCH_CAPACITY - active_qty)
+    return (
+        f'ຂໍອະໄພ ອໍເດີເຕັມຈຳນວນແລ້ວ ({active_qty}/{BATCH_CAPACITY} ຈອກ ກຳລັງກຽມຢູ່) — '
+        f'ຕອນນີ້ຮັບໄດ້ອີກແຕ່ {remaining} ຈອກ. '
+        f'ກະລຸນາຫຼຸດຈຳນວນ ຫຼື ລໍຖ້າປະມານ {BATCH_WAIT_ESTIMATE_MIN} ນາທີ ແລ້ວລອງໃໝ່ ຂໍຂອບໃຈ'
+    )
+
+
 # shipment address before placing order
 @login_required(login_url='customerlogin')
 def customer_address_view(request):
@@ -1201,8 +1235,18 @@ def customer_address_view(request):
         }
 
     addressForm = forms.AddressForm(initial=prefill)
+    closed_error = None
 
     if request.method == 'POST':
+        if not _is_shop_open():
+            closed_error = SHOP_CLOSED_MSG
+        else:
+            cart_qty = sum(cart.values())
+            active_qty = _active_batch_qty()
+            if active_qty + cart_qty > BATCH_CAPACITY:
+                closed_error = _batch_full_message(active_qty, cart_qty)
+
+    if request.method == 'POST' and not closed_error:
         from django.http import HttpResponseRedirect
         from django.urls import reverse
         print("=== CUSTOMER ADDRESS POST ===")
@@ -1263,6 +1307,7 @@ def customer_address_view(request):
         'prefill': prefill,
         'cart_items': cart_items,
         'subtotal': subtotal,
+        'closed_error': closed_error,
     })
 
 
@@ -1281,8 +1326,21 @@ def payment_success_view(request):
     except Exception as e:
         print(f"  ERROR getting customer: {e}")
         return redirect('customerlogin')
+
+    if not _is_shop_open():
+        return render(request, 'ecom/shop_closed.html', {'closed_error': SHOP_CLOSED_MSG, 'show_hours': True})
+
     cart = request.session.get('cart', {})
     print(f"  cart: {cart}")
+
+    cart_qty = sum(cart.values())
+    active_qty = _active_batch_qty()
+    if cart_qty and active_qty + cart_qty > BATCH_CAPACITY:
+        return render(request, 'ecom/shop_closed.html', {
+            'closed_error': _batch_full_message(active_qty, cart_qty),
+            'closed_title': 'ອໍເດີເຕັມຈຳນວນ',
+            'closed_icon': '⏳',
+        })
 
     group_id = None
     ordered_products = []

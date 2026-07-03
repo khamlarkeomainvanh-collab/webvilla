@@ -386,6 +386,13 @@ body {
         </div>
     </div>
 
+    {% if closed_error %}
+    <div class="err-box" style="grid-column:1/-1;margin-bottom:4px;">
+        <i class="fas fa-moon" style="margin-top:2px;flex-shrink:0;"></i>
+        <div>{{ closed_error }}</div>
+    </div>
+    {% endif %}
+
     <!-- MOBILE: compact total bar, links back to /cart for full item review -->
     <a href="/cart" class="mobile-total-bar">
         <span class="mtb-link"><i class="fas fa-bag-shopping"></i> {{ product_count_in_cart }} ລາຍການ · ເບິ່ງກະຕ່າ</span>
