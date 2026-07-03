@@ -274,12 +274,21 @@ body {
     padding: 16px 20px 14px;
     border-bottom: 2px solid #fbcfe8;
     background: linear-gradient(135deg, #fce7f3, #fdf4ff);
+    display: flex; align-items: center; gap: 10px;
 }
 .sum-head h3 { font-size: 1.2rem; font-weight: 900; color: #be185d; }
 .sum-head p  { font-size: .9rem; color: var(--pk); margin-top: 4px; font-weight: 800; }
+.sum-toggle-ico { display: none; color: var(--pk); font-size: 1rem; transition: .3s; flex-shrink: 0; }
 
 /* no max-height → grows as long as needed */
 .sum-items { padding: 0 18px; }
+
+@media(max-width:960px) {
+    .sum-head { cursor: pointer; }
+    .sum-toggle-ico { display: block; }
+    .sum-items.collapsed { display: none; }
+    .sum-toggle-ico.open { transform: rotate(180deg); }
+}
 
 .sum-item {
     display: flex; align-items: center; gap: 12px;
@@ -492,12 +501,16 @@ body {
     <div class="col-summary">
         <div class="card">
 
-            <div class="sum-head">
-                <h3>🧾 ສະຫຼຸບລາຍການ</h3>
-                <p>{{ product_count_in_cart }} ລາຍການໃນກະຕ່າ</p>
+            <div class="sum-head sum-toggle-btn" id="sumToggleBtn" role="button" tabindex="0"
+                 onclick="toggleSumItems()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleSumItems();}">
+                <div style="flex:1;">
+                    <h3>🧾 ສະຫຼຸບລາຍການ</h3>
+                    <p>{{ product_count_in_cart }} ລາຍການໃນກະຕ່າ</p>
+                </div>
+                <i class="fas fa-chevron-down sum-toggle-ico" id="sumToggleIco"></i>
             </div>
 
-            <div class="sum-items">
+            <div class="sum-items" id="sumItems">
                 {% for item in cart_items %}
                 <div class="sum-item" style="flex-direction:column; align-items:stretch; gap:10px;">
 
@@ -698,6 +711,19 @@ document.getElementById('submitBtn').addEventListener('click', function(e) {
 document.getElementById('opt-store').style.display = 'none';
 document.getElementById('submitBtn').disabled = true;
 _setFeeDisplay(0);
+
+/* ── COLLAPSE ORDER SUMMARY ON MOBILE ── */
+function toggleSumItems() {
+    if (window.innerWidth > 960) return; // desktop: always expanded, button inert
+    var items = document.getElementById('sumItems');
+    var ico   = document.getElementById('sumToggleIco');
+    items.classList.toggle('collapsed');
+    ico.classList.toggle('open');
+}
+if (window.innerWidth <= 960) {
+    var _sumItems = document.getElementById('sumItems');
+    if (_sumItems) _sumItems.classList.add('collapsed');
+}
 </script>
 
 {% endblock content %}
