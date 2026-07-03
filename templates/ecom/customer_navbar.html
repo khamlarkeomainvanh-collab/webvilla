@@ -186,6 +186,13 @@ body {
     .search-btn { padding: 8px 14px; font-size: .82rem; }
     .cart-link { justify-content: center; padding: 9px 16px; font-size: .85rem; gap: 8px; }
     .badge-count { min-width: 20px; height: 20px; font-size: .72rem; }
+    /* dropdown must escape .upper-links' overflow-x:auto clipping, or it becomes unopenable */
+    .dropdown-menu {
+        position: fixed !important;
+        top: calc(var(--nav-h, 172px) + 4px) !important;
+        left: 14px !important; right: 14px !important;
+        width: auto !important; max-width: none !important;
+    }
 }
 </style>
 </head>
@@ -265,6 +272,16 @@ body {
 </nav>
 
 <script>
+(function _syncNavH() {
+    function fit() {
+        var nav = document.getElementById('navbar');
+        if (!nav) return;
+        document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px');
+    }
+    document.addEventListener('DOMContentLoaded', fit);
+    window.addEventListener('resize', fit);
+})();
+
 function addToCart(productId) {
     const qty = (document.getElementById('qty-' + productId) || {value:1}).value;
     fetch('/add-to-cart/' + productId + '/?quantity=' + qty, {

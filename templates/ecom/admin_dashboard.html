@@ -637,14 +637,6 @@ body { background: #ffffff !important; }
             <h1>ແຜງ <span>ຄວບຄຸມ</span> ⚡</h1>
             <p>ສະຫຼຸບ ແລະ ຕິດຕາມທຸກລາຍການໃນລະບົບ</p>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <a href="/view-customer" class="btn-excel" style="background:linear-gradient(135deg,#3b82f6,#6366f1);">
-                <i class="fas fa-users"></i> ລູກຄ້າ
-            </a>
-            <a href="/admin-view-booking" class="btn-excel">
-                <i class="fas fa-list-check"></i> ລາຍການ
-            </a>
-        </div>
     </div>
 
     <!-- ===== DATE PICKER + STAT CARDS ===== -->
@@ -1347,13 +1339,20 @@ function buildOrderCards(orders) {
                     <div class="m-prod-name">${o.product}</div>
                     <div class="m-prod-price">₭ ${amt} × ${o.quantity}</div>
                 </div>
-                <span class="m-status-pill msp-${o.status}">${statusLbl}</span>
+                <span class="m-status-pill msp-${o.status}" id="modal-pill-${o.id}">${statusLbl}</span>
             </div>
             <div class="m-card-body">
                 <div class="m-meta"><i class="fas fa-user fa-xs"></i> ${o.customer}</div>
                 <div class="m-meta"><i class="fas fa-phone fa-xs"></i> ${o.mobile}</div>
                 <div class="m-meta"><i class="fas fa-clock fa-xs"></i> ${o.time} ນ.</div>
                 ${o.address ? `<div class="m-meta"><i class="fas fa-map-marker-alt fa-xs"></i> ${o.address}</div>` : ''}
+            </div>
+            <div class="d-status-btns" id="modal-item-btns-${o.id}" style="margin-top:10px;">
+                <button class="dsb dsb-pending ${o.status==='Pending'?'active':''}" onclick="dashSetModalItemStatus(${o.id}, 'Pending')"><i class="fas fa-clock fa-xs"></i> ລໍຖ້າ</button>
+                <button class="dsb dsb-confirmed ${o.status==='Confirmed'?'active':''}" onclick="dashSetModalItemStatus(${o.id}, 'Confirmed')"><i class="fas fa-inbox fa-xs"></i> ຢືນຢັນ</button>
+                <button class="dsb dsb-processing ${o.status==='Processing'?'active':''}" onclick="dashSetModalItemStatus(${o.id}, 'Processing')"><i class="fas fa-truck fa-xs"></i> ຈັດສົ່ງ</button>
+                <button class="dsb dsb-delivered ${o.status==='Delivered'?'active':''}" onclick="dashSetModalItemStatus(${o.id}, 'Delivered')"><i class="fas fa-check-circle fa-xs"></i> ສຳເລັດ</button>
+                <button class="dsb dsb-cancelled ${o.status==='Cancelled'?'active':''}" onclick="dashSetModalItemStatus(${o.id}, 'Cancelled')"><i class="fas fa-ban fa-xs"></i> ຍົກເລີກ</button>
             </div>
         </div>`;
     }).join('');
@@ -1481,6 +1480,38 @@ function dashSetItemStatus(orderId, newStatus) {
         const itemRow = document.getElementById(`item-row-${orderId}`);
         if (itemRow) {
             newStatus === 'Cancelled' ? itemRow.classList.add('is-cancelled') : itemRow.classList.remove('is-cancelled');
+        }
+    })
+    .catch(() => alert('ອັບເດດບໍ່ສຳເລັດ'));
+}
+
+/* ── Status change from inside a stat-card / day detail modal order card ── */
+function dashSetModalItemStatus(orderId, newStatus) {
+    fetch(`/ajax-update-order-status/${orderId}`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF_TOK, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `status=${newStatus}`,
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (!d.ok) { alert('ອັບເດດບໍ່ສຳເລັດ'); return; }
+
+        const container = document.getElementById(`modal-item-btns-${orderId}`);
+        if (container) {
+            const STATUS_CLS = { 'Pending':'dsb-pending', 'Confirmed':'dsb-confirmed', 'Processing':'dsb-processing', 'Delivered':'dsb-delivered', 'Cancelled':'dsb-cancelled' };
+            container.querySelectorAll('.dsb').forEach(btn => {
+                Object.entries(STATUS_CLS).forEach(([st, cls]) => {
+                    if (btn.classList.contains(cls)) {
+                        st === newStatus ? btn.classList.add('active') : btn.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        const pill = document.getElementById(`modal-pill-${orderId}`);
+        if (pill) {
+            pill.textContent = STATUS_LABELS[newStatus] || newStatus;
+            pill.className = 'm-status-pill msp-' + newStatus;
         }
     })
     .catch(() => alert('ອັບເດດບໍ່ສຳເລັດ'));

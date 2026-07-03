@@ -389,12 +389,35 @@
 .tip-val { color:#fff; font-weight:800; }
 .tip-head { font-size:.9rem; font-weight:800; color:#c4b5fd; letter-spacing:.5px; text-transform:uppercase; margin-bottom:8px; }
 
-/* ── PRINT: only the expense table ── */
+/* ── PRINT: only the expense table, on one clean high-contrast page ── */
 @media print {
-    body * { visibility: hidden; }
-    #expTableCard, #expTableCard * { visibility: visible; }
-    #expTableCard { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; border: none; }
+    @page { size: auto; margin: 12mm; }
+
+    #sidebar, .top-navbar, .admin-footer { display: none !important; }
+    body, #main-wrapper, .main-card { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+    .main-card > *:not(#expTableCard) { display: none !important; }
+
+    #expTableCard {
+        box-shadow: none !important; border: none !important; margin: 0 !important;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
     #expFilterForm, .del-btn { display: none !important; }
+
+    .exp-table-head { background: #fff !important; border-bottom: 2px solid #000 !important; padding: 0 0 10px !important; }
+    .exp-table-title { font-size: 18px !important; color: #000 !important; font-weight: 900 !important; }
+
+    .exp-table { font-size: 13px !important; }
+    .exp-table th {
+        background: #eee !important; color: #000 !important;
+        border: 1px solid #000 !important; font-weight: 900 !important;
+    }
+    .exp-table td { border: 1px solid #999 !important; color: #000 !important; font-weight: 700 !important; }
+    .exp-table tfoot td { background: #eee !important; border: 1px solid #000 !important; color: #000 !important; }
+
+    .cat-badge {
+        background: none !important; border: 1px solid #000 !important;
+        color: #000 !important; padding: 2px 8px !important;
+    }
 }
 </style>
 
@@ -661,24 +684,8 @@
             ເພີ່ມລາຍຈ່າຍໃໝ່
         </div>
         <span style="font-size:.8rem;color:#94a3b8;font-weight:600;">
-            <i class="fas fa-circle-info"></i> ກົດໝວດໝູ່ດ້ານລຸ່ມ → ກອກຈຳນວນ → ກົດ ເພີ່ມ
+            <i class="fas fa-circle-info"></i> ເລືອກໝວດໝູ່ → ກອກຈຳນວນ → ກົດ ເພີ່ມ
         </span>
-    </div>
-
-    <!-- Quick category pills -->
-    <div class="cat-pills">
-        <button type="button" class="cat-pill" onclick="pickCat('ຈອກ')">🥤 ຈອກ</button>
-        <button type="button" class="cat-pill" onclick="pickCat('ທໍ່ດູດ')">🧋 ທໍ່ດູດ</button>
-        <button type="button" class="cat-pill" onclick="pickCat('ໝາກໄມ້ສົດ')">🍓 ໝາກໄມ້ສົດ</button>
-        <button type="button" class="cat-pill" onclick="pickCat('ນ້ຳກ້ອນ')">🧊 ນ້ຳກ້ອນ</button>
-        <button type="button" class="cat-pill" onclick="pickCat('ນົມ')">🥛 ນົມ</button>
-        <button type="button" class="cat-pill" onclick="pickCat('ນ້ຳຕານ')">🍬 ນ້ຳຕານ</button>
-        <button type="button" class="cat-pill" onclick="pickCat('ຖົງ/ບັນຈຸ')">🛍️ ຖົງ/ບັນຈຸ</button>
-        <button type="button" class="cat-pill" onclick="pickCat('ຜັກ/ສ່ວນປຸ່ງ')">🥦 ຜັກ/ສ່ວນປຸ່ງ</button>
-        <button type="button" class="cat-pill" onclick="pickCat('ນ້ຳ/ວັດຖຸດິບ')">💧 ນ້ຳ/ວັດຖຸດິບ</button>
-        <button type="button" class="cat-pill" onclick="pickCat('ອຸປະກອນຮ້ານ')">🔧 ອຸປະກອນຮ້ານ</button>
-        <button type="button" class="cat-pill" onclick="pickCat('ຄ່າໄຟ/ນ້ຳ')">💡 ຄ່າໄຟ/ນ້ຳ</button>
-        <button type="button" class="cat-pill" onclick="pickCat('ອື່ນໆ')">📝 ອື່ນໆ</button>
     </div>
 
     <form method="post" action="{% url 'add-expense' %}" id="expForm">
