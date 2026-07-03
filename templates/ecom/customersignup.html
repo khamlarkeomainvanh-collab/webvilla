@@ -50,7 +50,7 @@
         .icon-box {
             width: 80px; height: 80px; background: rgba(255,255,255,.18);
             border-radius: 24px; display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 14px; font-size: 38px;
+            margin: 0 auto 14px; font-size: 34px; color: #fff;
             box-shadow: 0 8px 24px rgba(0,0,0,.2); border: 2px solid rgba(255,255,255,.3);
             transform: rotate(-8deg); position: relative; z-index: 1;
         }
@@ -170,7 +170,6 @@
         .cam-btn-retry { background: var(--amber);  color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,.28); }
         .cam-btn:hover { transform: translateY(-2px); }
 
-        #modelStatus { font-size: 12px; color: rgba(124,58,237,.5); margin-top: 6px; min-height: 16px; }
         #faceResult {
             margin-top: 10px; font-size: 13px; font-weight: 700;
             padding: 9px 14px; border-radius: 11px; display: none;
@@ -241,7 +240,7 @@
 <div class="signup-card">
 
     <div class="card-top">
-        <div class="icon-box"></div>
+        <div class="icon-box"><i class="fas fa-blender"></i></div>
         <h1> ຮ້ານ ນໍ້າປັ່ນ VILLA </h1>
         <p>ສະໜັກສະມາຊິກ · ໄວ ງ່າຍ ປອດໄພ </p>
     </div>
@@ -269,6 +268,16 @@
         <form method="post" enctype="multipart/form-data" id="signupForm">
         {% csrf_token %}
         <input type="hidden" name="verify_method" value="camera">
+
+        {% if error or userForm.errors or customerForm.errors %}
+        <div class="step1-err" style="display:block; margin-bottom:14px;">
+            {% if error %}{{ error }}<br>{% endif %}
+            {% for field in userForm %}{% for e in field.errors %}⚠️ {{ field.label }}: {{ e }}<br>{% endfor %}{% endfor %}
+            {% for e in userForm.non_field_errors %}⚠️ {{ e }}<br>{% endfor %}
+            {% for field in customerForm %}{% for e in field.errors %}⚠️ {{ field.label }}: {{ e }}<br>{% endfor %}{% endfor %}
+            {% for e in customerForm.non_field_errors %}⚠️ {{ e }}<br>{% endfor %}
+        </div>
+        {% endif %}
 
         <!-- ══ STEP 1 ══ -->
         <div class="form-panel active" id="step1">
@@ -300,29 +309,27 @@
             <div class="scan-header">
                 <div class="scan-icon"><i class="fas fa-face-smile"></i></div>
                 <h3>ສະເເກນໃບໜ້າຢືນຢັນຕົວຕົນ</h3>
-                <p>ລະບົບ AI ຈະກວດວ່າທ່ານເປັນຜູ້ໃຫຍ່ — ຫ້າມໃຊ້ຮູບຈາກ gallery</p>
+                <p>ຍິ້ມ ຫຼື ພະຍັກຫົວເລັກນ້ອຍຕອນສະແກນ ເພື່ອພິສູດວ່າເປັນຄົນຈິງ — ຫ້າມໃຊ້ຮູບຈາກ gallery</p>
             </div>
 
             <!-- CAMERA SECTION -->
             <div class="camera-wrap">
                 <div id="camPlaceholder" class="cam-placeholder">
                     <span>📷</span>
-                    <p>ກົດ "ເປີດກ້ອງ" ເພື່ອຖ່າຍ selfie</p>
+                    <p>ກົດ "ເປີດກ້ອງ" ເພື່ອສະແກນໃບໜ້າ</p>
                 </div>
                 <video id="videoEl" autoplay playsinline muted></video>
                 <canvas id="photoCanvas" width="640" height="480"></canvas>
-
-                <div id="modelStatus">ກຳລັງໂຫລດ AI ກວດໃບໜ້າ...</div>
 
                 <div class="cam-btn-row">
                     <button type="button" class="cam-btn cam-btn-open" id="btnOpen">
                         <i class="fas fa-video"></i> ເປີດກ້ອງ
                     </button>
                     <button type="button" class="cam-btn cam-btn-shoot" id="btnShoot" style="display:none;">
-                        <i class="fas fa-circle-dot"></i> ຖ່າຍຮູບ
+                        <i class="fas fa-circle-dot"></i> ສະແກນໃບໜ້າ
                     </button>
                     <button type="button" class="cam-btn cam-btn-retry" id="btnRetry" style="display:none;">
-                        <i class="fas fa-rotate-left"></i> ຖ່າຍໃໝ່
+                        <i class="fas fa-rotate-left"></i> ສະແກນໃໝ່
                     </button>
                 </div>
                 <div id="faceResult"></div>
@@ -366,11 +373,7 @@
 
 {% include "ecom/footer.html" %}
 
-<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script>
-const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights';
-
-let modelsReady   = false;
 let stream        = null;
 let photoApproved = false;
 let selfieBlob    = null;
@@ -379,7 +382,6 @@ const video       = document.getElementById('videoEl');
 const canvas      = document.getElementById('photoCanvas');
 const ctx         = canvas.getContext('2d');
 const placeholder = document.getElementById('camPlaceholder');
-const modelStatus = document.getElementById('modelStatus');
 const faceResult  = document.getElementById('faceResult');
 const btnOpen     = document.getElementById('btnOpen');
 const btnShoot    = document.getElementById('btnShoot');
@@ -389,20 +391,6 @@ const picInput    = document.getElementById('profilePicInput');
 const picWrap     = document.getElementById('picUploadWrap');
 const picPreview  = document.getElementById('picPreviewImg');
 const picPh       = document.querySelector('.pic-ph');
-
-/* ── Load face-api models ── */
-(async () => {
-    try {
-        await Promise.all([
-            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-            faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL),
-        ]);
-        modelsReady = true;
-        modelStatus.textContent = '✅ AI ກວດໃບໜ້າພ້ອມໃຊ້ງານ';
-    } catch(e) {
-        modelStatus.textContent = '⚠️ AI ໂຫລດຊ້າ — ລໍຖ້າ ຫຼື reload';
-    }
-})();
 
 /* ── STEP NAV ── */
 function goStep2() {
@@ -460,19 +448,58 @@ btnOpen.addEventListener('click', async () => {
     }
 });
 
-/* ── SHOOT ── */
+/* ── LIVENESS SCAN (no AI — plain frame-motion detection) ── */
+const LIVENESS_FRAMES    = 10;
+const LIVENESS_INTERVAL  = 130; // ms between samples
+const LIVENESS_THRESHOLD = 25;  // cumulative avg per-pixel luma delta needed to count as "live"
+
+const liveCanvas = document.createElement('canvas');
+liveCanvas.width = 160; liveCanvas.height = 120;
+const liveCtx = liveCanvas.getContext('2d', { willReadFrequently: true });
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function frameDiffScore(prev, curr) {
+    let diff = 0;
+    for (let i = 0; i < prev.length; i += 4) {
+        const g1 = (prev[i] + prev[i+1] + prev[i+2]) / 3;
+        const g2 = (curr[i] + curr[i+1] + curr[i+2]) / 3;
+        diff += Math.abs(g1 - g2);
+    }
+    return diff / (prev.length / 4); // avg per-pixel delta
+}
+
+/* ── SHOOT (starts liveness scan) ── */
 btnShoot.addEventListener('click', async () => {
-    if (!modelsReady) { showFace('err','⏳ AI ກຳລັງໂຫລດ — ລໍຖ້າ'); return; }
-    canvas.width  = video.videoWidth  || 640;
-    canvas.height = video.videoHeight || 480;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    video.style.display    = 'none';
-    canvas.style.display   = 'block';
     btnShoot.style.display = 'none';
-    btnRetry.style.display = 'flex';
+    btnRetry.style.display = 'none';
+
+    let prevData = null;
+    let motion   = 0;
+    for (let i = 0; i < LIVENESS_FRAMES; i++) {
+        showFace('', `🔍 ກຳລັງສະແກນ... ຍິ້ມ ຫຼື ພະຍັກຫົວເລັກນ້ອຍ (${i + 1}/${LIVENESS_FRAMES})`);
+        liveCtx.drawImage(video, 0, 0, liveCanvas.width, liveCanvas.height);
+        const frame = liveCtx.getImageData(0, 0, liveCanvas.width, liveCanvas.height).data;
+        if (prevData) motion += frameDiffScore(prevData, frame);
+        prevData = frame;
+
+        canvas.width  = video.videoWidth  || 640;
+        canvas.height = video.videoHeight || 480;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        await sleep(LIVENESS_INTERVAL);
+    }
+
+    video.style.display  = 'none';
+    canvas.style.display = 'block';
     if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-    showFace('','🔍 ກຳລັງກວດໃບໜ້າ...');
-    await runFaceCheck();
+
+    if (motion < LIVENESS_THRESHOLD) {
+        showFace('err','❌ ບໍ່ພົບການເຄື່ອນໄຫວ — ອາດເປັນຮູບຖ່າຍ ບໍ່ແມ່ນຄົນຈິງ. ກາລຸນາລອງໃໝ່ ພ້ອມຍິ້ມ ຫຼື ພະຍັກຫົວ');
+        photoApproved = false; btnSubmit.disabled = true;
+        btnRetry.style.display = 'flex';
+        return;
+    }
+    confirmPhoto();
 });
 
 /* ── RETRY ── */
@@ -495,49 +522,29 @@ btnRetry.addEventListener('click', async () => {
     }
 });
 
-/* ── FACE CHECK ── */
-async function runFaceCheck() {
-    try {
-        const det = await faceapi
-            .detectAllFaces(canvas, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.4 }))
-            .withAgeAndGender();
-
-        if (!det || !det.length) {
-            showFace('err','❌ ບໍ່ພົບໃບໜ້າ — ຖ່າຍໃຫ້ຊັດ ໜ້າຢູ່ກາງຮູບ ແສງດີ');
-            photoApproved = false; btnSubmit.disabled = true; return;
+/* ── CONFIRM PHOTO (no AI check) ── */
+function confirmPhoto() {
+    /* save selfie as default profile pic */
+    canvas.toBlob(blob => {
+        selfieBlob = blob;
+        if (!picInput.files.length) {
+            const dt = new DataTransfer();
+            dt.items.add(new File([blob], 'selfie.jpg', { type: 'image/jpeg' }));
+            picInput.files = dt.files;
         }
-        const age = det[0].age;
-        if (age < 10) {
-            showFace('err','❌ AI ກວດພົບຜູ້ທີ່ມີອາຍຸໜ້ອຍ — ຕ້ອງເປັນຜູ້ໃຫຍ່ເທົ່ານັ້ນ');
-            photoApproved = false; btnSubmit.disabled = true; return;
-        }
+    }, 'image/jpeg', 0.88);
 
-        /* save selfie as default profile pic */
-        canvas.toBlob(blob => {
-            selfieBlob = blob;
-            if (!picInput.files.length) {
-                const dt = new DataTransfer();
-                dt.items.add(new File([blob], 'selfie.jpg', { type: 'image/jpeg' }));
-                picInput.files = dt.files;
-            }
-        }, 'image/jpeg', 0.88);
+    showFace('ok','✅ ສະແກນໃບໜ້າສຳເລັດ · ພິສູດວ່າເປັນຄົນຈິງແລ້ວ 🎉');
+    photoApproved = true;
+    btnSubmit.disabled = false;
 
-        showFace('ok','✅ ກວດໃບໜ້າສຳເລັດ · ອາຍຸ ~' + Math.round(age) + ' ປີ 🎉');
-        photoApproved = true;
-        btnSubmit.disabled = false;
+    /* show profile pic upload section */
+    picWrap.classList.add('show');
 
-        /* show profile pic upload section */
-        picWrap.classList.add('show');
-
-        /* update step indicator */
-        document.getElementById('sdot2').classList.replace('active','done');
-        document.getElementById('sline2').classList.add('done');
-        document.getElementById('sdot3').classList.add('active');
-
-    } catch(e) {
-        showFace('err','⚠️ AI ກວດບໍ່ໄດ້ — ຖ່າຍໃໝ່ດ້ວຍແສງທີ່ດີ');
-        photoApproved = false; btnSubmit.disabled = true;
-    }
+    /* update step indicator */
+    document.getElementById('sdot2').classList.replace('active','done');
+    document.getElementById('sline2').classList.add('done');
+    document.getElementById('sdot3').classList.add('active');
 }
 
 function showFace(type, msg) {
@@ -560,7 +567,7 @@ picInput.addEventListener('change', () => {
 document.getElementById('signupForm').addEventListener('submit', e => {
     if (!photoApproved) {
         e.preventDefault();
-        showFace('err','📷 ກາລຸນາຖ່າຍຮູບໜ້າສົດຢືນຢັນຕົວຕົນກ່ອນ');
+        showFace('err','📷 ກາລຸນາສະແກນໃບໜ້າສົດຢືນຢັນຕົວຕົນກ່ອນ');
         return;
     }
     /* prepend +856 */

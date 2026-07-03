@@ -8,7 +8,8 @@ import json
 from . import forms,models
 from django.http import HttpResponseRedirect,HttpResponse
 from django.core.mail import send_mail
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
+from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.contrib import messages
 from django.conf import settings
@@ -99,7 +100,11 @@ def customer_signup_view(request):
             request.session.pop('otp_verified', None)
             request.session.pop('otp_mobile', None)
             request.session.pop('otp_code', None)
-        return HttpResponseRedirect('customerlogin')
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            auth_login(request, user)
+            return HttpResponseRedirect('afterlogin')
+        mydict = {'userForm': userForm, 'customerForm': customerForm, 'error': 'ກາລຸນາກວດຂໍ້ມູນທີ່ປ້ອນໃຫ້ຖືກຕ້ອງ'}
+        return render(request, 'ecom/customersignup.html', context=mydict)
     return render(request, 'ecom/customersignup.html', context={'userForm': userForm, 'customerForm': customerForm})
 
 
