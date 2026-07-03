@@ -184,6 +184,7 @@
 
     /* Items table */
     .invoice-items { padding: 0 50px 10px; }
+    .table-scroll { overflow-x: auto; }
 
     .items-title {
         font-size: 0.75rem;
@@ -194,7 +195,7 @@
         padding: 25px 0 12px;
     }
 
-    table { width: 100%; border-collapse: collapse; }
+    table { width: 100%; min-width: 520px; border-collapse: collapse; }
 
     thead tr {
         background: #1e3a5f;
@@ -278,6 +279,24 @@
         font-family: 'Noto Sans Lao', sans-serif;
     }
 
+    /* Mobile */
+    @media(max-width:640px) {
+        body { padding: 16px 10px; }
+        .print-bar { flex-wrap: wrap; }
+        .btn-print, .btn-back { padding: 10px 16px; font-size: 13px; }
+        .invoice-top { padding: 26px 20px; flex-wrap: wrap; gap: 16px; }
+        .brand h1 { font-size: 1.9rem; letter-spacing: 1.5px; }
+        .inv-number { text-align: left; }
+        .inv-number .value { font-size: 1.4rem; }
+        .invoice-info { grid-template-columns: 1fr; padding: 26px 20px; gap: 20px; }
+        .cancelled-notice { margin: 0 20px 20px; }
+        .invoice-items { padding: 0 20px 10px; }
+        thead th, tbody td { padding: 10px; font-size: .82rem; }
+        .invoice-total { padding: 16px 20px 30px; }
+        .total-box { min-width: 0; width: 100%; padding: 16px 18px; }
+        .invoice-footer { padding: 16px 20px; font-size: .78rem; }
+    }
+
     /* Print styles */
     @media print {
         body { background: white; padding: 0; }
@@ -357,6 +376,7 @@
     <!-- Items -->
     <div class="invoice-items">
         <div class="items-title">ລາຍການສິນຄ້າ</div>
+        <div class="table-scroll">
         <table>
             <thead>
                 <tr>
@@ -385,6 +405,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     </div>
 
     <!-- Total -->
