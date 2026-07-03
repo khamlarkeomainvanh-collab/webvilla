@@ -59,6 +59,52 @@ body {
   opacity: .85;
 }
 
+/* ====== PROMO CAROUSEL ====== */
+.promo-wrap { max-width: 1400px; margin: 0 auto; padding: 18px 20px 0; }
+.promo-frame {
+  position: relative; border-radius: 26px; overflow: hidden;
+  box-shadow: 0 16px 44px rgba(124,58,237,.18);
+}
+.promo-track {
+  display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+  scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;
+}
+.promo-track::-webkit-scrollbar { display: none; }
+.promo-slide {
+  position: relative; flex: 0 0 100%; scroll-snap-align: start;
+  height: clamp(160px, 30vw, 260px); background: linear-gradient(135deg,var(--pink-lt),var(--lav));
+}
+.promo-slide img { width: 100%; height: 100%; object-fit: contain; display: block; background: linear-gradient(135deg,var(--pink-lt),var(--lav)); }
+.promo-slide .ps-ph {
+  width: 100%; height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+  color: var(--purp); opacity: .5;
+}
+.promo-slide .ps-ph span:first-child { font-size: 3rem; }
+.promo-slide .ps-ph span:last-child { font-weight: 800; font-size: .9rem; }
+.promo-slide .ps-overlay {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,.55) 100%);
+}
+.promo-slide .ps-cap { position: absolute; left: 20px; right: 20px; bottom: 14px; color: #fff; }
+.promo-slide .ps-cap .pt { font-weight: 900; font-size: clamp(.95rem, 1.4vw + .6rem, 1.15rem); }
+.promo-slide .ps-cap .ps { font-size: .8rem; opacity: .88; margin-top: 2px; font-weight: 600; }
+.promo-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 40px; height: 40px; border-radius: 50%; border: none;
+  background: rgba(255,255,255,.85); color: var(--purp);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.18); transition: .25s;
+  z-index: 2;
+}
+.promo-arrow:hover { background: #fff; color: var(--pink); transform: translateY(-50%) scale(1.08); }
+.promo-arrow.prev { left: 14px; }
+.promo-arrow.next { right: 14px; }
+@media(max-width:640px) { .promo-arrow { display: none; } }
+.promo-dots { display: flex; gap: 6px; justify-content: center; margin-top: 12px; }
+.promo-dots .pd { width: 8px; height: 8px; border-radius: 50%; background: var(--lav3); cursor: pointer; transition: .25s; border: none; }
+.promo-dots .pd.active { width: 22px; border-radius: 5px; background: linear-gradient(135deg,var(--pink),var(--purp)); }
+
 /* ====== CATEGORY BAR ====== */
 .cat-wrap {
   position: sticky; top: 172px; z-index: 200;
@@ -364,6 +410,66 @@ body {
   </div>
 </div>
 
+<!-- PROMO CAROUSEL -->
+<div class="promo-wrap">
+  <div class="promo-frame">
+    <div class="promo-track" id="promoTrack">
+
+      <div class="promo-slide">
+        <img src="{% static 'images/shop1.jpg' %}" alt="ຂ້າງນອກຮ້ານ VILLA"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="ps-ph" style="display:none;"><span>🏪</span><span>ຮ້ານ VILLA Smoothie</span></div>
+        <div class="ps-overlay"></div>
+        <div class="ps-cap"><div class="pt">🏪 ຂ້າງນອກຮ້ານ VILLA</div><div class="ps">ບ້ານ ໄຊສົມບູນ · ວຽງຈັນ</div></div>
+      </div>
+
+      <div class="promo-slide">
+        <img src="{% static 'images/shop2.jpg' %}" alt="ເຄື່ອງດື່ມ VILLA"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="ps-ph" style="display:none;"><span>🥤</span><span>ເຄື່ອງດື່ມ VILLA</span></div>
+        <div class="ps-overlay"></div>
+        <div class="ps-cap"><div class="pt">🥤 ເຄື່ອງດື່ມ VILLA</div><div class="ps">ສົດໃໝ່ · ອ່ອຍຫວານ · Premium</div></div>
+      </div>
+
+      <div class="promo-slide">
+        <img src="{% static 'images/shop3.jpg' %}" alt="ໜ້ຮ້ານ VILLA"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="ps-ph" style="display:none;"><span>🍹</span><span>ໜ້ຮ້ານ VILLA</span></div>
+        <div class="ps-overlay"></div>
+        <div class="ps-cap"><div class="pt">🍹 Counter ຮ້ານ VILLA</div><div class="ps">ສ້ວຍທຸກໂຄ້ດ · ສົດທຸກຄັ້ງ</div></div>
+      </div>
+
+      <div class="promo-slide">
+        <img src="{% static 'images/shop4.jpg' %}" alt="ວັດຖຸດິບສົດ VILLA"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="ps-ph" style="display:none;"><span>🍑</span><span>ວັດຖຸດິບສົດ</span></div>
+        <div class="ps-overlay"></div>
+        <div class="ps-cap"><div class="pt">🍑 ວັດຖຸດິບສົດໃໝ່</div><div class="ps">ໝາກໄມ້ 100% ຄັດຄຸນນະພາບ</div></div>
+      </div>
+
+      <div class="promo-slide">
+        <img src="{% static 'images/shop5.jpg' %}" alt="Signature Drinks VILLA"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="ps-ph" style="display:none;"><span>🧋</span><span>Signature Drinks</span></div>
+        <div class="ps-overlay"></div>
+        <div class="ps-cap"><div class="pt">🧋 Signature Drinks</div><div class="ps">ລົດຊາດສະເພາະຂອງ VILLA</div></div>
+      </div>
+
+    </div><!-- /promo-track -->
+
+    <button class="promo-arrow prev" onclick="promoGo(-1)" aria-label="prev"><i class="fas fa-chevron-left"></i></button>
+    <button class="promo-arrow next" onclick="promoGo(1)" aria-label="next"><i class="fas fa-chevron-right"></i></button>
+  </div>
+
+  <div class="promo-dots" id="promoDots">
+    <button class="pd active" onclick="promoTo(0)"></button>
+    <button class="pd" onclick="promoTo(1)"></button>
+    <button class="pd" onclick="promoTo(2)"></button>
+    <button class="pd" onclick="promoTo(3)"></button>
+    <button class="pd" onclick="promoTo(4)"></button>
+  </div>
+</div>
+
 <!-- CATEGORY NAV -->
 <div class="cat-wrap">
   <div class="cat-nav">
@@ -483,6 +589,48 @@ document.getElementById('authOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeAuthModal();
 });
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAuthModal(); });
+
+/* ── PROMO CAROUSEL ── */
+(function () {
+  const track = document.getElementById('promoTrack');
+  const dots  = document.querySelectorAll('#promoDots .pd');
+  if (!track || !dots.length) return;
+
+  const count = dots.length;
+  let curIdx  = 0;
+  let autoT   = null;
+
+  function goTo(idx) {
+    curIdx = (idx + count) % count;
+    track.scrollTo({ left: curIdx * track.clientWidth, behavior: 'smooth' });
+    dots.forEach((d, i) => d.classList.toggle('active', i === curIdx));
+  }
+  window.promoTo = goTo;
+  window.promoGo = (dir) => goTo(curIdx + dir);
+
+  function startAuto() {
+    stopAuto();
+    autoT = setInterval(() => goTo(curIdx + 1), 4500);
+  }
+  function stopAuto() { if (autoT) clearInterval(autoT); }
+
+  let scrollT = null;
+  track.addEventListener('scroll', () => {
+    clearTimeout(scrollT);
+    scrollT = setTimeout(() => {
+      const idx = Math.round(track.scrollLeft / track.clientWidth);
+      curIdx = (idx + count) % count;
+      dots.forEach((d, i) => d.classList.toggle('active', i === curIdx));
+    }, 100);
+  }, { passive: true });
+
+  track.addEventListener('pointerdown', stopAuto);
+  track.addEventListener('mouseenter', stopAuto);
+  track.addEventListener('mouseleave', startAuto);
+  window.addEventListener('resize', () => goTo(curIdx));
+
+  startAuto();
+})();
 </script>
 
 {% endblock content %}

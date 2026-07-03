@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "PowerShell(pip install openpyxl)",
-      "Bash(python -c \"import ast; ast.parse\\(open\\('ecom/views.py', encoding='utf-8'\\).read\\(\\)\\)\")"
+      "Bash(python -c \"import ast; ast.parse\\(open\\('ecom/views.py', encoding='utf-8'\\).read\\(\\)\\)\")",
+      "Bash(python -c ' *)"
     ]
   }
 }
