@@ -32,8 +32,26 @@ body {
 }
 @media(max-width: 960px) {
     .checkout-wrap { grid-template-columns: 1fr; padding: 12px 12px 24px; }
-    .col-summary   { order: -1; position: static; }
+    .col-summary   { display: none; }
+    .mobile-total-bar { display: flex; }
 }
+
+/* ── MOBILE: compact total bar (full summary lives on /cart) ── */
+.mobile-total-bar {
+    display: none;
+    grid-column: 1/-1;
+    align-items: center; justify-content: space-between; gap: 12px;
+    background: linear-gradient(135deg, var(--pk-lt), var(--pu-lt));
+    border: 1.5px solid var(--lav2); border-radius: 18px;
+    padding: 14px 18px; margin-bottom: 4px;
+}
+.mtb-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--pu); font-weight: 800; font-size: .85rem;
+    text-decoration: none;
+}
+.mtb-link i { font-size: .9rem; }
+.mtb-total { font-weight: 900; font-size: 1.05rem; color: var(--pk); white-space: nowrap; }
 
 /* ── PAGE TITLE ── */
 .page-title {
@@ -367,6 +385,12 @@ body {
             <p>ກວດສອບຂໍ້ມູນ ແລ້ວກົດ "ສັ່ງຊື້" ໄດ້ເລີຍ</p>
         </div>
     </div>
+
+    <!-- MOBILE: compact total bar, links back to /cart for full item review -->
+    <a href="/cart" class="mobile-total-bar">
+        <span class="mtb-link"><i class="fas fa-bag-shopping"></i> {{ product_count_in_cart }} ລາຍການ · ເບິ່ງກະຕ່າ</span>
+        <span class="mtb-total">{{ subtotal|dotformat }} ກີບ</span>
+    </a>
 
     <!-- LEFT COL: FORM -->
     <div class="col-form">
