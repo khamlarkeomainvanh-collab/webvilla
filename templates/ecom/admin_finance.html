@@ -1025,6 +1025,11 @@ function doExpExportDay(){
 
 /* ── Open the branded expense invoice (for the month/year currently filtered) ── */
 function openExpenseInvoice(){
+    const d = document.getElementById('expDaySel');
+    if(d && d.value){
+        window.open('/expense-invoice?date=' + d.value, '_blank');
+        return;
+    }
     const m = document.getElementById('expMonthSel');
     const y = document.getElementById('expYearSel');
     if(!m || !y) return;
