@@ -245,7 +245,7 @@ body {
 
                         <!-- live price preview -->
                         <div class="price-preview">
-                            <span class="pp-label">💰 ລາຄາຕໍ່ອັນ (ສຳລັບ {{ p.qty }} ອັນ)</span>
+                            <span class="pp-label">💰 ລາຄາຕໍ່ຈອກ (ສຳລັບ {{ p.qty }} ອັນ)</span>
                             <span class="pp-val" id="preview-{{ p.id }}">{{ p.unit_price|dotformat }} ກີບ × {{ p.qty }} = {{ p.subtotal|dotformat }} ກີບ</span>
                         </div>
 
@@ -311,9 +311,9 @@ body {
                                 <input type="radio" class="pill-opt" name="topping" id="tp-{{ p.id }}-coco"   value="ໂກໂກ້"      {% if p.cust_topping == 'ໂກໂກ້'      %}checked{% endif %} onchange="calcPrice({{ p.id }})">
                                 <label for="tp-{{ p.id }}-coco">🍫 ໂກໂກ້<span class="pill-price">+5.000</span></label>
                                 <input type="radio" class="pill-opt" name="topping" id="tp-{{ p.id }}-bean"   value="ຖົ່ວແດງ"     {% if p.cust_topping == 'ຖົ່ວແດງ'     %}checked{% endif %} onchange="calcPrice({{ p.id }})">
-                                <label for="tp-{{ p.id }}-bean">🫘 ຖົ່ວແດງ<span class="pill-price">+5.000</span></label>
+                                <label for="tp-{{ p.id }}-bean">🫘 ໄຂ່ມຸກ<span class="pill-price">+5.000</span></label>
                                 <input type="radio" class="pill-opt" name="topping" id="tp-{{ p.id }}-papaya" value="ໝາກຫຸ້ງ"    {% if p.cust_topping == 'ໝາກຫຸ້ງ'    %}checked{% endif %} onchange="calcPrice({{ p.id }})">
-                                <label for="tp-{{ p.id }}-papaya">🍈 ໝາກຫຸ້ງ<span class="pill-price">+5.000</span></label>
+                                <label for="tp-{{ p.id }}-papaya">🍈 ຊອັກຟຊໂກ້ເເລັດ<span class="pill-price">+5.000</span></label>
                             </div>
                         </div>
 
