@@ -1187,11 +1187,14 @@ def _is_shop_open():
     return _time(9, 0) <= now_t < _time(18, 0)
 
 
-# ── Batch capacity: shop can only actively work on BATCH_CAPACITY cups at once.
-# Once staff mark orders Delivered/Cancelled they drop out of the active count,
-# freeing up room for the next batch — this is not a fixed timer, it tracks real kitchen load.
+# ── Queue-wait warning: shop can comfortably work on BATCH_CAPACITY cups at once
+# (~MIN_PER_CUP minutes each). Past that, new orders are still accepted (never blocked) —
+# customers just get a heads-up estimate of how long they'll wait, based on the REAL
+# number of cups currently active (Pending/Confirmed/Processing). As soon as staff mark
+# an order Delivered/Cancelled it drops out of this count, so the estimate keeps shrinking
+# on its own — this is not a fixed timer.
 BATCH_CAPACITY = 10
-BATCH_WAIT_ESTIMATE_MIN = 30
+MIN_PER_CUP = 3
 
 
 def _active_batch_qty():
@@ -1202,12 +1205,16 @@ def _active_batch_qty():
     return total or 0
 
 
-def _batch_full_message(active_qty, cart_qty):
-    remaining = max(0, BATCH_CAPACITY - active_qty)
+def _queue_warning_message(active_qty):
+    """Non-blocking heads-up shown when the queue is already at/over capacity. Returns None when it's fine to order with no extra wait."""
+    if active_qty < BATCH_CAPACITY:
+        return None
+    est_low  = active_qty * MIN_PER_CUP
+    est_high = est_low + 5
     return (
-        f'ຂໍອະໄພ ອໍເດີເຕັມຈຳນວນແລ້ວ ({active_qty}/{BATCH_CAPACITY} ຈອກ ກຳລັງກຽມຢູ່) — '
-        f'ຕອນນີ້ຮັບໄດ້ອີກແຕ່ {remaining} ຈອກ. '
-        f'ກະລຸນາຫຼຸດຈຳນວນ ຫຼື ລໍຖ້າປະມານ {BATCH_WAIT_ESTIMATE_MIN} ນາທີ ແລ້ວລອງໃໝ່ ຂໍຂອບໃຈ'
+        f'ຂໍອະໄພ ຕອນນີ້ການຈອງມີປະມານ {active_qty} ຄິວ — '
+        f'ຖ້າສັ່ງຕອນນີ້ຕ້ອງລໍອີກປະມານ {active_qty} ຄິວ ຫຼື ໃຊ້ເວລາປະມານ {est_low}-{est_high} ນາທີ. '
+        f'ທ່ານຍັງກົດ "ຢືນຢັນການສັ່ງຊື້" ໄດ້ຕາມປົກກະຕິ'
     )
 
 
@@ -1237,14 +1244,8 @@ def customer_address_view(request):
     addressForm = forms.AddressForm(initial=prefill)
     closed_error = None
 
-    if request.method == 'POST':
-        if not _is_shop_open():
-            closed_error = SHOP_CLOSED_MSG
-        else:
-            cart_qty = sum(cart.values())
-            active_qty = _active_batch_qty()
-            if active_qty + cart_qty > BATCH_CAPACITY:
-                closed_error = _batch_full_message(active_qty, cart_qty)
+    if request.method == 'POST' and not _is_shop_open():
+        closed_error = SHOP_CLOSED_MSG
 
     if request.method == 'POST' and not closed_error:
         from django.http import HttpResponseRedirect
@@ -1308,6 +1309,7 @@ def customer_address_view(request):
         'cart_items': cart_items,
         'subtotal': subtotal,
         'closed_error': closed_error,
+        'queue_warning': _queue_warning_message(_active_batch_qty()) if not closed_error else None,
     })
 
 
@@ -1332,15 +1334,6 @@ def payment_success_view(request):
 
     cart = request.session.get('cart', {})
     print(f"  cart: {cart}")
-
-    cart_qty = sum(cart.values())
-    active_qty = _active_batch_qty()
-    if cart_qty and active_qty + cart_qty > BATCH_CAPACITY:
-        return render(request, 'ecom/shop_closed.html', {
-            'closed_error': _batch_full_message(active_qty, cart_qty),
-            'closed_title': 'ອໍເດີເຕັມຈຳນວນ',
-            'closed_icon': '⏳',
-        })
 
     group_id = None
     ordered_products = []

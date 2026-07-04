@@ -72,7 +72,8 @@ body {
 .promo-track::-webkit-scrollbar { display: none; }
 .promo-slide {
   position: relative; flex: 0 0 100%; scroll-snap-align: start;
-  height: clamp(160px, 30vw, 260px); background: linear-gradient(135deg,var(--pink-lt),var(--lav));
+  aspect-ratio: 4 / 3; max-height: 320px;
+  background: linear-gradient(135deg,var(--pink-lt),var(--lav));
 }
 .promo-slide img { width: 100%; height: 100%; object-fit: contain; display: block; background: linear-gradient(135deg,var(--pink-lt),var(--lav)); }
 .promo-slide .ps-ph {
@@ -180,7 +181,9 @@ body {
 }
 @media(max-width:480px) {
   .grid { grid-template-columns: 1fr; gap: 14px; padding: 0 14px 60px; }
-  .img-box { height: 100px; }
+  .img-box { height: 50px; }
+  .cat-nav { gap: 6px; padding: 8px 12px; }
+  .cat-btn { padding: 6px 14px; font-size: .78rem; gap: 5px; }
 }
 
 /* ====== CARD ====== */
