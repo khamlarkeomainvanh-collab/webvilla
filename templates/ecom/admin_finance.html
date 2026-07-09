@@ -139,6 +139,15 @@
     position:absolute; right:16px; top:50%; transform:translateY(-50%);
     font-size:.92rem; font-weight:800; color:#94a3b8; pointer-events:none;
 }
+.amt-preview-box {
+    margin-top:6px; min-height:30px; display:flex; align-items:center;
+}
+.amt-preview-box .amt-chip {
+    display:none; align-items:center; gap:6px;
+    background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(190,24,93,.1));
+    border:1.5px solid rgba(124,58,237,.25); border-radius:10px;
+    padding:5px 12px; font-size:1rem; font-weight:900; color:#7c3aed;
+}
 .exp-btn-add {
     padding:14px 30px; border-radius:14px; border:none; cursor:pointer;
     background:linear-gradient(135deg,#7c3aed,#be185d);
@@ -499,7 +508,7 @@
         &nbsp;·&nbsp; ເດືອນ {{ sel_month }} &nbsp;·&nbsp; ປີ {{ sel_year }}
     </span>
     {% if not is_sel_today %}
-    <a href="?sel_date={{ today_str }}"
+    <a href="?sel_date={{ today_str }}&exp_day={{ today_str }}"
        style="padding:9px 20px;border-radius:50px;background:linear-gradient(135deg,#7c3aed,#be185d);
               color:#fff;text-decoration:none;font-weight:800;font-size:.9rem;
               box-shadow:0 4px 14px rgba(124,58,237,.3);white-space:nowrap;">
@@ -791,7 +800,9 @@
                            oninput="fmtPreview(this.value)">
                     <span class="kip-tag">ກີບ</span>
                 </div>
-                <div id="amtPreview" style="font-size:.75rem;color:#7c3aed;font-weight:800;margin-top:4px;min-height:16px;"></div>
+                <div class="amt-preview-box">
+                    <span id="amtPreview" class="amt-chip">💰 <span id="amtPreviewVal"></span></span>
+                </div>
             </div>
             <!-- Submit -->
             <div style="padding-bottom:20px;">
@@ -812,7 +823,7 @@
             ລາຍຈ່າຍ
             <span class="exp-filter-chip">{{ exp_filter_label }}</span>
             {% if exp_day_filter %}
-            <a href="?exp_month={{ exp_month_filter }}&exp_year={{ exp_year_filter }}" class="exp-clear-chip" title="ກັບໄປເບິ່ງທັງເດືອນ">
+            <a href="?exp_month={{ exp_month_filter }}&exp_year={{ exp_year_filter }}&sel_date={{ exp_year_filter }}-{{ exp_month_filter|stringformat:'02d' }}-01" class="exp-clear-chip" title="ກັບໄປເບິ່ງທັງເດືອນ">
                 <i class="fas fa-xmark"></i> ລ້າງມື້ທີ່ເລືອກ
             </a>
             {% endif %}
@@ -820,12 +831,12 @@
 
         <!-- ── Filter + Export form ── -->
         <form method="get" action="/admin-finance" id="expFilterForm" class="exp-filter-form">
-            <input type="hidden" name="sel_date" value="{{ sel_date_str }}">
+            <input type="hidden" name="sel_date" id="hiddenSelDate" value="{{ sel_date_str }}">
 
             <div class="exp-filter-row">
                 <div class="exp-filter-group">
                     <span class="exp-filter-group-lbl"><i class="fas fa-calendar-week"></i> ຕາມເດືອນ</span>
-                    <select name="exp_month" id="expMonthSel" class="exp-select" onchange="document.getElementById('expDaySel').value='';this.form.submit()">
+                    <select name="exp_month" id="expMonthSel" class="exp-select" onchange="syncMonthYearAndSubmit()">
                         <option value="1"  {% if exp_month_filter == 1  %}selected{% endif %}>ມັງກອນ</option>
                         <option value="2"  {% if exp_month_filter == 2  %}selected{% endif %}>ກຸມພາ</option>
                         <option value="3"  {% if exp_month_filter == 3  %}selected{% endif %}>ມີນາ</option>
@@ -839,7 +850,7 @@
                         <option value="11" {% if exp_month_filter == 11 %}selected{% endif %}>ພະຈິກ</option>
                         <option value="12" {% if exp_month_filter == 12 %}selected{% endif %}>ທັນວາ</option>
                     </select>
-                    <select name="exp_year" id="expYearSel" class="exp-select" onchange="document.getElementById('expDaySel').value='';this.form.submit()">
+                    <select name="exp_year" id="expYearSel" class="exp-select" onchange="syncMonthYearAndSubmit()">
                         {% for y in available_years %}
                         <option value="{{ y }}" {% if y == exp_year_filter %}selected{% endif %}>{{ y }}</option>
                         {% endfor %}
@@ -849,7 +860,7 @@
                 <div class="exp-filter-group">
                     <span class="exp-filter-group-lbl"><i class="fas fa-calendar-day"></i> ຫຼືມື້ດຽວ</span>
                     <input type="date" name="exp_day" id="expDaySel" class="exp-select"
-                           value="{{ exp_day_filter }}" onchange="this.form.submit()">
+                           value="{{ exp_day_filter }}" onchange="syncDayAndSubmit(this.value)">
                 </div>
             </div>
 
@@ -974,11 +985,13 @@ function syncPills(val){
     });
 }
 function fmtPreview(raw){
-    const el = document.getElementById('amtPreview');
-    if(!el) return;
+    const el    = document.getElementById('amtPreview');
+    const valEl = document.getElementById('amtPreviewVal');
+    if(!el || !valEl) return;
     const n = parseInt(raw, 10);
-    if(!raw || isNaN(n) || n === 0){ el.textContent = ''; return; }
-    el.textContent = '= ' + dotFmt(n) + ' ກີບ';
+    if(!raw || isNaN(n) || n === 0){ el.style.display = 'none'; return; }
+    valEl.textContent = dotFmt(n) + ' ກີບ';
+    el.style.display = 'inline-flex';
 }
 
 /* ── Calculate expense table total ── */
@@ -1040,10 +1053,26 @@ function openExpenseInvoice(){
     window.open('/expense-invoice?year=' + y.value + '&month=' + m.value, '_blank');
 }
 
-/* ── Date picker navigation ── */
+/* ── Date picker navigation ──
+   Keep the top day picker (sel_date) and the bottom expense filter
+   (exp_day / exp_month / exp_year) always pointed at the same date,
+   so every card, modal, list and export on this page agrees. */
 function goDate(val){
     if(!val) return;
-    window.location.href = '?sel_date=' + val;
+    window.location.href = '?sel_date=' + val + '&exp_day=' + val;
+}
+function syncDayAndSubmit(val){
+    const hidden = document.getElementById('hiddenSelDate');
+    if(hidden && val) hidden.value = val;
+    document.getElementById('expFilterForm').submit();
+}
+function syncMonthYearAndSubmit(){
+    document.getElementById('expDaySel').value = '';
+    const m = document.getElementById('expMonthSel').value.padStart(2, '0');
+    const y = document.getElementById('expYearSel').value;
+    const hidden = document.getElementById('hiddenSelDate');
+    if(hidden) hidden.value = y + '-' + m + '-01';
+    document.getElementById('expFilterForm').submit();
 }
 
 /* ── Export by type (ສະເພາະວັນທີ່ເລືອກ) ── */
@@ -1169,22 +1198,27 @@ function openModal(type){
             };
             let rows = '';
             let tot  = 0;
+            let walkinCount = 0;
             SEL_ORDERS.forEach(o => {
                 const amt  = parseFloat(o.amount) || 0;
                 tot += amt;
+                const isWalkin = o.delivery_type === 'Walkin';
+                if(isWalkin) walkinCount++;
                 const st   = STATUS_LAO[o.status] || { lbl: o.status, color:'#94a3b8' };
+                const walkinBadge = isWalkin ? ' <span style="background:rgba(124,58,237,.12);color:#7c3aed;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:800;margin-left:4px;">🏪 ໜ້າຮ້ານ</span>' : '';
                 rows += `<tr>
                     <td style="color:#94a3b8;font-size:.8rem;">#${o.id}</td>
-                    <td>${o['product__name'] || '—'}</td>
+                    <td>${o['product__name'] || '—'}${walkinBadge}</td>
                     <td style="text-align:center;">${o.quantity || 1}</td>
                     <td style="text-align:right;color:#3b82f6;font-weight:800;">${dotFmt(amt)} ກີບ</td>
                     <td><span style="background:${st.color}22;color:${st.color};padding:3px 10px;border-radius:20px;font-size:.82rem;font-weight:700;">${st.lbl}</span></td>
                 </tr>`;
             });
+            const walkinNote = walkinCount > 0 ? ` (ໃນນັ້ນ ${walkinCount} ອໍເດີ ຂາຍໜ້າຮ້ານ)` : '';
             body.innerHTML = `<table class="fin-modal-table">
                 <thead><tr><th>ID</th><th>ສິນຄ້າ</th><th style="text-align:center;">ຈຳນວນ</th><th style="text-align:right;">ລາຍຮັບ</th><th>ສະຖານະ</th></tr></thead>
                 <tbody>${rows}</tbody>
-                <tfoot><tr><td colspan="3" style="color:#7c3aed;">ລວມ ${SEL_ORDERS.length} ອໍເດີ</td><td style="text-align:right;color:#3b82f6;">${dotFmt(tot)} ກີບ</td><td></td></tr></tfoot>
+                <tfoot><tr><td colspan="3" style="color:#7c3aed;">ລວມ ${SEL_ORDERS.length} ອໍເດີ${walkinNote}</td><td style="text-align:right;color:#3b82f6;">${dotFmt(tot)} ກີບ</td><td></td></tr></tfoot>
             </table>`;
         }
     } else if(type === 'expense'){

@@ -410,7 +410,7 @@ def admin_finance_view(request):
             return float(o) if isinstance(o, Decimal) else super().default(o)
 
     today_exp_list  = list(today_expenses_qs.values('id', 'category', 'description', 'amount'))
-    sel_orders_list = list(sd_orders.values('id', 'product__name', 'quantity', 'amount', 'status'))
+    sel_orders_list = list(sd_orders.values('id', 'product__name', 'quantity', 'amount', 'status', 'delivery_type'))
     today_exp_json  = json.dumps(today_exp_list,  cls=_Dec)
     sel_orders_json = json.dumps(sel_orders_list, cls=_Dec)
 
@@ -602,9 +602,19 @@ def admin_walkin_sale_view(request):
             pass
         return redirect('admin-walkin-sale')
 
+    from datetime import datetime as _dtt, timedelta as _td, date as _dtdate
     today_local = _tz.localdate()
+
+    view_day_param = request.GET.get('day', '')
+    try:
+        view_day = _dtdate.fromisoformat(view_day_param) if view_day_param else today_local
+    except (ValueError, TypeError):
+        view_day = today_local
+
+    day_start = _tz.make_aware(_dtt(view_day.year, view_day.month, view_day.day))
+    day_end   = day_start + _td(days=1)
     sales = models.Orders.objects.filter(
-        delivery_type=WALKIN_DELIVERY_TYPE, order_date__date=today_local
+        delivery_type=WALKIN_DELIVERY_TYPE, order_date__gte=day_start, order_date__lt=day_end
     ).select_related('product').order_by('-id')
     total_today = sales.aggregate(t=Sum('amount'))['t'] or 0
 
@@ -612,7 +622,12 @@ def admin_walkin_sale_view(request):
         'products':     models.Product.objects.all().order_by('name'),
         'sales':        sales,
         'total_today':  total_today,
-        'today_local':  today_local,
+        'today_local':  view_day,
+        'is_today':     view_day == today_local,
+        'view_day_str': view_day.strftime('%Y-%m-%d'),
+        'prev_day_str': (view_day - _td(days=1)).strftime('%Y-%m-%d'),
+        'next_day_str': (view_day + _td(days=1)).strftime('%Y-%m-%d'),
+        'today_str':    today_local.strftime('%Y-%m-%d'),
     })
 
 
@@ -623,6 +638,124 @@ def delete_walkin_sale_view(request, pk):
     except models.Orders.DoesNotExist:
         pass
     return redirect('admin-walkin-sale')
+
+
+def _walkin_sales_for_period(request):
+    """Shared query: walk-in Orders within the period resolved by _resolve_invoice_period()."""
+    from django.utils import timezone as _tz
+    from datetime import datetime as _dtt, timedelta as _td
+    start_d, end_d, period_label, invoice_no = _resolve_invoice_period(request)
+    _lao_tz_start = _tz.make_aware(_dtt(start_d.year, start_d.month, start_d.day))
+    _lao_tz_end   = _tz.make_aware(_dtt(end_d.year, end_d.month, end_d.day)) + _td(days=1)
+    sales = models.Orders.objects.filter(
+        delivery_type=WALKIN_DELIVERY_TYPE, order_date__gte=_lao_tz_start, order_date__lt=_lao_tz_end
+    ).select_related('product').order_by('order_date')
+    return sales, period_label, invoice_no
+
+
+@login_required(login_url='adminlogin')
+def export_walkin_excel_view(request):
+    import openpyxl
+    from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+    from django.utils import timezone as _tz
+    from django.db.models import Sum
+
+    sales, period_label, invoice_no = _walkin_sales_for_period(request)
+    total = sales.aggregate(t=Sum('amount'))['t'] or 0
+    today = _tz.localdate()
+
+    LAO_FONT = "Phetsarath OT"
+    def hfont(size=12): return Font(name=LAO_FONT, bold=True, color="FFFFFF", size=size)
+    def dfont(bold=False, size=11, color="000000"): return Font(name=LAO_FONT, bold=bold, size=size, color=color)
+    center = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    left   = Alignment(horizontal="left",   vertical="center", wrap_text=True)
+    right  = Alignment(horizontal="right",  vertical="center")
+    thin   = Side(style="thin", color="CCCCCC")
+    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+    def fill(hex_color): return PatternFill("solid", fgColor=hex_color)
+    def dotfmt(n):
+        if n is None: return '—'
+        return f"{int(round(float(n))):,}".replace(',', '.') + ' ກີບ'
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "ຍອດຂາຍໜ້າຮ້ານ"[:31]
+    ws.sheet_view.showGridLines = False
+
+    ws.merge_cells("A1:F1")
+    c = ws["A1"]; c.value = f"ຍອດຂາຍໜ້າຮ້ານ — {period_label}"
+    c.font = hfont(size=14); c.fill = fill("7C3AED"); c.alignment = center
+    ws.row_dimensions[1].height = 36
+    ws.merge_cells("A2:F2")
+    s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+    s.font = dfont(color="94A3B8", size=10); s.fill = fill("1E293B"); s.alignment = center
+    ws.row_dimensions[2].height = 22
+
+    for ci, h in enumerate(["ລຳດັບ","ວັນທີ","ສິນຄ້າ","ຈຳນວນ","ຊຳລະ","ຍອດ (ກີບ)"], 1):
+        cell = ws.cell(row=3, column=ci, value=h)
+        cell.font = hfont(size=11); cell.fill = fill("1E3A5F"); cell.alignment = center; cell.border = border
+    ws.row_dimensions[3].height = 28
+
+    PAY_LAO = {'Cash': 'ເງິນສົດ', 'Transfer': 'ໂອນເງິນ'}
+    for i, o in enumerate(sales):
+        amt = float(o.amount or 0)
+        r = i + 4; rf = fill("F5F3FF") if i % 2 == 0 else fill("FFFFFF")
+        odate = o.order_date.strftime('%d/%m/%Y %H:%M') if o.order_date else '—'
+        for ci, (v, a) in enumerate(zip(
+            [i+1, odate, o.product.name if o.product else '—', o.quantity, PAY_LAO.get(o.payment_method, o.payment_method), dotfmt(amt)],
+            [center, center, left, center, center, right]
+        ), 1):
+            cell = ws.cell(row=r, column=ci, value=v)
+            cell.font = dfont(color="7C3AED" if ci == 6 else "374151", bold=(ci == 6))
+            cell.fill = rf; cell.alignment = a; cell.border = border
+        ws.row_dimensions[r].height = 22
+
+    tr = sales.count() + 4
+    for ci, (v, a) in enumerate(zip(
+        ["", f"ລວມ {sales.count()} ລາຍການ", "", "", "", dotfmt(total)],
+        [center, center, center, center, center, right]
+    ), 1):
+        cell = ws.cell(row=tr, column=ci, value=v)
+        cell.font = hfont(size=12)
+        cell.fill = fill("7C3AED") if ci == 6 else fill("1E3A5F")
+        cell.alignment = a; cell.border = border
+    ws.row_dimensions[tr].height = 28
+    for col, w in zip("ABCDEF", [8, 16, 26, 10, 12, 16]):
+        ws.column_dimensions[col].width = w
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="VILLA_ຍອດຂາຍໜ້າຮ້ານ_{invoice_no}.xlsx"'
+    wb.save(response)
+    return response
+
+
+@login_required(login_url='adminlogin')
+def walkin_invoice_view(request):
+    from django.utils import timezone as _tz
+
+    sales, period_label, invoice_no = _walkin_sales_for_period(request)
+    PAY_LAO = {'Cash': 'ເງິນສົດ', 'Transfer': 'ໂອນເງິນ'}
+    items = []
+    total = 0.0
+    for o in sales:
+        amt = float(o.amount or 0)
+        total += amt
+        items.append({
+            'name': o.product.name if o.product else '—',
+            'quantity': o.quantity,
+            'subtotal': amt,
+            'payment': PAY_LAO.get(o.payment_method, o.payment_method),
+            'date': o.order_date,
+        })
+
+    context = {
+        'items': items,
+        'total': total,
+        'period_label': period_label,
+        'invoice_no': invoice_no,
+        'generated_at': _tz.localtime(),
+    }
+    return render(request, 'ecom/walkin_invoice.html', context)
 
 
 @login_required(login_url='adminlogin')
@@ -1087,6 +1220,7 @@ def update_cart_qty(request, p_id, delta):
 
 _SIZE_PRICES   = {'S': 25000, 'M': 30000, 'L': 35000}
 _TOPPING_FEE   = 5000
+_FIXED_TOPPINGS = {'ໝາກໄມ້ສົດ', 'ເຈລລີ', 'ໂກໂກ້', 'ໄຂ່ມຸກ', 'ຊັອກໂກແລັດ'}
 
 def _cust_unit_price(product_price, cust):
     size_price  = cust.get('size_price', 0) or 0
@@ -1141,6 +1275,7 @@ def cart_view(request):
                 'cust_sweet':   cust.get('sweet', ''),
                 'cust_pearl':   cust.get('pearl', ''),
                 'cust_topping': cust.get('topping', []),
+                'cust_topping_custom': [t for t in cust.get('topping', []) if t not in _FIXED_TOPPINGS],
                 'cust_note':    cust.get('note', ''),
                 'cust_size_price':  cust.get('size_price', 0),
                 'cust_topping_fee': cust.get('topping_fee', 0),
@@ -1275,10 +1410,13 @@ def _active_batch_qty():
     new day; orders from a previous day never inflate today's count."""
     from django.db.models import Sum
     from django.utils import timezone as _tz
+    from datetime import datetime as _dtt, timedelta as _td
     today_local = _tz.localdate()
+    day_start = _tz.make_aware(_dtt(today_local.year, today_local.month, today_local.day))
+    day_end   = day_start + _td(days=1)
     total = models.Orders.objects.filter(
         status__in=['Pending', 'Confirmed', 'Processing'],
-        order_date__date=today_local,
+        order_date__gte=day_start, order_date__lt=day_end,
     ).aggregate(s=Sum('quantity'))['s']
     return total or 0
 

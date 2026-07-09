@@ -118,6 +118,16 @@ body {
 .pill-opt:checked + label { background:linear-gradient(135deg,var(--pk),var(--pu)); color:#fff; border-color:transparent; box-shadow:0 4px 14px rgba(168,85,247,.35); }
 .pill-price { font-size:.75rem; opacity:.8; margin-left:4px; }
 
+.custom-tag {
+    display:inline-flex; align-items:center; gap:6px; padding:8px 12px 8px 14px; border-radius:50px;
+    background:linear-gradient(135deg,var(--pk),var(--pu)); color:#fff; font-size:.85rem; font-weight:700;
+}
+.custom-tag button {
+    background:rgba(255,255,255,.25); border:none; color:#fff; width:18px; height:18px; border-radius:50%;
+    cursor:pointer; font-size:.7rem; display:flex; align-items:center; justify-content:center; line-height:1;
+}
+.custom-tag button:hover { background:rgba(255,255,255,.4); }
+
 .note-input { width:100%; padding:12px 16px; border:1.5px solid #ddd6fe; border-radius:16px; font-family:'Lexend','Noto Sans Lao',sans-serif; font-size:.9rem; color:#2d1457; background:#fff; resize:none; outline:none; transition:.2s; }
 .note-input:focus { border-color:var(--pk); box-shadow:0 0 0 4px rgba(236,72,153,.1); }
 
@@ -339,6 +349,27 @@ body {
                                 <input type="checkbox" class="pill-opt" name="topping" id="tp-{{ p.id }}-choco"  value="ຊັອກໂກແລັດ" {% if 'ຊັອກໂກແລັດ' in p.cust_topping %}checked{% endif %} onchange="calcPrice({{ p.id }})">
                                 <label for="tp-{{ p.id }}-choco">🍪 ຊັອກໂກແລັດ<span class="pill-price">+5.000</span></label>
                             </div>
+
+                            <!-- CUSTOM TOPPING — anything not in the list above (e.g. a specific fruit), +5,000 each -->
+                            <div class="custom-topping-wrap" style="margin-top:10px;">
+                                <div id="customTags-{{ p.id }}" class="custom-tag-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+                                    {% for t in p.cust_topping_custom %}
+                                    <span class="custom-tag" data-value="{{ t }}">
+                                        <input type="checkbox" name="topping" value="{{ t }}" checked hidden>
+                                        {{ t }}<span class="pill-price">+5.000</span>
+                                        <button type="button" onclick="removeCustomTopping({{ p.id }}, this)">✕</button>
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <input type="text" id="customTopInput-{{ p.id }}" class="note-input" style="flex:1;"
+                                           placeholder="ອື່ນໆ ເຊັ່ນ: ໝາກແອັບເປີ້ນ, ໝາກນັດ... (+5.000ກີບ/ອັນ)"
+                                           onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomTopping({{ p.id }});}">
+                                    <button type="button" class="cust-toggle" style="margin-top:0;white-space:nowrap;" onclick="addCustomTopping({{ p.id }})">
+                                        <i class="fas fa-plus"></i> ເພີ່ມ
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- NOTE -->
@@ -491,6 +522,29 @@ function updateGrandTotal() {
     });
     const el = document.getElementById('grand-total');
     if (el) el.innerHTML = fmt(total) + '<small> ກີບ</small>';
+}
+
+/* ── CUSTOM TOPPING TAGS (free-text addition, +5,000 each, same pricing as fixed toppings) ── */
+function addCustomTopping(pid) {
+    const input = document.getElementById('customTopInput-' + pid);
+    const text  = input.value.trim();
+    if (!text) return;
+
+    const list = document.getElementById('customTags-' + pid);
+    const tag  = document.createElement('span');
+    tag.className   = 'custom-tag';
+    tag.dataset.value = text;
+    tag.innerHTML = `<input type="checkbox" name="topping" value="${text}" checked hidden>` +
+        text + `<span class="pill-price">+5.000</span>` +
+        `<button type="button" onclick="removeCustomTopping(${pid}, this)">✕</button>`;
+    list.appendChild(tag);
+
+    input.value = '';
+    calcPrice(pid);
+}
+function removeCustomTopping(pid, btn) {
+    btn.closest('.custom-tag').remove();
+    calcPrice(pid);
 }
 
 function toggleCust(id) {

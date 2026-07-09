@@ -59,52 +59,46 @@ body {
   opacity: .85;
 }
 
-/* ====== PROMO CAROUSEL ====== */
+/* ====== PROMO CAROUSEL — continuous scrolling marquee of photos ====== */
 .promo-wrap { max-width: 1400px; margin: 0 auto; padding: 18px 20px 0; }
 .promo-frame {
   position: relative; border-radius: 26px; overflow: hidden;
   box-shadow: 0 16px 44px rgba(124,58,237,.18);
 }
-.promo-track {
-  display: flex; overflow: hidden;
-  transition: transform .6s cubic-bezier(.4,0,.2,1);
-  will-change: transform; touch-action: pan-y;
+.promo-frame::before, .promo-frame::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 60px; z-index: 2; pointer-events: none;
 }
+.promo-frame::before { left: 0;  background: linear-gradient(90deg, var(--lav), transparent); }
+.promo-frame::after  { right: 0; background: linear-gradient(-90deg, var(--pink-lt), transparent); }
+
+.promo-track {
+  display: flex; gap: 16px; width: max-content;
+  animation: promoScroll 26s linear infinite;
+}
+.promo-frame:hover .promo-track { animation-play-state: paused; }
+@keyframes promoScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
 .promo-slide {
-  position: relative; flex: 0 0 100%;
-  aspect-ratio: 4 / 3; max-height: 320px;
+  position: relative; flex: 0 0 auto;
+  width: clamp(220px, 34vw, 360px); aspect-ratio: 4 / 3;
+  border-radius: 18px; overflow: hidden;
   background: linear-gradient(135deg,var(--pink-lt),var(--lav));
 }
-.promo-slide img { width: 100%; height: 100%; object-fit: contain; display: block; background: linear-gradient(135deg,var(--pink-lt),var(--lav)); }
+.promo-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .promo-slide .ps-ph {
   width: 100%; height: 100%; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 6px;
   color: var(--purp); opacity: .5;
 }
-.promo-slide .ps-ph span:first-child { font-size: 3rem; }
-.promo-slide .ps-ph span:last-child { font-weight: 800; font-size: .9rem; }
+.promo-slide .ps-ph span:first-child { font-size: 2.4rem; }
+.promo-slide .ps-ph span:last-child { font-weight: 800; font-size: .82rem; }
 .promo-slide .ps-overlay {
   position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,.55) 100%);
 }
-.promo-slide .ps-cap { position: absolute; left: 20px; right: 20px; bottom: 14px; color: #fff; }
-.promo-slide .ps-cap .pt { font-weight: 900; font-size: clamp(.95rem, 1.4vw + .6rem, 1.15rem); }
-.promo-slide .ps-cap .ps { font-size: .8rem; opacity: .88; margin-top: 2px; font-weight: 600; }
-.promo-arrow {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  width: 40px; height: 40px; border-radius: 50%; border: none;
-  background: rgba(255,255,255,.85); color: var(--purp);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.18); transition: .25s;
-  z-index: 2;
-}
-.promo-arrow:hover { background: #fff; color: var(--pink); transform: translateY(-50%) scale(1.08); }
-.promo-arrow.prev { left: 14px; }
-.promo-arrow.next { right: 14px; }
-@media(max-width:640px) { .promo-arrow { display: none; } }
-.promo-dots { display: flex; gap: 6px; justify-content: center; margin-top: 12px; }
-.promo-dots .pd { width: 8px; height: 8px; border-radius: 50%; background: var(--lav3); cursor: pointer; transition: .25s; border: none; }
-.promo-dots .pd.active { width: 22px; border-radius: 5px; background: linear-gradient(135deg,var(--pink),var(--purp)); }
+.promo-slide .ps-cap { position: absolute; left: 16px; right: 16px; bottom: 12px; color: #fff; }
+.promo-slide .ps-cap .pt { font-weight: 900; font-size: .92rem; }
+.promo-slide .ps-cap .ps { font-size: .74rem; opacity: .88; margin-top: 2px; font-weight: 600; }
 
 /* ====== CATEGORY BAR ====== */
 .cat-wrap {
@@ -329,11 +323,11 @@ body {
   </div>
 </div>
 
-<!-- PROMO CAROUSEL -->
+<!-- PROMO CAROUSEL — continuous scrolling strip of shop photos -->
 <div class="promo-wrap">
   <div class="promo-frame">
     <div class="promo-track" id="promoTrack">
-
+      {% for _rep in "12" %}
       <div class="promo-slide">
         <img src="{% static 'images/shop1.jpg' %}" alt="ຂ້າງນອກຮ້ານ VILLA"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
@@ -373,19 +367,8 @@ body {
         <div class="ps-overlay"></div>
         <div class="ps-cap"><div class="pt">🧋 Signature Drinks</div><div class="ps">ລົດຊາດສະເພາະຂອງ VILLA</div></div>
       </div>
-
+      {% endfor %}
     </div><!-- /promo-track -->
-
-    <button class="promo-arrow prev" onclick="promoGo(-1)" aria-label="prev"><i class="fas fa-chevron-left"></i></button>
-    <button class="promo-arrow next" onclick="promoGo(1)" aria-label="next"><i class="fas fa-chevron-right"></i></button>
-  </div>
-
-  <div class="promo-dots" id="promoDots">
-    <button class="pd active" onclick="promoTo(0)"></button>
-    <button class="pd" onclick="promoTo(1)"></button>
-    <button class="pd" onclick="promoTo(2)"></button>
-    <button class="pd" onclick="promoTo(3)"></button>
-    <button class="pd" onclick="promoTo(4)"></button>
   </div>
 </div>
 
@@ -491,50 +474,7 @@ function addCart(id) {
   }, 400);
 }
 
-/* ── PROMO CAROUSEL (transform-based slide, like an ad banner) ── */
-(function () {
-  const track = document.getElementById('promoTrack');
-  const dots  = document.querySelectorAll('#promoDots .pd');
-  if (!track || !dots.length) return;
-
-  const count = dots.length;
-  let curIdx  = 0;
-  let autoT   = null;
-
-  function render() {
-    track.style.transform = 'translateX(-' + (curIdx * 100) + '%)';
-    dots.forEach((d, i) => d.classList.toggle('active', i === curIdx));
-  }
-  function goTo(idx) {
-    curIdx = (idx + count) % count;
-    render();
-  }
-  window.promoTo = goTo;
-  window.promoGo = (dir) => goTo(curIdx + dir);
-
-  function startAuto() {
-    stopAuto();
-    autoT = setInterval(() => goTo(curIdx + 1), 5000);
-  }
-  function stopAuto() { if (autoT) clearInterval(autoT); }
-
-  /* basic swipe support (mobile + mouse drag) */
-  let dragStartX = null;
-  track.addEventListener('pointerdown', (e) => { dragStartX = e.clientX; stopAuto(); });
-  track.addEventListener('pointerup', (e) => {
-    if (dragStartX === null) return;
-    const delta = e.clientX - dragStartX;
-    dragStartX = null;
-    if (Math.abs(delta) > 40) goTo(curIdx + (delta < 0 ? 1 : -1));
-    startAuto();
-  });
-  track.addEventListener('mouseenter', stopAuto);
-  track.addEventListener('mouseleave', startAuto);
-  window.addEventListener('resize', render);
-
-  render();
-  startAuto();
-})();
+/* Promo carousel is now a pure-CSS continuous marquee (see .promo-track animation) — no JS needed. */
 </script>
 
 {% endblock content %}

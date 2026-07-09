@@ -76,8 +76,33 @@
     font-size:.72rem; font-weight:800;
 }
 
+.ws-toolbar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.ws-day-nav { display:flex; align-items:center; gap:6px; }
+.ws-day-btn {
+    width:34px; height:34px; border-radius:9px; border:1.5px solid #d1fae5; background:#fff;
+    color:#059669; display:flex; align-items:center; justify-content:center; cursor:pointer; text-decoration:none;
+    font-size:.85rem; transition:.2s;
+}
+.ws-day-btn:hover { background:#059669; color:#fff; }
+.ws-day-input {
+    padding:8px 12px; border-radius:9px; border:1.5px solid #d1fae5; background:#fff;
+    color:#065f46; font-weight:700; font-size:.85rem;
+}
+.ws-today-chip {
+    padding:8px 14px; border-radius:9px; border:1.5px solid #d1fae5; background:#fff;
+    color:#059669; font-weight:800; font-size:.8rem; text-decoration:none; white-space:nowrap;
+}
+.ws-today-chip:hover { background:#f0fdf4; }
+.ws-action-btn {
+    padding:8px 16px; border-radius:9px; border:none; font-weight:800; font-size:.8rem;
+    cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:.2s;
+}
+.ws-action-btn.green  { background:#10b981; color:#fff; }
+.ws-action-btn.indigo { background:#7c3aed; color:#fff; }
+.ws-action-btn:hover { transform:translateY(-1px); opacity:.92; }
+
 @media(max-width:900px) { .ws-form-body { grid-template-columns:1fr 1fr; } }
-@media(max-width:560px) { .ws-form-body { grid-template-columns:1fr; } .ws-table th:nth-child(4), .ws-table td:nth-child(4) { display:none; } }
+@media(max-width:560px) { .ws-form-body { grid-template-columns:1fr; } .ws-table th:nth-child(4), .ws-table td:nth-child(4) { display:none; } .ws-table-head { flex-direction:column; align-items:stretch; } .ws-toolbar { justify-content:space-between; } }
 </style>
 
 <div class="ws-head">
@@ -108,11 +133,11 @@
             </div>
             <div class="ws-field">
                 <label>🔢 ຈຳນວນ</label>
-                <input type="number" name="quantity" id="wsQty" class="ws-input" value="1" min="1" required>
+                <input type="number" name="quantity" id="wsQty" class="ws-input" value="1" min="1" required oninput="wsUpdateTotal()">
             </div>
             <div class="ws-field">
                 <label>💰 ລາຄາ/ໜ່ວຍ</label>
-                <input type="number" name="unit_price" id="wsPrice" class="ws-input" placeholder="0" min="0">
+                <input type="number" name="unit_price" id="wsPrice" class="ws-input" placeholder="0" min="0" oninput="wsUpdateTotal()">
             </div>
             <div class="ws-field">
                 <label>💳 ຊຳລະ</label>
@@ -121,11 +146,12 @@
                     <option value="Transfer">ໂອນເງິນ</option>
                 </select>
             </div>
-            <div class="ws-field ws-note-row">
+            <div class="ws-field ws-note-row" style="grid-column:1/-1;">
                 <label>📝 ໝາຍເຫດ (ບໍ່ບັງຄັບ)</label>
                 <input type="text" name="note" class="ws-input" placeholder="ເຊັ່ນ: ຫຼຸດລາຄາໃຫ້ລູກຄ້າປະຈຳ...">
             </div>
-            <div class="ws-submit-row">
+            <div class="ws-submit-row" style="grid-column:1/-1; justify-content:space-between; align-items:center;">
+                <div id="wsTotalPreview" style="font-weight:900; color:#7c3aed; font-size:1rem;"></div>
                 <button type="submit" class="ws-btn-add"><i class="fas fa-check"></i> ບັນທຶກຍອດຂາຍ</button>
             </div>
         </div>
@@ -136,6 +162,16 @@
 <div class="ws-card">
     <div class="ws-table-head">
         <div class="ws-table-title"><i class="fas fa-list"></i> ຍອດຂາຍໜ້າຮ້ານ — ວັນທີ {{ today_local|date:"d/m/Y" }}</div>
+        <div class="ws-toolbar">
+            <div class="ws-day-nav">
+                <a class="ws-day-btn" href="?day={{ prev_day_str }}" title="ມື້ກ່ອນ"><i class="fas fa-chevron-left"></i></a>
+                <input type="date" class="ws-day-input" id="wsDaySel" value="{{ view_day_str }}" onchange="location.href='?day='+this.value">
+                <a class="ws-day-btn" href="?day={{ next_day_str }}" title="ມື້ຕໍ່ໄປ"><i class="fas fa-chevron-right"></i></a>
+            </div>
+            {% if not is_today %}<a class="ws-today-chip" href="?day={{ today_str }}">ວັນນີ້</a>{% endif %}
+            <a class="ws-action-btn green" href="{% url 'export-walkin-excel' %}?date={{ view_day_str }}"><i class="fas fa-file-excel"></i> ເອັກພອດ</a>
+            <a class="ws-action-btn indigo" href="{% url 'walkin-invoice' %}?date={{ view_day_str }}" target="_blank"><i class="fas fa-receipt"></i> ອອກໃບບິນ</a>
+        </div>
         <div class="ws-total-chip">ລວມ {{ total_today|dotformat }} ກີບ</div>
     </div>
 
@@ -181,7 +217,16 @@ function wsFillPrice() {
     const opt = sel.options[sel.selectedIndex];
     const price = opt ? opt.getAttribute('data-price') : '';
     document.getElementById('wsPrice').value = price || '';
+    wsUpdateTotal();
 }
+function wsUpdateTotal() {
+    const qty = parseInt(document.getElementById('wsQty').value, 10) || 0;
+    const price = parseInt(document.getElementById('wsPrice').value, 10) || 0;
+    const total = qty * price;
+    const el = document.getElementById('wsTotalPreview');
+    el.textContent = total > 0 ? ('ລວມ: ' + total.toLocaleString('en-US') + ' ກີບ') : '';
+}
+document.addEventListener('DOMContentLoaded', wsUpdateTotal);
 </script>
 
 {% endblock content %}

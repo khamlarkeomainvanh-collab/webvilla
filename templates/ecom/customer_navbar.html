@@ -57,12 +57,18 @@ body {
 .links:hover { background: var(--lav); color: #5b21b6; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124,58,237,.18); }
 .links b { color: #5b21b6; font-weight: 900; }
 
-/* DROPDOWN */
+/* DROPDOWN — fixed + horizontally centered on screen, on every device size */
 .dropdown-menu {
     border-radius: 20px !important; border: 2px solid #fbcfe8 !important;
     box-shadow: 0 16px 48px rgba(236,72,153,.18) !important;
-    padding: 8px !important; margin-top: 10px !important;
+    padding: 8px !important;
     background: #ffffff !important;
+    position: fixed !important;
+    top: calc(var(--nav-h, 172px) + 10px) !important;
+    left: 50% !important; right: auto !important;
+    transform: translateX(-50%) !important;
+    width: 210px !important; max-width: calc(100vw - 28px) !important;
+    margin-top: 0 !important;
 }
 .dropdown-menu li a {
     padding: 11px 18px !important; font-weight: 800 !important; font-size: 1rem !important;
@@ -186,12 +192,6 @@ body {
     .search-btn { padding: 8px 14px; font-size: .82rem; }
     .cart-link { justify-content: center; padding: 9px 16px; font-size: .85rem; gap: 8px; }
     .badge-count { min-width: 20px; height: 20px; font-size: .72rem; }
-    /* dropdown must escape .upper-links' overflow-x:auto clipping, or it becomes unopenable;
-       JS (syncDropdownPos) sets exact top/right against the account button on open */
-    .dropdown-menu {
-        position: fixed !important;
-        width: 210px !important; max-width: calc(100vw - 28px) !important;
-    }
 }
 </style>
 </head>
@@ -280,23 +280,6 @@ body {
     document.addEventListener('DOMContentLoaded', fit);
     window.addEventListener('resize', fit);
 })();
-
-/* anchor the account dropdown right under its toggle button (avoids it stretching
-   full-width / landing in the wrong spot when the dropdown escapes overflow-clipping) */
-function _syncDropdownPos() {
-    document.querySelectorAll('.dropdown-toggle').forEach(function (toggle) {
-        var menu = toggle.parentElement.querySelector('.dropdown-menu');
-        if (!menu) return;
-        var rect = toggle.getBoundingClientRect();
-        menu.style.top   = (rect.bottom + 6) + 'px';
-        menu.style.right = (window.innerWidth - rect.right) + 'px';
-        menu.style.left  = 'auto';
-    });
-}
-document.querySelectorAll('.dropdown-toggle').forEach(function (toggle) {
-    toggle.addEventListener('click', function () { setTimeout(_syncDropdownPos, 0); });
-});
-window.addEventListener('resize', _syncDropdownPos);
 
 function addToCart(productId) {
     const qty = (document.getElementById('qty-' + productId) || {value:1}).value;
