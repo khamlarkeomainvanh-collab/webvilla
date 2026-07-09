@@ -592,8 +592,8 @@ body {
                                 <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">🍓 ທອັບປີ້ງ</span>
                             </span>
                             <span style="font-weight:900; color:#ec4899; font-size:.9rem;">
-                                {{ item.cust.topping }}
-                                {% if item.cust.topping != 'ບໍ່ໃສ່' %}<span style="color:#a855f7;font-size:.75rem;">(+5.000ກີບ)</span>{% endif %}
+                                {{ item.cust.topping|join:", " }}
+                                <span style="color:#a855f7;font-size:.75rem;">(+{{ item.cust.topping|length }}×5.000ກີບ)</span>
                             </span>
                         </div>
                         {% endif %}

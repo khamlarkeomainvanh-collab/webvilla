@@ -164,9 +164,54 @@
 }
 .exp-table-title {
     font-size:1.1rem; font-weight:800; color:#2d1457;
-    display:flex; align-items:center; gap:12px;
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
 }
 .exp-table-actions { display:flex; gap:10px; flex-wrap:wrap; }
+
+/* ── Modern toolbar: filter row + action row, stacked ── */
+.exp-toolbar { flex-direction:column; align-items:stretch !important; gap:16px; }
+.exp-filter-chip {
+    background:rgba(124,58,237,.1); color:#7c3aed;
+    padding:4px 12px; border-radius:20px; font-size:.76rem; font-weight:800;
+}
+.exp-clear-chip {
+    display:inline-flex; align-items:center; gap:5px;
+    background:#fef2f2; color:#dc2626; border:1px solid #fecaca;
+    padding:4px 12px; border-radius:20px; font-size:.74rem; font-weight:800;
+    text-decoration:none; transition:.2s;
+}
+.exp-clear-chip:hover { background:#fee2e2; color:#dc2626; }
+
+.exp-filter-form { display:flex; flex-direction:column; gap:12px; }
+.exp-filter-row { display:flex; flex-wrap:wrap; gap:10px 20px; align-items:center; }
+.exp-filter-group {
+    display:flex; align-items:center; gap:8px;
+    background:#fff; border:1.5px solid #ede9fe; border-radius:14px; padding:6px 10px 6px 14px;
+}
+.exp-filter-group-lbl {
+    font-size:.74rem; font-weight:800; color:#a78bfa; white-space:nowrap;
+    display:flex; align-items:center; gap:5px; text-transform:uppercase; letter-spacing:.3px;
+}
+.exp-select {
+    padding:7px 10px; border-radius:9px; border:1.5px solid #ede9fe;
+    background:#f8f7ff; color:#5b21b6; font-weight:700; font-size:.82rem;
+    font-family:'Lexend','Noto Sans Lao',sans-serif; cursor:pointer; outline:none;
+}
+
+.exp-action-row { display:flex; flex-wrap:wrap; gap:8px; }
+.exp-action-btn {
+    padding:9px 16px; border-radius:11px; border:none; cursor:pointer;
+    font-weight:800; font-size:.8rem; font-family:'Lexend','Noto Sans Lao',sans-serif;
+    display:flex; align-items:center; gap:6px; transition:.2s; color:#fff;
+}
+.exp-action-btn:hover { transform:translateY(-2px); }
+.exp-action-btn--green  { background:linear-gradient(135deg,#10b981,#059669); box-shadow:0 4px 12px rgba(16,185,129,.28); }
+.exp-action-btn--indigo { background:linear-gradient(135deg,#6366f1,#4338ca); box-shadow:0 4px 12px rgba(99,102,241,.28); }
+.exp-action-btn--amber  { background:linear-gradient(135deg,#f59e0b,#d97706); box-shadow:0 4px 12px rgba(245,158,11,.28); }
+.exp-action-btn--outline {
+    background:#fff; color:#7c3aed; border:1.5px solid #ede9fe; box-shadow:none;
+}
+.exp-action-btn--outline:hover { background:#f5f3ff; }
 
 .exp-btn-export {
     padding:11px 22px; border-radius:12px; border:none; cursor:pointer;
@@ -761,108 +806,67 @@
 <!-- ── Expense Table ── -->
 <div class="exp-table-card" id="expTableCard">
     <!-- Table header -->
-    <div class="exp-table-head" style="flex-wrap:wrap;gap:12px;align-items:flex-start;">
+    <div class="exp-table-head exp-toolbar">
         <div class="exp-table-title">
             <i class="fas fa-receipt" style="color:#7c3aed;font-size:1.1rem;"></i>
             ລາຍຈ່າຍ
-            <span style="background:rgba(124,58,237,.1);color:#7c3aed;padding:3px 10px;border-radius:20px;font-size:.76rem;">{{ exp_filter_label }}</span>
+            <span class="exp-filter-chip">{{ exp_filter_label }}</span>
+            {% if exp_day_filter %}
+            <a href="?exp_month={{ exp_month_filter }}&exp_year={{ exp_year_filter }}" class="exp-clear-chip" title="ກັບໄປເບິ່ງທັງເດືອນ">
+                <i class="fas fa-xmark"></i> ລ້າງມື້ທີ່ເລືອກ
+            </a>
+            {% endif %}
         </div>
 
         <!-- ── Filter + Export form ── -->
-        <form method="get" action="/admin-finance"
-              style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"
-              id="expFilterForm">
-            <!-- preserve current date selection -->
+        <form method="get" action="/admin-finance" id="expFilterForm" class="exp-filter-form">
             <input type="hidden" name="sel_date" value="{{ sel_date_str }}">
 
-            <!-- Month select -->
-            <select name="exp_month" id="expMonthSel"
-                    onchange="this.form.submit()"
-                    style="padding:7px 12px;border-radius:12px;border:1.5px solid #ddd6fe;
-                           background:#f5f3ff;color:#7c3aed;font-weight:700;font-size:.82rem;
-                           font-family:'Lexend','Noto Sans Lao',sans-serif;cursor:pointer;outline:none;">
-                <option value="1"  {% if exp_month_filter == 1  %}selected{% endif %}>ມັງກອນ (1)</option>
-                <option value="2"  {% if exp_month_filter == 2  %}selected{% endif %}>ກຸມພາ (2)</option>
-                <option value="3"  {% if exp_month_filter == 3  %}selected{% endif %}>ມີນາ (3)</option>
-                <option value="4"  {% if exp_month_filter == 4  %}selected{% endif %}>ເມສາ (4)</option>
-                <option value="5"  {% if exp_month_filter == 5  %}selected{% endif %}>ພຶດສະພາ (5)</option>
-                <option value="6"  {% if exp_month_filter == 6  %}selected{% endif %}>ມິຖຸນາ (6)</option>
-                <option value="7"  {% if exp_month_filter == 7  %}selected{% endif %}>ກໍລະກົດ (7)</option>
-                <option value="8"  {% if exp_month_filter == 8  %}selected{% endif %}>ສິງຫາ (8)</option>
-                <option value="9"  {% if exp_month_filter == 9  %}selected{% endif %}>ກັນຍາ (9)</option>
-                <option value="10" {% if exp_month_filter == 10 %}selected{% endif %}>ຕຸລາ (10)</option>
-                <option value="11" {% if exp_month_filter == 11 %}selected{% endif %}>ພະຈິກ (11)</option>
-                <option value="12" {% if exp_month_filter == 12 %}selected{% endif %}>ທັນວາ (12)</option>
-            </select>
+            <div class="exp-filter-row">
+                <div class="exp-filter-group">
+                    <span class="exp-filter-group-lbl"><i class="fas fa-calendar-week"></i> ຕາມເດືອນ</span>
+                    <select name="exp_month" id="expMonthSel" class="exp-select" onchange="document.getElementById('expDaySel').value='';this.form.submit()">
+                        <option value="1"  {% if exp_month_filter == 1  %}selected{% endif %}>ມັງກອນ</option>
+                        <option value="2"  {% if exp_month_filter == 2  %}selected{% endif %}>ກຸມພາ</option>
+                        <option value="3"  {% if exp_month_filter == 3  %}selected{% endif %}>ມີນາ</option>
+                        <option value="4"  {% if exp_month_filter == 4  %}selected{% endif %}>ເມສາ</option>
+                        <option value="5"  {% if exp_month_filter == 5  %}selected{% endif %}>ພຶດສະພາ</option>
+                        <option value="6"  {% if exp_month_filter == 6  %}selected{% endif %}>ມິຖຸນາ</option>
+                        <option value="7"  {% if exp_month_filter == 7  %}selected{% endif %}>ກໍລະກົດ</option>
+                        <option value="8"  {% if exp_month_filter == 8  %}selected{% endif %}>ສິງຫາ</option>
+                        <option value="9"  {% if exp_month_filter == 9  %}selected{% endif %}>ກັນຍາ</option>
+                        <option value="10" {% if exp_month_filter == 10 %}selected{% endif %}>ຕຸລາ</option>
+                        <option value="11" {% if exp_month_filter == 11 %}selected{% endif %}>ພະຈິກ</option>
+                        <option value="12" {% if exp_month_filter == 12 %}selected{% endif %}>ທັນວາ</option>
+                    </select>
+                    <select name="exp_year" id="expYearSel" class="exp-select" onchange="document.getElementById('expDaySel').value='';this.form.submit()">
+                        {% for y in available_years %}
+                        <option value="{{ y }}" {% if y == exp_year_filter %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-            <!-- Year select -->
-            <select name="exp_year" id="expYearSel"
-                    onchange="this.form.submit()"
-                    style="padding:7px 12px;border-radius:12px;border:1.5px solid #ddd6fe;
-                           background:#f5f3ff;color:#7c3aed;font-weight:700;font-size:.82rem;
-                           font-family:'Lexend','Noto Sans Lao',sans-serif;cursor:pointer;outline:none;">
-                {% for y in available_years %}
-                <option value="{{ y }}" {% if y == exp_year_filter %}selected{% endif %}>ປີ {{ y }}</option>
-                {% endfor %}
-            </select>
+                <div class="exp-filter-group">
+                    <span class="exp-filter-group-lbl"><i class="fas fa-calendar-day"></i> ຫຼືມື້ດຽວ</span>
+                    <input type="date" name="exp_day" id="expDaySel" class="exp-select"
+                           value="{{ exp_day_filter }}" onchange="this.form.submit()">
+                </div>
+            </div>
 
-            <!-- Export button (month) -->
-            <button type="button" id="expExportBtn"
-                    onclick="doExpExport()"
-                    title="ສົ່ງອອກລາຍຈ່າຍ+ລາຍຮັບ ຂອງເດືອນ/ປີ ທີ່ເລືອກ"
-                    style="padding:7px 16px;border-radius:12px;border:none;cursor:pointer;
-                           background:linear-gradient(135deg,#10b981,#059669);color:#fff;
-                           font-weight:800;font-size:.82rem;
-                           font-family:'Lexend','Noto Sans Lao',sans-serif;
-                           display:flex;align-items:center;gap:6px;
-                           box-shadow:0 4px 14px rgba(16,185,129,.3);">
-                <i class="fas fa-file-excel"></i> Export ເດືອນນີ້
-            </button>
-
-            <!-- Export button (whole year) -->
-            <button type="button" id="expExportYearBtn"
-                    onclick="doExpExportYear()"
-                    title="ສົ່ງອອກລາຍຈ່າຍທັງໝົດຂອງປີ ທີ່ເລືອກ"
-                    style="padding:7px 16px;border-radius:12px;border:none;cursor:pointer;
-                           background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;
-                           font-weight:800;font-size:.82rem;
-                           font-family:'Lexend','Noto Sans Lao',sans-serif;
-                           display:flex;align-items:center;gap:6px;
-                           box-shadow:0 4px 14px rgba(99,102,241,.3);">
-                <i class="fas fa-file-excel"></i> Export ທັງປີ
-            </button>
-
-            <!-- Divider -->
-            <span style="width:1.5px;align-self:stretch;background:#ede9fe;"></span>
-
-            <!-- Single-day export -->
-            <input type="date" id="expDaySel"
-                   style="padding:6px 10px;border-radius:12px;border:1.5px solid #ddd6fe;
-                          background:#f5f3ff;color:#7c3aed;font-weight:700;font-size:.82rem;
-                          font-family:'Lexend','Noto Sans Lao',sans-serif;outline:none;">
-            <button type="button" id="expExportDayBtn"
-                    onclick="doExpExportDay()"
-                    title="ສົ່ງອອກລາຍຈ່າຍສະເພາະວັນທີ່ເລືອກ"
-                    style="padding:7px 16px;border-radius:12px;border:none;cursor:pointer;
-                           background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;
-                           font-weight:800;font-size:.82rem;
-                           font-family:'Lexend','Noto Sans Lao',sans-serif;
-                           display:flex;align-items:center;gap:6px;
-                           box-shadow:0 4px 14px rgba(245,158,11,.3);">
-                <i class="fas fa-calendar-day"></i> Export ວັນທີ່ເລືອກ
-            </button>
-
-            <!-- Print as branded invoice -->
-            <button type="button" id="expPrintBtn"
-                    onclick="openExpenseInvoice()"
-                    title="ອອກໃບບິນລາຍຈ່າຍຂອງເດືອນ/ປີ ທີ່ເລືອກ"
-                    style="padding:7px 16px;border-radius:12px;border:1.5px solid #ddd6fe;cursor:pointer;
-                           background:#fff;color:#7c3aed;
-                           font-weight:800;font-size:.82rem;
-                           font-family:'Lexend','Noto Sans Lao',sans-serif;
-                           display:flex;align-items:center;gap:6px;">
-                <i class="fas fa-print"></i> ອອກໃບບິນ
-            </button>
+            <div class="exp-action-row">
+                <button type="button" class="exp-action-btn exp-action-btn--green" onclick="doExpExport()" title="ສົ່ງອອກລາຍຈ່າຍ+ລາຍຮັບ ຂອງເດືອນ/ປີ ທີ່ເລືອກ">
+                    <i class="fas fa-file-excel"></i> Export ເດືອນນີ້
+                </button>
+                <button type="button" class="exp-action-btn exp-action-btn--indigo" onclick="doExpExportYear()" title="ສົ່ງອອກລາຍຈ່າຍທັງໝົດຂອງປີ ທີ່ເລືອກ">
+                    <i class="fas fa-file-excel"></i> Export ທັງປີ
+                </button>
+                <button type="button" class="exp-action-btn exp-action-btn--amber" onclick="doExpExportDay()" title="ສົ່ງອອກລາຍຈ່າຍສະເພາະວັນທີ່ເລືອກ">
+                    <i class="fas fa-calendar-day"></i> Export ວັນທີ່ເລືອກ
+                </button>
+                <button type="button" class="exp-action-btn exp-action-btn--outline" onclick="openExpenseInvoice()" title="ອອກໃບບິນລາຍຈ່າຍ">
+                    <i class="fas fa-print"></i> ອອກໃບບິນ
+                </button>
+            </div>
         </form>
     </div>
 

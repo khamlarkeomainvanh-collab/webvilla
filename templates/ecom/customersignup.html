@@ -323,10 +323,7 @@
 
                 <div class="cam-btn-row">
                     <button type="button" class="cam-btn cam-btn-open" id="btnOpen">
-                        <i class="fas fa-video"></i> ເປີດກ້ອງ
-                    </button>
-                    <button type="button" class="cam-btn cam-btn-shoot" id="btnShoot" style="display:none;">
-                        <i class="fas fa-circle-dot"></i> ສະແກນໃບໜ້າ
+                        <i class="fas fa-video"></i> ເປີດກ້ອງ ແລະ ສະແກນ
                     </button>
                     <button type="button" class="cam-btn cam-btn-retry" id="btnRetry" style="display:none;">
                         <i class="fas fa-rotate-left"></i> ສະແກນໃໝ່
@@ -402,7 +399,6 @@ const ctx         = canvas.getContext('2d');
 const placeholder = document.getElementById('camPlaceholder');
 const faceResult  = document.getElementById('faceResult');
 const btnOpen     = document.getElementById('btnOpen');
-const btnShoot    = document.getElementById('btnShoot');
 const btnRetry    = document.getElementById('btnRetry');
 const btnSubmit   = document.getElementById('btnSubmit');
 const picInput    = document.getElementById('profilePicInput');
@@ -441,31 +437,6 @@ function stopCamera() {
     if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
 }
 
-/* ── OPEN CAMERA ── */
-btnOpen.addEventListener('click', async () => {
-    showFace('','');
-    photoApproved = false; btnSubmit.disabled = true;
-    picWrap.classList.remove('show');
-    if (!navigator.mediaDevices?.getUserMedia) {
-        showFace('err','⚠️ ກ້ອງ live ຕ້ອງໃຊ້ localhost ຫຼື HTTPS'); return;
-    }
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-        video.srcObject = stream;
-        placeholder.style.display = 'none';
-        canvas.style.display      = 'none';
-        video.style.display       = 'block';
-        btnOpen.style.display     = 'none';
-        btnShoot.style.display    = 'flex';
-        btnRetry.style.display    = 'none';
-    } catch(e) {
-        const msg = e.name === 'NotAllowedError'
-            ? '❌ ຍັງບໍ່ໄດ້ອະນຸຍາດກ້ອງ — ກົດ Allow Camera ໃນ browser'
-            : e.name === 'NotFoundError' ? '❌ ບໍ່ພົບກ້ອງ' : '❌ ເປີດກ້ອງບໍ່ໄດ້';
-        showFace('err', msg);
-    }
-});
-
 /* ── LIVENESS SCAN (frame-motion detection + face-api.js face check) ── */
 const LIVENESS_FRAMES    = 10;
 const LIVENESS_INTERVAL  = 130; // ms between samples
@@ -487,20 +458,52 @@ function frameDiffScore(prev, curr) {
     return diff / (prev.length / 4); // avg per-pixel delta
 }
 
-/* ── SHOOT (starts liveness + face scan) ── */
-btnShoot.addEventListener('click', async () => {
+/* ── OPEN CAMERA (auto-starts the scan the moment the camera is live — no manual shoot button) ── */
+async function openCameraAndScan() {
+    showFace('','');
+    photoApproved = false; btnSubmit.disabled = true;
+    picWrap.classList.remove('show');
+    if (!navigator.mediaDevices?.getUserMedia) {
+        showFace('err','⚠️ ກ້ອງ live ຕ້ອງໃຊ້ localhost ຫຼື HTTPS'); return;
+    }
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+        video.srcObject = stream;
+        placeholder.style.display = 'none';
+        canvas.style.display      = 'none';
+        video.style.display       = 'block';
+        btnOpen.style.display     = 'none';
+        btnRetry.style.display    = 'none';
+    } catch(e) {
+        const msg = e.name === 'NotAllowedError'
+            ? '❌ ຍັງບໍ່ໄດ້ອະນຸຍາດກ້ອງ — ກົດ Allow Camera ໃນ browser'
+            : e.name === 'NotFoundError' ? '❌ ບໍ່ພົບກ້ອງ' : '❌ ເປີດກ້ອງບໍ່ໄດ້';
+        showFace('err', msg);
+        return;
+    }
+
     if (modelsFailed) {
         showFace('err','⚠️ ລະບົບກວດໃບໜ້າໂຫລດບໍ່ສຳເລັດ — ກະລຸນາ reload ໜ້ານີ້ ແລ້ວລອງໃໝ່');
         return;
     }
     if (!modelsReady) {
         showFace('','⏳ ກຳລັງກຽມລະບົບກວດໃບໜ້າ ລໍຖ້າແປບນຶ່ງ...');
-        return;
+        await new Promise(resolve => {
+            const check = setInterval(() => {
+                if (modelsReady || modelsFailed) { clearInterval(check); resolve(); }
+            }, 200);
+        });
+        if (modelsFailed) {
+            showFace('err','⚠️ ລະບົບກວດໃບໜ້າໂຫລດບໍ່ສຳເລັດ — ກະລຸນາ reload ໜ້ານີ້ ແລ້ວລອງໃໝ່');
+            return;
+        }
     }
 
-    btnShoot.style.display = 'none';
-    btnRetry.style.display = 'none';
+    await runScan();
+}
 
+/* ── SCAN (liveness + face check, runs automatically once the camera is ready) ── */
+async function runScan() {
     let prevData = null;
     let motion   = 0;
     for (let i = 0; i < LIVENESS_FRAMES; i++) {
@@ -547,26 +550,17 @@ btnShoot.addEventListener('click', async () => {
     }
 
     confirmPhoto();
-});
+}
 
-/* ── RETRY ── */
+btnOpen.addEventListener('click', openCameraAndScan);
+
+/* ── RETRY (re-opens the camera and auto-scans again) ── */
 btnRetry.addEventListener('click', async () => {
     canvas.style.display   = 'none';
     showFace('','');
     photoApproved = false; btnSubmit.disabled = true;
     picWrap.classList.remove('show');
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-        video.srcObject = stream;
-        video.style.display    = 'block';
-        btnShoot.style.display = 'flex';
-        btnRetry.style.display = 'none';
-    } catch(e) {
-        placeholder.style.display = 'block';
-        btnOpen.style.display  = 'flex';
-        btnShoot.style.display = 'none';
-        btnRetry.style.display = 'none';
-    }
+    await openCameraAndScan();
 });
 
 /* ── CONFIRM PHOTO (motion + face check both passed) ── */

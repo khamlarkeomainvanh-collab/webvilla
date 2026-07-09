@@ -66,12 +66,12 @@ body {
   box-shadow: 0 16px 44px rgba(124,58,237,.18);
 }
 .promo-track {
-  display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
-  scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;
+  display: flex; overflow: hidden;
+  transition: transform .6s cubic-bezier(.4,0,.2,1);
+  will-change: transform; touch-action: pan-y;
 }
-.promo-track::-webkit-scrollbar { display: none; }
 .promo-slide {
-  position: relative; flex: 0 0 100%; scroll-snap-align: start;
+  position: relative; flex: 0 0 100%;
   aspect-ratio: 4 / 3; max-height: 320px;
   background: linear-gradient(135deg,var(--pink-lt),var(--lav));
 }
@@ -591,7 +591,7 @@ document.getElementById('authOverlay').addEventListener('click', function(e) {
 });
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAuthModal(); });
 
-/* ── PROMO CAROUSEL ── */
+/* ── PROMO CAROUSEL (transform-based slide, like an ad banner) ── */
 (function () {
   const track = document.getElementById('promoTrack');
   const dots  = document.querySelectorAll('#promoDots .pd');
@@ -601,10 +601,13 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') close
   let curIdx  = 0;
   let autoT   = null;
 
+  function render() {
+    track.style.transform = 'translateX(-' + (curIdx * 100) + '%)';
+    dots.forEach((d, i) => d.classList.toggle('active', i === curIdx));
+  }
   function goTo(idx) {
     curIdx = (idx + count) % count;
-    track.scrollTo({ left: curIdx * track.clientWidth, behavior: 'smooth' });
-    dots.forEach((d, i) => d.classList.toggle('active', i === curIdx));
+    render();
   }
   window.promoTo = goTo;
   window.promoGo = (dir) => goTo(curIdx + dir);
@@ -615,21 +618,21 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') close
   }
   function stopAuto() { if (autoT) clearInterval(autoT); }
 
-  let scrollT = null;
-  track.addEventListener('scroll', () => {
-    clearTimeout(scrollT);
-    scrollT = setTimeout(() => {
-      const idx = Math.round(track.scrollLeft / track.clientWidth);
-      curIdx = (idx + count) % count;
-      dots.forEach((d, i) => d.classList.toggle('active', i === curIdx));
-    }, 100);
-  }, { passive: true });
-
-  track.addEventListener('pointerdown', stopAuto);
+  /* basic swipe support (mobile + mouse drag) */
+  let dragStartX = null;
+  track.addEventListener('pointerdown', (e) => { dragStartX = e.clientX; stopAuto(); });
+  track.addEventListener('pointerup', (e) => {
+    if (dragStartX === null) return;
+    const delta = e.clientX - dragStartX;
+    dragStartX = null;
+    if (Math.abs(delta) > 40) goTo(curIdx + (delta < 0 ? 1 : -1));
+    startAuto();
+  });
   track.addEventListener('mouseenter', stopAuto);
   track.addEventListener('mouseleave', startAuto);
-  window.addEventListener('resize', () => goTo(curIdx));
+  window.addEventListener('resize', render);
 
+  render();
   startAuto();
 })();
 </script>

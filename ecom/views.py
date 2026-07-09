@@ -475,6 +475,7 @@ def admin_finance_view(request):
     # ── Expense filter params (default to sel_month/sel_year) ──
     exp_month_param = request.GET.get('exp_month', str(sel_month))
     exp_year_param  = request.GET.get('exp_year',  str(sel_year))
+    exp_day_param   = request.GET.get('exp_day', '')
     try:
         exp_month_filter = int(exp_month_param)
     except (ValueError, TypeError):
@@ -484,10 +485,21 @@ def admin_finance_view(request):
     except (ValueError, TypeError):
         exp_year_filter = sel_year
 
-    recent_expenses  = models.Expense.objects.filter(
-        date__year=exp_year_filter, date__month=exp_month_filter
-    ).order_by('-date', '-id')
-    exp_filter_label = f"ເດືອນ {exp_month_filter:02d}/{exp_year_filter}"
+    exp_day_filter = None
+    if exp_day_param:
+        try:
+            exp_day_filter = _dt.date.fromisoformat(exp_day_param)
+        except (ValueError, TypeError):
+            exp_day_filter = None
+
+    if exp_day_filter:
+        recent_expenses  = models.Expense.objects.filter(date=exp_day_filter).order_by('-id')
+        exp_filter_label = f"ວັນທີ {exp_day_filter.strftime('%d/%m/%Y')}"
+    else:
+        recent_expenses  = models.Expense.objects.filter(
+            date__year=exp_year_filter, date__month=exp_month_filter
+        ).order_by('-date', '-id')
+        exp_filter_label = f"ເດືອນ {exp_month_filter:02d}/{exp_year_filter}"
 
     available_years  = list(range(real_today.year, real_today.year - 5, -1))
     total_orders_all = sum(status_all.values())
@@ -531,6 +543,7 @@ def admin_finance_view(request):
         'exp_month_filter': exp_month_filter,
         'exp_year_filter':  exp_year_filter,
         'exp_filter_label': exp_filter_label,
+        'exp_day_filter':   exp_day_filter.strftime('%Y-%m-%d') if exp_day_filter else '',
     }
     return render(request, 'ecom/admin_finance.html', context=mydict)
 
@@ -551,6 +564,65 @@ def delete_expense_view(request, pk):
     except models.Expense.DoesNotExist:
         pass
     return redirect('admin-finance')
+
+
+WALKIN_DELIVERY_TYPE = 'Walkin'
+
+
+@login_required(login_url='adminlogin')
+def admin_walkin_sale_view(request):
+    from django.db.models import Sum
+    from django.utils import timezone as _tz
+
+    if request.method == 'POST':
+        try:
+            product  = models.Product.objects.get(id=request.POST.get('product'))
+            qty      = max(1, int(request.POST.get('quantity', 1) or 1))
+            price_raw = request.POST.get('unit_price', '').strip()
+            unit_price = int(price_raw) if price_raw else product.price
+            payment  = request.POST.get('payment_method', 'Cash')
+            note_in  = request.POST.get('note', '').strip()
+            note     = 'ຂາຍໜ້າຮ້ານ' + (f' — {note_in}' if note_in else '')
+
+            models.Orders.objects.create(
+                customer=None,
+                product=product,
+                quantity=qty,
+                amount=unit_price * qty,
+                status='Delivered',
+                order_group=str(uuid.uuid4()),
+                email='',
+                mobile='',
+                address='ໜ້າຮ້ານ',
+                delivery_type=WALKIN_DELIVERY_TYPE,
+                payment_method=payment,
+                note=note,
+            )
+        except (models.Product.DoesNotExist, ValueError, TypeError):
+            pass
+        return redirect('admin-walkin-sale')
+
+    today_local = _tz.localdate()
+    sales = models.Orders.objects.filter(
+        delivery_type=WALKIN_DELIVERY_TYPE, order_date__date=today_local
+    ).select_related('product').order_by('-id')
+    total_today = sales.aggregate(t=Sum('amount'))['t'] or 0
+
+    return render(request, 'ecom/admin_walkin_sale.html', {
+        'products':     models.Product.objects.all().order_by('name'),
+        'sales':        sales,
+        'total_today':  total_today,
+        'today_local':  today_local,
+    })
+
+
+@login_required(login_url='adminlogin')
+def delete_walkin_sale_view(request, pk):
+    try:
+        models.Orders.objects.get(id=pk, delivery_type=WALKIN_DELIVERY_TYPE).delete()
+    except models.Orders.DoesNotExist:
+        pass
+    return redirect('admin-walkin-sale')
 
 
 @login_required(login_url='adminlogin')
@@ -1025,15 +1097,15 @@ def _cust_unit_price(product_price, cust):
 def save_customization_view(request, pk):
     if request.method == 'POST':
         customizations = request.session.get('cart_customizations', {})
-        size    = request.POST.get('size', '')
-        topping = request.POST.get('topping', '')
+        size     = request.POST.get('size', '')
+        toppings = [t for t in request.POST.getlist('topping') if t]
         customizations[str(pk)] = {
             'size':        size,
             'size_price':  _SIZE_PRICES.get(size, 0),
             'sweet':       request.POST.get('sweet', ''),
             'pearl':       request.POST.get('pearl', ''),
-            'topping':     topping,
-            'topping_fee': _TOPPING_FEE if topping and topping != 'ບໍ່ໃສ່' else 0,
+            'topping':     toppings,
+            'topping_fee': _TOPPING_FEE * len(toppings),
             'note':        request.POST.get('note', ''),
         }
         request.session['cart_customizations'] = customizations
@@ -1068,7 +1140,7 @@ def cart_view(request):
                 'cust_size':    cust.get('size', ''),
                 'cust_sweet':   cust.get('sweet', ''),
                 'cust_pearl':   cust.get('pearl', ''),
-                'cust_topping': cust.get('topping', ''),
+                'cust_topping': cust.get('topping', []),
                 'cust_note':    cust.get('note', ''),
                 'cust_size_price':  cust.get('size_price', 0),
                 'cust_topping_fee': cust.get('topping_fee', 0),
@@ -1190,17 +1262,23 @@ def _is_shop_open():
 # ── Queue-wait warning: shop can comfortably work on BATCH_CAPACITY cups at once
 # (~MIN_PER_CUP minutes each). Past that, new orders are still accepted (never blocked) —
 # customers just get a heads-up estimate of how long they'll wait, based on the REAL
-# number of cups currently active (Pending/Confirmed/Processing). As soon as staff mark
-# an order Delivered/Cancelled it drops out of this count, so the estimate keeps shrinking
-# on its own — this is not a fixed timer.
+# number of cups currently active (Pending/Confirmed/Processing) placed TODAY.
+# As soon as staff mark an order Delivered/Cancelled it drops out of this count, and the
+# whole count resets fresh at midnight each day — it never carries over from a previous day.
 BATCH_CAPACITY = 10
 MIN_PER_CUP = 3
 
 
 def _active_batch_qty():
+    """Cups currently 'in the kitchen' — active status (not yet Delivered/Cancelled)
+    AND placed today (real order_date, shop-local calendar day). Resets to 0 every
+    new day; orders from a previous day never inflate today's count."""
     from django.db.models import Sum
+    from django.utils import timezone as _tz
+    today_local = _tz.localdate()
     total = models.Orders.objects.filter(
-        status__in=['Pending', 'Confirmed', 'Processing']
+        status__in=['Pending', 'Confirmed', 'Processing'],
+        order_date__date=today_local,
     ).aggregate(s=Sum('quantity'))['s']
     return total or 0
 
@@ -1364,7 +1442,7 @@ def payment_success_view(request):
             if cust.get('size'):    note_parts.append(f"ຂະໜາດ: {cust['size']}")
             if cust.get('sweet'):   note_parts.append(f"ຫວານ: {cust['sweet']}")
             if cust.get('pearl'):   note_parts.append(f"ໄຂ່ມຸກ: {cust['pearl']}")
-            if cust.get('topping'): note_parts.append(f"ທອັບ: {cust['topping']}")
+            if cust.get('topping'): note_parts.append(f"ທອັບ: {', '.join(cust['topping'])}")
             if cust.get('note'):    note_parts.append(cust['note'])
             note_str = ' | '.join(note_parts)
 

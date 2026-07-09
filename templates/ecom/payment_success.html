@@ -238,7 +238,7 @@ body {
               </span>{% endif %}
               {% if item.cust.sweet %}   <span class="oi-pill">🍬 {{ item.cust.sweet }}</span>{% endif %}
               {% if item.cust.pearl %}   <span class="oi-pill">🫧 {{ item.cust.pearl }}</span>{% endif %}
-              {% if item.cust.topping %} <span class="oi-pill">🍓 {{ item.cust.topping }}</span>{% endif %}
+              {% if item.cust.topping %} <span class="oi-pill">🍓 {{ item.cust.topping|join:", " }}</span>{% endif %}
             </div>
             {% if item.cust.note %}
             <div class="oi-note">📝 {{ item.cust.note }}</div>
