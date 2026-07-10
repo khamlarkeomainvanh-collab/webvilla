@@ -218,6 +218,20 @@ body {
       <div class="order-list">
         {% for item in ordered_products %}
         <div class="order-item">
+          {% if item.is_custom %}
+          <div class="oi-img" style="background:linear-gradient(135deg,#a855f7,#ec4899);"><span style="color:#fff;">✍️</span></div>
+          <div class="oi-info">
+            <div class="oi-name">{{ item.custom_message }}</div>
+            <div class="oi-cust">
+              <span class="oi-pill">✍️ ສັ່ງເມນູຕາມໃຈ</span>
+              {% if item.cust.size %}<span class="oi-pill">📏 {{ item.cust.size }}</span>{% endif %}
+              {% if item.cust.sweet %}<span class="oi-pill">🍬 {{ item.cust.sweet }}</span>{% endif %}
+              {% if item.cust.pearl %}<span class="oi-pill">🫧 {{ item.cust.pearl }}</span>{% endif %}
+              {% if item.cust.topping %}<span class="oi-pill">🍓 {{ item.cust.topping|join:", " }}</span>{% endif %}
+            </div>
+          </div>
+          <div class="oi-sub">{{ item.subtotal|dotformat }}<small style="font-size:.7rem;color:#94a3b8;font-weight:600;"> ກີບ</small></div>
+          {% else %}
           <div class="oi-img">
             {% if item.product.product_image %}
             <img src="{{ item.product.product_image.url }}" alt="">
@@ -246,6 +260,7 @@ body {
             {% endif %}
           </div>
           <div class="oi-sub">{{ item.subtotal|dotformat }}<small style="font-size:.7rem;color:#94a3b8;font-weight:600;"> ກີບ</small></div>
+          {% endif %}
         </div>
         {% endfor %}
       </div>

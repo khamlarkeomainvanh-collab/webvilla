@@ -57,8 +57,12 @@ body {
 .links:hover { background: var(--lav); color: #5b21b6; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124,58,237,.18); }
 .links b { color: #5b21b6; font-weight: 900; }
 
-/* DROPDOWN — fixed + horizontally centered on screen, on every device size */
+/* DROPDOWN — fixed + horizontally centered on screen, on every device size.
+   Show/hide is driven by our own JS toggling `.open` on `.dropdown` (see script below) —
+   NOT by the Bootstrap JS plugin, so it keeps working even if the CDN bootstrap.js/jQuery
+   fails to load on a slow/flaky mobile connection. */
 .dropdown-menu {
+    display: none !important;
     border-radius: 20px !important; border: 2px solid #fbcfe8 !important;
     box-shadow: 0 16px 48px rgba(236,72,153,.18) !important;
     padding: 8px !important;
@@ -69,7 +73,9 @@ body {
     transform: translateX(-50%) !important;
     width: 210px !important; max-width: calc(100vw - 28px) !important;
     margin-top: 0 !important;
+    z-index: 9999 !important;
 }
+.dropdown.open .dropdown-menu { display: block !important; }
 .dropdown-menu li a {
     padding: 11px 18px !important; font-weight: 800 !important; font-size: 1rem !important;
     color: var(--text) !important; transition: .2s !important;
@@ -206,7 +212,7 @@ body {
             <div class="upper-links">
                 {% if user.is_authenticated %}
                 <div class="dropdown" style="display:inline-flex;align-items:center;">
-                    <a href="#" class="links dropdown-toggle" data-toggle="dropdown">
+                    <a href="javascript:void(0)" class="links dropdown-toggle" onclick="toggleAcctMenu(event)">
                         <span class="av">{{ user.username|first|upper }}</span>
                         ສະບາຍດີ, <b>{{ user.username }}</b>
                         <span class="caret"></span>
@@ -280,6 +286,23 @@ body {
     document.addEventListener('DOMContentLoaded', fit);
     window.addEventListener('resize', fit);
 })();
+
+/* Account dropdown — plain JS, independent of the CDN bootstrap.js/jQuery plugin
+   (so it still works even if that script fails to load on a slow mobile connection). */
+function toggleAcctMenu(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var dd = e.currentTarget.closest('.dropdown');
+    if (!dd) return;
+    var wasOpen = dd.classList.contains('open');
+    document.querySelectorAll('.dropdown.open').forEach(function(el) { el.classList.remove('open'); });
+    if (!wasOpen) dd.classList.add('open');
+}
+document.addEventListener('click', function(e) {
+    document.querySelectorAll('.dropdown.open').forEach(function(dd) {
+        if (!dd.contains(e.target)) dd.classList.remove('open');
+    });
+});
 
 function addToCart(productId) {
     const qty = (document.getElementById('qty-' + productId) || {value:1}).value;

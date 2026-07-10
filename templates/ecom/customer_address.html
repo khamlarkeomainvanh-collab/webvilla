@@ -623,6 +623,25 @@ body {
 
                 </div>
                 {% endfor %}
+
+                {% for c in custom_cart_items %}
+                <div class="sum-item" style="align-items:center; gap:12px;">
+                    <div class="si-img" style="background:linear-gradient(135deg,#a855f7,#ec4899);">
+                        <span class="si-ph" style="color:#fff;">✍️</span>
+                    </div>
+                    <div class="si-info" style="flex:1;">
+                        <div class="si-name">{{ c.message }}</div>
+                        <div class="si-qty" style="color:#7c3aed;font-weight:800;">
+                            ສັ່ງເມນູຕາມໃຈ
+                            {% if c.cust.size %} · 📏{{ c.cust.size }}{% endif %}
+                            {% if c.cust.sweet %} · 🍬{{ c.cust.sweet }}{% endif %}
+                            {% if c.cust.pearl %} · {{ c.cust.pearl }}{% endif %}
+                            {% if c.cust.topping %} · 🍓{{ c.cust.topping|join:", " }}{% endif %}
+                        </div>
+                    </div>
+                    <div class="si-price">{{ c.unit_price|dotformat }}<small style="font-size:.7rem;font-weight:600;color:#94a3b8;"> ກີບ</small></div>
+                </div>
+                {% endfor %}
             </div>
 
             <div class="sum-totals">

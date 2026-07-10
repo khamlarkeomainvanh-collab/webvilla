@@ -1,0 +1,241 @@
+{% extends 'ecom/admin_base.html' %}
+{% load static %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700&family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --purple: #7c3aed; --pink: #be185d;
+    --grad:   linear-gradient(135deg, #7c3aed, #be185d);
+    --grad-red: linear-gradient(135deg, #ef4444, #b91c1c);
+    --green:  #10b981; --red: #ef4444; --amber: #f59e0b;
+    --bright: #2d1457; --dim: #64748b;
+    --border: rgba(124,58,237,.13);
+    --lav:    #f5f3ff; --lav2: #fdf2f8;
+}
+body { background: #ffffff !important; }
+.an-page { font-family:'Lexend','Noto Sans Lao',sans-serif; padding:34px; background:#fff; min-height:100vh; animation:fadeUp .6s cubic-bezier(.23,1,.32,1); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── Page head ── */
+.an-head { display:flex; align-items:center; gap:16px; margin-bottom:30px; }
+.an-head .ico {
+    width:52px; height:52px; border-radius:16px; flex-shrink:0;
+    background:var(--grad); color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; box-shadow:0 8px 22px rgba(124,58,237,.3);
+}
+.an-head h1 { font-size:1.7rem; font-weight:900; color:var(--bright); margin:0; }
+.an-head p  { font-size:.88rem; color:var(--dim); margin-top:4px; }
+
+/* ── Section wrapper card ── */
+.an-section-card {
+    background:#fff; border-radius:26px; border:1.5px solid var(--border);
+    box-shadow:0 4px 22px rgba(124,58,237,.08); margin-bottom:28px; overflow:hidden;
+}
+.an-card-head {
+    display:flex; align-items:flex-start; gap:14px; padding:24px 28px;
+    border-bottom:1.5px solid rgba(124,58,237,.08);
+}
+.an-card-head.red  { background:linear-gradient(135deg,#fff1f2,#fdf2f8); }
+.an-card-head.pink { background:linear-gradient(135deg,#f8f7ff,#fdf4ff); }
+.ach-ico {
+    width:42px; height:42px; border-radius:13px; flex-shrink:0; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:1.15rem;
+}
+.an-card-head.red .ach-ico  { background:var(--grad-red); box-shadow:0 6px 16px rgba(239,68,68,.32); }
+.an-card-head.pink .ach-ico { background:var(--grad); box-shadow:0 6px 16px rgba(124,58,237,.32); }
+.ach-title { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-weight:900; color:var(--bright); font-size:1.15rem; }
+.ach-sub { color:var(--dim); font-size:.85rem; margin-top:6px; line-height:1.6; }
+.badge-live {
+    background:rgba(239,68,68,.12); color:var(--red); border:1.5px solid rgba(239,68,68,.3);
+    padding:3px 13px; border-radius:20px; font-size:.74rem; font-weight:800;
+    animation: pulseLive 1.8s ease infinite;
+}
+@keyframes pulseLive { 0%,100%{opacity:1} 50%{opacity:.55} }
+
+.an-card-body { padding:24px 28px 28px; }
+
+/* ── Form row ── */
+.an-form-row { display:grid; grid-template-columns:90px 1fr 1.6fr auto; gap:14px; align-items:end; margin-bottom:22px; }
+.an-form-row.closed-row { grid-template-columns:1fr 1.6fr auto; }
+@media(max-width:900px) { .an-form-row, .an-form-row.closed-row { grid-template-columns:1fr 1fr; } }
+.an-label { font-size:.76rem; font-weight:800; color:var(--purple); margin-bottom:7px; display:block; text-transform:uppercase; letter-spacing:.3px; }
+.an-input {
+    width:100%; padding:12px 15px; border-radius:13px; border:1.5px solid rgba(124,58,237,.18);
+    background:var(--lav); color:var(--bright); font-weight:700; font-size:.92rem;
+    font-family:'Lexend','Noto Sans Lao',sans-serif; outline:none; transition:.22s;
+}
+.an-input:focus { border-color:var(--purple); background:#fff; box-shadow:0 0 0 4px rgba(124,58,237,.1); }
+.an-btn-add {
+    padding:13px 26px; border:none; border-radius:13px; background:var(--grad); color:#fff;
+    font-weight:800; font-size:.9rem; cursor:pointer; display:flex; align-items:center; gap:8px;
+    box-shadow:0 8px 20px rgba(124,58,237,.32); transition:.25s; white-space:nowrap; height:47px;
+}
+.an-btn-add.danger { background:var(--grad-red); box-shadow:0 8px 20px rgba(239,68,68,.32); }
+.an-btn-add:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(124,58,237,.4); }
+.an-btn-add.danger:hover { box-shadow:0 12px 28px rgba(239,68,68,.4); }
+
+/* ── List ── */
+.an-list-lbl { font-size:.78rem; font-weight:800; color:#a3a3c2; text-transform:uppercase; letter-spacing:.4px; margin-bottom:12px; }
+.an-list { display:flex; flex-direction:column; gap:12px; }
+.an-item {
+    background:#fbfaff; border-radius:18px; border:1.5px solid var(--border); border-left:4px solid #e5e0fb;
+    padding:16px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    transition:.22s;
+}
+.an-item:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(124,58,237,.1); }
+.an-item.is-active { border-left-color:var(--green); background:rgba(16,185,129,.045); }
+.an-item.is-active.is-closed { border-left-color:var(--red); background:rgba(239,68,68,.05); }
+.an-icon {
+    font-size:1.5rem; width:46px; height:46px; border-radius:13px; flex-shrink:0;
+    background:linear-gradient(135deg,#ede9fe,#fce7f3); display:flex; align-items:center; justify-content:center;
+}
+.an-item.is-active .an-icon { background:linear-gradient(135deg,#d1fae5,#a7f3d0); }
+.an-item.is-active.is-closed .an-icon { background:linear-gradient(135deg,#fecaca,#fca5a5); }
+.an-body { flex:1; min-width:200px; }
+.an-title { font-weight:800; color:var(--bright); font-size:1.02rem; }
+.an-msg { color:var(--dim); font-size:.85rem; margin-top:4px; line-height:1.5; }
+.an-date { color:#b3b3d1; font-size:.72rem; margin-top:6px; display:flex; align-items:center; gap:5px; }
+
+.an-toggle-btn {
+    display:flex; align-items:center; gap:8px; padding:9px 17px; border-radius:50px;
+    border:1.5px solid transparent; cursor:pointer; font-weight:800; font-size:.82rem;
+    font-family:'Noto Sans Lao','Lexend',sans-serif; transition:.2s; text-decoration:none; white-space:nowrap;
+}
+.an-toggle-btn.on  { background:rgba(16,185,129,.12); color:var(--green); border-color:rgba(16,185,129,.3); }
+.an-toggle-btn.off { background:rgba(100,116,139,.1); color:var(--dim); border-color:rgba(100,116,139,.2); }
+.an-toggle-btn:hover { transform:translateY(-1px); filter:brightness(.96); }
+.an-del-btn {
+    width:40px; height:40px; border-radius:11px; background:rgba(239,68,68,.08); color:var(--red);
+    border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.2s; flex-shrink:0;
+}
+.an-del-btn:hover { background:var(--red); color:#fff; transform:scale(1.06); }
+
+.an-empty { text-align:center; padding:40px 20px; color:var(--dim); }
+.an-empty .ei { font-size:2.6rem; opacity:.28; margin-bottom:10px; }
+.an-empty p { font-weight:600; font-size:.92rem; }
+</style>
+
+<div class="an-page">
+
+    <div class="an-head">
+        <div class="ico"><i class="fas fa-bullhorn"></i></div>
+        <div>
+            <h1>ຄຳສັ່ງແຈ້ງເຕືອນລູກຄ້າ</h1>
+            <p>ຈັດການປະກາດປິດຮ້ານ ແລະ ໂປໂມຊັ່ນທີ່ຈະສະແດງຢູ່ໜ້າຫຼັກຂອງລູກຄ້າ</p>
+        </div>
+    </div>
+
+    <!-- ═══════════ SHOP CLOSURE ═══════════ -->
+    <div class="an-section-card">
+        <div class="an-card-head red">
+            <div class="ach-ico"><i class="fas fa-store-slash"></i></div>
+            <div>
+                <div class="ach-title">
+                    🚫 ປິດຮ້ານສຸກເສີນ
+                    {% if active_closure %}<span class="badge-live">🔴 ກຳລັງປິດຮ້ານຢູ່</span>{% endif %}
+                </div>
+                <div class="ach-sub">ໃຊ້ເມື່ອຕ້ອງການປິດຮ້ານກະທັນຫັນ (ນອກເໜືອຈາກເວລາປົກກະຕິ 09:00–18:00) — ລູກຄ້າຈະເຫັນຂໍ້ຄວາມນີ້ທັນທີ ແລະ ຈະສັ່ງຊື້ບໍ່ໄດ້ຈົນກວ່າຈະປິດການປະກາດ</div>
+            </div>
+        </div>
+
+        <div class="an-card-body">
+            <form method="post" action="{% url 'admin-announcements' %}">
+                {% csrf_token %}
+                <input type="hidden" name="kind" value="closed">
+                <div class="an-form-row closed-row">
+                    <div>
+                        <label class="an-label">📌 ຫົວຂໍ້</label>
+                        <input type="text" name="title" class="an-input" placeholder="ເຊັ່ນ: ປິດຮ້ານມື້ນີ້" required>
+                    </div>
+                    <div>
+                        <label class="an-label">📝 ຂໍ້ຄວາມເຖິງລູກຄ້າ (ບໍ່ບັງຄັບ)</label>
+                        <input type="text" name="message" class="an-input" placeholder="ຂໍອະໄພ ຮ້ານປິດຊົ່ວຄາວຍ້ອນ... ຈະເປີດໃໝ່ວັນທີ...">
+                    </div>
+                    <button type="submit" class="an-btn-add danger"><i class="fas fa-store-slash"></i> ປະກາດປິດຮ້ານ</button>
+                </div>
+            </form>
+
+            {% if closures %}<div class="an-list-lbl">ປະຫວັດການປະກາດ</div>{% endif %}
+            <div class="an-list">
+                {% for c in closures %}
+                <div class="an-item {% if c.is_active %}is-active is-closed{% endif %}">
+                    <div class="an-icon">{{ c.icon|default:"🚫" }}</div>
+                    <div class="an-body">
+                        <div class="an-title">{{ c.title }}</div>
+                        {% if c.message %}<div class="an-msg">{{ c.message }}</div>{% endif %}
+                        <div class="an-date"><i class="fas fa-clock"></i> {{ c.created_at|date:"d/m/Y H:i" }}</div>
+                    </div>
+                    <a href="{% url 'toggle-announcement' c.id %}" class="an-toggle-btn {% if c.is_active %}on{% else %}off{% endif %}">
+                        {% if c.is_active %}<i class="fas fa-toggle-on"></i> ກຳລັງປິດຮ້ານ{% else %}<i class="fas fa-toggle-off"></i> ປິດການປະກາດ{% endif %}
+                    </a>
+                    <a href="{% url 'delete-announcement' c.id %}" class="an-del-btn" onclick="return confirm('ລຶບການປະກາດນີ້?')">
+                        <i class="fas fa-trash-can"></i>
+                    </a>
+                </div>
+                {% empty %}
+                <div class="an-empty"><div class="ei">🏪</div><p>ຍັງບໍ່ເຄີຍປະກາດປິດຮ້ານ</p></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ PROMOTIONS ═══════════ -->
+    <div class="an-section-card">
+        <div class="an-card-head pink">
+            <div class="ach-ico"><i class="fas fa-bullhorn"></i></div>
+            <div>
+                <div class="ach-title">📢 ໂປໂມຊັ່ນ</div>
+                <div class="ach-sub">ຂໍ້ຄວາມ/ໂປໂມຊັ່ນທີ່ເປີດໃຊ້ (ກົດ "ເປີດໃຊ້") ຈະໄປສະແດງເປັນປ້າຍຢູ່ໜ້າຫຼັກຂອງລູກຄ້າທັນທີ — ເປີດໄດ້ຫຼາຍລາຍການພ້ອມກັນ</div>
+            </div>
+        </div>
+
+        <div class="an-card-body">
+            <form method="post" action="{% url 'admin-announcements' %}">
+                {% csrf_token %}
+                <input type="hidden" name="kind" value="promo">
+                <div class="an-form-row">
+                    <div>
+                        <label class="an-label">🙂 ໄອຄອນ</label>
+                        <input type="text" name="icon" class="an-input" placeholder="📢" maxlength="4" style="text-align:center;">
+                    </div>
+                    <div>
+                        <label class="an-label">📌 ຫົວຂໍ້</label>
+                        <input type="text" name="title" class="an-input" placeholder="ເຊັ່ນ: ຫຼຸດ 10% ທຸກເມນູ" required>
+                    </div>
+                    <div>
+                        <label class="an-label">📝 ລາຍລະອຽດ (ບໍ່ບັງຄັບ)</label>
+                        <input type="text" name="message" class="an-input" placeholder="ວັນນີ້ຫາວັນອາທິດນີ້ເທົ່ານັ້ນ...">
+                    </div>
+                    <button type="submit" class="an-btn-add"><i class="fas fa-bullhorn"></i> ເພີ່ມໂປໂມຊັ່ນ</button>
+                </div>
+            </form>
+
+            {% if promos %}<div class="an-list-lbl">ໂປໂມຊັ່ນທັງໝົດ</div>{% endif %}
+            <div class="an-list">
+                {% for p in promos %}
+                <div class="an-item {% if p.is_active %}is-active{% endif %}">
+                    <div class="an-icon">{{ p.icon|default:"📢" }}</div>
+                    <div class="an-body">
+                        <div class="an-title">{{ p.title }}</div>
+                        {% if p.message %}<div class="an-msg">{{ p.message }}</div>{% endif %}
+                        <div class="an-date"><i class="fas fa-clock"></i> {{ p.created_at|date:"d/m/Y H:i" }}</div>
+                    </div>
+                    <a href="{% url 'toggle-announcement' p.id %}" class="an-toggle-btn {% if p.is_active %}on{% else %}off{% endif %}">
+                        {% if p.is_active %}<i class="fas fa-toggle-on"></i> ກຳລັງສະແດງຢູ່ໜ້າຫຼັກ{% else %}<i class="fas fa-toggle-off"></i> ເປີດໃຊ້{% endif %}
+                    </a>
+                    <a href="{% url 'delete-announcement' p.id %}" class="an-del-btn" onclick="return confirm('ລຶບໂປໂມຊັ່ນນີ້?')">
+                        <i class="fas fa-trash-can"></i>
+                    </a>
+                </div>
+                {% empty %}
+                <div class="an-empty"><div class="ei">📢</div><p>ຍັງບໍ່ມີໂປໂມຊັ່ນ</p></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}

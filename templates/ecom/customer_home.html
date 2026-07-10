@@ -158,6 +158,143 @@ body {
   padding: 8px 20px; border-radius: 50px;
   font-size: .9rem; font-weight: 900; border: 1.5px solid #fbcfe8;
 }
+.custom-order-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg,var(--purp),var(--pink));
+  color: #fff; border: none; padding: 10px 20px; border-radius: 50px;
+  font-family: 'Lexend','Noto Sans Lao',sans-serif;
+  font-size: .88rem; font-weight: 900; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(124,58,237,.3); transition: .25s;
+}
+.custom-order-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(124,58,237,.4); }
+
+/* ====== SOLD-OUT ====== */
+.card.is-sold-out .img-box img { filter: grayscale(1) brightness(.75); }
+.sold-out-ribbon {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 6;
+  background: rgba(15,10,40,.82); color: #fff; padding: 6px 18px; border-radius: 50px;
+  font-size: .78rem; font-weight: 900; letter-spacing: .5px; white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+.card.is-sold-out .q-btn, .card.is-sold-out .add-btn { opacity: .5; pointer-events: none; filter: grayscale(.3); }
+.card.is-sold-out .add-btn { background: linear-gradient(135deg,#94a3b8,#64748b); box-shadow:none; }
+
+/* ====== CUSTOM ORDER MODAL ====== */
+#customOrderOverlay {
+  display: none; position: fixed; inset: 0; z-index: 99999;
+  background: rgba(45,20,87,.6); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+#customOrderOverlay.open { display: flex; }
+#customOrderBox {
+  background: #fff; border-radius: 32px; width: 100%; max-width: 500px;
+  max-height: 92vh; overflow-y: auto;
+  box-shadow: 0 32px 80px rgba(0,0,0,.28); animation: coPop .28s cubic-bezier(.34,1.56,.64,1);
+  position: relative;
+}
+@keyframes coPop { from{opacity:0;transform:scale(.92) translateY(24px)} to{opacity:1;transform:scale(1) translateY(0)} }
+
+.co-modal-head {
+  background: linear-gradient(135deg,var(--purp) 0%,var(--pink) 100%);
+  padding: 28px 30px 24px; border-radius: 32px 32px 0 0; position: relative; overflow: hidden;
+}
+.co-modal-head::before {
+  content: ''; position: absolute; top: -40%; right: -10%; width: 220px; height: 220px;
+  background: rgba(255,255,255,.12); border-radius: 50%;
+}
+.co-modal-head::after {
+  content: ''; position: absolute; bottom: -50%; left: -5%; width: 160px; height: 160px;
+  background: rgba(255,255,255,.08); border-radius: 50%;
+}
+.co-close-btn {
+  position: absolute; top: 18px; right: 18px; width: 34px; height: 34px; border-radius: 50%;
+  border: none; background: rgba(255,255,255,.22); color: #fff; font-size: 1.1rem; cursor: pointer;
+  z-index: 2; transition: .2s;
+}
+.co-close-btn:hover { background: rgba(255,255,255,.35); transform: rotate(90deg); }
+.co-modal-icon {
+  width: 56px; height: 56px; border-radius: 18px; margin-bottom: 14px;
+  background: rgba(255,255,255,.2); color: #fff; backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+  position: relative; z-index: 2;
+}
+.co-modal-title { font-size: clamp(1.7rem, 2.2vw + 1.3rem, 2.2rem); font-weight: 900; color: #fff; margin-bottom: 8px; line-height: 1.15; position: relative; z-index: 2; }
+.co-modal-sub { font-size: .84rem; color: rgba(255,255,255,.88); line-height: 1.6; position: relative; z-index: 2; }
+
+.co-modal-body { padding: 24px 28px 28px; }
+
+#customOrderMsg {
+  width: 100%; min-height: 80px; border-radius: 16px; border: 1.5px solid var(--lav3);
+  background: var(--lav); padding: 14px 16px; font-family: 'Lexend','Noto Sans Lao',sans-serif;
+  font-size: .95rem; color: var(--text); outline: none; resize: vertical; margin-bottom: 20px;
+}
+#customOrderMsg:focus { border-color: var(--purp); background: #fff; }
+
+/* customization sections — mirrors the cart page's cust-panel styling */
+.co-section { margin-bottom: 18px; }
+.co-section-lbl {
+  font-size: .8rem; font-weight: 900; color: var(--purp); margin-bottom: 9px;
+  display: flex; align-items: center; gap: 7px; text-transform: uppercase; letter-spacing: .3px;
+}
+.co-pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.co-pill-opt { display: none; }
+.co-pill-group label {
+  display: flex; align-items: center; gap: 6px; padding: 9px 15px; border-radius: 50px;
+  background: var(--lav); border: 1.5px solid var(--lav3); color: var(--text);
+  font-size: .85rem; font-weight: 700; cursor: pointer; transition: .2s; user-select: none;
+}
+.co-pill-group label .pill-price { font-size: .72rem; color: var(--purp2); font-weight: 800; }
+.co-pill-opt:checked + label {
+  background: linear-gradient(135deg,var(--purp),var(--pink)); border-color: transparent; color: #fff;
+  box-shadow: 0 4px 14px rgba(124,58,237,.32);
+}
+.co-pill-opt:checked + label .pill-price { color: rgba(255,255,255,.85); }
+
+.co-custom-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.co-custom-tag {
+  display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 50px;
+  background: linear-gradient(135deg,#fce7f3,#f5f3ff); border: 1.5px solid var(--lav3);
+  color: var(--text); font-size: .8rem; font-weight: 700;
+}
+.co-custom-tag button {
+  border: none; background: rgba(0,0,0,.08); color: var(--text); width: 16px; height: 16px;
+  border-radius: 50%; font-size: .65rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.co-topping-add { display: flex; gap: 8px; }
+.co-topping-add input {
+  flex: 1; padding: 9px 14px; border-radius: 12px; border: 1.5px solid var(--lav3);
+  background: var(--lav); font-family: 'Lexend','Noto Sans Lao',sans-serif; font-size: .85rem;
+  color: var(--text); outline: none;
+}
+.co-topping-add input:focus { border-color: var(--purp); background: #fff; }
+.co-topping-add button {
+  padding: 9px 16px; border-radius: 12px; border: none; background: var(--lav2); color: var(--purp);
+  font-weight: 800; font-size: .82rem; cursor: pointer; white-space: nowrap;
+}
+
+.co-price-preview {
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(135deg,#fce7f3,#f5f3ff); border: 1.5px solid var(--lav3);
+  border-radius: 16px; padding: 14px 18px; margin: 20px 0 4px;
+}
+.co-price-preview .cpp-lbl { font-size: .82rem; font-weight: 800; color: var(--purp2); }
+.co-price-preview .cpp-val { font-size: 1.3rem; font-weight: 900; color: var(--pink); }
+
+.co-submit-btn {
+  width: 100%; margin-top: 14px; padding: 15px; border: none; border-radius: 16px;
+  background: linear-gradient(135deg,var(--purp),var(--pink)); color: #fff;
+  font-family: 'Lexend','Noto Sans Lao',sans-serif; font-size: .98rem; font-weight: 900;
+  cursor: pointer; box-shadow: 0 10px 26px rgba(124,58,237,.35); transition: .25s;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+}
+.co-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(124,58,237,.45); }
+.co-submit-btn:disabled { opacity: .6; pointer-events: none; }
+.co-toast {
+  margin-top: 12px; padding: 10px 14px; border-radius: 12px; font-size: .82rem; font-weight: 700;
+  display: none;
+}
+.co-toast.ok  { display: block; background: rgba(16,185,129,.1); color: #10b981; }
+.co-toast.err { display: block; background: rgba(239,68,68,.1); color: #ef4444; }
 
 /* ====== GRID ====== */
 .grid {
@@ -313,7 +450,66 @@ body {
   box-shadow: 0 10px 24px rgba(124,58,237,.32); transition: .3s;
 }
 .back-a:hover { transform:translateY(-3px); color:#fff; }
+
+/* ====== ANNOUNCEMENT BANNERS ====== */
+.closure-banner {
+  max-width: 1400px; margin: 0 auto; padding: 16px clamp(14px,4vw,24px) 0;
+}
+.closure-banner-inner {
+  background: linear-gradient(135deg,#f9a8d4 0%,#c4b5fd 55%,#ffffff 100%);
+  color: #831843; border: 2px solid #f472b6; border-radius: 24px;
+  padding: 26px 24px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
+  box-shadow: 0 12px 32px rgba(236,72,153,.25);
+}
+.closure-banner-icon { font-size: 2.4rem; }
+.closure-banner-title { font-weight: 900; font-size: clamp(1.25rem, 1.4vw + 1rem, 1.7rem); }
+.closure-banner-msg { font-size: clamp(.9rem, .5vw + .8rem, 1.05rem); color: #9d174d; font-weight: 600; }
+
+.promo-banners {
+  max-width: 1400px; margin: 0 auto; padding: 14px clamp(14px,4vw,24px) 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.promo-banner-item {
+  background: linear-gradient(135deg,var(--pink-lt),var(--lav));
+  border: 1.5px solid var(--lav3); border-radius: 18px; padding: 13px 20px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.promo-banner-icon {
+  font-size: 1.6rem; width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+  background: linear-gradient(135deg,var(--pink),var(--purp)); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(124,58,237,.28);
+}
+.promo-banner-title { font-weight: 900; color: var(--text); font-size: .98rem; }
+.promo-banner-msg { color: var(--gray); font-size: .85rem; margin-top: 2px; }
 </style>
+
+<!-- SHOP CLOSURE ANNOUNCEMENT -->
+{% if closure_announcement %}
+<div class="closure-banner">
+  <div class="closure-banner-inner">
+    <span class="closure-banner-icon">{{ closure_announcement.icon|default:"🚫" }}</span>
+    <div class="closure-banner-title">{{ closure_announcement.title }}</div>
+    {% if closure_announcement.message %}<div class="closure-banner-msg">{{ closure_announcement.message }}</div>{% endif %}
+  </div>
+</div>
+{% endif %}
+
+<!-- PROMOTIONS -->
+{% if promo_announcements %}
+<div class="promo-banners">
+  {% for promo in promo_announcements %}
+  <div class="promo-banner-item">
+    <span class="promo-banner-icon">{{ promo.icon|default:"📢" }}</span>
+    <div>
+      <div class="promo-banner-title">{{ promo.title }}</div>
+      {% if promo.message %}<div class="promo-banner-msg">{{ promo.message }}</div>{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
 
 <!-- HERO BANNER -->
 <div class="hero">
@@ -397,18 +593,26 @@ body {
       ເມນູທັງໝົດ
     {% endif %}
   </h2>
-  <span class="count-tag">{{ products|length }} ລາຍການ</span>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <button class="custom-order-btn" onclick="openCustomOrderModal()">
+      <i class="fas fa-pen"></i> ສັ່ງເມນູຕາມໃຈ
+    </button>
+    <span class="count-tag">{{ products|length }} ລາຍການ</span>
+  </div>
 </div>
 
 <!-- PRODUCTS GRID -->
 {% if products %}
 <div class="grid">
   {% for p in products %}
-  <div class="card">
+  <div class="card {% if not p.is_available %}is-sold-out{% endif %}">
 
     <div class="card-badge">VILLA 🍒</div>
     {% if p.category %}
     <div class="cat-badge">{{ p.category.name }}</div>
+    {% endif %}
+    {% if not p.is_available %}
+    <div class="sold-out-ribbon">❌ ສິນຄ້າໝົດແລ້ວ</div>
     {% endif %}
 
     <div class="img-box">
@@ -442,7 +646,7 @@ body {
       </div>
 
       <button class="add-btn" id="btn-{{ p.id }}" onclick="addCart('{{ p.id }}')">
-        <i class="fas fa-cart-plus"></i> ເພີ່ມລົງກະຕ່າ
+        {% if p.is_available %}<i class="fas fa-cart-plus"></i> ເພີ່ມລົງກະຕ່າ{% else %}<i class="fas fa-ban"></i> ໝົດແລ້ວ{% endif %}
       </button>
     </div>
   </div>
@@ -457,6 +661,101 @@ body {
   <a href="/customer-home" class="back-a"><i class="fas fa-store"></i> ດູທັງໝົດ</a>
 </div>
 {% endif %}
+
+<!-- CUSTOM ORDER MODAL -->
+<div id="customOrderOverlay" onclick="if(event.target===this)closeCustomOrderModal()">
+  <div id="customOrderBox">
+
+    <div class="co-modal-head">
+      <button class="co-close-btn" onclick="closeCustomOrderModal()">&times;</button>
+      <div class="co-modal-icon"><i class="fas fa-pen"></i></div>
+      <div class="co-modal-title">ສັ່ງເມນູຕາມໃຈ</div>
+      <div class="co-modal-sub">ຢາກໄດ້ເມນູພິເສດທີ່ບໍ່ມີໃນລາຍການ? ພິມລາຍລະອຽດບອກຮ້ານ ປັບແຕ່ງໄດ້ຄືເມນູປົກກະຕິ ແລ້ວເພີ່ມລົງກະຕ່າໄດ້ເລີຍ</div>
+    </div>
+
+    <div class="co-modal-body">
+      <textarea id="customOrderMsg" placeholder="ເຊັ່ນ: ຢາກໄດ້ນ້ຳປັ່ນມາງໂກ້ປະສົມໂຍເກີດ..."></textarea>
+
+      <!-- SIZE -->
+      <div class="co-section">
+        <div class="co-section-lbl"><i class="fas fa-cup-straw"></i> ຂະໜາດຈອກ</div>
+        <div class="co-pill-group">
+          <input type="radio" class="co-pill-opt" name="co_size" id="coSzS" value="S" onchange="coCalcPrice()">
+          <label for="coSzS">S — ນ້ອຍ<span class="pill-price">25.000ກີບ</span></label>
+
+          <input type="radio" class="co-pill-opt" name="co_size" id="coSzM" value="M" checked onchange="coCalcPrice()">
+          <label for="coSzM">M — ກາງ<span class="pill-price">30.000ກີບ</span></label>
+
+          <input type="radio" class="co-pill-opt" name="co_size" id="coSzL" value="L" onchange="coCalcPrice()">
+          <label for="coSzL">L — ໃຫຍ່<span class="pill-price">35.000ກີບ</span></label>
+        </div>
+      </div>
+
+      <!-- SWEETNESS -->
+      <div class="co-section">
+        <div class="co-section-lbl"><i class="fas fa-droplet"></i> ຄວາມຫວານ</div>
+        <div class="co-pill-group">
+          <input type="radio" class="co-pill-opt" name="co_sweet" id="coSw0" value="0%">
+          <label for="coSw0">🚫 0%</label>
+          <input type="radio" class="co-pill-opt" name="co_sweet" id="coSw25" value="25%">
+          <label for="coSw25">25%</label>
+          <input type="radio" class="co-pill-opt" name="co_sweet" id="coSw50" value="50%" checked>
+          <label for="coSw50">50%</label>
+          <input type="radio" class="co-pill-opt" name="co_sweet" id="coSw75" value="75%">
+          <label for="coSw75">75%</label>
+          <input type="radio" class="co-pill-opt" name="co_sweet" id="coSw100" value="100%">
+          <label for="coSw100">🍭 100%</label>
+        </div>
+      </div>
+
+      <!-- PEARL -->
+      <div class="co-section">
+        <div class="co-section-lbl"><i class="fas fa-circle-dot"></i> ໄຂ່ມຸກ</div>
+        <div class="co-pill-group">
+          <input type="radio" class="co-pill-opt" name="co_pearl" id="coPrYes" value="ໃສ່ໄຂ່ມຸກ">
+          <label for="coPrYes">🫧 ໃສ່ໄຂ່ມຸກ</label>
+          <input type="radio" class="co-pill-opt" name="co_pearl" id="coPrNo" value="ບໍ່ໃສ່ໄຂ່ມຸກ" checked>
+          <label for="coPrNo">❌ ບໍ່ໃສ່ໄຂ່ມຸກ</label>
+        </div>
+      </div>
+
+      <!-- TOPPING -->
+      <div class="co-section">
+        <div class="co-section-lbl"><i class="fas fa-layer-group"></i> ທອັບປີ້ງ <span style="text-transform:none;font-weight:600;color:var(--pk);">(ເລືອກໄດ້ຫຼາຍ · +5.000ກີບ/ອັນ)</span></div>
+        <div class="co-pill-group">
+          <input type="checkbox" class="co-pill-opt" name="co_topping" id="coTpFruit" value="ໝາກໄມ້ສົດ" onchange="coCalcPrice()">
+          <label for="coTpFruit">🍓 ໝາກໄມ້ສົດ<span class="pill-price">+5.000</span></label>
+          <input type="checkbox" class="co-pill-opt" name="co_topping" id="coTpJelly" value="ເຈລລີ" onchange="coCalcPrice()">
+          <label for="coTpJelly">🍮 ເຈລລີ<span class="pill-price">+5.000</span></label>
+          <input type="checkbox" class="co-pill-opt" name="co_topping" id="coTpCoco" value="ໂກໂກ້" onchange="coCalcPrice()">
+          <label for="coTpCoco">🍫 ໂກໂກ້<span class="pill-price">+5.000</span></label>
+          <input type="checkbox" class="co-pill-opt" name="co_topping" id="coTpPearl" value="ໄຂ່ມຸກ" onchange="coCalcPrice()">
+          <label for="coTpPearl">🧋 ໄຂ່ມຸກ<span class="pill-price">+5.000</span></label>
+          <input type="checkbox" class="co-pill-opt" name="co_topping" id="coTpChoco" value="ຊັອກໂກແລັດ" onchange="coCalcPrice()">
+          <label for="coTpChoco">🍪 ຊັອກໂກແລັດ<span class="pill-price">+5.000</span></label>
+        </div>
+
+        <div class="co-custom-tags" id="coCustomTags"></div>
+        <div class="co-topping-add">
+          <input type="text" id="coCustomTopInput" placeholder="ອື່ນໆ ເຊັ່ນ: ໝາກແອັບເປີ້ນ... (+5.000ກີບ)"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();coAddCustomTopping();}">
+          <button type="button" onclick="coAddCustomTopping()"><i class="fas fa-plus"></i> ເພີ່ມ</button>
+        </div>
+      </div>
+
+      <div class="co-price-preview">
+        <span class="cpp-lbl">💰 ລາຄາລວມ</span>
+        <span class="cpp-val" id="coPricePreview">30.000 ກີບ</span>
+      </div>
+
+      <div id="coToast" class="co-toast"></div>
+      <button class="co-submit-btn" id="coSubmitBtn" onclick="submitCustomOrder()">
+        <i class="fas fa-cart-plus"></i> ເພີ່ມລົງກະຕ່າ
+      </button>
+    </div>
+
+  </div>
+</div>
 
 <script>
 function chgQty(id, d) {
@@ -475,6 +774,104 @@ function addCart(id) {
 }
 
 /* Promo carousel is now a pure-CSS continuous marquee (see .promo-track animation) — no JS needed. */
+
+/* ── Custom order request modal ── */
+const CO_CSRF = '{{ csrf_token }}';
+const CO_SIZE_PRICES = {S: 25000, M: 30000, L: 35000};
+const CO_TOPPING_FEE = 5000;
+let coCustomToppings = [];
+
+function openCustomOrderModal() {
+  document.getElementById('customOrderOverlay').classList.add('open');
+  document.getElementById('coToast').className = 'co-toast';
+  document.getElementById('coToast').textContent = '';
+  coCalcPrice();
+}
+function closeCustomOrderModal() {
+  document.getElementById('customOrderOverlay').classList.remove('open');
+}
+
+function coCalcPrice() {
+  const sizeEl = document.querySelector('input[name="co_size"]:checked');
+  const sizePrice = CO_SIZE_PRICES[sizeEl ? sizeEl.value : 'M'];
+  const toppingCount = document.querySelectorAll('input[name="co_topping"]:checked').length + coCustomToppings.length;
+  const total = sizePrice + toppingCount * CO_TOPPING_FEE;
+  document.getElementById('coPricePreview').textContent = total.toLocaleString('en-US') + ' ກີບ';
+  return total;
+}
+
+function coAddCustomTopping() {
+  const input = document.getElementById('coCustomTopInput');
+  const val = input.value.trim();
+  if (!val) return;
+  coCustomToppings.push(val);
+  input.value = '';
+  coRenderCustomToppings();
+  coCalcPrice();
+}
+function coRemoveCustomTopping(idx) {
+  coCustomToppings.splice(idx, 1);
+  coRenderCustomToppings();
+  coCalcPrice();
+}
+function coRenderCustomToppings() {
+  document.getElementById('coCustomTags').innerHTML = coCustomToppings.map((t, i) => `
+    <span class="co-custom-tag">${t}<span class="pill-price">+5.000</span>
+      <button type="button" onclick="coRemoveCustomTopping(${i})">✕</button>
+    </span>`).join('');
+}
+
+function submitCustomOrder() {
+  const msgEl = document.getElementById('customOrderMsg');
+  const message = msgEl.value.trim();
+  const toast = document.getElementById('coToast');
+  const btn = document.getElementById('coSubmitBtn');
+  if (!message) {
+    toast.className = 'co-toast err';
+    toast.textContent = 'ກະລຸນາພິມລາຍລະອຽດເມນູທີ່ຕ້ອງການ';
+    return;
+  }
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ກຳລັງເພີ່ມ...';
+
+  const params = new URLSearchParams();
+  params.append('message', message);
+  const sizeEl = document.querySelector('input[name="co_size"]:checked');
+  params.append('size', sizeEl ? sizeEl.value : 'M');
+  const sweetEl = document.querySelector('input[name="co_sweet"]:checked');
+  if (sweetEl) params.append('sweet', sweetEl.value);
+  const pearlEl = document.querySelector('input[name="co_pearl"]:checked');
+  if (pearlEl) params.append('pearl', pearlEl.value);
+  document.querySelectorAll('input[name="co_topping"]:checked').forEach(el => params.append('topping', el.value));
+  coCustomToppings.forEach(t => params.append('topping', t));
+
+  fetch('/custom-order-request', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': CO_CSRF, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString(),
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.ok) {
+      toast.className = 'co-toast ok';
+      toast.textContent = '✅ ເພີ່ມລົງກະຕ່າແລ້ວ! ກຳລັງໄປໜ້າກະຕ່າ...';
+      msgEl.value = '';
+      coCustomToppings = [];
+      setTimeout(() => { window.location.href = '/cart'; }, 700);
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-cart-plus"></i> ເພີ່ມລົງກະຕ່າ';
+      toast.className = 'co-toast err';
+      toast.textContent = d.error || 'ເພີ່ມບໍ່ສຳເລັດ ກະລຸນາລອງໃໝ່';
+    }
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-cart-plus"></i> ເພີ່ມລົງກະຕ່າ';
+    toast.className = 'co-toast err';
+    toast.textContent = 'ເພີ່ມບໍ່ສຳເລັດ ກະລຸນາລອງໃໝ່';
+  });
+}
 </script>
 
 {% endblock content %}

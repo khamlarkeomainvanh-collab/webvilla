@@ -179,6 +179,20 @@
         font-weight: 700;
     }
 
+    /* --- Stock toggle --- */
+    .stock-toggle {
+        display: inline-flex; align-items: center; gap: 9px;
+        border: none; cursor: pointer; padding: 8px 16px 8px 8px;
+        border-radius: 50px; font-family: 'Noto Sans Lao','Lexend',sans-serif;
+        font-weight: 800; font-size: .92rem; transition: .22s;
+    }
+    .stock-toggle .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; transition: .22s; }
+    .stock-toggle.in-stock  { background: rgba(16,185,129,.1); color: var(--green); }
+    .stock-toggle.in-stock .dot  { background: var(--green); box-shadow: 0 0 0 4px rgba(16,185,129,.15); }
+    .stock-toggle.out-stock { background: rgba(239,68,68,.1); color: var(--red); }
+    .stock-toggle.out-stock .dot { background: var(--red); box-shadow: 0 0 0 4px rgba(239,68,68,.15); }
+    .stock-toggle:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
     /* --- Action Buttons --- */
     .action-group { display: flex; gap: 10px; justify-content: center; }
 
@@ -274,6 +288,7 @@
                         <th>ໝວດໝູ່</th>
                         <th>ລາຍລະອຽດ</th>
                         <th>ລາຄາຈຳໜ່າຍ</th>
+                        <th style="text-align:center;">ສະຕັອກ</th>
                         <th class="no-print" style="text-align:center;">ຈັດການ</th>
                     </tr>
                 </thead>
@@ -310,6 +325,14 @@
 
                         <td><span class="price-tag">₭ {{ p.price }}</span></td>
 
+                        <td style="text-align:center;">
+                            <button type="button" class="stock-toggle {% if p.is_available %}in-stock{% else %}out-stock{% endif %}"
+                                    id="stock-btn-{{ p.id }}" onclick="toggleStock({{ p.id }})">
+                                <span class="dot"></span>
+                                <span id="stock-lbl-{{ p.id }}">{% if p.is_available %}ມີສິນຄ້າ{% else %}ໝົດແລ້ວ{% endif %}</span>
+                            </button>
+                        </td>
+
                         <td class="no-print">
                             <div class="action-group">
                                 <a href="{% url 'update-product' p.id %}" class="btn-neon btn-edit" title="ແກ້ໄຂ">
@@ -323,7 +346,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5">
+                        <td colspan="6">
                             <div class="empty-state">
                                 <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                                 <p>ຍັງບໍ່ມີສິນຄ້າໃນຄັງຂອງທ່ານ</p>
@@ -341,5 +364,29 @@
 <a href="/admin-add-product" class="float-add no-print" title="ເພີ່ມສິນຄ້າໃໝ່">
     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
 </a>
+
+<script>
+const CSRF_TOKEN = '{{ csrf_token }}';
+function toggleStock(pid) {
+    fetch(`/toggle-product-stock/${pid}`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF_TOKEN },
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (!d.ok) { alert('ອັບເດດບໍ່ສຳເລັດ'); return; }
+        const btn = document.getElementById(`stock-btn-${pid}`);
+        const lbl = document.getElementById(`stock-lbl-${pid}`);
+        if (d.is_available) {
+            btn.classList.remove('out-stock'); btn.classList.add('in-stock');
+            lbl.textContent = 'ມີສິນຄ້າ';
+        } else {
+            btn.classList.remove('in-stock'); btn.classList.add('out-stock');
+            lbl.textContent = 'ໝົດແລ້ວ';
+        }
+    })
+    .catch(() => alert('ອັບເດດບໍ່ສຳເລັດ'));
+}
+</script>
 
 {% endblock content %}

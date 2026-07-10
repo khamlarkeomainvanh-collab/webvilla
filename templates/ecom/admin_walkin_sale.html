@@ -57,24 +57,111 @@
 .ws-table-title { display:flex; align-items:center; gap:10px; font-weight:800; color:#065f46; font-size:1rem; }
 .ws-total-chip { background:#10b981; color:#fff; padding:6px 16px; border-radius:20px; font-weight:900; font-size:.9rem; }
 
+/* ── Day stats bar ── */
+.ws-stats-bar { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:16px; padding:22px 26px; }
+.ws-stat-card {
+    display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:16px;
+    border:1.5px solid #ecfdf5; background:#f8fffb; transition:.2s;
+}
+.ws-stat-card:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(16,185,129,.1); }
+button.ws-stat-card {
+    font:inherit; text-align:left; width:100%; cursor:pointer; outline:none; margin:0; -webkit-appearance:none; appearance:none;
+}
+.ws-stat-card.active { border-color:#10b981; box-shadow:0 0 0 3px rgba(16,185,129,.16),0 8px 22px rgba(16,185,129,.14); background:#ecfdf5; }
+.ws-stat-card.--teal.active   { border-color:#14b8a6; box-shadow:0 0 0 3px rgba(20,184,166,.16),0 8px 22px rgba(20,184,166,.14); background:#f0fdfa; }
+.ws-stat-card.--blue.active   { border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.16),0 8px 22px rgba(59,130,246,.14); background:#eff6ff; }
+.ws-stat-card.--purple.active { border-color:#7c3aed; box-shadow:0 0 0 3px rgba(124,58,237,.16),0 8px 22px rgba(124,58,237,.14); background:#f5f3ff; }
+.ws-filter-chip {
+    display:none; align-items:center; gap:8px; background:#fef3c7; color:#92400e; padding:6px 14px;
+    border-radius:20px; font-weight:800; font-size:.8rem;
+}
+.ws-filter-chip a { color:#92400e; text-decoration:underline; cursor:pointer; }
+.ws-stat-ico {
+    width:46px; height:46px; border-radius:13px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    font-size:1.25rem; color:#fff; background:linear-gradient(135deg,#10b981,#059669); box-shadow:0 6px 16px rgba(16,185,129,.28);
+}
+.ws-stat-card.--purple .ws-stat-ico { background:linear-gradient(135deg,#7c3aed,#be185d); box-shadow:0 6px 16px rgba(124,58,237,.28); }
+.ws-stat-card.--amber  .ws-stat-ico { background:linear-gradient(135deg,#f59e0b,#d97706); box-shadow:0 6px 16px rgba(245,158,11,.28); }
+.ws-stat-card.--blue   .ws-stat-ico { background:linear-gradient(135deg,#3b82f6,#1d4ed8); box-shadow:0 6px 16px rgba(59,130,246,.28); }
+.ws-stat-card.--teal   .ws-stat-ico { background:linear-gradient(135deg,#14b8a6,#0d9488); box-shadow:0 6px 16px rgba(20,184,166,.28); }
+.ws-stat-lbl { font-size:.74rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:.3px; }
+.ws-stat-val { font-size:1.25rem; font-weight:900; color:#065f46; margin-top:2px; }
+.ws-stat-card.--purple .ws-stat-val { color:#5b21b6; }
+.ws-stat-card.--amber  .ws-stat-val { color:#92400e; }
+.ws-stat-card.--blue   .ws-stat-val { color:#1d4ed8; }
+.ws-stat-card.--teal   .ws-stat-val { color:#0d9488; }
+
 .ws-table { width:100%; border-collapse:collapse; }
 .ws-table th {
     padding:12px 26px; text-align:left; color:#059669; font-weight:800; font-size:.78rem;
     text-transform:uppercase; background:#f0fdf4; border-bottom:1.5px solid rgba(16,185,129,.1);
 }
 .ws-table td { padding:14px 26px; border-bottom:1px solid #f1f5f9; color:#2d1457; font-weight:600; font-size:.9rem; }
+.ws-table tbody tr { transition:.15s; }
+.ws-table tbody tr:hover { background:#f8fffb; }
 .ws-table tr:last-child td { border-bottom:none; }
+.ws-row-num {
+    width:26px; height:26px; border-radius:8px; background:#f0fdf4; color:#059669;
+    display:flex; align-items:center; justify-content:center; font-size:.76rem; font-weight:800;
+}
+.ws-prod-cell { display:flex; align-items:center; gap:12px; }
+.ws-prod-ico {
+    width:38px; height:38px; border-radius:11px; flex-shrink:0; background:linear-gradient(135deg,#ede9fe,#fce7f3);
+    display:flex; align-items:center; justify-content:center; font-size:1.05rem;
+}
+.ws-qty-pill {
+    display:inline-block; background:#f5f3ff; color:#7c3aed; padding:3px 11px; border-radius:20px;
+    font-weight:800; font-size:.82rem;
+}
+.ws-pay-pill {
+    display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:20px;
+    font-weight:800; font-size:.78rem;
+}
+.ws-pay-pill.cash { background:rgba(16,185,129,.1); color:#059669; }
+.ws-pay-pill.transfer { background:rgba(59,130,246,.1); color:#1d4ed8; }
 .ws-del-btn {
     width:36px; height:36px; border-radius:10px; background:#fff0f0; border:1.5px solid #fecaca;
     color:#ef4444; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.2s;
 }
 .ws-del-btn:hover { background:#ef4444; color:#fff; }
+.ws-edit-btn {
+    width:36px; height:36px; border-radius:10px; background:#eff6ff; border:1.5px solid #bfdbfe;
+    color:#3b82f6; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.2s;
+}
+.ws-edit-btn:hover { background:#3b82f6; color:#fff; }
+.ws-row-actions { display:flex; align-items:center; gap:8px; }
 .ws-empty { padding:60px 26px; text-align:center; color:#94a3b8; }
 .ws-empty .ei { font-size:3rem; opacity:.3; margin-bottom:10px; }
-.ws-badge-walkin {
-    background:rgba(124,58,237,.1); color:#7c3aed; padding:3px 10px; border-radius:20px;
-    font-size:.72rem; font-weight:800;
+.ws-empty-filtered { padding:40px 26px; text-align:center; color:#94a3b8; display:none; }
+
+/* ── Edit-sale modal ── */
+.ws-edit-overlay {
+    position:fixed; inset:0; background:rgba(45,20,87,.55); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; z-index:9999;
+    opacity:0; pointer-events:none; transition:.2s;
 }
+.ws-edit-overlay.open { opacity:1; pointer-events:auto; }
+.ws-edit-box {
+    background:#fff; border-radius:22px; width:92%; max-width:420px; overflow:hidden;
+    box-shadow:0 20px 60px rgba(45,20,87,.3); transform:translateY(14px); transition:.2s;
+}
+.ws-edit-overlay.open .ws-edit-box { transform:translateY(0); }
+.ws-edit-head { display:flex; align-items:center; gap:12px; padding:20px 22px; background:var(--grad); color:#fff; position:relative; }
+.ws-edit-ico { width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-size:1.05rem; flex-shrink:0; }
+.ws-edit-head h3 { font-size:1.05rem; font-weight:900; margin:0; }
+.ws-edit-head p { font-size:.78rem; opacity:.85; margin-top:2px; }
+.ws-edit-close {
+    position:absolute; top:14px; right:14px; width:30px; height:30px; border-radius:9px; border:none;
+    background:rgba(255,255,255,.18); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.ws-edit-close:hover { background:rgba(255,255,255,.32); }
+.ws-edit-body { padding:22px; display:flex; flex-direction:column; gap:14px; }
+.ws-edit-total { text-align:right; font-weight:900; color:#7c3aed; font-size:1.05rem; }
+.ws-edit-foot { display:flex; justify-content:flex-end; gap:10px; padding:0 22px 22px; }
+.ws-edit-cancel { padding:12px 22px; border-radius:13px; border:1.5px solid #ede9fe; background:#fff; color:#7c3aed; font-weight:800; cursor:pointer; }
+.ws-edit-cancel:hover { background:#f5f3ff; }
+
+@media(max-width:700px) { .ws-stats-bar { grid-template-columns:1fr; } }
 
 .ws-toolbar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .ws-day-nav { display:flex; align-items:center; gap:6px; }
@@ -101,8 +188,40 @@
 .ws-action-btn.indigo { background:#7c3aed; color:#fff; }
 .ws-action-btn:hover { transform:translateY(-1px); opacity:.92; }
 
-@media(max-width:900px) { .ws-form-body { grid-template-columns:1fr 1fr; } }
-@media(max-width:560px) { .ws-form-body { grid-template-columns:1fr; } .ws-table th:nth-child(4), .ws-table td:nth-child(4) { display:none; } .ws-table-head { flex-direction:column; align-items:stretch; } .ws-toolbar { justify-content:space-between; } }
+/* ── Queue builder ── */
+.ws-add-row { display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:14px; align-items:end; padding:22px 26px; }
+.ws-btn-queue {
+    padding:11px 22px; border-radius:12px; border:1.5px solid var(--purple); background:#fff; color:#7c3aed;
+    font-weight:800; font-size:.88rem; cursor:pointer; display:flex; align-items:center; gap:8px; transition:.2s; height:44px;
+}
+.ws-btn-queue:hover { background:#f5f3ff; transform:translateY(-1px); }
+
+.ws-queue-wrap { padding:0 26px 22px; }
+.ws-queue-title { font-size:.85rem; font-weight:800; color:#7c3aed; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.ws-queue-empty { padding:18px; text-align:center; color:#b6aef0; background:#f8f7ff; border-radius:14px; font-size:.85rem; font-weight:600; border:1.5px dashed #ede9fe; }
+.ws-queue-table { width:100%; border-collapse:collapse; background:#f8f7ff; border-radius:14px; overflow:hidden; }
+.ws-queue-table th { padding:9px 14px; text-align:left; font-size:.72rem; color:#a78bfa; text-transform:uppercase; font-weight:800; }
+.ws-queue-table td { padding:10px 14px; font-size:.88rem; color:#2d1457; font-weight:700; border-top:1px solid #ede9fe; }
+.ws-custom-badge {
+    display:inline-block; background:#fce7f3; color:#be185d; padding:2px 9px; border-radius:20px;
+    font-size:.68rem; font-weight:800; margin-left:4px; vertical-align:middle;
+}
+.ws-qty-stepper { display:flex; align-items:center; gap:8px; }
+.ws-qty-btn {
+    width:26px; height:26px; border-radius:8px; border:1.5px solid #ddd6fe; background:#fff; color:#7c3aed;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:.85rem; transition:.15s;
+}
+.ws-qty-btn:hover { background:#7c3aed; color:#fff; }
+.ws-queue-rm {
+    width:28px; height:28px; border-radius:8px; background:#fff0f0; border:1.5px solid #fecaca; color:#ef4444;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.2s;
+}
+.ws-queue-rm:hover { background:#ef4444; color:#fff; }
+
+.ws-final-row { display:grid; grid-template-columns:1fr auto; gap:14px; align-items:end; padding:0 26px 22px; }
+
+@media(max-width:900px) { .ws-form-body { grid-template-columns:1fr 1fr; } .ws-add-row { grid-template-columns:1fr 1fr; } .ws-final-row { grid-template-columns:1fr 1fr; } }
+@media(max-width:560px) { .ws-form-body { grid-template-columns:1fr; } .ws-add-row { grid-template-columns:1fr; } .ws-final-row { grid-template-columns:1fr; } .ws-table th:nth-child(4), .ws-table td:nth-child(4) { display:none; } .ws-table-head { flex-direction:column; align-items:stretch; } .ws-toolbar { justify-content:space-between; } }
 </style>
 
 <div class="ws-head">
@@ -119,26 +238,49 @@
         <div class="plus"><i class="fas fa-plus"></i></div>
         <span>ເພີ່ມຍອດຂາຍໃໝ່</span>
     </div>
-    <form method="post" action="{% url 'admin-walkin-sale' %}">
+    <form method="post" action="{% url 'admin-walkin-sale' %}" id="wsForm" onsubmit="return wsSubmit()">
         {% csrf_token %}
-        <div class="ws-form-body">
+        <input type="hidden" name="items" id="wsItemsInput">
+
+        <!-- Item picker → add to queue -->
+        <div class="ws-add-row">
             <div class="ws-field">
                 <label>🥤 ສິນຄ້າ</label>
-                <select name="product" class="ws-select" id="wsProduct" required onchange="wsFillPrice()">
-                    <option value="">— ເລືອກສິນຄ້າ —</option>
+                <input type="text" id="wsProductInput" class="ws-select" list="wsProductDatalist"
+                       placeholder="ພິມຄົ້ນຫາ ຫຼື ພິມຊື່ສິນຄ້າໃໝ່..." autocomplete="off" oninput="wsProductChanged()">
+                <datalist id="wsProductDatalist">
                     {% for p in products %}
-                    <option value="{{ p.id }}" data-price="{{ p.price }}">{{ p.name }} — {{ p.price|dotformat }} ກີບ</option>
+                    <option value="{{ p.name }}" data-id="{{ p.id }}" data-price="{{ p.price }}"></option>
                     {% endfor %}
-                </select>
+                </datalist>
             </div>
             <div class="ws-field">
                 <label>🔢 ຈຳນວນ</label>
-                <input type="number" name="quantity" id="wsQty" class="ws-input" value="1" min="1" required oninput="wsUpdateTotal()">
+                <input type="number" id="wsQty" class="ws-input" value="1" min="1" oninput="wsUpdateTotal()">
             </div>
             <div class="ws-field">
                 <label>💰 ລາຄາ/ໜ່ວຍ</label>
-                <input type="number" name="unit_price" id="wsPrice" class="ws-input" placeholder="0" min="0" oninput="wsUpdateTotal()">
+                <input type="text" inputmode="numeric" id="wsPrice" class="ws-input" placeholder="0" oninput="wsFmtPrice(this)">
             </div>
+            <button type="button" class="ws-btn-queue" onclick="wsAddToQueue()"><i class="fas fa-cart-plus"></i> ເພີ່ມໃສ່ຄິວ</button>
+        </div>
+
+        <!-- Queue -->
+        <div class="ws-queue-wrap">
+            <div class="ws-queue-title"><i class="fas fa-list-ol"></i> ຄິວລາຍການ (<span id="wsQueueCount">0</span>)</div>
+            <div id="wsQueueBox">
+                <div class="ws-queue-empty" id="wsQueueEmpty">ຍັງບໍ່ມີລາຍການໃນຄິວ — ເລືອກສິນຄ້າແລ້ວກົດ "ເພີ່ມໃສ່ຄິວ"</div>
+                <table class="ws-queue-table" id="wsQueueTable" style="display:none;">
+                    <thead>
+                        <tr><th>ສິນຄ້າ</th><th>ຈຳນວນ</th><th>ລາຄາ/ໜ່ວຍ</th><th style="text-align:right;">ລວມ</th><th></th></tr>
+                    </thead>
+                    <tbody id="wsQueueBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Shared fields + submit -->
+        <div class="ws-final-row">
             <div class="ws-field">
                 <label>💳 ຊຳລະ</label>
                 <select name="payment_method" class="ws-select">
@@ -146,12 +288,8 @@
                     <option value="Transfer">ໂອນເງິນ</option>
                 </select>
             </div>
-            <div class="ws-field ws-note-row" style="grid-column:1/-1;">
-                <label>📝 ໝາຍເຫດ (ບໍ່ບັງຄັບ)</label>
-                <input type="text" name="note" class="ws-input" placeholder="ເຊັ່ນ: ຫຼຸດລາຄາໃຫ້ລູກຄ້າປະຈຳ...">
-            </div>
-            <div class="ws-submit-row" style="grid-column:1/-1; justify-content:space-between; align-items:center;">
-                <div id="wsTotalPreview" style="font-weight:900; color:#7c3aed; font-size:1rem;"></div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+                <div id="wsTotalPreview" style="font-weight:900; color:#7c3aed; font-size:1.05rem;">ລວມ: 0 ກີບ</div>
                 <button type="submit" class="ws-btn-add"><i class="fas fa-check"></i> ບັນທຶກຍອດຂາຍ</button>
             </div>
         </div>
@@ -176,32 +314,99 @@
     </div>
 
     {% if sales %}
+    <!-- Day stats (clickable = filter the table below) -->
+    <div class="ws-stats-bar">
+        <button type="button" class="ws-stat-card active" data-filter="all" onclick="wsFilterSales('all')">
+            <div class="ws-stat-ico"><i class="fas fa-sack-dollar"></i></div>
+            <div>
+                <div class="ws-stat-lbl">ຍອດຂາຍລວມ</div>
+                <div class="ws-stat-val">{{ total_today|dotformat }} ກີບ</div>
+            </div>
+        </button>
+        <button type="button" class="ws-stat-card --teal" data-filter="Cash" onclick="wsFilterSales('Cash')">
+            <div class="ws-stat-ico"><i class="fas fa-money-bill-wave"></i></div>
+            <div>
+                <div class="ws-stat-lbl">ຍອດເງິນສົດ</div>
+                <div class="ws-stat-val">{{ cash_today|dotformat }} ກີບ</div>
+            </div>
+        </button>
+        <button type="button" class="ws-stat-card --blue" data-filter="Transfer" onclick="wsFilterSales('Transfer')">
+            <div class="ws-stat-ico"><i class="fas fa-mobile-screen-button"></i></div>
+            <div>
+                <div class="ws-stat-lbl">ຍອດເງິນໂອນ</div>
+                <div class="ws-stat-val">{{ transfer_today|dotformat }} ກີບ</div>
+            </div>
+        </button>
+        <button type="button" class="ws-stat-card --purple" data-filter="all" onclick="wsFilterSales('all')">
+            <div class="ws-stat-ico"><i class="fas fa-receipt"></i></div>
+            <div>
+                <div class="ws-stat-lbl">ຈຳນວນລາຍການ</div>
+                <div class="ws-stat-val">{{ sales|length }} ລາຍການ</div>
+            </div>
+        </button>
+        <div class="ws-stat-card --amber">
+            <div class="ws-stat-ico"><i class="fas fa-cup-straw"></i></div>
+            <div>
+                <div class="ws-stat-lbl">ຈຳນວນອັນທັງໝົດ</div>
+                <div class="ws-stat-val">{{ qty_today }} ອັນ</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="padding:0 26px 14px;">
+        <span class="ws-filter-chip" id="wsFilterChip">
+            <i class="fas fa-filter"></i> ກຳລັງກອງ: <span id="wsFilterChipLabel"></span>
+            <a onclick="wsFilterSales('all')">✕ ລ້າງຕົວກອງ</a>
+        </span>
+    </div>
+
     <div style="overflow-x:auto;">
         <table class="ws-table">
             <thead>
                 <tr><th>#</th><th>ສິນຄ້າ</th><th>ຈຳນວນ</th><th>ຊຳລະ</th><th style="text-align:right;">ຍອດ (ກີບ)</th><th></th></tr>
             </thead>
-            <tbody>
+            <tbody id="wsSalesTbody">
                 {% for s in sales %}
-                <tr>
-                    <td style="color:#94a3b8;">{{ forloop.counter }}</td>
+                <tr data-payment="{{ s.payment_method }}">
+                    <td><span class="ws-row-num">{{ forloop.counter }}</span></td>
                     <td>
-                        {{ s.product.name|default:"—" }}
-                        <span class="ws-badge-walkin">ໜ້າຮ້ານ</span>
+                        <div class="ws-prod-cell">
+                            <div class="ws-prod-ico">{% if s.product %}🥤{% else %}✍️{% endif %}</div>
+                            <span>
+                                {% if s.product %}{{ s.product.name }}{% else %}{{ s.note|default:"—" }}<span class="ws-custom-badge">ນອກລາຍການ</span>{% endif %}
+                            </span>
+                        </div>
                     </td>
-                    <td>×{{ s.quantity }}</td>
-                    <td>{% if s.payment_method == 'Cash' %}ເງິນສົດ{% else %}ໂອນເງິນ{% endif %}</td>
+                    <td><span class="ws-qty-pill">×{{ s.quantity }}</span></td>
+                    <td>
+                        {% if s.payment_method == 'Cash' %}
+                        <span class="ws-pay-pill cash"><i class="fas fa-money-bill-wave"></i> ເງິນສົດ</span>
+                        {% else %}
+                        <span class="ws-pay-pill transfer"><i class="fas fa-mobile-screen-button"></i> ໂອນເງິນ</span>
+                        {% endif %}
+                    </td>
                     <td style="text-align:right;font-weight:900;color:#059669;">{{ s.amount|dotformat }}</td>
                     <td>
-                        <form method="post" action="{% url 'delete-walkin-sale' s.id %}" onsubmit="return confirm('ລຶບຍອດຂາຍນີ້?')">
-                            {% csrf_token %}
-                            <button type="submit" class="ws-del-btn"><i class="fas fa-trash-can"></i></button>
-                        </form>
+                        <div class="ws-row-actions">
+                            <button type="button" class="ws-edit-btn"
+                                    onclick="wsOpenEdit({{ s.id }}, {{ s.quantity }}, {{ s.amount|floatformat:0 }}, '{{ s.payment_method }}', '{% if s.product %}{{ s.product.name|escapejs }}{% else %}{{ s.note|default:"—"|escapejs }}{% endif %}')">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <form method="post" action="{% url 'delete-walkin-sale' s.id %}" onsubmit="return confirm('ລຶບຍອດຂາຍນີ້?')">
+                                {% csrf_token %}
+                                <input type="hidden" name="day" value="{{ view_day_str }}">
+                                <button type="submit" class="ws-del-btn"><i class="fas fa-trash-can"></i></button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        <div class="ws-empty-filtered" id="wsFilterEmpty">
+            <div class="ei" style="font-size:2.4rem;opacity:.3;margin-bottom:8px;">🔍</div>
+            <p>ບໍ່ມີລາຍການທີ່ກົງກັບຕົວກອງນີ້</p>
+        </div>
     </div>
     {% else %}
     <div class="ws-empty">
@@ -211,22 +416,211 @@
     {% endif %}
 </div>
 
+<!-- EDIT SALE MODAL -->
+<div class="ws-edit-overlay" id="wsEditOverlay" onclick="if(event.target===this) wsCloseEdit()">
+    <div class="ws-edit-box">
+        <div class="ws-edit-head">
+            <div class="ws-edit-ico"><i class="fas fa-pen"></i></div>
+            <div>
+                <h3>ແກ້ໄຂຍອດຂາຍ</h3>
+                <p id="wsEditProdName">—</p>
+            </div>
+            <button type="button" class="ws-edit-close" onclick="wsCloseEdit()"><i class="fas fa-xmark"></i></button>
+        </div>
+        <form method="post" id="wsEditForm">
+            {% csrf_token %}
+            <input type="hidden" name="day" value="{{ view_day_str }}">
+            <div class="ws-edit-body">
+                <div class="ws-field">
+                    <label>🔢 ຈຳນວນ</label>
+                    <input type="number" name="quantity" id="wsEditQty" class="ws-input" min="1" value="1" oninput="wsEditUpdateTotal()">
+                </div>
+                <div class="ws-field">
+                    <label>💰 ລາຄາ/ໜ່ວຍ</label>
+                    <input type="text" inputmode="numeric" name="unit_price" id="wsEditPrice" class="ws-input" oninput="wsEditFmtPriceInput(this)">
+                </div>
+                <div class="ws-field">
+                    <label>💳 ຊຳລະ</label>
+                    <select name="payment_method" id="wsEditPayment" class="ws-select">
+                        <option value="Cash">ເງິນສົດ</option>
+                        <option value="Transfer">ໂອນເງິນ</option>
+                    </select>
+                </div>
+                <div id="wsEditTotal" class="ws-edit-total">ລວມ: 0 ກີບ</div>
+            </div>
+            <div class="ws-edit-foot">
+                <button type="button" class="ws-edit-cancel" onclick="wsCloseEdit()">ຍົກເລີກ</button>
+                <button type="submit" class="ws-btn-add"><i class="fas fa-check"></i> ບັນທຶກການແກ້ໄຂ</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
-function wsFillPrice() {
-    const sel = document.getElementById('wsProduct');
-    const opt = sel.options[sel.selectedIndex];
-    const price = opt ? opt.getAttribute('data-price') : '';
-    document.getElementById('wsPrice').value = price || '';
+let wsQueue = [];
+let wsSelectedProductId = null;
+
+/* type="text" so a typed "." (thousands separator, e.g. "30.000") is never
+   mistaken for a decimal point the way <input type="number"> would mistake it. */
+function wsFmtPrice(el){
+    const raw = el.value.replace(/\D/g, '');
+    el.value = raw ? Number(raw).toLocaleString('en-US').replace(/,/g, '.') : '';
     wsUpdateTotal();
 }
+
+/* Product field is a searchable text input (via <datalist>) so staff can either
+   pick an existing menu item (auto-fills its price) or type the name of something
+   that isn't in the catalog at all — that becomes an off-menu ("ນອກລາຍການ") item. */
+function wsProductChanged() {
+    const val = document.getElementById('wsProductInput').value.trim();
+    const opts = document.querySelectorAll('#wsProductDatalist option');
+    let matched = null;
+    opts.forEach(o => { if (o.value === val) matched = o; });
+
+    if (matched) {
+        wsSelectedProductId = matched.getAttribute('data-id');
+        const price = matched.getAttribute('data-price');
+        document.getElementById('wsPrice').value = Number(price).toLocaleString('en-US').replace(/,/g, '.');
+    } else {
+        wsSelectedProductId = null;
+    }
+    wsUpdateTotal();
+}
+
 function wsUpdateTotal() {
     const qty = parseInt(document.getElementById('wsQty').value, 10) || 0;
-    const price = parseInt(document.getElementById('wsPrice').value, 10) || 0;
-    const total = qty * price;
+    const price = parseInt(document.getElementById('wsPrice').value.replace(/\D/g, ''), 10) || 0;
+    const single = qty * price;
     const el = document.getElementById('wsTotalPreview');
-    el.textContent = total > 0 ? ('ລວມ: ' + total.toLocaleString('en-US') + ' ກີບ') : '';
+    const queueTotal = wsQueue.reduce((s, it) => s + it.qty * it.price, 0);
+    el.textContent = 'ລວມ: ' + (queueTotal + (single > 0 ? single : 0)).toLocaleString('en-US') + ' ກີບ' +
+        (single > 0 ? ' (ລວມລາຍການທີ່ຍັງບໍ່ທັນເພີ່ມໃສ່ຄິວ)' : '');
 }
+
+function wsAddToQueue() {
+    const input = document.getElementById('wsProductInput');
+    const name = input.value.trim();
+    if (!name) { alert('ກາລຸນາພິມ ຫຼື ເລືອກສິນຄ້າກ່ອນ'); return; }
+    const qty = Math.max(1, parseInt(document.getElementById('wsQty').value, 10) || 1);
+    const price = Math.max(0, parseInt(document.getElementById('wsPrice').value.replace(/\D/g, ''), 10) || 0);
+    const pid = wsSelectedProductId;
+    const isCustom = !pid;
+
+    const existing = wsQueue.find(it => it.pid === pid && it.name === name && it.price === price);
+    if (existing) { existing.qty += qty; }
+    else { wsQueue.push({ pid, name, qty, price, isCustom }); }
+
+    input.value = '';
+    wsSelectedProductId = null;
+    document.getElementById('wsQty').value = 1;
+    document.getElementById('wsPrice').value = '';
+    wsRenderQueue();
+}
+
+function wsChangeQty(idx, delta) {
+    wsQueue[idx].qty = Math.max(1, wsQueue[idx].qty + delta);
+    wsRenderQueue();
+}
+
+function wsRemoveItem(idx) {
+    wsQueue.splice(idx, 1);
+    wsRenderQueue();
+}
+
+function wsRenderQueue() {
+    const empty = document.getElementById('wsQueueEmpty');
+    const table = document.getElementById('wsQueueTable');
+    const body  = document.getElementById('wsQueueBody');
+    document.getElementById('wsQueueCount').textContent = wsQueue.length;
+
+    if (!wsQueue.length) {
+        empty.style.display = 'block';
+        table.style.display = 'none';
+        wsUpdateTotal();
+        return;
+    }
+    empty.style.display = 'none';
+    table.style.display = 'table';
+
+    body.innerHTML = wsQueue.map((it, idx) => `
+        <tr>
+            <td>${it.name}${it.isCustom ? ' <span class="ws-custom-badge">ນອກລາຍການ</span>' : ''}</td>
+            <td>
+                <div class="ws-qty-stepper">
+                    <button type="button" class="ws-qty-btn" onclick="wsChangeQty(${idx},-1)">−</button>
+                    <span>${it.qty}</span>
+                    <button type="button" class="ws-qty-btn" onclick="wsChangeQty(${idx},1)">+</button>
+                </div>
+            </td>
+            <td>${it.price.toLocaleString('en-US')} ກີບ</td>
+            <td style="text-align:right;color:#059669;">${(it.qty * it.price).toLocaleString('en-US')} ກີບ</td>
+            <td><button type="button" class="ws-queue-rm" onclick="wsRemoveItem(${idx})"><i class="fas fa-xmark"></i></button></td>
+        </tr>
+    `).join('');
+    wsUpdateTotal();
+}
+
+function wsSubmit() {
+    if (!wsQueue.length) {
+        alert('ກາລຸນາເພີ່ມສິນຄ້າໃສ່ຄິວຢ່າງໜ້ອຍ 1 ລາຍການ');
+        return false;
+    }
+    const items = wsQueue.map(it => ({ product: it.pid, quantity: it.qty, unit_price: it.price, name: it.name }));
+    document.getElementById('wsItemsInput').value = JSON.stringify(items);
+    return true;
+}
+
 document.addEventListener('DOMContentLoaded', wsUpdateTotal);
+
+/* ── Stat-card click-to-filter ── */
+const WS_FILTER_LABELS = { all: 'ທັງໝົດ', Cash: 'ເງິນສົດ', Transfer: 'ໂອນເງິນ' };
+
+function wsFilterSales(mode) {
+    document.querySelectorAll('#wsSalesTbody tr').forEach(tr => {
+        const pay = tr.getAttribute('data-payment');
+        tr.style.display = (mode === 'all' || pay === mode) ? '' : 'none';
+    });
+    document.querySelectorAll('.ws-stat-card[data-filter]').forEach(c => {
+        c.classList.toggle('active', c.getAttribute('data-filter') === mode);
+    });
+    const chip = document.getElementById('wsFilterChip');
+    if (chip) {
+        chip.style.display = mode === 'all' ? 'none' : 'inline-flex';
+        document.getElementById('wsFilterChipLabel').textContent = WS_FILTER_LABELS[mode] || mode;
+    }
+    const rows = document.querySelectorAll('#wsSalesTbody tr');
+    const visible = Array.from(rows).some(tr => tr.style.display !== 'none');
+    const emptyMsg = document.getElementById('wsFilterEmpty');
+    if (emptyMsg) emptyMsg.style.display = (rows.length && !visible) ? 'block' : 'none';
+}
+
+/* ── Edit-sale modal ── */
+function wsOpenEdit(id, qty, total, payment, prodName) {
+    document.getElementById('wsEditForm').action = '/edit-walkin-sale/' + id;
+    document.getElementById('wsEditQty').value = qty;
+    const unit = qty > 0 ? Math.round(total / qty) : total;
+    document.getElementById('wsEditPrice').value = unit.toLocaleString('en-US').replace(/,/g, '.');
+    document.getElementById('wsEditPayment').value = payment;
+    document.getElementById('wsEditProdName').textContent = prodName;
+    wsEditUpdateTotal();
+    document.getElementById('wsEditOverlay').classList.add('open');
+}
+
+function wsCloseEdit() {
+    document.getElementById('wsEditOverlay').classList.remove('open');
+}
+
+function wsEditFmtPriceInput(el) {
+    const raw = el.value.replace(/\D/g, '');
+    el.value = raw ? Number(raw).toLocaleString('en-US').replace(/,/g, '.') : '';
+    wsEditUpdateTotal();
+}
+
+function wsEditUpdateTotal() {
+    const qty = parseInt(document.getElementById('wsEditQty').value, 10) || 0;
+    const price = parseInt(document.getElementById('wsEditPrice').value.replace(/\D/g, ''), 10) || 0;
+    document.getElementById('wsEditTotal').textContent = 'ລວມ: ' + (qty * price).toLocaleString('en-US') + ' ກີບ';
+}
 </script>
 
 {% endblock content %}

@@ -286,6 +286,21 @@ body {
 .add-btn:hover::after { transform:translateX(100%); }
 .add-btn:hover { transform:translateY(-3px); box-shadow:0 14px 30px rgba(124,58,237,.42); }
 .add-btn:active { transform:scale(.97); }
+.add-btn.added {
+  background: linear-gradient(135deg,#be185d,#6d28d9);
+  box-shadow: 0 6px 18px rgba(109,40,217,.32);
+}
+
+/* ====== SOLD-OUT ====== */
+.card.is-sold-out .img-box img { filter: grayscale(1) brightness(.75); }
+.sold-out-ribbon {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 6;
+  background: rgba(15,10,40,.82); color: #fff; padding: 6px 18px; border-radius: 50px;
+  font-size: .78rem; font-weight: 900; letter-spacing: .5px; white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+.card.is-sold-out .q-btn, .card.is-sold-out .add-btn { opacity: .5; pointer-events: none; filter: grayscale(.3); }
+.card.is-sold-out .add-btn { background: linear-gradient(135deg,#94a3b8,#64748b); box-shadow:none; }
 
 /* ====== EMPTY ====== */
 .empty {
@@ -370,7 +385,66 @@ body {
 }
 .auth-btn-sec:hover { background:#ede9fe; border-color:#c4b5fd; transform:translateY(-2px); box-shadow:0 8px 22px rgba(124,58,237,.18); }
 .auth-divider { text-align:center; color:#cbd5e1; font-size:12px; margin:14px 0; font-weight:600; letter-spacing:.5px; }
+
+/* ====== ANNOUNCEMENT BANNERS ====== */
+.closure-banner {
+  max-width: 1400px; margin: 0 auto; padding: 16px clamp(14px,4vw,24px) 0;
+}
+.closure-banner-inner {
+  background: linear-gradient(135deg,#f9a8d4 0%,#c4b5fd 55%,#ffffff 100%);
+  color: #831843; border: 2px solid #f472b6; border-radius: 24px;
+  padding: 26px 24px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
+  box-shadow: 0 12px 32px rgba(236,72,153,.25);
+}
+.closure-banner-icon { font-size: 2.4rem; }
+.closure-banner-title { font-weight: 900; font-size: clamp(1.25rem, 1.4vw + 1rem, 1.7rem); }
+.closure-banner-msg { font-size: clamp(.9rem, .5vw + .8rem, 1.05rem); color: #9d174d; font-weight: 600; }
+
+.promo-banners {
+  max-width: 1400px; margin: 0 auto; padding: 14px clamp(14px,4vw,24px) 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.promo-banner-item {
+  background: linear-gradient(135deg,var(--pink-lt),var(--lav));
+  border: 1.5px solid var(--lav3); border-radius: 18px; padding: 13px 20px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.promo-banner-icon {
+  font-size: 1.6rem; width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+  background: linear-gradient(135deg,var(--pink),var(--purp)); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(124,58,237,.28);
+}
+.promo-banner-title { font-weight: 900; color: var(--text); font-size: .98rem; }
+.promo-banner-msg { color: var(--gray); font-size: .85rem; margin-top: 2px; }
 </style>
+
+<!-- SHOP CLOSURE ANNOUNCEMENT -->
+{% if closure_announcement %}
+<div class="closure-banner">
+  <div class="closure-banner-inner">
+    <span class="closure-banner-icon">{{ closure_announcement.icon|default:"🚫" }}</span>
+    <div class="closure-banner-title">{{ closure_announcement.title }}</div>
+    {% if closure_announcement.message %}<div class="closure-banner-msg">{{ closure_announcement.message }}</div>{% endif %}
+  </div>
+</div>
+{% endif %}
+
+<!-- PROMOTIONS -->
+{% if promo_announcements %}
+<div class="promo-banners">
+  {% for promo in promo_announcements %}
+  <div class="promo-banner-item">
+    <span class="promo-banner-icon">{{ promo.icon|default:"📢" }}</span>
+    <div>
+      <div class="promo-banner-title">{{ promo.title }}</div>
+      {% if promo.message %}<div class="promo-banner-msg">{{ promo.message }}</div>{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
 
 <!-- HERO BANNER -->
 <div class="hero">
@@ -482,11 +556,14 @@ body {
 {% if products %}
 <div class="grid">
   {% for p in products %}
-  <div class="card">
+  <div class="card {% if not p.is_available %}is-sold-out{% endif %}">
 
     <div class="card-badge">VILLA </div>
     {% if p.category %}
     <div class="cat-badge">{{ p.category.name }}</div>
+    {% endif %}
+    {% if not p.is_available %}
+    <div class="sold-out-ribbon">❌ ສິນຄ້າໝົດແລ້ວ</div>
     {% endif %}
 
     <div class="img-box">
@@ -520,7 +597,7 @@ body {
       </div>
 
       <button class="add-btn" onclick="openAuthModal()">
-        <i class="fas fa-cart-plus"></i> ເພີ່ມລົງກະຕ່າ
+        {% if p.is_available %}<i class="fas fa-cart-plus"></i> ເພີ່ມລົງກະຕ່າ{% else %}<i class="fas fa-ban"></i> ໝົດແລ້ວ{% endif %}
       </button>
     </div>
   </div>

@@ -100,7 +100,7 @@
 <body>
 
 <div class="print-bar no-print">
-    <a href="javascript:void(0)" onclick="window.opener ? window.close() : history.back()" class="btn-back">← ກັບຄືນ</a>
+    <a href="{% if back_day %}/admin-walkin-sale?day={{ back_day }}{% else %}/admin-walkin-sale{% endif %}" class="btn-back">← ກັບຄືນ</a>
     <button class="btn-print" onclick="window.print()">🖨 ພິມ / Save PDF</button>
 </div>
 

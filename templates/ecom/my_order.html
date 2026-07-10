@@ -355,12 +355,14 @@ body {
                          id="item-row-{{ item.id }}">
                         {% if item.product.product_image %}
                             <img src="{{ item.product.product_image.url }}" class="prod-img" alt="{{ item.product.name }}">
+                        {% elif not item.product %}
+                            <div class="prod-img-ph">✍️</div>
                         {% else %}
                             <div class="prod-img-ph">🍱</div>
                         {% endif %}
                         <div style="flex:1; min-width:0;">
                             <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px; flex-wrap:wrap;">
-                                <div class="prod-name">{{ item.product.name }}</div>
+                                <div class="prod-name">{% if item.product %}{{ item.product.name }}{% else %}✍️ ສັ່ງເມນູຕາມໃຈ: {{ item.note }}{% endif %}</div>
                                 <!-- Per-item status badge -->
                                 <span class="item-badge
                                     {% if item.status == 'Pending' %}ib-pending
@@ -378,7 +380,13 @@ body {
                                     {% endif %}
                                 </span>
                             </div>
-                            <div class="prod-price">{{ item.amount|dotformat }} ກີບ × {{ item.quantity }}</div>
+                            <div class="prod-price">
+                                {% if not item.product and not item.amount %}
+                                    ⏳ ລໍຖ້າຮ້ານຕັ້ງລາຄາ
+                                {% else %}
+                                    {{ item.amount|dotformat }} ກີບ × {{ item.quantity }}
+                                {% endif %}
+                            </div>
 
                             {% if item.status == 'Cancelled' %}
                             <!-- cancelled: no tracker -->

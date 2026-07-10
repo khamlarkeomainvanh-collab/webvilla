@@ -177,37 +177,84 @@
     .top-navbar {
       background: #ffffff;
       border: 1.5px solid var(--border);
-      padding: 16px 28px;
-      border-radius: 22px;
+      padding: 14px 26px 14px 14px;
+      border-radius: 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 28px;
-      box-shadow: 0 4px 16px rgba(124,58,237,.06);
+      box-shadow: 0 4px 20px rgba(124,58,237,.08);
+      position: relative;
+      overflow: hidden;
+      gap: 16px; flex-wrap: wrap;
     }
+    .top-navbar::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--grad);
+    }
+
+    .tnb-left { display: flex; align-items: center; gap: 16px; }
 
     .toggle-btn {
       background: var(--lav);
       border: 1.5px solid var(--border);
       color: var(--purple);
       width: 46px; height: 46px;
-      border-radius: 14px;
+      border-radius: 15px;
       cursor: pointer;
-      transition: 0.25s;
+      transition: 0.3s;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.1rem;
+      flex-shrink: 0;
     }
-    .toggle-btn:hover { background: var(--purple); color: #fff; }
+    .toggle-btn:hover { background: var(--grad); color: #fff; transform: rotate(90deg); box-shadow: 0 6px 16px rgba(124,58,237,.32); }
+
+    .tnb-greet-hi { font-size: 1.05rem; font-weight: 800; color: var(--bright); display: flex; align-items: center; gap: 8px; }
+    .tnb-greet-sub { font-size: .8rem; color: var(--dim); font-weight: 600; margin-top: 2px; }
+
+    .admin-chip {
+      display: flex; align-items: center; gap: 12px;
+      background: linear-gradient(135deg, rgba(124,58,237,.07), rgba(190,24,93,.05));
+      border: 1.5px solid rgba(124,58,237,.16);
+      border-radius: 50px;
+      padding: 6px 20px 6px 6px;
+      transition: .25s;
+    }
+    .admin-chip:hover {
+      border-color: rgba(124,58,237,.32);
+      box-shadow: 0 8px 22px rgba(124,58,237,.16);
+      transform: translateY(-2px);
+    }
 
     .admin-info { text-align: right; }
-    .admin-info .name { font-weight: 700; color: var(--bright); font-size: 1.1rem; }
-    .admin-info .role { color: var(--purple); letter-spacing: 0.8px; font-weight: 600; font-size: 0.88rem; }
+    .admin-info .name { font-weight: 800; color: var(--bright); font-size: 1rem; }
+    .admin-info .role {
+      color: var(--purple); letter-spacing: 0.4px; font-weight: 700; font-size: 0.74rem;
+      display: flex; align-items: center; justify-content: flex-end; gap: 5px;
+      text-transform: uppercase; margin-top: 2px;
+    }
 
+    .avatar-wrap { position: relative; flex-shrink: 0; }
     .admin-avatar {
-      width: 48px; height: 48px;
-      border-radius: 14px;
+      width: 46px; height: 46px;
+      border-radius: 50%;
       border: 2.5px solid transparent;
       background: linear-gradient(white, white) padding-box, var(--grad) border-box;
+      display: block;
+      box-shadow: 0 4px 14px rgba(124,58,237,.22);
+    }
+    .avatar-dot {
+      position: absolute; bottom: 0; right: 0;
+      width: 13px; height: 13px; border-radius: 50%;
+      background: #22c55e; border: 2.5px solid #fff;
+      box-shadow: 0 0 0 2px rgba(34,197,94,.25);
+    }
+
+    @media (max-width: 700px) {
+      .tnb-greet { display: none; }
+      .admin-info { display: none; }
+      .admin-chip { padding: 4px; border: none; background: none; box-shadow: none !important; }
+      .top-navbar { padding: 12px 16px; }
     }
 
     /* MAIN CARD */
@@ -314,6 +361,10 @@
         <i class="fa-solid fa-tags"></i>
         <span class="nav-label">ໝວດໝູ່ສິນຄ້າ</span>
       </a>
+      <a href="/admin-announcements" class="nav-item-custom {% if '/admin-announcements' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-bullhorn"></i>
+        <span class="nav-label">ແຈ້ງເຕືອນ/ໂປໂມຊັ່ນ</span>
+      </a>
       <a href="/view-feedback" class="nav-item-custom {% if '/view-feedback' in request.path %}active{% endif %}">
         <i class="fa-solid fa-comment-dots"></i>
         <span class="nav-label">ຄຳຕິຊົມ</span>
@@ -344,17 +395,29 @@
   <div id="main-wrapper">
 
     <nav class="top-navbar">
-      <button class="toggle-btn" onclick="toggleMenu()">
-        <i class="fa-solid fa-bars-staggered"></i>
-      </button>
-
-      <div class="d-flex align-items-center gap-3">
-        <div class="admin-info mr-3">
-          <div class="name">{{ user.username }}</div>
-          <div class="role">ຜູ້ດູແລລະບົບ</div>
+      <div class="tnb-left">
+        <button class="toggle-btn" onclick="toggleMenu()">
+          <i class="fa-solid fa-bars-staggered"></i>
+        </button>
+        <div class="tnb-greet">
+          {% now "H" as cur_hour %}
+          <div class="tnb-greet-hi">
+            {% if cur_hour < "12" %}☀️ ສະບາຍດີຕອນເຊົ້າ{% elif cur_hour < "18" %}🌤️ ສະບາຍດີຕອນສວາຍ{% else %}🌙 ສະບາຍດີຕອນແລງ{% endif %}
+          </div>
+          <div class="tnb-greet-sub">ຍິນດີຕ້ອນຮັບກັບຄືນ, {{ user.username }} 👋</div>
         </div>
-        <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ user.username }}&backgroundColor=b6e3f4"
-             class="admin-avatar" alt="admin">
+      </div>
+
+      <div class="admin-chip">
+        <div class="admin-info">
+          <div class="name">{{ user.username }}</div>
+          <div class="role"><i class="fa-solid fa-shield-halved"></i> ຜູ້ດູແລລະບົບ</div>
+        </div>
+        <div class="avatar-wrap">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ user.username }}&backgroundColor=b6e3f4"
+               class="admin-avatar" alt="admin">
+          <span class="avatar-dot" title="ອອນລາຍ"></span>
+        </div>
       </div>
     </nav>
 
@@ -398,6 +461,37 @@
     <div style="display:flex;gap:8px;">
       <a href="/view-feedback" style="flex:1;text-align:center;background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff;padding:10px;border-radius:12px;font-weight:700;text-decoration:none;font-size:0.85rem;">ເບີ່ງຄຳຕິຊົມ</a>
       <button onclick="closeFbNotif()" style="flex:1;background:#f5f3ff;border:1.5px solid rgba(124,58,237,.15);color:#64748b;padding:10px;border-radius:12px;cursor:pointer;font-size:0.85rem;font-family:'Lexend','Noto Sans Lao',sans-serif;font-weight:600;">ປິດ</button>
+    </div>
+  </div>
+
+  <!-- ═══════════ CUSTOM ORDER REQUEST NOTIFICATION POPUP ═══════════ -->
+  <div id="coNotif" style="
+    display:none; position:fixed; bottom:28px; left:28px; z-index:99999;
+    width:360px; max-width:calc(100vw - 40px);
+    background:#ffffff;
+    border:1.5px solid rgba(124,58,237,.18);
+    border-radius:22px; padding:20px 22px;
+    box-shadow:0 12px 48px rgba(124,58,237,.18), 0 2px 12px rgba(124,58,237,.08);
+    font-family:'Noto Sans Lao','Lexend',sans-serif;
+    animation:slideInLeft 0.45s cubic-bezier(0.23,1,0.32,1);">
+    <style>
+      @keyframes slideInLeft { from{opacity:0;transform:translateX(-60px)} to{opacity:1;transform:translateX(0)} }
+      #coNotif.pulse { animation:slideInLeft .45s cubic-bezier(.23,1,.32,1), fbPulse 1.4s ease .45s 3; }
+    </style>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+      <div style="width:44px;height:44px;border-radius:13px;background:rgba(124,58,237,.1);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">✍️</div>
+      <div style="flex:1;">
+        <div style="color:#7c3aed;font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;">ຄຳຂໍເມນູພິເສດໃໝ່!</div>
+        <div id="coNotifTitle" style="color:#2d1457;font-size:1rem;font-weight:700;margin-top:2px;"></div>
+      </div>
+      <button onclick="closeCoNotif()" style="background:#f5f3ff;border:1px solid rgba(124,58,237,.15);color:#64748b;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">✕</button>
+    </div>
+
+    <div id="coNotifList" style="display:grid;gap:8px;margin-bottom:14px;"></div>
+
+    <div style="display:flex;gap:8px;">
+      <a href="/admin-custom-orders" style="flex:1;text-align:center;background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff;padding:10px;border-radius:12px;font-weight:700;text-decoration:none;font-size:0.85rem;">ເບີ່ງຄຳຂໍ</a>
+      <button onclick="closeCoNotif()" style="flex:1;background:#f5f3ff;border:1.5px solid rgba(124,58,237,.15);color:#64748b;padding:10px;border-radius:12px;cursor:pointer;font-size:0.85rem;font-family:'Lexend','Noto Sans Lao',sans-serif;font-weight:600;">ປິດ</button>
     </div>
   </div>
 
@@ -494,6 +588,72 @@
     function closeFbNotif() {
       document.getElementById('fbNotif').style.display = 'none';
       clearTimeout(fbTimer);
+    }
+
+    /* ═══ Custom order request notification polling ═══ */
+    let coLastId = null;
+    let coTimer  = null;
+
+    fetch('/ajax-check-new-custom-orders?last_id=-1')
+      .then(r => r.json())
+      .then(d => {
+        coLastId = d.latest_id;
+        setInterval(pollCustomOrders, 20000);
+      })
+      .catch(() => {});
+
+    function pollCustomOrders() {
+      if (coLastId === null) return;
+      fetch(`/ajax-check-new-custom-orders?last_id=${coLastId}`)
+        .then(r => r.json())
+        .then(d => {
+          if (d.new_count > 0) {
+            coLastId = d.latest_id;
+            showCoNotif(d.new_count, d.items);
+          }
+        })
+        .catch(() => {});
+    }
+
+    function showCoNotif(count, items) {
+      document.getElementById('coNotifTitle').textContent =
+        count === 1 ? `1 ຄຳຂໍເມນູໃໝ່` : `${count} ຄຳຂໍເມນູໃໝ່`;
+
+      document.getElementById('coNotifList').innerHTML = items.map(f => `
+        <div style="background:#f5f3ff;border:1px solid rgba(124,58,237,.12);border-radius:12px;padding:10px 13px;display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#be185d);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.85rem;flex-shrink:0;">${f.name.charAt(0).toUpperCase()}</div>
+          <div style="min-width:0;">
+            <div style="color:#2d1457;font-weight:700;font-size:0.85rem;">${f.name}</div>
+            <div style="color:#64748b;font-size:0.78rem;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">"${f.preview}${f.preview.length >= 70 ? '...' : ''}"</div>
+          </div>
+        </div>`).join('');
+
+      const notif = document.getElementById('coNotif');
+      notif.style.display = 'block';
+      notif.className = 'pulse';
+
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [494, 622].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.frequency.value = freq;
+          osc.type = 'triangle';
+          gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.18);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.4);
+          osc.start(ctx.currentTime + i * 0.18);
+          osc.stop(ctx.currentTime + i * 0.18 + 0.4);
+        });
+      } catch(e) {}
+
+      clearTimeout(coTimer);
+      coTimer = setTimeout(closeCoNotif, 12000);
+    }
+
+    function closeCoNotif() {
+      document.getElementById('coNotif').style.display = 'none';
+      clearTimeout(coTimer);
     }
 
     /* ═══ New-order notification polling (fires on every admin page) ═══ */

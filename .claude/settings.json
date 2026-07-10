@@ -4,7 +4,9 @@
       "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; cd \"c:\\\\Users\\\\Touk4\\\\Downloads\\\\thipdavan\\\\thipdavan\"; python manage.py check 2>&1)",
       "PowerShell($env:PYTHONIOENCODING=\"utf-8\"; cd \"c:\\\\Users\\\\Touk4\\\\Downloads\\\\thipdavan\\\\thipdavan\"; python -c \"import django; print\\(django.__version__\\)\")",
       "Bash(python -c ' *)",
-      "Bash(python manage.py check)"
+      "Bash(python manage.py check)",
+      "Bash(python manage.py makemigrations ecom)",
+      "Bash(python manage.py migrate ecom)"
     ]
   }
 }

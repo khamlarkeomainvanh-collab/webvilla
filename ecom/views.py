@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import uuid
 import json
+import re
 from . import forms,models
 from django.http import HttpResponseRedirect,HttpResponse
 from django.core.mail import send_mail
@@ -39,6 +40,8 @@ def home_view(request):
         'categories': categories,
         'active_cat': cat_id,
         'product_count_in_cart': product_count_in_cart,
+        'closure_announcement': models.Announcement.objects.filter(kind='closed', is_active=True).order_by('-id').first(),
+        'promo_announcements': models.Announcement.objects.filter(kind='promo', is_active=True),
     })
 
 
@@ -473,6 +476,7 @@ def admin_finance_view(request):
     daily_profit = [round(daily_rev[i] - daily_exp[i], 2) for i in range(days_in_month)]
 
     # ── Expense filter params (default to sel_month/sel_year) ──
+    has_any_exp_param = any(k in request.GET for k in ('exp_day', 'exp_month', 'exp_year'))
     exp_month_param = request.GET.get('exp_month', str(sel_month))
     exp_year_param  = request.GET.get('exp_year',  str(sel_year))
     exp_day_param   = request.GET.get('exp_day', '')
@@ -491,6 +495,10 @@ def admin_finance_view(request):
             exp_day_filter = _dt.date.fromisoformat(exp_day_param)
         except (ValueError, TypeError):
             exp_day_filter = None
+    elif not has_any_exp_param:
+        # Fresh page load, no filter chosen yet — default to today (per-day view)
+        # instead of dumping the whole month on screen.
+        exp_day_filter = real_today
 
     if exp_day_filter:
         recent_expenses  = models.Expense.objects.filter(date=exp_day_filter).order_by('-id')
@@ -575,31 +583,63 @@ def admin_walkin_sale_view(request):
     from django.utils import timezone as _tz
 
     if request.method == 'POST':
-        try:
-            product  = models.Product.objects.get(id=request.POST.get('product'))
-            qty      = max(1, int(request.POST.get('quantity', 1) or 1))
-            price_raw = request.POST.get('unit_price', '').strip()
-            unit_price = int(price_raw) if price_raw else product.price
-            payment  = request.POST.get('payment_method', 'Cash')
-            note_in  = request.POST.get('note', '').strip()
-            note     = 'ຂາຍໜ້າຮ້ານ' + (f' — {note_in}' if note_in else '')
+        import json as _json
 
-            models.Orders.objects.create(
-                customer=None,
-                product=product,
-                quantity=qty,
-                amount=unit_price * qty,
-                status='Delivered',
-                order_group=str(uuid.uuid4()),
-                email='',
-                mobile='',
-                address='ໜ້າຮ້ານ',
-                delivery_type=WALKIN_DELIVERY_TYPE,
-                payment_method=payment,
-                note=note,
-            )
-        except (models.Product.DoesNotExist, ValueError, TypeError):
-            pass
+        payment  = request.POST.get('payment_method', 'Cash')
+        note_in  = request.POST.get('note', '').strip()
+        note     = 'ຂາຍໜ້າຮ້ານ' + (f' — {note_in}' if note_in else '')
+
+        try:
+            items = _json.loads(request.POST.get('items', '') or '[]')
+        except (ValueError, TypeError):
+            items = []
+
+        if items:
+            group_id = str(uuid.uuid4())
+            for it in items:
+                try:
+                    qty = max(1, int(it.get('quantity', 1) or 1))
+                except (ValueError, TypeError):
+                    continue
+
+                product = None
+                pid = it.get('product')
+                if pid:
+                    try:
+                        product = models.Product.objects.get(id=pid)
+                    except models.Product.DoesNotExist:
+                        product = None
+
+                price_raw = str(it.get('unit_price', '')).strip()
+                try:
+                    unit_price = int(price_raw) if price_raw else (product.price if product else 0)
+                except (ValueError, TypeError):
+                    continue
+
+                if product:
+                    item_note = note
+                else:
+                    # Off-menu item typed in by hand — no matching Product row, so the
+                    # typed name becomes the note (shown wherever product.name normally would be).
+                    custom_name = str(it.get('name', '')).strip()[:80]
+                    if not custom_name:
+                        continue
+                    item_note = custom_name + (f' ({note_in})' if note_in else '')
+
+                models.Orders.objects.create(
+                    customer=None,
+                    product=product,
+                    quantity=qty,
+                    amount=unit_price * qty,
+                    status='Delivered',
+                    order_group=group_id,
+                    email='',
+                    mobile='',
+                    address='ໜ້າຮ້ານ',
+                    delivery_type=WALKIN_DELIVERY_TYPE,
+                    payment_method=payment,
+                    note=item_note,
+                )
         return redirect('admin-walkin-sale')
 
     from datetime import datetime as _dtt, timedelta as _td, date as _dtdate
@@ -616,12 +656,19 @@ def admin_walkin_sale_view(request):
     sales = models.Orders.objects.filter(
         delivery_type=WALKIN_DELIVERY_TYPE, order_date__gte=day_start, order_date__lt=day_end
     ).select_related('product').order_by('-id')
-    total_today = sales.aggregate(t=Sum('amount'))['t'] or 0
+    sales_agg   = sales.aggregate(t=Sum('amount'), q=Sum('quantity'))
+    total_today = sales_agg['t'] or 0
+    qty_today   = sales_agg['q'] or 0
+    cash_today     = sales.filter(payment_method='Cash').aggregate(t=Sum('amount'))['t'] or 0
+    transfer_today = sales.filter(payment_method='Transfer').aggregate(t=Sum('amount'))['t'] or 0
 
     return render(request, 'ecom/admin_walkin_sale.html', {
-        'products':     models.Product.objects.all().order_by('name'),
-        'sales':        sales,
-        'total_today':  total_today,
+        'products':       models.Product.objects.all().order_by('name'),
+        'sales':          sales,
+        'total_today':    total_today,
+        'qty_today':      qty_today,
+        'cash_today':     cash_today,
+        'transfer_today': transfer_today,
         'today_local':  view_day,
         'is_today':     view_day == today_local,
         'view_day_str': view_day.strftime('%Y-%m-%d'),
@@ -637,7 +684,27 @@ def delete_walkin_sale_view(request, pk):
         models.Orders.objects.get(id=pk, delivery_type=WALKIN_DELIVERY_TYPE).delete()
     except models.Orders.DoesNotExist:
         pass
-    return redirect('admin-walkin-sale')
+    day_param = request.POST.get('day') or request.GET.get('day')
+    return redirect(f"/admin-walkin-sale?day={day_param}" if day_param else 'admin-walkin-sale')
+
+
+@login_required(login_url='adminlogin')
+def edit_walkin_sale_view(request, pk):
+    if request.method == 'POST':
+        try:
+            sale = models.Orders.objects.get(id=pk, delivery_type=WALKIN_DELIVERY_TYPE)
+            qty = max(1, int(request.POST.get('quantity', 1) or 1))
+            price_raw = re.sub(r'\D', '', request.POST.get('unit_price', ''))
+            unit_price = int(price_raw) if price_raw else 0
+            payment = request.POST.get('payment_method', sale.payment_method)
+            sale.quantity = qty
+            sale.amount = unit_price * qty
+            sale.payment_method = payment
+            sale.save(update_fields=['quantity', 'amount', 'payment_method'])
+        except (models.Orders.DoesNotExist, ValueError, TypeError):
+            pass
+    day_param = request.POST.get('day') or request.GET.get('day')
+    return redirect(f"/admin-walkin-sale?day={day_param}" if day_param else 'admin-walkin-sale')
 
 
 def _walkin_sales_for_period(request):
@@ -668,6 +735,7 @@ def export_walkin_excel_view(request):
     def hfont(size=12): return Font(name=LAO_FONT, bold=True, color="FFFFFF", size=size)
     def dfont(bold=False, size=11, color="000000"): return Font(name=LAO_FONT, bold=bold, size=size, color=color)
     center = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    date_al = Alignment(horizontal="center", vertical="center", wrap_text=False)
     left   = Alignment(horizontal="left",   vertical="center", wrap_text=True)
     right  = Alignment(horizontal="right",  vertical="center")
     thin   = Side(style="thin", color="CCCCCC")
@@ -703,7 +771,7 @@ def export_walkin_excel_view(request):
         odate = o.order_date.strftime('%d/%m/%Y %H:%M') if o.order_date else '—'
         for ci, (v, a) in enumerate(zip(
             [i+1, odate, o.product.name if o.product else '—', o.quantity, PAY_LAO.get(o.payment_method, o.payment_method), dotfmt(amt)],
-            [center, center, left, center, center, right]
+            [center, date_al, left, center, center, right]
         ), 1):
             cell = ws.cell(row=r, column=ci, value=v)
             cell.font = dfont(color="7C3AED" if ci == 6 else "374151", bold=(ci == 6))
@@ -720,7 +788,7 @@ def export_walkin_excel_view(request):
         cell.fill = fill("7C3AED") if ci == 6 else fill("1E3A5F")
         cell.alignment = a; cell.border = border
     ws.row_dimensions[tr].height = 28
-    for col, w in zip("ABCDEF", [8, 16, 26, 10, 12, 16]):
+    for col, w in zip("ABCDEF", [8, 19, 26, 10, 12, 16]):
         ws.column_dimensions[col].width = w
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -754,6 +822,7 @@ def walkin_invoice_view(request):
         'period_label': period_label,
         'invoice_no': invoice_no,
         'generated_at': _tz.localtime(),
+        'back_day': request.GET.get('date', ''),
     }
     return render(request, 'ecom/walkin_invoice.html', context)
 
@@ -893,6 +962,17 @@ def update_product_view(request,pk):
             productForm.save()
             return redirect('admin-products')
     return render(request,'ecom/admin_update_product.html',{'productForm':productForm})
+
+
+@login_required(login_url='adminlogin')
+def toggle_product_stock_view(request, pk):
+    try:
+        product = models.Product.objects.get(id=pk)
+    except models.Product.DoesNotExist:
+        return JsonResponse({'ok': False}, status=404)
+    product.is_available = not product.is_available
+    product.save(update_fields=['is_available'])
+    return JsonResponse({'ok': True, 'is_available': product.is_available})
 
 
 @login_required(login_url='adminlogin')
@@ -1036,6 +1116,56 @@ def ajax_check_new_feedback(request):
     items = [{'id': f.id, 'name': f.name, 'preview': f.feedback[:70]} for f in new_fb[:4]]
     return JsonResponse({
         'new_count': new_fb.count(),
+        'latest_id': latest.id if latest else last_id,
+        'items': items,
+    })
+
+
+# ── Custom order requests (admin) ──
+@login_required(login_url='adminlogin')
+def admin_custom_orders_view(request):
+    requests_qs = models.CustomOrderRequest.objects.all().select_related('customer', 'customer__user')
+    return render(request, 'ecom/admin_custom_orders.html', {'requests': requests_qs})
+
+
+@login_required(login_url='adminlogin')
+def delete_custom_order_view(request, pk):
+    models.CustomOrderRequest.objects.filter(id=pk).delete()
+    return redirect('admin-custom-orders')
+
+
+@login_required(login_url='adminlogin')
+def done_custom_order_view(request, pk):
+    try:
+        req = models.CustomOrderRequest.objects.get(id=pk)
+        req.is_done = not req.is_done
+        req.save(update_fields=['is_done'])
+    except models.CustomOrderRequest.DoesNotExist:
+        pass
+    return redirect('admin-custom-orders')
+
+
+# AJAX: check new (undone) custom order requests
+@login_required(login_url='adminlogin')
+def ajax_check_new_custom_orders(request):
+    try:
+        last_id = int(request.GET.get('last_id', -1))
+    except ValueError:
+        last_id = -1
+    if last_id == -1:
+        latest = models.CustomOrderRequest.objects.order_by('-id').first()
+        return JsonResponse({'init': True, 'latest_id': latest.id if latest else 0})
+    new_reqs = models.CustomOrderRequest.objects.filter(id__gt=last_id).order_by('-id')
+    latest = new_reqs.first()
+    items = []
+    for r in new_reqs[:4]:
+        try:
+            cname = r.customer.get_name if r.customer else 'ລູກຄ້າ'
+        except Exception:
+            cname = 'ລູກຄ້າ'
+        items.append({'id': r.id, 'name': cname, 'preview': r.message[:70]})
+    return JsonResponse({
+        'new_count': new_reqs.count(),
         'latest_id': latest.id if latest else last_id,
         'items': items,
     })
@@ -1283,6 +1413,9 @@ def cart_view(request):
         except Product.DoesNotExist:
             continue
 
+    custom_cart_items = request.session.get('custom_cart_items', [])
+    total += sum(c.get('unit_price', _SIZE_PRICES['M']) for c in custom_cart_items)
+
     # ຄິວຕໍ່ມື້ — ນັບສະເພາະ Pending orders ທີ່ຍັງຄ້າງຢູ່ + 1
     from datetime import date as _date, datetime as _dt
     from django.utils import timezone as _tz_cart
@@ -1296,10 +1429,12 @@ def cart_view(request):
     queue_number = pending_count + 1
 
     return render(request, 'ecom/cart.html', {
-        'products':         products_list,
-        'total':            total,
-        'queue_number':     queue_number,
-        'cart_total_items': sum(cart.values()),
+        'products':          products_list,
+        'total':             total,
+        'queue_number':      queue_number,
+        'custom_cart_items': custom_cart_items,
+        'cart_total_items':  sum(cart.values()) + len(custom_cart_items),
+        'closed_error':      _shop_closed_message() if not _is_shop_open() else None,
     })
 
 
@@ -1358,6 +1493,53 @@ def send_feedback_view(request):
     return render(request, 'ecom/send_feedback.html', {'feedbackForm':feedbackForm})
 
 
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def custom_order_request_view(request):
+    """Add a custom ("ສັ່ງເມນູຕາມໃຈ") request to the session cart — it then goes
+    through the exact same cart → address/checkout → payment-success flow as a
+    normal product, and only becomes a real Orders row once checkout completes."""
+    if request.method != 'POST':
+        return JsonResponse({'ok': False}, status=405)
+    message = request.POST.get('message', '').strip()
+    if not message:
+        return JsonResponse({'ok': False, 'error': 'ກະລຸນາພິມລາຍລະອຽດເມນູທີ່ຕ້ອງການ'})
+    message = message[:300]
+
+    # Same size/sweet/pearl/topping pricing as a real menu item — base price
+    # defaults to the M-size price (30,000) when no size is chosen.
+    size     = request.POST.get('size', 'M')
+    toppings = [t for t in request.POST.getlist('topping') if t]
+    cust = {
+        'size':        size,
+        'size_price':  _SIZE_PRICES.get(size, 0),
+        'sweet':       request.POST.get('sweet', ''),
+        'pearl':       request.POST.get('pearl', ''),
+        'topping':     toppings,
+        'topping_fee': _TOPPING_FEE * len(toppings),
+    }
+    unit_price = _cust_unit_price(_SIZE_PRICES['M'], cust)
+
+    custom_items = request.session.get('custom_cart_items', [])
+    custom_items.append({'id': str(uuid.uuid4()), 'message': message, 'cust': cust, 'unit_price': unit_price})
+    request.session['custom_cart_items'] = custom_items
+    request.session.modified = True
+
+    cart = request.session.get('cart', {})
+    cart_total_items = sum(cart.values()) + len(custom_items)
+    return JsonResponse({'ok': True, 'cart_total_items': cart_total_items, 'unit_price': unit_price})
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def remove_custom_cart_item_view(request, custom_id):
+    custom_items = request.session.get('custom_cart_items', [])
+    custom_items = [c for c in custom_items if c.get('id') != custom_id]
+    request.session['custom_cart_items'] = custom_items
+    request.session.modified = True
+    return redirect('cart')
+
+
 #---------------------------------------------------------------------------------
 #------------------------ CUSTOMER RELATED VIEWS START ------------------------------
 #---------------------------------------------------------------------------------
@@ -1380,6 +1562,8 @@ def customer_home_view(request):
         'categories': categories,
         'selected_cat': int(cat_id) if cat_id else None,
         'product_count_in_cart': product_count_in_cart,
+        'closure_announcement': models.Announcement.objects.filter(kind='closed', is_active=True).order_by('-id').first(),
+        'promo_announcements': models.Announcement.objects.filter(kind='promo', is_active=True),
     })
 
 
@@ -1387,11 +1571,26 @@ def customer_home_view(request):
 SHOP_CLOSED_MSG = 'ຂໍອະໄພ ຮ້ານຂອງເຮົາໄດ້ປິດແລ້ວ ເລີ່ມເປີດການຈອງຄິວໃໝ່ຂອງມື້ອື່ນໃນເວລາ 09:00 ຂໍຂອບໃຈ'
 
 
+def _active_manual_closure():
+    """The admin's manual 'ປິດຮ້ານ' override (from admin-announcements), if one is currently active."""
+    return models.Announcement.objects.filter(kind='closed', is_active=True).order_by('-id').first()
+
+
 def _is_shop_open():
     from django.utils import timezone as _tz
     from datetime import time as _time
+    if _active_manual_closure():
+        return False
     now_t = _tz.localtime().time()
     return _time(9, 0) <= now_t < _time(18, 0)
+
+
+def _shop_closed_message():
+    """The reason to show customers — the admin's custom message if manually closed, else the default hours message."""
+    manual = _active_manual_closure()
+    if manual and manual.message:
+        return manual.message
+    return SHOP_CLOSED_MSG
 
 
 # ── Queue-wait warning: shop can comfortably work on BATCH_CAPACITY cups at once
@@ -1439,8 +1638,9 @@ def _queue_warning_message(active_qty):
 def customer_address_view(request):
     # Check session cart (new system uses session, not cookies)
     cart = request.session.get('cart', {})
-    product_in_cart = len(cart) > 0
-    product_count_in_cart = sum(cart.values())
+    custom_cart_items = request.session.get('custom_cart_items', [])
+    product_in_cart = len(cart) > 0 or len(custom_cart_items) > 0
+    product_count_in_cart = sum(cart.values()) + len(custom_cart_items)
 
     from urllib.parse import unquote as _uq
     # Pre-fill from cookies (previous order) or customer profile
@@ -1458,10 +1658,7 @@ def customer_address_view(request):
         }
 
     addressForm = forms.AddressForm(initial=prefill)
-    closed_error = None
-
-    if request.method == 'POST' and not _is_shop_open():
-        closed_error = SHOP_CLOSED_MSG
+    closed_error = _shop_closed_message() if not _is_shop_open() else None
 
     if request.method == 'POST' and not closed_error:
         from django.http import HttpResponseRedirect
@@ -1517,12 +1714,15 @@ def customer_address_view(request):
             subtotal += item_total
             cart_items.append({'product': p, 'qty': qty, 'total': item_total, 'unit_price': unit_price, 'cust': cust})
 
+    subtotal += sum(c.get('unit_price', _SIZE_PRICES['M']) for c in custom_cart_items)
+
     return render(request, 'ecom/customer_address.html', {
         'addressForm': addressForm,
         'product_in_cart': product_in_cart,
         'product_count_in_cart': product_count_in_cart,
         'prefill': prefill,
         'cart_items': cart_items,
+        'custom_cart_items': custom_cart_items,
         'subtotal': subtotal,
         'closed_error': closed_error,
         'queue_warning': _queue_warning_message(_active_batch_qty()) if not closed_error else None,
@@ -1546,18 +1746,21 @@ def payment_success_view(request):
         return redirect('customerlogin')
 
     if not _is_shop_open():
-        return render(request, 'ecom/shop_closed.html', {'closed_error': SHOP_CLOSED_MSG, 'show_hours': True})
+        return render(request, 'ecom/shop_closed.html', {
+            'closed_error': _shop_closed_message(),
+            'show_hours': not _active_manual_closure(),
+        })
 
     cart = request.session.get('cart', {})
+    custom_cart_items = request.session.get('custom_cart_items', [])
     print(f"  cart: {cart}")
+    print(f"  custom_cart_items: {custom_cart_items}")
 
     group_id = None
     ordered_products = []
     grand_total = 0
 
-    if cart:
-        product_ids = cart.keys()
-        products_qs = models.Product.objects.filter(id__in=product_ids)
+    if cart or custom_cart_items:
         group_id = str(uuid.uuid4())
 
         try:
@@ -1565,6 +1768,16 @@ def payment_success_view(request):
             d_fee = float(request.COOKIES.get('delivery_fee', 0) or 0)
         except ValueError:
             d_km, d_fee = 0, 0
+
+        _order_email    = _uq(request.COOKIES.get('email', customer.user.email or ''))
+        _order_mobile   = _uq(request.COOKIES.get('mobile', customer.mobile or ''))
+        _order_address  = _uq(request.COOKIES.get('address', customer.address or ''))
+        _order_delivery = _uq(request.COOKIES.get('delivery_type', 'Delivery'))
+        _order_payment  = _uq(request.COOKIES.get('payment_method', 'COD'))
+
+    if cart:
+        product_ids = cart.keys()
+        products_qs = models.Product.objects.filter(id__in=product_ids)
 
         cart_customizations = request.session.get('cart_customizations', {})
         for product in products_qs:
@@ -1594,21 +1807,63 @@ def payment_success_view(request):
                     amount=total_amount,
                     status='Pending',
                     order_group=group_id,
-                    email=_uq(request.COOKIES.get('email', customer.user.email or '')),
-                    mobile=_uq(request.COOKIES.get('mobile', customer.mobile or '')),
-                    address=_uq(request.COOKIES.get('address', customer.address or '')),
-                    delivery_type=_uq(request.COOKIES.get('delivery_type', 'Delivery')),
+                    email=_order_email,
+                    mobile=_order_mobile,
+                    address=_order_address,
+                    delivery_type=_order_delivery,
                     delivery_km=d_km or None,
                     delivery_fee=d_fee or None,
-                    payment_method=_uq(request.COOKIES.get('payment_method', 'COD')),
+                    payment_method=_order_payment,
                     note=note_str,
                 )
                 print(f"  ✓ Created order for product {product.id}")
             except Exception as e:
                 print(f"  ✗ ERROR creating order for product {product.id}: {e}")
 
+    if custom_cart_items:
+        for c in custom_cart_items:
+            message    = c.get('message', '')[:300]
+            cust       = c.get('cust', {})
+            unit_price = c.get('unit_price', _SIZE_PRICES['M'])
+            grand_total += unit_price
+
+            note_parts = [message]
+            if cust.get('size'):    note_parts.append(f"ຂະໜາດ: {cust['size']}")
+            if cust.get('sweet'):   note_parts.append(f"ຫວານ: {cust['sweet']}")
+            if cust.get('pearl'):   note_parts.append(f"ໄຂ່ມຸກ: {cust['pearl']}")
+            if cust.get('topping'): note_parts.append(f"ທອັບ: {', '.join(cust['topping'])}")
+            note_str = ' | '.join(note_parts)
+
+            ordered_products.append({
+                'product': None, 'qty': 1, 'subtotal': unit_price, 'unit_price': unit_price,
+                'note': note_str, 'cust': cust, 'is_custom': True, 'custom_message': message,
+            })
+            try:
+                order = models.Orders.objects.create(
+                    customer=customer,
+                    product=None,
+                    quantity=1,
+                    amount=unit_price,
+                    status='Pending',
+                    order_group=group_id,
+                    email=_order_email,
+                    mobile=_order_mobile,
+                    address=_order_address,
+                    delivery_type=_order_delivery,
+                    delivery_km=d_km or None,
+                    delivery_fee=d_fee or None,
+                    payment_method=_order_payment,
+                    note=note_str,
+                )
+                models.CustomOrderRequest.objects.create(customer=customer, message=message, order_group=group_id)
+                print(f"  ✓ Created custom order {order.id}")
+            except Exception as e:
+                print(f"  ✗ ERROR creating custom order: {e}")
+
+    if cart or custom_cart_items:
         request.session['cart'] = {}
         request.session['cart_customizations'] = {}
+        request.session['custom_cart_items'] = []
         request.session.modified = True
 
     # ຄິວ = ຕຳແໜ່ງໃນ Pending orders ວັນນີ້ (ລວມ order ໃໝ່ທີ່ຫາກ່ຽວ place ໄປ)
@@ -1796,12 +2051,17 @@ def download_group_invoice_view(request, orderID):
     items = []
     subtotal_sum = 0
     for o in orders:
-        subtotal = o.amount or (o.product.price * (o.quantity or 1))
+        if o.amount:
+            subtotal = o.amount
+        elif o.product:
+            subtotal = o.product.price * (o.quantity or 1)
+        else:
+            subtotal = 0
         is_cancelled = (o.status == 'Cancelled')
         if not is_cancelled:
             subtotal_sum += subtotal
         items.append({
-            'name': o.product.name if o.product else '-',
+            'name': o.product.name if o.product else (o.note or 'ສັ່ງເມນູຕາມໃຈ'),
             'price': o.product.price if o.product else 0,
             'quantity': o.quantity or 1,
             'subtotal': subtotal,
@@ -2149,6 +2409,24 @@ def ajax_update_order_status(request, pk):
     return JsonResponse({'ok': False}, status=400)
 
 
+# ---- AJAX: admin quotes a price for a custom ("ສັ່ງເມນູຕາມໃຈ") order ----
+@login_required(login_url='adminlogin')
+def ajax_set_order_price(request, pk):
+    try:
+        order = models.Orders.objects.get(id=pk)
+    except models.Orders.DoesNotExist:
+        return JsonResponse({'ok': False}, status=404)
+    try:
+        amount = int(request.POST.get('amount', ''))
+    except (ValueError, TypeError):
+        return JsonResponse({'ok': False, 'error': 'ລາຄາບໍ່ຖືກຕ້ອງ'}, status=400)
+    if amount < 0:
+        return JsonResponse({'ok': False, 'error': 'ລາຄາບໍ່ຖືກຕ້ອງ'}, status=400)
+    order.amount = amount
+    order.save(update_fields=['amount'])
+    return JsonResponse({'ok': True, 'amount': amount})
+
+
 # ---- AJAX: Per-item statuses for customer tracking ----
 def ajax_item_statuses(request):
     ids_raw = request.GET.get('ids', '')
@@ -2313,6 +2591,50 @@ def admin_categories_view(request):
 def delete_category_view(request, pk):
     models.Category.objects.filter(id=pk).delete()
     return redirect('admin-categories')
+
+
+# ---- Announcements: manual "ปิดร้าน" override + "ໂປໂມຊັ່ນ" banners shown on the customer home page ----
+@login_required(login_url='adminlogin')
+def admin_announcements_view(request):
+    if request.method == 'POST':
+        kind    = request.POST.get('kind', 'promo')
+        title   = request.POST.get('title', '').strip()
+        message = request.POST.get('message', '').strip()
+        icon    = request.POST.get('icon', '').strip() or ('🚫' if kind == 'closed' else '📢')
+        if title:
+            if kind == 'closed':
+                # Only one manual closure can be active at a time.
+                models.Announcement.objects.filter(kind='closed', is_active=True).update(is_active=False)
+            models.Announcement.objects.create(kind=kind, title=title, message=message, icon=icon)
+        return redirect('admin-announcements')
+
+    closures = models.Announcement.objects.filter(kind='closed')
+    promos   = models.Announcement.objects.filter(kind='promo')
+    return render(request, 'ecom/admin_announcements.html', {
+        'closures': closures,
+        'promos': promos,
+        'active_closure': closures.filter(is_active=True).order_by('-id').first(),
+    })
+
+
+@login_required(login_url='adminlogin')
+def toggle_announcement_view(request, pk):
+    try:
+        ann = models.Announcement.objects.get(id=pk)
+    except models.Announcement.DoesNotExist:
+        return redirect('admin-announcements')
+    if not ann.is_active and ann.kind == 'closed':
+        # Turning a closure ON — switch off any other active closure first.
+        models.Announcement.objects.filter(kind='closed', is_active=True).update(is_active=False)
+    ann.is_active = not ann.is_active
+    ann.save(update_fields=['is_active'])
+    return redirect('admin-announcements')
+
+
+@login_required(login_url='adminlogin')
+def delete_announcement_view(request, pk):
+    models.Announcement.objects.filter(id=pk).delete()
+    return redirect('admin-announcements')
 
 
 # ---- Export Products Excel ----
@@ -3179,6 +3501,166 @@ def export_finance_excel(request):
         )
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         wb_s.save(response)
+        return response
+
+    # ═══════════════════════════════════════════════════════════════
+    # ALL-TIME, TYPE-SPECIFIC EXPORT — triggered by ?scope=all&type=revenue|expense|profit
+    # (unbounded — every record ever, no date filtering at all)
+    # ═══════════════════════════════════════════════════════════════
+    if sel_scope == 'all' and sel_type in ('revenue', 'expense', 'profit'):
+        def _dotfmt_all(n):
+            if n is None: return '—'
+            return f"{int(round(float(n))):,}".replace(',', '.') + ' ກີບ'
+
+        wb_a = openpyxl.Workbook()
+        ws = wb_a.active
+        ws.sheet_view.showGridLines = False
+
+        if sel_type == 'revenue':
+            orders = list(models.Orders.objects.all().select_related('product').order_by('order_date').values(
+                'id', 'order_date', 'product__name', 'quantity', 'amount', 'status'
+            ))
+            total = sum(float(o['amount'] or 0) for o in orders)
+            STATUS_LAO = {'Delivered':'ສຳເລັດ','Cancelled':'ຍົກເລີກ','Processing':'ກຳລັງຈັດ','Confirmed':'ຢືນຢັນ','Pending':'ລໍຖ້າ'}
+
+            ws.title = "ລາຍຮັບ ທັງໝົດ"[:31]
+            ws.merge_cells("A1:F1")
+            c = ws["A1"]; c.value = "ລາຍຮັບ — ທັງໝົດ (ທຸກໄລຍະເວລາ)"
+            c.font = _hfont(size=14); c.fill = _fill("1D4ED8"); c.alignment = _center
+            ws.row_dimensions[1].height = 36
+            ws.merge_cells("A2:F2")
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
+            ws.row_dimensions[2].height = 22
+            for ci, h in enumerate(["ລຳດັບ","ວັນທີ","ສິນຄ້າ","ຈຳນວນ","ລາຍຮັບ (ກີບ)","ສະຖານະ"], 1):
+                cell = ws.cell(row=3, column=ci, value=h)
+                cell.font = _hfont(size=11); cell.fill = _fill("1E3A5F"); cell.alignment = _center; cell.border = _border
+            ws.row_dimensions[3].height = 28
+            for i, o in enumerate(orders):
+                r = i + 4; rf = _fill("F8F7FF") if i % 2 == 0 else _fill("FFFFFF")
+                odate = o['order_date'].astimezone(_LAO_TZ).strftime('%d/%m/%Y') if o['order_date'] else '—'
+                for ci, (v, a) in enumerate(zip(
+                    [i + 1, odate, o['product__name'] or '—', o['quantity'], _dotfmt_all(o['amount']), STATUS_LAO.get(o['status'], o['status'] or '—')],
+                    [_center, _center, _left, _center, _right, _center]
+                ), 1):
+                    cell = ws.cell(row=r, column=ci, value=v)
+                    cell.font = _dfont(color="1D4ED8" if ci == 5 else "374151", bold=(ci == 5))
+                    cell.fill = rf; cell.alignment = a; cell.border = _border
+                ws.row_dimensions[r].height = 20
+            tr = len(orders) + 4
+            for ci, (v, a) in enumerate(zip(
+                ["", "", "", f"ລວມ {len(orders)} ລາຍການ", _dotfmt_all(total), ""],
+                [_center, _center, _center, _center, _right, _center]
+            ), 1):
+                cell = ws.cell(row=tr, column=ci, value=v)
+                cell.font = _hfont(size=12); cell.fill = _fill("1E3A5F"); cell.alignment = a; cell.border = _border
+            ws.row_dimensions[tr].height = 28
+            for col, w in zip("ABCDEF", [8, 14, 26, 10, 16, 14]):
+                ws.column_dimensions[col].width = w
+            filename = "VILLA_ລາຍຮັບ_ທັງໝົດ.xlsx"
+
+        elif sel_type == 'expense':
+            expenses = list(models.Expense.objects.all().order_by('date', 'id').values(
+                'id', 'date', 'category', 'description', 'amount'
+            ))
+            total = sum(float(e['amount'] or 0) for e in expenses)
+
+            ws.title = "ລາຍຈ່າຍ ທັງໝົດ"[:31]
+            ws.merge_cells("A1:E1")
+            c = ws["A1"]; c.value = "ລາຍຈ່າຍ — ທັງໝົດ (ທຸກໄລຍະເວລາ)"
+            c.font = _hfont(size=14); c.fill = _fill("B91C1C"); c.alignment = _center
+            ws.row_dimensions[1].height = 36
+            ws.merge_cells("A2:E2")
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
+            ws.row_dimensions[2].height = 22
+            for ci, h in enumerate(["ລຳດັບ","ວັນທີ","ໝວດໝູ່","ລາຍລະອຽດ","ຈຳນວນ (ກີບ)"], 1):
+                cell = ws.cell(row=3, column=ci, value=h)
+                cell.font = _hfont(size=11); cell.fill = _fill("1E3A5F"); cell.alignment = _center; cell.border = _border
+            ws.row_dimensions[3].height = 28
+            for i, e in enumerate(expenses):
+                r = i + 4; rf = _fill("F8F7FF") if i % 2 == 0 else _fill("FFFFFF")
+                for ci, (v, a) in enumerate(zip(
+                    [i + 1, e['date'].strftime('%d/%m/%Y') if e['date'] else '—', e['category'], e['description'] or '—', _dotfmt_all(e['amount'])],
+                    [_center, _center, _center, _left, _right]
+                ), 1):
+                    cell = ws.cell(row=r, column=ci, value=v)
+                    cell.font = _dfont(color="B91C1C" if ci == 5 else "374151", bold=(ci == 5))
+                    cell.fill = rf; cell.alignment = a; cell.border = _border
+                ws.row_dimensions[r].height = 20
+            tr = len(expenses) + 4
+            for ci, (v, a) in enumerate(zip(
+                ["", "", "", f"ລວມ {len(expenses)} ລາຍການ", _dotfmt_all(total)],
+                [_center, _center, _center, _center, _right]
+            ), 1):
+                cell = ws.cell(row=tr, column=ci, value=v)
+                cell.font = _hfont(size=12); cell.fill = _fill("1E3A5F"); cell.alignment = a; cell.border = _border
+            ws.row_dimensions[tr].height = 28
+            for col, w in zip("ABCDE", [8, 14, 18, 32, 16]):
+                ws.column_dimensions[col].width = w
+            filename = "VILLA_ລາຍຈ່າຍ_ທັງໝົດ.xlsx"
+
+        else:  # profit — year-by-year summary across every year that has any data
+            from django.db.models import Min as _Min, Max as _Max
+            order_bounds = models.Orders.objects.aggregate(mn=_Min('order_date'), mx=_Max('order_date'))
+            exp_bounds    = models.Expense.objects.aggregate(mn=_Min('date'), mx=_Max('date'))
+            years = set()
+            if order_bounds['mn']: years.update(range(order_bounds['mn'].astimezone(_LAO_TZ).year, order_bounds['mx'].astimezone(_LAO_TZ).year + 1))
+            if exp_bounds['mn']:   years.update(range(exp_bounds['mn'].year, exp_bounds['mx'].year + 1))
+            years = sorted(years) or [today.year]
+
+            ws.title = "ກຳໄລ ທັງໝົດ"[:31]
+            ws.merge_cells("A1:D1")
+            c = ws["A1"]; c.value = "ຜົນກຳໄລ — ທັງໝົດ (ທຸກປີ)"
+            c.font = _hfont(size=14); c.fill = _fill("065F46"); c.alignment = _center
+            ws.row_dimensions[1].height = 36
+            ws.merge_cells("A2:D2")
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
+            ws.row_dimensions[2].height = 22
+            for ci, (h, fc) in enumerate(zip(["ປີ","ລາຍຮັບ (ກີບ)","ລາຍຈ່າຍ (ກີບ)","ກຳໄລ (ກີບ)"], ["1E3A5F","1D4ED8","B91C1C","065F46"]), 1):
+                cell = ws.cell(row=3, column=ci, value=h)
+                cell.font = _hfont(size=11); cell.fill = _fill(fc); cell.alignment = _center; cell.border = _border
+            ws.row_dimensions[3].height = 28
+
+            total_r = total_e = total_p = 0.0
+            for i, yr in enumerate(years):
+                y_start = _dt.datetime(yr, 1, 1, tzinfo=_LAO_TZ)
+                y_end   = _dt.datetime(yr, 12, 31, 23, 59, 59, tzinfo=_LAO_TZ)
+                r = float(models.Orders.objects.filter(order_date__gte=y_start, order_date__lte=y_end).aggregate(t=_Sum('amount'))['t'] or 0)
+                e = float(models.Expense.objects.filter(date__gte=_dt.date(yr, 1, 1), date__lte=_dt.date(yr, 12, 31)).aggregate(t=_Sum('amount'))['t'] or 0)
+                p = r - e
+                total_r += r; total_e += e; total_p += p
+                row = i + 4; rf = _fill("F8F7FF") if i % 2 == 0 else _fill("FFFFFF")
+                pcolor = "065F46" if p >= 0 else "B91C1C"
+                for ci, (v, a) in enumerate(zip(
+                    [str(yr), _dotfmt_all(r) if r else '—', _dotfmt_all(e) if e else '—', (('+' if p >= 0 else '') + _dotfmt_all(p)) if (r or e) else '—'],
+                    [_left, _right, _right, _right]
+                ), 1):
+                    cell = ws.cell(row=row, column=ci, value=v)
+                    cell.font = _dfont(color=pcolor if ci == 4 else "374151", bold=(ci == 4))
+                    cell.fill = rf; cell.alignment = a; cell.border = _border
+                ws.row_dimensions[row].height = 22
+            tr = len(years) + 4
+            total_pcolor = "065F46" if total_p >= 0 else "B91C1C"
+            for ci, (v, a) in enumerate(zip(
+                ["ລວມທັງໝົດ", _dotfmt_all(total_r), _dotfmt_all(total_e), ('+' if total_p >= 0 else '') + _dotfmt_all(total_p)],
+                [_left, _right, _right, _right]
+            ), 1):
+                cell = ws.cell(row=tr, column=ci, value=v)
+                cell.font = _hfont(size=12, color=total_pcolor if ci == 4 else "FFFFFF")
+                cell.fill = _fill(total_pcolor) if ci == 4 else _fill("1E3A5F")
+                cell.alignment = a; cell.border = _border
+            ws.row_dimensions[tr].height = 28
+            for col, w in zip("ABCD", [14, 18, 18, 18]):
+                ws.column_dimensions[col].width = w
+            filename = "VILLA_ກຳໄລ_ທັງໝົດ.xlsx"
+
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        wb_a.save(response)
         return response
 
     wb = openpyxl.Workbook()

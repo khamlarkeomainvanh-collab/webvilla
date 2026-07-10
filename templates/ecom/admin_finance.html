@@ -16,19 +16,61 @@
     display:flex; align-items:center; gap:14px; margin-bottom:32px;
 }
 
-/* ── Year selector ── */
-.year-bar {
-    display:flex; align-items:center; gap:14px; margin-bottom:32px; flex-wrap:wrap;
+/* ── Page header ── */
+.fin-head { display:flex; align-items:center; gap:16px; margin-bottom:26px; }
+.fin-head .ico {
+    width:52px; height:52px; border-radius:16px; flex-shrink:0;
+    background:var(--grad); color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; box-shadow:0 8px 22px rgba(124,58,237,.3);
 }
-.year-bar label { font-weight:700; color:#64748b; font-size:1rem; }
-.year-select {
-    padding:11px 20px; border-radius:14px;
-    border:1.5px solid rgba(124,58,237,.2);
-    background:var(--lav); color:#2d1457; font-weight:700;
-    font-family:'Lexend','Noto Sans Lao',sans-serif;
-    font-size:1.05rem; cursor:pointer; outline:none;
+.fin-head h1 { font-size:1.7rem; font-weight:900; color:#2d1457; margin:0; }
+.fin-head p  { font-size:.88rem; color:#94a3b8; margin-top:4px; }
+
+/* ── Toolbar (date + export) ── */
+.fin-toolbar {
+    background:#fff; border-radius:22px; padding:20px 24px; border:1.5px solid rgba(124,58,237,.12);
+    box-shadow:0 4px 18px rgba(124,58,237,.06); margin-bottom:22px;
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
 }
-.year-select:focus { border-color:var(--purple); }
+.fin-toolbar .ft-label { font-weight:800; color:#64748b; font-size:.92rem; white-space:nowrap; display:flex; align-items:center; gap:7px; }
+.fin-toolbar .ft-date {
+    padding:10px 16px; border-radius:13px; border:1.5px solid rgba(124,58,237,.2);
+    background:var(--lav); color:#2d1457; font-weight:700; font-family:'Lexend','Noto Sans Lao',sans-serif;
+    font-size:.95rem; cursor:pointer; outline:none; min-width:165px;
+}
+.fin-toolbar .ft-date:focus { border-color:var(--purple); }
+.fin-toolbar .ft-info { color:#94a3b8; font-size:.84rem; font-weight:700; }
+.fin-toolbar .ft-today {
+    padding:9px 18px; border-radius:50px; background:var(--grad); color:#fff; text-decoration:none;
+    font-weight:800; font-size:.85rem; box-shadow:0 4px 14px rgba(124,58,237,.3); white-space:nowrap;
+}
+.fin-toolbar .ft-exports { margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+/* ── Export ທັງໝົດ dropdown ── */
+.fin-all-dd { position:relative; }
+.fin-all-dd-menu {
+    display:none; position:absolute; top:calc(100% + 8px); right:0; z-index:60;
+    background:#fff; border:1.5px solid rgba(124,58,237,.15); border-radius:14px;
+    box-shadow:0 16px 40px rgba(124,58,237,.2); padding:8px; min-width:190px;
+}
+.fin-all-dd.open .fin-all-dd-menu { display:block; }
+.fin-all-dd-menu button {
+    display:flex; align-items:center; gap:10px; width:100%; padding:10px 12px; border-radius:10px;
+    border:none; background:transparent; color:#2d1457; font-weight:700; font-size:.85rem;
+    cursor:pointer; text-align:left; font-family:'Lexend','Noto Sans Lao',sans-serif;
+}
+.fin-all-dd-menu button:hover { background:#f5f3ff; }
+
+/* ── Time-scope tabs ── */
+.fin-tabs { display:flex; gap:8px; margin-bottom:20px; background:#f8f7ff; padding:6px; border-radius:16px; width:fit-content; max-width:100%; overflow-x:auto; }
+.fin-tab {
+    padding:10px 22px; border-radius:12px; border:none; background:transparent; color:#7c3aed;
+    font-weight:800; font-size:.92rem; cursor:pointer; font-family:'Lexend','Noto Sans Lao',sans-serif;
+    display:flex; align-items:center; gap:8px; transition:.2s; white-space:nowrap;
+}
+.fin-tab:hover { background:rgba(124,58,237,.08); }
+.fin-tab.active { background:#fff; color:#2d1457; box-shadow:0 4px 14px rgba(124,58,237,.16); }
+@media(max-width:700px) { .fin-tabs { width:100%; } .fin-tab { flex:1; justify-content:center; padding:10px 8px; font-size:.8rem; } }
 
 /* ── Summary cards ── */
 .fin-cards {
@@ -47,7 +89,11 @@
     width:110px; height:110px; border-radius:50%;
     background:var(--card-accent,rgba(124,58,237,.07));
 }
-.fin-card-icon { font-size:2.2rem; margin-bottom:14px; }
+.fin-card-icon {
+    width:54px; height:54px; border-radius:16px; margin-bottom:16px;
+    display:flex; align-items:center; justify-content:center; font-size:1.7rem;
+    background:var(--card-accent,rgba(124,58,237,.08)); position:relative; z-index:1;
+}
 .fin-card-lbl { font-size:0.9rem; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:.6px; margin-bottom:6px; }
 .fin-card-val { font-size:2.1rem; font-weight:800; line-height:1.1; color:#2d1457; }
 .fin-card-sub { font-size:0.92rem; color:#64748b; margin-top:6px; }
@@ -65,16 +111,6 @@
 }
 .sec-head i { color:var(--purple); }
 
-/* ── Summary section group ── */
-.sum-section { margin-bottom:36px; }
-.sum-section-head {
-    display:flex; align-items:center; gap:14px;
-    padding:16px 24px; border-radius:20px;
-    margin-bottom:18px; font-size:1.3rem; font-weight:800;
-}
-.sum-income  { background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(124,58,237,.08)); color:#1d4ed8; border:1.5px solid rgba(59,130,246,.2); }
-.sum-profit  { background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(5,150,105,.08)); color:#065f46; border:1.5px solid rgba(16,185,129,.2); }
-.sum-expense { background:linear-gradient(135deg,rgba(239,68,68,.09),rgba(190,24,93,.07));  color:#991b1b; border:1.5px solid rgba(239,68,68,.2); }
 
 /* ── Expense form card ── */
 .exp-form-card {
@@ -96,21 +132,6 @@
     background:linear-gradient(135deg,#7c3aed,#be185d);
     display:flex; align-items:center; justify-content:center;
     color:#fff; font-size:1.2rem;
-}
-
-/* quick category pills */
-.cat-pills { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:22px; }
-.cat-pill {
-    padding:10px 18px; border-radius:50px; border:1.5px solid rgba(124,58,237,.18);
-    background:#f8f7ff; color:#7c3aed; font-size:.96rem; font-weight:700;
-    cursor:pointer; transition:.2s; user-select:none; white-space:nowrap;
-    font-family:'Lexend','Noto Sans Lao',sans-serif;
-}
-.cat-pill:hover, .cat-pill.active {
-    background:linear-gradient(135deg,#7c3aed,#be185d);
-    color:#fff; border-color:transparent;
-    box-shadow:0 4px 12px rgba(124,58,237,.3);
-    transform:translateY(-1px);
 }
 
 .exp-form-row {
@@ -346,21 +367,6 @@
 .profit-pos { color:var(--green); font-weight:800; }
 .profit-neg { color:var(--red);   font-weight:800; }
 
-/* ── Today profit summary bar ── */
-.today-profit-bar {
-    background:#fff; border-radius:24px; padding:24px 30px;
-    border:1.5px solid rgba(124,58,237,.11);
-    box-shadow:0 4px 18px rgba(124,58,237,.07);
-    display:flex; align-items:center; gap:28px; flex-wrap:wrap;
-    margin-bottom:32px;
-}
-.tpb-item { display:flex; flex-direction:column; gap:4px; }
-.tpb-lbl { font-size:0.88rem; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
-.tpb-val { font-size:1.75rem; font-weight:800; }
-.tpb-sep { width:1.5px; height:60px; background:rgba(124,58,237,.1); }
-
-/* ── Tooltip (hover popup) ── */
-.fin-card { cursor:default; }
 /* ── Detail Modals ── */
 .fin-modal-overlay {
     display:none; position:fixed; inset:0; z-index:9998;
@@ -409,39 +415,6 @@
 .modal-empty { text-align:center; padding:48px 20px; color:#94a3b8; }
 .modal-empty i { font-size:2.8rem; display:block; margin-bottom:12px; opacity:.25; }
 
-.tip-wrap { position:relative; }
-.tip-popup {
-    display:none;
-    position:absolute; z-index:9999;
-    bottom:calc(100% + 12px); left:50%;
-    transform:translateX(-50%);
-    background:#1e1b4b;
-    color:#e0e7ff;
-    border-radius:18px;
-    padding:16px 22px;
-    min-width:250px;
-    max-width:320px;
-    box-shadow:0 16px 48px rgba(0,0,0,.35);
-    font-size:0.95rem;
-    font-weight:600;
-    line-height:1.9;
-    white-space:nowrap;
-    pointer-events:none;
-}
-.tip-popup::after {
-    content:'';
-    position:absolute; top:100%; left:50%;
-    transform:translateX(-50%);
-    border:8px solid transparent;
-    border-top-color:#1e1b4b;
-}
-.tip-wrap:hover .tip-popup { display:block; animation:tipIn .18s ease; }
-@keyframes tipIn { from{opacity:0;transform:translateX(-50%) translateY(6px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
-.tip-row { display:flex; justify-content:space-between; gap:24px; border-bottom:1px solid rgba(255,255,255,.1); padding:5px 0; }
-.tip-row:last-child { border-bottom:none; }
-.tip-key { color:#a5b4fc; }
-.tip-val { color:#fff; font-weight:800; }
-.tip-head { font-size:.9rem; font-weight:800; color:#c4b5fd; letter-spacing:.5px; text-transform:uppercase; margin-bottom:8px; }
 
 /* ── PRINT: only the expense table, on one clean high-contrast page ── */
 @media print {
@@ -490,188 +463,77 @@
 }
 </style>
 
-<div class="fin-title">
-    <i class="fas fa-chart-line" style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.3rem;"></i>
-    ສະຫຼຸບລາຍຮັບ-ລາຍຈ່າຍ VILLA
+<div class="fin-head">
+    <div class="ico"><i class="fas fa-chart-line"></i></div>
+    <div>
+        <h1>ສະຫຼຸບລາຍຮັບ-ລາຍຈ່າຍ VILLA</h1>
+        <p>ພາບລວມທຸລະກິດ ແບບເບິ່ງງ່າຍ — ຕໍ່ມື້ · ຕໍ່ເດືອນ · ຕໍ່ປີ</p>
+    </div>
 </div>
 
-<!-- Date / Month / Year selector -->
-<div style="background:#f8f7ff;border-radius:20px;padding:18px 24px;border:1.5px solid rgba(124,58,237,.12);margin-bottom:32px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-    <label style="font-weight:700;color:#64748b;font-size:1rem;white-space:nowrap;">
-        <i class="fas fa-calendar-alt" style="color:#7c3aed;"></i> ເລືອກວັນທີ:
-    </label>
+<!-- Date / Export toolbar -->
+<div class="fin-toolbar">
+    <span class="ft-label"><i class="fas fa-calendar-alt" style="color:#7c3aed;"></i> ເລືອກວັນທີ:</span>
     <input type="date" id="mainDatePicker" value="{{ sel_date_str }}" max="{{ today_str }}"
-           class="year-select" style="min-width:170px;cursor:pointer;"
-           onchange="goDate(this.value)">
-    <span style="color:#94a3b8;font-size:0.88rem;font-weight:600;">
+           class="ft-date" onchange="goDate(this.value)">
+    <span class="ft-info">
         {% if is_sel_today %}✅ ວັນນີ້{% else %}📅 {{ sel_date_str }}{% endif %}
         &nbsp;·&nbsp; ເດືອນ {{ sel_month }} &nbsp;·&nbsp; ປີ {{ sel_year }}
     </span>
     {% if not is_sel_today %}
-    <a href="?sel_date={{ today_str }}&exp_day={{ today_str }}"
-       style="padding:9px 20px;border-radius:50px;background:linear-gradient(135deg,#7c3aed,#be185d);
-              color:#fff;text-decoration:none;font-weight:800;font-size:.9rem;
-              box-shadow:0 4px 14px rgba(124,58,237,.3);white-space:nowrap;">
-        ↩ ກັບມື້ນີ້
-    </a>
+    <a href="?sel_date={{ today_str }}{% if exp_day_filter %}&exp_day={{ exp_day_filter }}{% else %}&exp_month={{ exp_month_filter }}&exp_year={{ exp_year_filter }}{% endif %}" class="ft-today">↩ ກັບມື້ນີ້</a>
     {% endif %}
-    <!-- Export all 3 buttons -->
-    <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
-        <button onclick="doExport('revenue')" class="exp-btn-export" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
+    <div class="ft-exports">
+        <button onclick="doExport('revenue')" class="exp-btn-export" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);" title="Export ຕາມແທັບທີ່ເລືອກຢູ່ (ມື້/ເດືອນ/ປີ)">
             <i class="fas fa-file-excel"></i> Export ລາຍຮັບ
         </button>
-        <button onclick="doExport('expense')" class="exp-btn-export" style="background:linear-gradient(135deg,#ef4444,#b91c1c);">
+        <button onclick="doExport('expense')" class="exp-btn-export" style="background:linear-gradient(135deg,#ef4444,#b91c1c);" title="Export ຕາມແທັບທີ່ເລືອກຢູ່ (ມື້/ເດືອນ/ປີ)">
             <i class="fas fa-file-excel"></i> Export ລາຍຈ່າຍ
         </button>
-        <button onclick="doExport('profit')" class="exp-btn-export" style="background:linear-gradient(135deg,#10b981,#059669);">
+        <button onclick="doExport('profit')" class="exp-btn-export" style="background:linear-gradient(135deg,#10b981,#059669);" title="Export ຕາມແທັບທີ່ເລືອກຢູ່ (ມື້/ເດືອນ/ປີ)">
             <i class="fas fa-file-excel"></i> Export ກຳໄລ
         </button>
+        <div class="fin-all-dd" id="finAllDd">
+            <button type="button" class="exp-btn-export" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);" onclick="finToggleAllDd(event)">
+                <i class="fas fa-layer-group"></i> Export ທັງໝົດ <i class="fas fa-chevron-down" style="font-size:.65rem;margin-left:2px;"></i>
+            </button>
+            <div class="fin-all-dd-menu">
+                <button type="button" onclick="doExportAll('revenue')"><i class="fas fa-box" style="color:#3b82f6;"></i> ລາຍຮັບ ທັງໝົດ</button>
+                <button type="button" onclick="doExportAll('expense')"><i class="fas fa-cart-shopping" style="color:#ef4444;"></i> ລາຍຈ່າຍ ທັງໝົດ</button>
+                <button type="button" onclick="doExportAll('profit')"><i class="fas fa-coins" style="color:#10b981;"></i> ກຳໄລ ທັງໝົດ</button>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- ── Quick Summary Bar ── -->
-<div class="today-profit-bar">
-
-    <div class="tpb-item tip-wrap" onclick="openModal('revenue')" style="cursor:pointer;" title="ກົດເພື່ອເບິ່ງລາຍລະອຽດ">
-        <span class="tpb-lbl">📦 ລາຍຮັບ{% if is_sel_today %}ວັນນີ້{% else %} {{ sel_date_str }}{% endif %}</span>
-        <span class="tpb-val" style="color:#3b82f6;">{{ today_revenue|dotformat }} ກີບ</span>
-        <span style="font-size:.75rem;color:#94a3b8;">{{ today_count }} ອໍເດີ · <u>ກົດເບິ່ງ</u></span>
-        <div class="tip-popup">
-            <div class="tip-head">📦 ລາຍຮັບ</div>
-            <div class="tip-row"><span class="tip-key">ລາຍຮັບ</span><span class="tip-val">{{ today_revenue|dotformat }} ກີບ</span></div>
-            <div class="tip-row"><span class="tip-key">ຈຳນວນອໍເດີ</span><span class="tip-val">{{ today_count }} ລາຍການ</span></div>
-        </div>
-    </div>
-
-    <div class="tpb-sep"></div>
-
-    <div class="tpb-item tip-wrap" onclick="openModal('expense')" style="cursor:pointer;" title="ກົດເພື່ອເບິ່ງລາຍລະອຽດ">
-        <span class="tpb-lbl">🛒 ລາຍຈ່າຍ{% if is_sel_today %}ວັນນີ້{% else %} {{ sel_date_str }}{% endif %}</span>
-        <span class="tpb-val" style="color:#ef4444;">{{ today_expense|dotformat }} ກີບ</span>
-        <span style="font-size:.75rem;color:#94a3b8;">{{ today_exp_list|length }} ລາຍການ · <u>ກົດເບິ່ງ</u></span>
-        <div class="tip-popup">
-            <div class="tip-head">🛒 ລາຍຈ່າຍ</div>
-            {% for exp in today_exp_list %}
-            <div class="tip-row"><span class="tip-key">{{ exp.category }}</span><span class="tip-val">{{ exp.amount|dotformat }} ກີບ</span></div>
-            {% empty %}
-            <div class="tip-row"><span class="tip-key">ຍັງບໍ່ມີລາຍຈ່າຍ</span><span class="tip-val">—</span></div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <div class="tpb-sep"></div>
-
-    <div class="tpb-item tip-wrap" onclick="openModal('profit')" style="cursor:pointer;" title="ກົດເພື່ອເບິ່ງລາຍລະອຽດ">
-        <span class="tpb-lbl">💰 ກຳໄລ{% if is_sel_today %}ວັນນີ້{% else %} {{ sel_date_str }}{% endif %}</span>
-        <span class="tpb-val {% if today_profit >= 0 %}profit-pos{% else %}profit-neg{% endif %}">
-            {% if today_profit >= 0 %}+{% endif %}{{ today_profit|dotformat }} ກີບ
-        </span>
-        <span style="font-size:.75rem;color:#94a3b8;"><u>ກົດເບິ່ງ</u></span>
-        <div class="tip-popup">
-            <div class="tip-head">💰 ກຳໄລ</div>
-            <div class="tip-row"><span class="tip-key">ລາຍຮັບ</span><span class="tip-val">{{ today_revenue|dotformat }} ກີບ</span></div>
-            <div class="tip-row"><span class="tip-key">ລາຍຈ່າຍ</span><span class="tip-val">{{ today_expense|dotformat }} ກີບ</span></div>
-            <div class="tip-row" style="border-top:1px solid rgba(255,255,255,.2);margin-top:4px;">
-                <span class="tip-key">ກຳໄລ</span>
-                <span class="tip-val" style="color:{% if today_profit >= 0 %}#86efac{% else %}#fca5a5{% endif %};">
-                    {% if today_profit >= 0 %}+{% endif %}{{ today_profit|dotformat }} ກີບ
-                </span>
-            </div>
-        </div>
-    </div>
-
-    <div class="tpb-sep"></div>
-
-    <div class="tpb-item tip-wrap">
-        <span class="tpb-lbl">📅 ກຳໄລເດືອນ {{ sel_month }}/{{ sel_year }}</span>
-        <span class="tpb-val {% if month_profit >= 0 %}profit-pos{% else %}profit-neg{% endif %}">
-            {% if month_profit >= 0 %}+{% endif %}{{ month_profit|dotformat }} ກີບ
-        </span>
-        <div class="tip-popup">
-            <div class="tip-head">📅 ສະຫຼຸບເດືອນ {{ sel_month }}/{{ sel_year }}</div>
-            <div class="tip-row"><span class="tip-key">ລາຍຮັບ</span><span class="tip-val">{{ month_revenue|dotformat }} ກີບ</span></div>
-            <div class="tip-row"><span class="tip-key">ອໍເດີ</span><span class="tip-val">{{ month_count }} ລາຍການ</span></div>
-            <div class="tip-row"><span class="tip-key">ລາຍຈ່າຍ</span><span class="tip-val">{{ month_expense|dotformat }} ກີບ</span></div>
-            <div class="tip-row" style="border-top:1px solid rgba(255,255,255,.2);margin-top:4px;">
-                <span class="tip-key">ກຳໄລ</span>
-                <span class="tip-val" style="color:{% if month_profit >= 0 %}#86efac{% else %}#fca5a5{% endif %};">
-                    {% if month_profit >= 0 %}+{% endif %}{{ month_profit|dotformat }} ກີບ
-                </span>
-            </div>
-        </div>
-    </div>
-
-    <div class="tpb-sep"></div>
-
-    <div class="tpb-item tip-wrap">
-        <span class="tpb-lbl">🏆 ກຳໄລປີ {{ sel_year }}</span>
-        <span class="tpb-val {% if year_profit >= 0 %}profit-pos{% else %}profit-neg{% endif %}">
-            {% if year_profit >= 0 %}+{% endif %}{{ year_profit|dotformat }} ກີບ
-        </span>
-        <div class="tip-popup">
-            <div class="tip-head">🏆 ສະຫຼຸບປີ {{ sel_year }}</div>
-            <div class="tip-row"><span class="tip-key">ລາຍຮັບ</span><span class="tip-val">{{ year_revenue|dotformat }} ກີບ</span></div>
-            <div class="tip-row"><span class="tip-key">ອໍເດີ</span><span class="tip-val">{{ year_count }} ລາຍການ</span></div>
-            <div class="tip-row"><span class="tip-key">ລາຍຈ່າຍ</span><span class="tip-val">{{ year_expense|dotformat }} ກີບ</span></div>
-            <div class="tip-row" style="border-top:1px solid rgba(255,255,255,.2);margin-top:4px;">
-                <span class="tip-key">ກຳໄລ</span>
-                <span class="tip-val" style="color:{% if year_profit >= 0 %}#86efac{% else %}#fca5a5{% endif %};">
-                    {% if year_profit >= 0 %}+{% endif %}{{ year_profit|dotformat }} ກີບ
-                </span>
-            </div>
-        </div>
-    </div>
-
+<!-- Time-scope tabs — pick a scope, see revenue/profit/expense for it -->
+<div class="fin-tabs">
+    <button type="button" class="fin-tab active" data-fintab="day" onclick="finSwitchTab('day')">
+        <i class="fas fa-calendar-day"></i> {% if is_sel_today %}ມື້ນີ້{% else %}{{ sel_date_str }}{% endif %}
+    </button>
+    <button type="button" class="fin-tab" data-fintab="month" onclick="finSwitchTab('month')">
+        <i class="fas fa-calendar-week"></i> ເດືອນ {{ sel_month }}/{{ sel_year }}
+    </button>
+    <button type="button" class="fin-tab" data-fintab="year" onclick="finSwitchTab('year')">
+        <i class="fas fa-calendar"></i> ປີ {{ sel_year }}
+    </button>
 </div>
 
-<!-- ══════════════════════════════════════
-     ສ່ວນທີ 1: ລາຍຮັບ
-═══════════════════════════════════════ -->
-<div class="sum-section">
-    <div class="sum-section-head sum-income">
-        <i class="fas fa-arrow-trend-up"></i> ລາຍຮັບ
-    </div>
+<!-- ═══ DAY ═══ -->
+<div class="fin-tab-panel" data-finpanel="day">
     <div class="fin-cards">
 
-        <div class="fin-card tip-wrap" style="--card-accent:rgba(59,130,246,.08);cursor:pointer;" onclick="openModal('revenue')">
+        <div class="fin-card" style="--card-accent:rgba(59,130,246,.08);cursor:pointer;" onclick="openModal('revenue')">
             <div class="fin-card-icon">📦</div>
-            <div class="fin-card-lbl">ລາຍຮັບ ຕໍ່ມື້ ({{ sel_date_str }})</div>
+            <div class="fin-card-lbl">ລາຍຮັບ</div>
             <div class="fin-card-val" style="color:#3b82f6;">{{ today_revenue|dotformat }}</div>
             <div class="fin-card-sub">ກີບ · {{ today_count }} ອໍເດີ · <u>ກົດເບິ່ງ</u></div>
             <span class="fin-card-badge" style="background:rgba(59,130,246,.1);color:#3b82f6;">{% if is_sel_today %}ວັນນີ້{% else %}{{ sel_date_str }}{% endif %}</span>
         </div>
 
-        <div class="fin-card tip-wrap" style="--card-accent:rgba(124,58,237,.08);cursor:pointer;" onclick="openModal('month_revenue')">
-            <div class="fin-card-icon">📅</div>
-            <div class="fin-card-lbl">ລາຍຮັບ ຕໍ່ເດືອນ {{ sel_month }}/{{ sel_year }}</div>
-            <div class="fin-card-val" style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">{{ month_revenue|dotformat }}</div>
-            <div class="fin-card-sub">ກີບ · {{ month_count }} ອໍເດີ · <u>ກົດເບິ່ງ</u></div>
-            <span class="fin-card-badge" style="background:rgba(124,58,237,.1);color:#7c3aed;">ເດືອນ {{ sel_month }}/{{ sel_year }}</span>
-        </div>
-
-        <div class="fin-card tip-wrap" style="--card-accent:rgba(190,24,93,.08);cursor:pointer;" onclick="openModal('year_revenue')">
-            <div class="fin-card-icon">🏆</div>
-            <div class="fin-card-lbl">ລາຍຮັບ ຕໍ່ປີ {{ sel_year }}</div>
-            <div class="fin-card-val" style="color:#be185d;">{{ year_revenue|dotformat }}</div>
-            <div class="fin-card-sub">ກີບ · {{ year_count }} ອໍເດີ · <u>ກົດເບິ່ງ</u></div>
-            <span class="fin-card-badge" style="background:rgba(190,24,93,.1);color:#be185d;">ປີ {{ sel_year }}</span>
-        </div>
-
-    </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     ສ່ວນທີ 2: ຜົນກຳໄລ
-═══════════════════════════════════════ -->
-<div class="sum-section">
-    <div class="sum-section-head sum-profit">
-        <i class="fas fa-coins"></i> ຜົນກຳໄລ
-    </div>
-    <div class="fin-cards">
-
-        <div class="fin-card tip-wrap" style="--card-accent:rgba(16,185,129,.08);cursor:pointer;" onclick="openModal('profit')">
+        <div class="fin-card" style="--card-accent:rgba(16,185,129,.08);cursor:pointer;" onclick="openModal('profit')">
             <div class="fin-card-icon">💰</div>
-            <div class="fin-card-lbl">ກຳໄລ ຕໍ່ມື້ ({{ sel_date_str }})</div>
+            <div class="fin-card-lbl">ຜົນກຳໄລ</div>
             <div class="fin-card-val {% if today_profit >= 0 %}profit-pos{% else %}profit-neg{% endif %}">
                 {% if today_profit >= 0 %}+{% endif %}{{ today_profit|dotformat }}
             </div>
@@ -679,9 +541,32 @@
             <span class="fin-card-badge" style="background:rgba(16,185,129,.1);color:#10b981;">{% if is_sel_today %}ວັນນີ້{% else %}{{ sel_date_str }}{% endif %} · <u>ກົດເບິ່ງ</u></span>
         </div>
 
-        <div class="fin-card tip-wrap" style="--card-accent:rgba(16,185,129,.08);cursor:pointer;" onclick="openModal('month_profit')">
+        <div class="fin-card" style="--card-accent:rgba(239,68,68,.08);cursor:pointer;" onclick="openModal('expense')">
+            <div class="fin-card-icon">🛒</div>
+            <div class="fin-card-lbl">ລາຍຈ່າຍ</div>
+            <div class="fin-card-val" style="color:#ef4444;">{{ today_expense|dotformat }}</div>
+            <div class="fin-card-sub">ກີບ · {{ today_exp_list|length }} ລາຍການ · <u>ກົດເບິ່ງ</u></div>
+            <span class="fin-card-badge" style="background:rgba(239,68,68,.1);color:#ef4444;">{% if is_sel_today %}ວັນນີ້{% else %}{{ sel_date_str }}{% endif %}</span>
+        </div>
+
+    </div>
+</div>
+
+<!-- ═══ MONTH ═══ -->
+<div class="fin-tab-panel" data-finpanel="month" style="display:none;">
+    <div class="fin-cards">
+
+        <div class="fin-card" style="--card-accent:rgba(124,58,237,.08);cursor:pointer;" onclick="openModal('month_revenue')">
+            <div class="fin-card-icon">📅</div>
+            <div class="fin-card-lbl">ລາຍຮັບ</div>
+            <div class="fin-card-val" style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">{{ month_revenue|dotformat }}</div>
+            <div class="fin-card-sub">ກີບ · {{ month_count }} ອໍເດີ · <u>ກົດເບິ່ງ</u></div>
+            <span class="fin-card-badge" style="background:rgba(124,58,237,.1);color:#7c3aed;">ເດືອນ {{ sel_month }}/{{ sel_year }}</span>
+        </div>
+
+        <div class="fin-card" style="--card-accent:rgba(16,185,129,.08);cursor:pointer;" onclick="openModal('month_profit')">
             <div class="fin-card-icon">📈</div>
-            <div class="fin-card-lbl">ກຳໄລ ຕໍ່ເດືອນ {{ sel_month }}/{{ sel_year }}</div>
+            <div class="fin-card-lbl">ຜົນກຳໄລ</div>
             <div class="fin-card-val {% if month_profit >= 0 %}profit-pos{% else %}profit-neg{% endif %}">
                 {% if month_profit >= 0 %}+{% endif %}{{ month_profit|dotformat }}
             </div>
@@ -689,9 +574,32 @@
             <span class="fin-card-badge" style="background:rgba(16,185,129,.1);color:#10b981;">ເດືອນ {{ sel_month }}/{{ sel_year }}</span>
         </div>
 
-        <div class="fin-card tip-wrap" style="--card-accent:rgba(16,185,129,.08);cursor:pointer;" onclick="openModal('year_profit')">
+        <div class="fin-card" style="--card-accent:rgba(239,68,68,.08);cursor:pointer;" onclick="openModal('month_expense')">
+            <div class="fin-card-icon">📋</div>
+            <div class="fin-card-lbl">ລາຍຈ່າຍ</div>
+            <div class="fin-card-val" style="color:#ef4444;">{{ month_expense|dotformat }}</div>
+            <div class="fin-card-sub">ກີບ · ລາຍຈ່າຍເດືອນ {{ sel_month }} · <u>ກົດເບິ່ງ</u></div>
+            <span class="fin-card-badge" style="background:rgba(239,68,68,.1);color:#ef4444;">ເດືອນ {{ sel_month }}/{{ sel_year }}</span>
+        </div>
+
+    </div>
+</div>
+
+<!-- ═══ YEAR ═══ -->
+<div class="fin-tab-panel" data-finpanel="year" style="display:none;">
+    <div class="fin-cards">
+
+        <div class="fin-card" style="--card-accent:rgba(190,24,93,.08);cursor:pointer;" onclick="openModal('year_revenue')">
+            <div class="fin-card-icon">🏆</div>
+            <div class="fin-card-lbl">ລາຍຮັບ</div>
+            <div class="fin-card-val" style="color:#be185d;">{{ year_revenue|dotformat }}</div>
+            <div class="fin-card-sub">ກີບ · {{ year_count }} ອໍເດີ · <u>ກົດເບິ່ງ</u></div>
+            <span class="fin-card-badge" style="background:rgba(190,24,93,.1);color:#be185d;">ປີ {{ sel_year }}</span>
+        </div>
+
+        <div class="fin-card" style="--card-accent:rgba(16,185,129,.08);cursor:pointer;" onclick="openModal('year_profit')">
             <div class="fin-card-icon">🏅</div>
-            <div class="fin-card-lbl">ກຳໄລ ຕໍ່ປີ {{ sel_year }}</div>
+            <div class="fin-card-lbl">ຜົນກຳໄລ</div>
             <div class="fin-card-val {% if year_profit >= 0 %}profit-pos{% else %}profit-neg{% endif %}">
                 {% if year_profit >= 0 %}+{% endif %}{{ year_profit|dotformat }}
             </div>
@@ -699,37 +607,9 @@
             <span class="fin-card-badge" style="background:rgba(16,185,129,.1);color:#10b981;">ປີ {{ sel_year }}</span>
         </div>
 
-    </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     ສ່ວນທີ 3: ລາຍຈ່າຍ
-═══════════════════════════════════════ -->
-<div class="sum-section">
-    <div class="sum-section-head sum-expense">
-        <i class="fas fa-cart-shopping"></i> ລາຍຈ່າຍ
-    </div>
-    <div class="fin-cards">
-
-        <div class="fin-card tip-wrap" style="--card-accent:rgba(239,68,68,.08);cursor:pointer;" onclick="openModal('expense')">
-            <div class="fin-card-icon">🛒</div>
-            <div class="fin-card-lbl">ລາຍຈ່າຍ ຕໍ່ມື້ ({{ sel_date_str }})</div>
-            <div class="fin-card-val" style="color:#ef4444;">{{ today_expense|dotformat }}</div>
-            <div class="fin-card-sub">ກີບ · {{ today_exp_list|length }} ລາຍການ · <u>ກົດເບິ່ງ</u></div>
-            <span class="fin-card-badge" style="background:rgba(239,68,68,.1);color:#ef4444;">{% if is_sel_today %}ວັນນີ້{% else %}{{ sel_date_str }}{% endif %}</span>
-        </div>
-
-        <div class="fin-card tip-wrap" style="--card-accent:rgba(239,68,68,.08);cursor:pointer;" onclick="openModal('month_expense')">
-            <div class="fin-card-icon">📋</div>
-            <div class="fin-card-lbl">ລາຍຈ່າຍ ຕໍ່ເດືອນ {{ sel_month }}/{{ sel_year }}</div>
-            <div class="fin-card-val" style="color:#ef4444;">{{ month_expense|dotformat }}</div>
-            <div class="fin-card-sub">ກີບ · ລາຍຈ່າຍເດືອນ {{ sel_month }} · <u>ກົດເບິ່ງ</u></div>
-            <span class="fin-card-badge" style="background:rgba(239,68,68,.1);color:#ef4444;">ເດືອນ {{ sel_month }}/{{ sel_year }}</span>
-        </div>
-
-        <div class="fin-card tip-wrap" style="--card-accent:rgba(239,68,68,.08);cursor:pointer;" onclick="openModal('year_expense')">
+        <div class="fin-card" style="--card-accent:rgba(239,68,68,.08);cursor:pointer;" onclick="openModal('year_expense')">
             <div class="fin-card-icon">🗓️</div>
-            <div class="fin-card-lbl">ລາຍຈ່າຍ ຕໍ່ປີ {{ sel_year }}</div>
+            <div class="fin-card-lbl">ລາຍຈ່າຍ</div>
             <div class="fin-card-val" style="color:#ef4444;">{{ year_expense|dotformat }}</div>
             <div class="fin-card-sub">ກີບ · ລາຍຈ່າຍທັງໝົດປີ {{ sel_year }} · <u>ກົດເບິ່ງ</u></div>
             <span class="fin-card-badge" style="background:rgba(239,68,68,.1);color:#ef4444;">ປີ {{ sel_year }}</span>
@@ -766,24 +646,26 @@
                 <input type="date" name="date" id="expDate" class="exp-input"
                        value="{{ today|date:'Y-m-d' }}" required>
             </div>
-            <!-- Category (hidden select synced to pills) -->
+            <!-- Category — searchable, and free text for anything not in the list -->
             <div>
                 <label class="exp-label">🏷️ ໝວດໝູ່</label>
-                <select name="category" id="expCat" class="exp-input exp-select" required
-                        onchange="syncPills(this.value)">
-                    <option value="ຈອກ">🥤 ຈອກ</option>
-                    <option value="ທໍ່ດູດ">🧋 ທໍ່ດູດ</option>
-                    <option value="ໝາກໄມ້ສົດ" selected>🍓 ໝາກໄມ້ສົດ</option>
-                    <option value="ນ້ຳກ້ອນ">🧊 ນ້ຳກ້ອນ</option>
-                    <option value="ນົມ">🥛 ນົມ</option>
-                    <option value="ນ້ຳຕານ">🍬 ນ້ຳຕານ</option>
-                    <option value="ຖົງ/ບັນຈຸ">🛍️ ຖົງ/ບັນຈຸ</option>
-                    <option value="ຜັກ/ສ່ວນປຸ່ງ">🥦 ຜັກ/ສ່ວນປຸ່ງ</option>
-                    <option value="ນ້ຳ/ວັດຖຸດິບ">💧 ນ້ຳ/ວັດຖຸດິບ</option>
-                    <option value="ອຸປະກອນຮ້ານ">🔧 ອຸປະກອນຮ້ານ</option>
-                    <option value="ຄ່າໄຟ/ນ້ຳ">💡 ຄ່າໄຟ/ນ້ຳ</option>
-                    <option value="ອື່ນໆ">📝 ອື່ນໆ</option>
-                </select>
+                <input type="text" name="category" id="expCat" class="exp-input exp-select"
+                       list="expCatDatalist" autocomplete="off" required
+                       placeholder="ເລືອກ ຫຼື ພິມໝວດໝູ່ໃໝ່..." value="ໝາກໄມ້ສົດ">
+                <datalist id="expCatDatalist">
+                    <option value="ຈອກ">
+                    <option value="ທໍ່ດູດ">
+                    <option value="ໝາກໄມ້ສົດ">
+                    <option value="ນ້ຳກ້ອນ">
+                    <option value="ນົມ">
+                    <option value="ນ້ຳຕານ">
+                    <option value="ຖົງ/ບັນຈຸ">
+                    <option value="ຜັກ/ສ່ວນປຸ່ງ">
+                    <option value="ນ້ຳ/ວັດຖຸດິບ">
+                    <option value="ອຸປະກອນຮ້ານ">
+                    <option value="ຄ່າໄຟ/ນ້ຳ">
+                    <option value="ອື່ນໆ">
+                </datalist>
             </div>
             <!-- Description -->
             <div>
@@ -795,9 +677,9 @@
             <div>
                 <label class="exp-label">💰 ຈຳນວນເງິນ</label>
                 <div class="exp-amount-wrap">
-                    <input type="number" name="amount" id="expAmount" class="exp-input"
-                           placeholder="0" min="0" style="padding-right:52px;" required
-                           oninput="fmtPreview(this.value)">
+                    <input type="text" inputmode="numeric" name="amount" id="expAmount" class="exp-input"
+                           placeholder="0" style="padding-right:52px;" required
+                           oninput="fmtAmountInput(this)">
                     <span class="kip-tag">ກີບ</span>
                 </div>
                 <div class="amt-preview-box">
@@ -823,7 +705,7 @@
             ລາຍຈ່າຍ
             <span class="exp-filter-chip">{{ exp_filter_label }}</span>
             {% if exp_day_filter %}
-            <a href="?exp_month={{ exp_month_filter }}&exp_year={{ exp_year_filter }}&sel_date={{ exp_year_filter }}-{{ exp_month_filter|stringformat:'02d' }}-01" class="exp-clear-chip" title="ກັບໄປເບິ່ງທັງເດືອນ">
+            <a href="?exp_month={{ exp_month_filter }}&exp_year={{ exp_year_filter }}&sel_date={{ sel_date_str }}" class="exp-clear-chip" title="ກັບໄປເບິ່ງທັງເດືອນ">
                 <i class="fas fa-xmark"></i> ລ້າງມື້ທີ່ເລືອກ
             </a>
             {% endif %}
@@ -970,20 +852,20 @@ function dotFmt(n){
     return Math.round(n).toLocaleString('en-US').replace(/,/g,'.');
 }
 
-/* ── Expense form helpers ── */
-function pickCat(val){
-    const sel = document.getElementById('expCat');
-    if(sel){ sel.value = val; }
-    syncPills(val);
-    const amt = document.getElementById('expAmount');
-    if(amt) amt.focus();
+/* Amount field: type="text" so a typed "." is never mistaken for a decimal point
+   (an <input type="number"> silently truncates "30.000" down to 30). We reformat
+   with dots as thousand separators as the user types, then strip them again right
+   before the form submits so the server still receives a clean digit string. */
+function fmtAmountInput(el){
+    const raw = el.value.replace(/\D/g, '');
+    el.value = raw ? Number(raw).toLocaleString('en-US').replace(/,/g, '.') : '';
+    fmtPreview(raw);
 }
-function syncPills(val){
-    document.querySelectorAll('.cat-pill').forEach(p => {
-        const txt = p.textContent.trim();
-        p.classList.toggle('active', txt.includes(val));
-    });
-}
+document.getElementById('expForm').addEventListener('submit', function(){
+    const amtEl = document.getElementById('expAmount');
+    if(amtEl) amtEl.value = amtEl.value.replace(/\D/g, '');
+});
+
 function fmtPreview(raw){
     const el    = document.getElementById('amtPreview');
     const valEl = document.getElementById('amtPreviewVal');
@@ -1011,11 +893,6 @@ function fmtPreview(raw){
     else if(el) el.textContent = '0';
 })();
 
-/* ── Sync pill on page load ── */
-(function(){
-    const sel = document.getElementById('expCat');
-    if(sel) syncPills(sel.value);
-})();
 
 /* ── Export expense Excel with selected month/year ── */
 function doExpExport(){
@@ -1053,34 +930,71 @@ function openExpenseInvoice(){
     window.open('/expense-invoice?year=' + y.value + '&month=' + m.value, '_blank');
 }
 
+/* ── Time-scope tabs (day / month / year) — purely a client-side view switch,
+   all three panels are already rendered server-side. Also drives which scope
+   the top Export buttons use — see doExport() below. ── */
+let finActiveTab = 'day';
+function finSwitchTab(tab){
+    finActiveTab = tab;
+    document.querySelectorAll('.fin-tab').forEach(function(b){
+        b.classList.toggle('active', b.dataset.fintab === tab);
+    });
+    document.querySelectorAll('.fin-tab-panel').forEach(function(p){
+        p.style.display = (p.dataset.finpanel === tab) ? '' : 'none';
+    });
+}
+
 /* ── Date picker navigation ──
    Keep the top day picker (sel_date) and the bottom expense filter
    (exp_day / exp_month / exp_year) always pointed at the same date,
    so every card, modal, list and export on this page agrees. */
+/* The top summary (sel_date) and the "ບັນທຶກລາຍຈ່າຍ" expense table (exp_day/
+   exp_month/exp_year) are two independent sections — changing the date in one
+   must never drag the other along. goDate() only ever touches sel_date, and
+   keeps whatever exp_day/exp_month/exp_year params are already in the URL
+   untouched so the expense table stays exactly where the admin left it. */
 function goDate(val){
     if(!val) return;
-    window.location.href = '?sel_date=' + val + '&exp_day=' + val;
+    const params = new URLSearchParams(window.location.search);
+    params.set('sel_date', val);
+    window.location.href = '?' + params.toString();
 }
 function syncDayAndSubmit(val){
-    const hidden = document.getElementById('hiddenSelDate');
-    if(hidden && val) hidden.value = val;
     document.getElementById('expFilterForm').submit();
 }
 function syncMonthYearAndSubmit(){
     document.getElementById('expDaySel').value = '';
-    const m = document.getElementById('expMonthSel').value.padStart(2, '0');
-    const y = document.getElementById('expYearSel').value;
-    const hidden = document.getElementById('hiddenSelDate');
-    if(hidden) hidden.value = y + '-' + m + '-01';
     document.getElementById('expFilterForm').submit();
 }
 
-/* ── Export by type (ສະເພາະວັນທີ່ເລືອກ) ── */
+/* ── Export by type — scope follows whichever tab (day/month/year) is active ── */
 function doExport(type){
-    const datePicker = document.getElementById('mainDatePicker');
-    const dateVal = datePicker ? datePicker.value : '{{ sel_date_str }}';
-    window.location.href = '/export-finance-excel?date=' + dateVal + '&type=' + type;
+    let url;
+    if (finActiveTab === 'month') {
+        url = `/export-finance-excel?year=${SEL_YEAR}&month=${SEL_MONTH}&scope=month&type=${type}`;
+    } else if (finActiveTab === 'year') {
+        url = `/export-finance-excel?year=${SEL_YEAR}&scope=year&type=${type}`;
+    } else {
+        const datePicker = document.getElementById('mainDatePicker');
+        const dateVal = datePicker ? datePicker.value : '{{ sel_date_str }}';
+        url = '/export-finance-excel?date=' + dateVal + '&type=' + type;
+    }
+    window.location.href = url;
 }
+
+/* ── Export all-time (every record ever, no date filter) ── */
+function doExportAll(type){
+    document.getElementById('finAllDd').classList.remove('open');
+    window.location.href = '/export-finance-excel?scope=all&type=' + type;
+}
+function finToggleAllDd(e){
+    e.stopPropagation();
+    document.getElementById('finAllDd').classList.toggle('open');
+}
+document.addEventListener('click', function(){
+    const dd = document.getElementById('finAllDd');
+    if (dd) dd.classList.remove('open');
+});
 
 /* ── Daily chart modal ── */
 function openDailyModal(monthNum){

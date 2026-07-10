@@ -28,6 +28,7 @@ class Product(models.Model):
     product_image= models.ImageField(upload_to='product_image/',null=True,blank=True)
     price = models.PositiveIntegerField()
     description=models.CharField(max_length=40)
+    is_available = models.BooleanField(default=True)
     def __str__(self):
         return self.name
 
@@ -69,6 +70,41 @@ class Feedback(models.Model):
         return self.name
 
 
+ANNOUNCEMENT_KIND_CHOICES = (
+    ('closed', 'ປິດຮ້ານ'),
+    ('promo',  'ໂປໂມຊັ່ນ'),
+)
+
+
+class Announcement(models.Model):
+    kind       = models.CharField(max_length=10, choices=ANNOUNCEMENT_KIND_CHOICES, default='promo')
+    title      = models.CharField(max_length=100)
+    message    = models.CharField(max_length=300, blank=True, default='')
+    icon       = models.CharField(max_length=10, blank=True, default='📢')
+    is_active  = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-id']
+
+    def __str__(self):
+        return f'[{self.kind}] {self.title}'
+
+
+class CustomOrderRequest(models.Model):
+    customer    = models.ForeignKey('Customer', on_delete=models.CASCADE, null=True)
+    message     = models.CharField(max_length=300)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    is_done     = models.BooleanField(default=False)
+    order_group = models.CharField(max_length=36, null=True, blank=True)
+
+    class Meta:
+        ordering = ['-id']
+
+    def __str__(self):
+        return self.message[:40]
+
+
 EXPENSE_CATEGORY_CHOICES = (
     ('ຈອກ',          'ຈອກ'),
     ('ທໍ່ດູດ',        'ທໍ່ດູດ'),
@@ -87,7 +123,9 @@ EXPENSE_CATEGORY_CHOICES = (
 
 class Expense(models.Model):
     date        = models.DateField()
-    category    = models.CharField(max_length=30, choices=EXPENSE_CATEGORY_CHOICES, default='ອື່ນໆ')
+    # Free text — EXPENSE_CATEGORY_CHOICES above still seeds the quick-pick list in the
+    # admin UI, but the field itself accepts any category name the admin types in.
+    category    = models.CharField(max_length=30, default='ອື່ນໆ')
     description = models.CharField(max_length=200, blank=True, default='')
     amount      = models.PositiveIntegerField()
 

@@ -19,7 +19,7 @@ class CustomerForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model=models.Product
-        fields=['category','name','price','description','product_image']
+        fields=['category','name','price','description','product_image','is_available']
 
 #address of shipment
 # ແກ້ໄຂບ່ອນນີ້ໃນໄຟລ໌ forms.py
@@ -68,7 +68,7 @@ class ExpenseForm(forms.ModelForm):
         }
         widgets = {
             'date':        forms.DateInput(attrs={'type': 'date'}),
-            'category':    forms.Select(),
+            'category':    forms.TextInput(attrs={'placeholder': 'ໝວດໝູ່'}),
             'description': forms.TextInput(attrs={'placeholder': 'ລາຍລະອຽດ (ຖ້າມີ)'}),
             'amount':      forms.NumberInput(attrs={'placeholder': '0', 'min': '0'}),
         }

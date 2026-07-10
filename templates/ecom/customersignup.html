@@ -307,9 +307,9 @@
         <div class="form-panel" id="step2">
 
             <div class="scan-header">
-                <div class="scan-icon"><i class="fas fa-face-smile"></i></div>
-                <h3>ສະເເກນໃບໜ້າຢືນຢັນຕົວຕົນ</h3>
-                <p>ຍິ້ມ ຫຼື ພະຍັກຫົວເລັກນ້ອຍຕອນສະແກນ ເພື່ອພິສູດວ່າເປັນຄົນຈິງ — ຫ້າມໃຊ້ຮູບຈາກ gallery</p>
+                <div class="scan-icon" id="scanIcon"><i class="fas fa-face-smile"></i></div>
+                <h3 id="scanTitle">ສະເເກນໃບໜ້າຢືນຢັນຕົວຕົນ</h3>
+                <p id="scanSub">ຍິ້ມ ຫຼື ພະຍັກຫົວເລັກນ້ອຍຕອນສະແກນ ເພື່ອພິສູດວ່າເປັນຄົນຈິງ — ຫ້າມໃຊ້ຮູບຈາກ gallery</p>
             </div>
 
             <!-- CAMERA SECTION -->
@@ -347,7 +347,7 @@
                     <i class="fas fa-upload"></i> ເລືອກຮູບ
                 </label>
                 <input type="file" name="profile_pic" id="profilePicInput" accept="image/*" style="display:none;">
-                <div class="pic-note">📌 ຖ້າບໍ່ເລືອກ ລະບົບຈະໃຊ້ຮູບໜ້າສົດທີ່ຖ່າຍໄວ້</div>
+                <div class="pic-note">📌 ຖ້າບໍ່ເລືອກ ຈະບໍ່ມີຮູບໂປຟາຍ (ເພີ່ມພາຍຫຼັງໄດ້)</div>
             </div>
 
             <div class="step-nav">
@@ -391,7 +391,6 @@ let modelsFailed  = false;
 
 let stream        = null;
 let photoApproved = false;
-let selfieBlob    = null;
 
 const video       = document.getElementById('videoEl');
 const canvas      = document.getElementById('photoCanvas');
@@ -563,21 +562,19 @@ btnRetry.addEventListener('click', async () => {
     await openCameraAndScan();
 });
 
-/* ── CONFIRM PHOTO (motion + face check both passed) ── */
+/* ── CONFIRM PHOTO (motion + face check both passed) ──
+   The selfie is used ONLY to prove liveness — it is never used as the
+   profile picture, whether or not the customer picks one of their own. */
 function confirmPhoto() {
-    /* save selfie as default profile pic */
-    canvas.toBlob(blob => {
-        selfieBlob = blob;
-        if (!picInput.files.length) {
-            const dt = new DataTransfer();
-            dt.items.add(new File([blob], 'selfie.jpg', { type: 'image/jpeg' }));
-            picInput.files = dt.files;
-        }
-    }, 'image/jpeg', 0.88);
-
     showFace('ok','✅ ສະແກນໃບໜ້າສຳເລັດ · ພິສູດວ່າເປັນຄົນຈິງແລ້ວ 🎉');
     photoApproved = true;
     btnSubmit.disabled = false;
+
+    /* the scan is done — hide the camera section and show a verified badge instead */
+    document.querySelector('.camera-wrap').style.display = 'none';
+    document.getElementById('scanIcon').innerHTML = '<i class="fas fa-circle-check"></i>';
+    document.getElementById('scanTitle').textContent = 'ຢືນຢັນຕົວຕົນສຳເລັດແລ້ວ ✅';
+    document.getElementById('scanSub').textContent = 'ພິສູດແລ້ວວ່າເປັນຄົນຈິງ — ຕໍ່ໄປເລືອກຮູບໂປຟາຍໄດ້ເລີຍ (ຖ້າຕ້ອງການ)';
 
     /* show profile pic upload section */
     picWrap.classList.add('show');

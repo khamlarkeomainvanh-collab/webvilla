@@ -3,4 +3,5 @@ def cart_count(request):
     cart = request.session.get('cart', {})
     # ບວກຈຳນວນ (Value) ທັງໝົດໃນກະຕ່າ
     total = sum(int(qty) for qty in cart.values())
+    total += len(request.session.get('custom_cart_items', []))
     return {'cart_total_items': total}
