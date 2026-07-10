@@ -124,6 +124,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Lets customers log in with the phone number they signed up with, in addition
+# to their auto-generated username (see ecom/auth_backends.py).
+AUTHENTICATION_BACKENDS = [
+    'ecom.auth_backends.MobileOrUsernameBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
