@@ -625,21 +625,69 @@ body {
                 {% endfor %}
 
                 {% for c in custom_cart_items %}
-                <div class="sum-item" style="align-items:center; gap:12px;">
-                    <div class="si-img" style="background:linear-gradient(135deg,#a855f7,#ec4899);">
-                        <span class="si-ph" style="color:#fff;">✍️</span>
-                    </div>
-                    <div class="si-info" style="flex:1;">
-                        <div class="si-name">{{ c.message }}</div>
-                        <div class="si-qty" style="color:#7c3aed;font-weight:800;">
-                            ສັ່ງເມນູຕາມໃຈ
-                            {% if c.cust.size %} · 📏{{ c.cust.size }}{% endif %}
-                            {% if c.cust.sweet %} · 🍬{{ c.cust.sweet }}{% endif %}
-                            {% if c.cust.pearl %} · {{ c.cust.pearl }}{% endif %}
-                            {% if c.cust.topping %} · 🍓{{ c.cust.topping|join:", " }}{% endif %}
+                <div class="sum-item" style="flex-direction:column; align-items:stretch; gap:10px;">
+
+                    <!-- row: image + name + price (same layout as a regular product) -->
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div class="si-img" style="background:linear-gradient(135deg,#a855f7,#ec4899);">
+                            <span class="si-ph" style="color:#fff;">✍️</span>
                         </div>
+                        <div class="si-info" style="flex:1;">
+                            <div class="si-name">ສັ່ງເມນູຕາມໃຈ</div>
+                            <div class="si-qty">×1 × {{ c.unit_price|dotformat }} ກີບ</div>
+                        </div>
+                        <div class="si-price">{{ c.unit_price|dotformat }}<small style="font-size:.7rem;font-weight:600;color:#94a3b8;"> ກີບ</small></div>
                     </div>
-                    <div class="si-price">{{ c.unit_price|dotformat }}<small style="font-size:.7rem;font-weight:600;color:#94a3b8;"> ກີບ</small></div>
+
+                    <!-- customization detail rows (identical style to regular products) -->
+                    <div style="background:linear-gradient(135deg,#fdf4ff,#fce7f3); border:1.5px solid #fbcfe8; border-radius:14px; padding:10px 14px; display:grid; gap:6px;">
+
+                        {% if c.cust.size %}
+                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
+                            <span style="color:#9d174d; font-weight:700; display:flex; align-items:center; gap:5px;">
+                                <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">📏 ຂະໜາດຈອກ</span>
+                            </span>
+                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">
+                                {% if c.cust.size == 'S' %}S — ນ້ອຍ (25.000ກີບ)
+                                {% elif c.cust.size == 'M' %}M — ກາງ (30.000ກີບ)
+                                {% elif c.cust.size == 'L' %}L — ໃຫຍ່ (35.000ກີບ)
+                                {% else %}{{ c.cust.size }}{% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        {% if c.cust.topping %}
+                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
+                            <span style="color:#9d174d; font-weight:700; display:flex; align-items:center; gap:5px;">
+                                <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">🍓 ທອັບປີ້ງ</span>
+                            </span>
+                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">
+                                {{ c.cust.topping|join:", " }}
+                                <span style="color:#a855f7;font-size:.75rem;">(+{{ c.cust.topping|length }}×5.000ກີບ)</span>
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        {% if c.cust.sweet %}
+                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
+                            <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">🍬 ຄວາມຫວານ</span>
+                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">{{ c.cust.sweet }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if c.cust.pearl %}
+                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
+                            <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">🫧 ໄຂ່ມຸກ</span>
+                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">{{ c.cust.pearl }}</span>
+                        </div>
+                        {% endif %}
+
+                        <div style="font-size:.8rem; color:#7c3aed; font-weight:700; border-top:1px dashed #fbcfe8; padding-top:6px; margin-top:2px;">
+                            📝 <span style="color:#1e1040;">{{ c.message }}</span>
+                        </div>
+
+                    </div>
+
                 </div>
                 {% endfor %}
             </div>

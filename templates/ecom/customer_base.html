@@ -86,9 +86,14 @@
         transform: translateX(-50%) !important;
         width: 210px !important; max-width: calc(100vw - 28px) !important;
         margin-top: 0 !important;
-        z-index: 9999 !important;
+        z-index: 999999 !important;
     }
-    .dropdown.open .dropdown-menu { display: block !important; }
+    /* Shown via .show (set by JS after the menu is moved to <body> — see script below).
+       It must live outside #navbar/.upper-links in the DOM: #navbar's backdrop-filter
+       makes it the containing block for position:fixed descendants, and on mobile
+       .upper-links scrolls (overflow-x:auto), which was silently clipping the "fixed"
+       menu invisible even though its own z-index looked high enough. */
+    .dropdown-menu.show { display: block !important; }
     .dropdown-menu li a {
         padding: 11px 18px !important; font-weight: 800 !important; font-size: 1rem !important;
         color: var(--text) !important; transition: .2s !important;
@@ -229,7 +234,7 @@
                         ສະບາຍດີ, <b>{{ user.username }}</b>
                         <span class="caret"></span>
                     </a>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu" id="acctDropdownMenu">
                         <li><a href="{% url 'my-order' %}"><i class="fas fa-list-alt"></i> ລາຍການສັ່ງຊື້</a></li>
                         <li><a href="{% url 'my-profile' %}"><i class="fas fa-user-circle"></i> ໂປຣໄຟລ໌</a></li>
                         <li class="divider"></li>
@@ -314,19 +319,29 @@ document.addEventListener('DOMContentLoaded', _fitNavOffset);
 window.addEventListener('resize', _fitNavOffset);
 
 /* Account dropdown — plain JS, independent of the CDN bootstrap.js/jQuery plugin
-   (so it still works even if that script fails to load on a slow mobile connection). */
+   (so it still works even if that script fails to load on a slow mobile connection).
+   The menu is moved to a direct child of <body> so it's never clipped by
+   .upper-links' mobile-only "overflow-x:auto" scroll strip (which, combined with
+   #navbar's backdrop-filter making #navbar the containing block for fixed children,
+   was silently clipping the menu invisible on phones — worked fine on desktop where
+   that overflow rule doesn't apply). */
+(function() {
+    var menu = document.getElementById('acctDropdownMenu');
+    if (menu && menu.parentElement !== document.body) document.body.appendChild(menu);
+})();
+
 function toggleAcctMenu(e) {
     e.preventDefault();
     e.stopPropagation();
-    var dd = e.currentTarget.closest('.dropdown');
-    if (!dd) return;
-    var wasOpen = dd.classList.contains('open');
-    document.querySelectorAll('.dropdown.open').forEach(function(el) { el.classList.remove('open'); });
-    if (!wasOpen) dd.classList.add('open');
+    var menu = document.getElementById('acctDropdownMenu');
+    if (!menu) return;
+    var wasOpen = menu.classList.contains('show');
+    document.querySelectorAll('.dropdown-menu.show').forEach(function(el) { el.classList.remove('show'); });
+    if (!wasOpen) menu.classList.add('show');
 }
 document.addEventListener('click', function(e) {
-    document.querySelectorAll('.dropdown.open').forEach(function(dd) {
-        if (!dd.contains(e.target)) dd.classList.remove('open');
+    document.querySelectorAll('.dropdown-menu.show').forEach(function(menu) {
+        if (!menu.contains(e.target) && !e.target.closest('.dropdown-toggle')) menu.classList.remove('show');
     });
 });
 
