@@ -481,24 +481,48 @@ body {
             {% endfor %}
 
             {% for c in custom_cart_items %}
-            <div class="custom-item">
-                <div class="custom-item-icon">✍️</div>
-                <div class="custom-item-body">
-                    <span class="custom-item-badge">ສັ່ງເມນູຕາມໃຈ</span>
-                    <div class="custom-item-msg">{{ c.message }}</div>
-                    {% if c.cust.size or c.cust.sweet or c.cust.pearl or c.cust.topping %}
-                    <div class="cust-tags">
-                        {% if c.cust.size %}<span class="cust-tag">📏 {{ c.cust.size }}</span>{% endif %}
-                        {% if c.cust.sweet %}<span class="cust-tag">🍬 {{ c.cust.sweet }}</span>{% endif %}
-                        {% if c.cust.pearl %}<span class="cust-tag">🫧 {{ c.cust.pearl }}</span>{% endif %}
-                        {% if c.cust.topping %}<span class="cust-tag">🍓 {{ c.cust.topping|join:", " }}</span>{% endif %}
+            <div class="item item-wrap">
+                <div class="item-main">
+
+                    <div class="item-img-wrap">
+                        <div class="item-img-ph">✍️</div>
                     </div>
-                    {% endif %}
-                    <div class="custom-item-price">{{ c.unit_price|dotformat }} ກີບ</div>
+
+                    <div class="item-info">
+                        <div class="item-name">{{ c.message }}</div>
+                        <div class="item-desc">✍️ ສັ່ງເມນູຕາມໃຈ</div>
+                        <div class="item-uprice">{{ c.unit_price|dotformat }} ກີບ / ຈອກ</div>
+
+                        {% if c.cust.size or c.cust.sweet or c.cust.pearl or c.cust.topping %}
+                        <div class="cust-tags">
+                            {% if c.cust.size %}<span class="cust-tag">📏 {{ c.cust.size }}</span>{% endif %}
+                            {% if c.cust.sweet %}<span class="cust-tag">🍬 {{ c.cust.sweet }}</span>{% endif %}
+                            {% if c.cust.pearl %}<span class="cust-tag">🫧 {{ c.cust.pearl }}</span>{% endif %}
+                            {% if c.cust.topping %}<span class="cust-tag">🍓 {{ c.cust.topping|join:", " }}</span>{% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="item-qty-wrap">
+                        <div class="qty-ctrl" style="justify-content:center;">
+                            <span class="q-num" style="min-width:auto;">×1</span>
+                        </div>
+                    </div>
+
+                    <div class="item-sub-wrap">
+                        <div class="item-sub">{{ c.unit_price|dotformat }}</div>
+                        <div class="item-sub-lbl">ກີບ</div>
+                    </div>
+
+                    <div class="item-del-wrap">
+                        <a href="{% url 'remove-custom-cart-item' c.id %}"
+                           onclick="return confirm('ລຶບລາຍການນີ້ອອກຈາກກະຕ່າ?')"
+                           class="del-btn">
+                            <i class="fas fa-trash-can"></i>
+                        </a>
+                    </div>
+
                 </div>
-                <a href="{% url 'remove-custom-cart-item' c.id %}" class="custom-item-rm" title="ລຶບອອກ">
-                    <i class="fas fa-trash-alt"></i>
-                </a>
             </div>
             {% endfor %}
         </div>

@@ -406,6 +406,10 @@ const picPreview  = document.getElementById('picPreviewImg');
 const picPh       = document.querySelector('.pic-ph');
 
 /* ── STEP NAV ── */
+/* Lao mobile numbers: "20" + one of {2,5,9} + 7 more digits = 10 digits total
+   (e.g. 020 55 123 456 → 2055123456). Matches the same check done server-side. */
+const LAO_MOBILE_RE = /^20[259]\d{7}$/;
+
 function goStep2() {
     const fn  = document.querySelector('[name="first_name"]').value.trim();
     const pw  = document.querySelector('[name="password"]').value.trim();
@@ -413,6 +417,10 @@ function goStep2() {
     const err = document.getElementById('step1Err');
     if (!fn || !pw || !mob) {
         err.textContent = '⚠️ ກາລຸນາໃສ່ ຊື່, ລະຫັດຜ່ານ ແລະ ເບີໂທ ກ່ອນ';
+        err.style.display = 'block'; return;
+    }
+    if (!LAO_MOBILE_RE.test(mob.replace(/\D/g, '').replace(/^0/, ''))) {
+        err.textContent = '⚠️ ເບີໂທບໍ່ຖືກຕ້ອງ — ກາລຸນາໃສ່ຮູບແບບ 20XXXXXXXX (ເບີລາວ)';
         err.style.display = 'block'; return;
     }
     err.style.display = 'none';

@@ -81,9 +81,12 @@
         padding: 8px !important;
         background: #ffffff !important;
         position: fixed !important;
-        top: calc(var(--nav-h, 172px) + 10px) !important;
-        left: 50% !important; right: auto !important;
-        transform: translateX(-50%) !important;
+        /* top/left are set inline by JS at open-time so the menu hugs the account
+           button itself instead of floating centered further down the screen —
+           these are just a sane fallback if that JS somehow doesn't run. */
+        top: calc(var(--nav-h, 172px) + 10px);
+        left: 50%; right: auto;
+        transform: translateX(-50%);
         width: 210px !important; max-width: calc(100vw - 28px) !important;
         margin-top: 0 !important;
         z-index: 999999 !important;
@@ -337,7 +340,19 @@ function toggleAcctMenu(e) {
     if (!menu) return;
     var wasOpen = menu.classList.contains('show');
     document.querySelectorAll('.dropdown-menu.show').forEach(function(el) { el.classList.remove('show'); });
-    if (!wasOpen) menu.classList.add('show');
+    if (!wasOpen) {
+        /* Anchor the menu right under the account button itself instead of the
+           fallback centered/lower position — measure the button's real on-screen
+           spot each time it opens (works regardless of navbar height/scroll). */
+        var btnRect = e.currentTarget.getBoundingClientRect();
+        var menuWidth = 210;
+        var left = Math.min(Math.max(14, btnRect.left), window.innerWidth - menuWidth - 14);
+        menu.style.left = left + 'px';
+        menu.style.right = 'auto';
+        menu.style.transform = 'none';
+        menu.style.top = (btnRect.bottom + 8) + 'px';
+        menu.classList.add('show');
+    }
 }
 document.addEventListener('click', function(e) {
     document.querySelectorAll('.dropdown-menu.show').forEach(function(menu) {

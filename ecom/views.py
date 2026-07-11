@@ -70,6 +70,20 @@ def adminclick_view(request):
     return HttpResponseRedirect('adminlogin')
 
 
+LAO_MOBILE_RE = re.compile(r'^20[259]\d{7}$')
+
+
+def _normalize_lao_mobile(raw):
+    digits = re.sub(r'\D', '', raw or '')
+    if digits.startswith('856'):
+        digits = digits[3:]
+    return digits.lstrip('0')
+
+
+def _is_valid_lao_mobile(raw):
+    return bool(LAO_MOBILE_RE.match(_normalize_lao_mobile(raw)))
+
+
 def customer_signup_view(request):
     userForm = forms.CustomerUserForm()
     customerForm = forms.CustomerForm()
@@ -83,9 +97,15 @@ def customer_signup_view(request):
             if verify_method == 'otp' and not otp_ok:
                 mydict = {'userForm': userForm, 'customerForm': customerForm, 'error': 'ກາລຸນາຢືນຢັນ OTP ກ່ອນ'}
                 return render(request, 'ecom/customersignup.html', context=mydict)
+            mobile_raw = request.POST.get('mobile', otp_mobile).strip()
+            if not _is_valid_lao_mobile(mobile_raw):
+                mydict = {
+                    'userForm': userForm, 'customerForm': customerForm,
+                    'error': 'ກະລຸນາໃສ່ເບີໂທທີ່ຖືກຕ້ອງ (ຮູບແບບ 20XXXXXXXX ຂອງລາວ)',
+                }
+                return render(request, 'ecom/customersignup.html', context=mydict)
             user = userForm.save(commit=False)
             # auto-generate unique username from mobile number
-            mobile_raw = request.POST.get('mobile', otp_mobile).strip()
             mobile_clean = mobile_raw.lstrip('+').replace('856', '', 1).replace(' ', '').lstrip('0') or 'user'
             base_uname = 'u' + mobile_clean
             uname, counter = base_uname, 1
