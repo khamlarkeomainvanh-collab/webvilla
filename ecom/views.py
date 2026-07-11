@@ -104,6 +104,14 @@ def customer_signup_view(request):
                     'error': 'ກະລຸນາໃສ່ເບີໂທທີ່ຖືກຕ້ອງ (ຮູບແບບ 20XXXXXXXX ຂອງລາວ)',
                 }
                 return render(request, 'ecom/customersignup.html', context=mydict)
+            target_mobile = _normalize_lao_mobile(mobile_raw)
+            for existing_cust in models.Customer.objects.exclude(mobile=''):
+                if _normalize_lao_mobile(existing_cust.mobile) == target_mobile:
+                    mydict = {
+                        'userForm': userForm, 'customerForm': customerForm,
+                        'error': 'ເບີໂທນີ້ລົງທະບຽນເປັນສະມາຊິກແລ້ວ — ກະລຸນາໄປໜ້າ "ເຂົ້າສູ່ລະບົບ" ແທນ (ໃຊ້ຊື່ ຫຼື ເບີໂທ ເພື່ອເຂົ້າ)',
+                    }
+                    return render(request, 'ecom/customersignup.html', context=mydict)
             user = userForm.save(commit=False)
             # auto-generate unique username from mobile number
             mobile_clean = mobile_raw.lstrip('+').replace('856', '', 1).replace(' ', '').lstrip('0') or 'user'
