@@ -634,9 +634,9 @@ body {
                         </div>
                         <div class="si-info" style="flex:1;">
                             <div class="si-name">ສັ່ງເມນູຕາມໃຈ</div>
-                            <div class="si-qty">×1 × {{ c.unit_price|dotformat }} ກີບ</div>
+                            <div class="si-qty">×{{ c.qty|default:1 }} × {{ c.unit_price|dotformat }} ກີບ</div>
                         </div>
-                        <div class="si-price">{{ c.unit_price|dotformat }}<small style="font-size:.7rem;font-weight:600;color:#94a3b8;"> ກີບ</small></div>
+                        <div class="si-price">{{ c.subtotal|default:c.unit_price|dotformat }}<small style="font-size:.7rem;font-weight:600;color:#94a3b8;"> ກີບ</small></div>
                     </div>
 
                     <!-- customization detail rows (identical style to regular products) -->

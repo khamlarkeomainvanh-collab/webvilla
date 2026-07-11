@@ -505,14 +505,14 @@ body {
 
                     <div class="item-qty-wrap">
                         <div class="qty-ctrl">
-                            <span class="qty-btn q-minus" style="opacity:.35; pointer-events:none;" title="ສັ່ງເມນູຕາມໃຈ ມີໄດ້ອັນລະ 1"><i class="fas fa-minus"></i></span>
-                            <span class="q-num">1</span>
-                            <span class="qty-btn q-plus" style="opacity:.35; pointer-events:none;" title="ສັ່ງເມນູຕາມໃຈ ມີໄດ້ອັນລະ 1"><i class="fas fa-plus"></i></span>
+                            <a href="{% url 'remove-qty-custom' c.id %}" class="qty-btn q-minus"><i class="fas fa-minus"></i></a>
+                            <span class="q-num">{{ c.qty|default:1 }}</span>
+                            <a href="{% url 'add-qty-custom' c.id %}" class="qty-btn q-plus"><i class="fas fa-plus"></i></a>
                         </div>
                     </div>
 
                     <div class="item-sub-wrap">
-                        <div class="item-sub">{{ c.unit_price|dotformat }}</div>
+                        <div class="item-sub">{{ c.subtotal|default:c.unit_price|dotformat }}</div>
                         <div class="item-sub-lbl">ກີບ</div>
                     </div>
 

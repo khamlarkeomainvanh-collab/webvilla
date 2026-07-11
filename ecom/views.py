@@ -1442,7 +1442,10 @@ def cart_view(request):
             continue
 
     custom_cart_items = request.session.get('custom_cart_items', [])
-    total += sum(c.get('unit_price', _SIZE_PRICES['M']) for c in custom_cart_items)
+    for c in custom_cart_items:
+        c.setdefault('qty', 1)
+        c['subtotal'] = c.get('unit_price', _SIZE_PRICES['M']) * c['qty']
+    total += sum(c['subtotal'] for c in custom_cart_items)
 
     # ຄິວຕໍ່ມື້ — ນັບສະເພາະ Pending orders ທີ່ຍັງຄ້າງຢູ່ + 1
     from datetime import date as _date, datetime as _dt
@@ -1461,7 +1464,7 @@ def cart_view(request):
         'total':             total,
         'queue_number':      queue_number,
         'custom_cart_items': custom_cart_items,
-        'cart_total_items':  sum(cart.values()) + len(custom_cart_items),
+        'cart_total_items':  sum(cart.values()) + sum(c['qty'] for c in custom_cart_items),
         'closed_error':      _shop_closed_message() if not _is_shop_open() else None,
     })
 
@@ -1549,13 +1552,42 @@ def custom_order_request_view(request):
     unit_price = _cust_unit_price(_SIZE_PRICES['M'], cust)
 
     custom_items = request.session.get('custom_cart_items', [])
-    custom_items.append({'id': str(uuid.uuid4()), 'message': message, 'cust': cust, 'unit_price': unit_price})
+    custom_items.append({'id': str(uuid.uuid4()), 'message': message, 'cust': cust, 'unit_price': unit_price, 'qty': 1})
     request.session['custom_cart_items'] = custom_items
     request.session.modified = True
 
     cart = request.session.get('cart', {})
-    cart_total_items = sum(cart.values()) + len(custom_items)
+    cart_total_items = sum(cart.values()) + sum(c.get('qty', 1) for c in custom_items)
     return JsonResponse({'ok': True, 'cart_total_items': cart_total_items, 'unit_price': unit_price})
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def add_qty_custom_view(request, custom_id):
+    custom_items = request.session.get('custom_cart_items', [])
+    for c in custom_items:
+        if c.get('id') == custom_id:
+            c['qty'] = c.get('qty', 1) + 1
+            break
+    request.session['custom_cart_items'] = custom_items
+    request.session.modified = True
+    return redirect(request.META.get('HTTP_REFERER', 'cart'))
+
+
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def remove_qty_custom_view(request, custom_id):
+    custom_items = request.session.get('custom_cart_items', [])
+    for c in custom_items:
+        if c.get('id') == custom_id:
+            if c.get('qty', 1) > 1:
+                c['qty'] -= 1
+            else:
+                custom_items = [x for x in custom_items if x.get('id') != custom_id]
+            break
+    request.session['custom_cart_items'] = custom_items
+    request.session.modified = True
+    return redirect(request.META.get('HTTP_REFERER', 'cart'))
 
 
 @login_required(login_url='customerlogin')
@@ -1667,8 +1699,10 @@ def customer_address_view(request):
     # Check session cart (new system uses session, not cookies)
     cart = request.session.get('cart', {})
     custom_cart_items = request.session.get('custom_cart_items', [])
+    for c in custom_cart_items:
+        c.setdefault('qty', 1)
     product_in_cart = len(cart) > 0 or len(custom_cart_items) > 0
-    product_count_in_cart = sum(cart.values()) + len(custom_cart_items)
+    product_count_in_cart = sum(cart.values()) + sum(c['qty'] for c in custom_cart_items)
 
     from urllib.parse import unquote as _uq
     # Pre-fill from cookies (previous order) or customer profile
@@ -1742,7 +1776,9 @@ def customer_address_view(request):
             subtotal += item_total
             cart_items.append({'product': p, 'qty': qty, 'total': item_total, 'unit_price': unit_price, 'cust': cust})
 
-    subtotal += sum(c.get('unit_price', _SIZE_PRICES['M']) for c in custom_cart_items)
+    for c in custom_cart_items:
+        c['subtotal'] = c.get('unit_price', _SIZE_PRICES['M']) * c['qty']
+    subtotal += sum(c['subtotal'] for c in custom_cart_items)
 
     return render(request, 'ecom/customer_address.html', {
         'addressForm': addressForm,
@@ -1853,7 +1889,9 @@ def payment_success_view(request):
             message    = c.get('message', '')[:300]
             cust       = c.get('cust', {})
             unit_price = c.get('unit_price', _SIZE_PRICES['M'])
-            grand_total += unit_price
+            qty        = max(1, c.get('qty', 1))
+            item_total = unit_price * qty
+            grand_total += item_total
 
             note_parts = [message]
             if cust.get('size'):    note_parts.append(f"ຂະໜາດ: {cust['size']}")
@@ -1863,15 +1901,15 @@ def payment_success_view(request):
             note_str = ' | '.join(note_parts)
 
             ordered_products.append({
-                'product': None, 'qty': 1, 'subtotal': unit_price, 'unit_price': unit_price,
+                'product': None, 'qty': qty, 'subtotal': item_total, 'unit_price': unit_price,
                 'note': note_str, 'cust': cust, 'is_custom': True, 'custom_message': message,
             })
             try:
                 order = models.Orders.objects.create(
                     customer=customer,
                     product=None,
-                    quantity=1,
-                    amount=unit_price,
+                    quantity=qty,
+                    amount=item_total,
                     status='Pending',
                     order_group=group_id,
                     email=_order_email,
