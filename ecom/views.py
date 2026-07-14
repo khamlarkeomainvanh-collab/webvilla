@@ -138,6 +138,55 @@ def customer_signup_view(request):
     return render(request, 'ecom/customersignup.html', context={'userForm': userForm, 'customerForm': customerForm})
 
 
+def _find_customer_by_mobile(mobile_raw):
+    target = _normalize_lao_mobile(mobile_raw)
+    if not target:
+        return None
+    for c in models.Customer.objects.exclude(mobile='').select_related('user'):
+        if _normalize_lao_mobile(c.mobile) == target:
+            return c
+    return None
+
+
+def forgot_password_view(request):
+    """Self-service password reset — verified by phone number match only
+    (no SMS/email infra is configured yet). Low-stakes account (no payment
+    info stored), so this is an acceptable tradeoff for a small shop."""
+    stage = 'phone'
+    error = None
+    mobile_value = ''
+
+    if request.method == 'POST':
+        mobile_raw = request.POST.get('mobile', '').strip()
+        mobile_value = mobile_raw
+        cust = _find_customer_by_mobile(mobile_raw)
+
+        if 'new_password' in request.POST:
+            stage = 'password'
+            new_password = request.POST.get('new_password', '')
+            confirm_password = request.POST.get('confirm_password', '')
+            if not cust:
+                error = 'ບໍ່ພົບບັນຊີທີ່ໃຊ້ເບີໂທນີ້ໃນລະບົບ'
+                stage = 'phone'
+            elif len(new_password) < 6:
+                error = 'ລະຫັດຜ່ານໃໝ່ຕ້ອງມີຢ່າງໜ້ອຍ 6 ໂຕ'
+            elif new_password != confirm_password:
+                error = 'ລະຫັດຜ່ານທັງສອງຊ່ອງບໍ່ຄືກັນ'
+            else:
+                cust.user.set_password(new_password)
+                cust.user.save()
+                return render(request, 'ecom/forgot_password.html', {'stage': 'done'})
+        else:
+            if not cust:
+                error = 'ບໍ່ພົບບັນຊີທີ່ໃຊ້ເບີໂທນີ້ໃນລະບົບ'
+            else:
+                stage = 'password'
+
+    return render(request, 'ecom/forgot_password.html', {
+        'stage': stage, 'error': error, 'mobile_value': mobile_value,
+    })
+
+
 def ajax_send_otp(request):
     import random as _rnd
     from django.conf import settings as _cfg
