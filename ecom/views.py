@@ -17,9 +17,8 @@ from django.conf import settings
 from django.shortcuts import render, redirect
 from .models import Product 
 from django.shortcuts import get_object_or_404
-from webpush import send_group_notification
+from webpush import send_group_notification, send_user_notification
 
-from webpush import send_group_notification
 def home_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('afterlogin')
@@ -1159,8 +1158,13 @@ def admin_advance_bookings_view(request):
 
 @login_required(login_url='adminlogin')
 def fulfill_advance_booking_view(request, order_group):
-    models.Orders.objects.filter(order_group=order_group, pickup_date__isnull=False) \
-        .exclude(status='Cancelled').update(status='Delivered', fulfilled_at=timezone.now())
+    bookings = models.Orders.objects.filter(order_group=order_group, pickup_date__isnull=False).exclude(status='Cancelled')
+    customer = bookings.select_related('customer__user').values_list('customer', flat=True).first()
+    bookings.update(status='Delivered', fulfilled_at=timezone.now())
+    if customer:
+        cust = models.Customer.objects.filter(id=customer).select_related('user').first()
+        if cust:
+            _notify_customer_status(cust.user, 'Delivered')
     return redirect('admin-advance-bookings')
 
 
@@ -2442,6 +2446,25 @@ def profit_invoice_view(request):
     return render(request, 'ecom/profit_invoice.html', context)
 
 
+STATUS_NOTIFY_LAO = {
+    'Confirmed':  ('✅ ຮ້ານຮັບອໍເດີແລ້ວ', 'ຮ້ານໄດ້ຮັບ ແລະ ຢືນຢັນອໍເດີຂອງທ່ານແລ້ວ ກຳລັງກຽມສິນຄ້າ'),
+    'Processing': ('🚚 ກຳລັງຈັດສົ່ງ', 'ອໍເດີຂອງທ່ານກຳລັງຈັດສົ່ງ / ກຽມພ້ອມໃຫ້ຮັບ'),
+    'Delivered':  ('🏠 ຈັດສົ່ງສຳເລັດ', 'ອໍເດີຂອງທ່ານຈັດສົ່ງ/ຮັບສຳເລັດແລ້ວ ຂອບໃຈທີ່ອຸດໜູນ 🙏'),
+}
+
+
+def _notify_customer_status(user, status):
+    """Best-effort push notification — a failure here must never break the
+    actual status update (e.g. customer never subscribed to notifications)."""
+    if not user or status not in STATUS_NOTIFY_LAO:
+        return
+    title, body = STATUS_NOTIFY_LAO[status]
+    try:
+        send_user_notification(user=user, payload={'title': title, 'body': body, 'url': '/my-order'}, ttl=1000)
+    except Exception:
+        pass
+
+
 @login_required(login_url='adminlogin')
 @require_POST
 def ajax_update_group_status(request):
@@ -2449,12 +2472,20 @@ def ajax_update_group_status(request):
     status = request.POST.get('status')
     if not group_key or status not in ['Pending', 'Confirmed', 'Processing', 'Delivered', 'Cancelled']:
         return JsonResponse({'ok': False}, status=400)
-    updated = models.Orders.objects.filter(order_group=group_key).update(status=status)
+    group_orders = models.Orders.objects.filter(order_group=group_key)
+    customer = group_orders.select_related('customer__user').values_list('customer', flat=True).first()
+    updated = group_orders.update(status=status)
     if updated == 0:
         try:
-            updated = models.Orders.objects.filter(id=int(group_key)).update(status=status)
+            single = models.Orders.objects.filter(id=int(group_key))
+            customer = single.values_list('customer', flat=True).first()
+            updated = single.update(status=status)
         except (ValueError, TypeError):
             return JsonResponse({'ok': False}, status=400)
+    if customer:
+        cust = models.Customer.objects.filter(id=customer).select_related('user').first()
+        if cust:
+            _notify_customer_status(cust.user, status)
     return JsonResponse({'ok': True, 'status': status, 'updated': updated})
 
 
@@ -2587,11 +2618,13 @@ def update_order_status(request, id):
 @login_required(login_url='adminlogin')
 @require_POST
 def ajax_update_order_status(request, pk):
-    order = models.Orders.objects.get(id=pk)
+    order = models.Orders.objects.select_related('customer__user').get(id=pk)
     status = request.POST.get('status')
     if status in ['Pending', 'Confirmed', 'Processing', 'Delivered', 'Cancelled']:
         order.status = status
         order.save()
+        if order.customer:
+            _notify_customer_status(order.customer.user, status)
         return JsonResponse({'ok': True, 'status': status})
     return JsonResponse({'ok': False}, status=400)
 

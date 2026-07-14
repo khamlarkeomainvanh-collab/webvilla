@@ -228,29 +228,41 @@
     font-family:'Lexend','Noto Sans Lao',sans-serif; cursor:pointer; outline:none;
 }
 
-.exp-action-row { display:flex; flex-wrap:wrap; gap:8px; }
+.exp-action-row { display:flex; flex-wrap:wrap; gap:12px; margin-top:6px; }
 .exp-action-btn {
-    padding:9px 16px; border-radius:11px; border:none; cursor:pointer;
-    font-weight:800; font-size:.8rem; font-family:'Lexend','Noto Sans Lao',sans-serif;
-    display:flex; align-items:center; gap:6px; transition:.2s; color:#fff;
+    padding:8px 20px 8px 8px; border-radius:50px; border:none; cursor:pointer;
+    font-weight:800; font-size:.84rem; font-family:'Lexend','Noto Sans Lao',sans-serif;
+    display:inline-flex; align-items:center; gap:10px; transition:.25s; color:#fff;
 }
-.exp-action-btn:hover { transform:translateY(-2px); }
-.exp-action-btn--green  { background:linear-gradient(135deg,#10b981,#059669); box-shadow:0 4px 12px rgba(16,185,129,.28); }
-.exp-action-btn--indigo { background:linear-gradient(135deg,#6366f1,#4338ca); box-shadow:0 4px 12px rgba(99,102,241,.28); }
-.exp-action-btn--amber  { background:linear-gradient(135deg,#f59e0b,#d97706); box-shadow:0 4px 12px rgba(245,158,11,.28); }
+.exp-action-btn .eab-ico {
+    width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.24);
+    display:flex; align-items:center; justify-content:center; font-size:.88rem; flex-shrink:0;
+}
+.exp-action-btn:hover { transform:translateY(-3px) scale(1.03); }
+.exp-action-btn--green  { background:linear-gradient(135deg,#10b981,#059669); box-shadow:0 6px 16px rgba(16,185,129,.32); }
+.exp-action-btn--green:hover  { box-shadow:0 12px 26px rgba(16,185,129,.42); }
+.exp-action-btn--indigo { background:linear-gradient(135deg,#6366f1,#4338ca); box-shadow:0 6px 16px rgba(99,102,241,.32); }
+.exp-action-btn--indigo:hover { box-shadow:0 12px 26px rgba(99,102,241,.42); }
+.exp-action-btn--amber  { background:linear-gradient(135deg,#f59e0b,#d97706); box-shadow:0 6px 16px rgba(245,158,11,.32); }
+.exp-action-btn--amber:hover  { box-shadow:0 12px 26px rgba(245,158,11,.42); }
 .exp-action-btn--outline {
-    background:#fff; color:#7c3aed; border:1.5px solid #ede9fe; box-shadow:none;
+    background:#fff; color:#7c3aed; border:2px solid #ede9fe; box-shadow:none; padding:7px 20px 7px 7px;
 }
-.exp-action-btn--outline:hover { background:#f5f3ff; }
+.exp-action-btn--outline .eab-ico { background:#f5f3ff; color:#7c3aed; }
+.exp-action-btn--outline:hover { background:#f5f3ff; border-color:#ddd6fe; box-shadow:0 8px 20px rgba(124,58,237,.16); }
 
 .exp-btn-export {
-    padding:11px 22px; border-radius:12px; border:none; cursor:pointer;
-    background:#10b981; color:#fff; font-weight:800; font-size:.96rem;
+    padding:8px 22px 8px 8px; border-radius:50px; border:none; cursor:pointer;
+    background:#10b981; color:#fff; font-weight:800; font-size:.9rem;
     font-family:'Lexend','Noto Sans Lao',sans-serif;
-    display:flex; align-items:center; gap:8px; transition:.25s;
-    text-decoration:none; box-shadow:0 4px 14px rgba(16,185,129,.3);
+    display:inline-flex; align-items:center; gap:10px; transition:.25s;
+    text-decoration:none; box-shadow:0 6px 16px rgba(16,185,129,.32);
 }
-.exp-btn-export:hover { background:#059669; color:#fff; transform:translateY(-2px); box-shadow:0 8px 22px rgba(16,185,129,.4); text-decoration:none; }
+.exp-btn-export .ebe-ico {
+    width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.24);
+    display:flex; align-items:center; justify-content:center; font-size:.9rem; flex-shrink:0;
+}
+.exp-btn-export:hover { color:#fff; transform:translateY(-3px) scale(1.03); box-shadow:0 12px 26px rgba(16,185,129,.45); text-decoration:none; }
 .exp-btn-filter {
     padding:11px 18px; border-radius:12px; cursor:pointer;
     background:#f5f3ff; border:1.5px solid rgba(124,58,237,.2);
@@ -485,17 +497,17 @@
     {% endif %}
     <div class="ft-exports">
         <button onclick="doExport('revenue')" class="exp-btn-export" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);" title="Export ຕາມແທັບທີ່ເລືອກຢູ່ (ມື້/ເດືອນ/ປີ)">
-            <i class="fas fa-file-excel"></i> Export ລາຍຮັບ
+            <span class="ebe-ico"><i class="fas fa-file-excel"></i></span> Export ລາຍຮັບ
         </button>
         <button onclick="doExport('expense')" class="exp-btn-export" style="background:linear-gradient(135deg,#ef4444,#b91c1c);" title="Export ຕາມແທັບທີ່ເລືອກຢູ່ (ມື້/ເດືອນ/ປີ)">
-            <i class="fas fa-file-excel"></i> Export ລາຍຈ່າຍ
+            <span class="ebe-ico"><i class="fas fa-file-excel"></i></span> Export ລາຍຈ່າຍ
         </button>
         <button onclick="doExport('profit')" class="exp-btn-export" style="background:linear-gradient(135deg,#10b981,#059669);" title="Export ຕາມແທັບທີ່ເລືອກຢູ່ (ມື້/ເດືອນ/ປີ)">
-            <i class="fas fa-file-excel"></i> Export ກຳໄລ
+            <span class="ebe-ico"><i class="fas fa-file-excel"></i></span> Export ກຳໄລ
         </button>
         <div class="fin-all-dd" id="finAllDd">
             <button type="button" class="exp-btn-export" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);" onclick="finToggleAllDd(event)">
-                <i class="fas fa-layer-group"></i> Export ທັງໝົດ <i class="fas fa-chevron-down" style="font-size:.65rem;margin-left:2px;"></i>
+                <span class="ebe-ico"><i class="fas fa-layer-group"></i></span> Export ທັງໝົດ <i class="fas fa-chevron-down" style="font-size:.65rem;margin-left:2px;"></i>
             </button>
             <div class="fin-all-dd-menu">
                 <button type="button" onclick="doExportAll('revenue')"><i class="fas fa-box" style="color:#3b82f6;"></i> ລາຍຮັບ ທັງໝົດ</button>
@@ -748,16 +760,16 @@
 
             <div class="exp-action-row">
                 <button type="button" class="exp-action-btn exp-action-btn--green" onclick="doExpExport()" title="ສົ່ງອອກລາຍຈ່າຍ+ລາຍຮັບ ຂອງເດືອນ/ປີ ທີ່ເລືອກ">
-                    <i class="fas fa-file-excel"></i> Export ເດືອນນີ້
+                    <span class="eab-ico"><i class="fas fa-file-excel"></i></span> Export ເດືອນນີ້
                 </button>
                 <button type="button" class="exp-action-btn exp-action-btn--indigo" onclick="doExpExportYear()" title="ສົ່ງອອກລາຍຈ່າຍທັງໝົດຂອງປີ ທີ່ເລືອກ">
-                    <i class="fas fa-file-excel"></i> Export ທັງປີ
+                    <span class="eab-ico"><i class="fas fa-file-excel"></i></span> Export ທັງປີ
                 </button>
                 <button type="button" class="exp-action-btn exp-action-btn--amber" onclick="doExpExportDay()" title="ສົ່ງອອກລາຍຈ່າຍສະເພາະວັນທີ່ເລືອກ">
-                    <i class="fas fa-calendar-day"></i> Export ວັນທີ່ເລືອກ
+                    <span class="eab-ico"><i class="fas fa-calendar-day"></i></span> Export ວັນທີ່ເລືອກ
                 </button>
                 <button type="button" class="exp-action-btn exp-action-btn--outline" onclick="openExpenseInvoice()" title="ອອກໃບບິນລາຍຈ່າຍ">
-                    <i class="fas fa-print"></i> ອອກໃບບິນ
+                    <span class="eab-ico"><i class="fas fa-print"></i></span> ອອກໃບບິນ
                 </button>
             </div>
         </form>

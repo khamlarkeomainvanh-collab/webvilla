@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 {% load static %}
+{% load webpush_notifications %}
 <html lang="lo">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% webpush_header %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800;900&family=Noto+Sans+Lao:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -240,6 +242,11 @@
                     <ul class="dropdown-menu" id="acctDropdownMenu">
                         <li><a href="{% url 'my-order' %}"><i class="fas fa-list-alt"></i> ລາຍການສັ່ງຊື້</a></li>
                         <li><a href="{% url 'my-profile' %}"><i class="fas fa-user-circle"></i> ໂປຣໄຟລ໌</a></li>
+                        <li>
+                            <a href="javascript:void(0)" id="notifToggleLink" onclick="toggleWebpushNotif(event)">
+                                <i class="fas fa-bell"></i> <span id="notifToggleLabel">ເປີດແຈ້ງເຕືອນ</span>
+                            </a>
+                        </li>
                         <li class="divider"></li>
                         <li>
                             <form action="{% url 'logout' %}" method="post" id="logout-form" style="display:none;">{% csrf_token %}</form>
@@ -251,6 +258,7 @@
                         </li>
                     </ul>
                 </div>
+                <div style="display:none;">{% webpush_button %}</div>
                 {% else %}
                 <a href="/customerlogin"  class="links"><i class="fas fa-sign-in-alt"></i> ເຂົ້າສູ່ລະບົບ</a>
                 <a href="/customersignup" class="links"><i class="fas fa-user-plus"></i> ສະໝັກສະມາຊິກ</a>
@@ -359,6 +367,29 @@ document.addEventListener('click', function(e) {
         if (!menu.contains(e.target) && !e.target.closest('.dropdown-toggle')) menu.classList.remove('show');
     });
 });
+
+/* Notification toggle — proxies clicks to django-webpush's own (hidden) button
+   so we reuse its tested subscribe/unsubscribe logic, but show a Lao label
+   instead of the package's English default text. */
+function toggleWebpushNotif(e) {
+    e.preventDefault();
+    var realBtn = document.getElementById('webpush-subscribe-button');
+    if (!realBtn) {
+        alert('ອຸປະກອນ ຫຼື browser ນີ້ບໍ່ຮອງຮັບການແຈ້ງເຕືອນ');
+        return;
+    }
+    realBtn.click();
+}
+(function() {
+    var realBtn = document.getElementById('webpush-subscribe-button');
+    var label = document.getElementById('notifToggleLabel');
+    if (!realBtn || !label) return;
+    function syncLabel() {
+        label.textContent = realBtn.textContent.indexOf('Unsubscribe') !== -1 ? 'ປິດແຈ້ງເຕືອນ' : 'ເປີດແຈ້ງເຕືອນ';
+    }
+    syncLabel();
+    new MutationObserver(syncLabel).observe(realBtn, { childList: true, characterData: true, subtree: true });
+})();
 
 function addToCart(productId) {
     const qty = (document.getElementById('qty-' + productId) || {value:1}).value;

@@ -49,11 +49,11 @@ INSTALLED_APPS = [
 
 ]
 
-# ຕັ້ງຄ່າ Webpush (ສາມາດສ້າງ Key ໄດ້ທີ່ https://glitch.me)
+# ຕັ້ງຄ່າ Webpush — ໃຊ້ສົ່ງແຈ້ງເຕືອນສະຖານະອໍເດີຫາລູກຄ້າ (ບໍ່ຕ້ອງເສຍຄ່າບໍລິການ)
 WEBPUSH_SETTINGS = {
-    "VAPID_PUBLIC_KEY": "BXXXXXXXX...",
-    "VAPID_PRIVATE_KEY": "XXXXXXXX...",
-    "VAPID_ADMIN_EMAIL": "admin@milinda.com"
+    "VAPID_PUBLIC_KEY": "BATXUpDWQlUtoqH9HrPbDN0uRtEmP4WeZrWazcBg3AZc5XmmSEi3yoo2CUzeyTD7BlFmTU6-IJC_Lqv09Zc86XA",
+    "VAPID_PRIVATE_KEY": "Y37H1k5gfHNMbp_ZpeI5awRyoH8SqhQIteZQ1_0Uohs",
+    "VAPID_ADMIN_EMAIL": "admin@villasmoothie.com"
 }
 
 # ── Twilio SMS ──────────────────────────────────────────────────
