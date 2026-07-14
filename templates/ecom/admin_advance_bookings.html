@@ -1,0 +1,116 @@
+{% extends 'ecom/admin_base.html' %}
+{% load static %}
+{% load lao_filters %}
+
+{% block content %}
+<style>
+:root {
+    --purple:#7c3aed; --pink:#be185d;
+    --grad:linear-gradient(135deg,#7c3aed,#be185d);
+}
+* { font-family:'Lexend','Noto Sans Lao',sans-serif; }
+
+.ab-head { display:flex; align-items:center; gap:12px; margin-bottom:22px; }
+.ab-head .ico {
+    width:44px; height:44px; border-radius:14px; background:var(--grad);
+    display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.2rem;
+    box-shadow:0 6px 18px rgba(124,58,237,.3);
+}
+.ab-head h1 { font-size:1.3rem; font-weight:900; color:#2d1457; }
+.ab-head p  { font-size:.82rem; color:#94a3b8; margin-top:2px; }
+
+.ab-card {
+    background:#fff; border-radius:20px; border:1.5px solid rgba(124,58,237,.11);
+    box-shadow:0 4px 22px rgba(124,58,237,.08); margin-bottom:16px; overflow:hidden;
+}
+.ab-card.done { opacity:.6; }
+.ab-card-head {
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    padding:16px 22px; background:linear-gradient(135deg,#f8f7ff,#fdf4ff); border-bottom:1.5px solid rgba(124,58,237,.08);
+}
+.ab-date-chip {
+    display:flex; align-items:center; gap:10px; font-weight:900; color:#5b21b6; font-size:1.05rem;
+}
+.ab-date-chip .di { width:36px; height:36px; border-radius:11px; background:var(--grad); color:#fff; display:flex; align-items:center; justify-content:center; }
+.ab-status-chip {
+    padding:6px 14px; border-radius:20px; font-weight:800; font-size:.78rem;
+}
+.ab-status-chip.pending { background:#fef3c7; color:#92400e; }
+.ab-status-chip.done    { background:#dcfce7; color:#16a34a; }
+
+.ab-body { padding:16px 22px; }
+.ab-cust { display:flex; align-items:center; gap:10px; margin-bottom:12px; font-weight:700; color:#2d1457; }
+.ab-cust i { color:#7c3aed; }
+.ab-items { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+.ab-item-row { display:flex; justify-content:space-between; gap:10px; font-size:.9rem; color:#2d1457; }
+.ab-item-row .nm { flex:1; }
+.ab-item-row .amt { color:#059669; font-weight:800; white-space:nowrap; }
+.ab-foot { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.ab-total { font-weight:900; color:#7c3aed; font-size:1.05rem; }
+.ab-fulfill-btn {
+    padding:9px 20px; border-radius:12px; border:none; background:var(--grad); color:#fff;
+    font-weight:800; font-size:.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:.2s;
+}
+.ab-fulfill-btn:hover { transform:translateY(-1px); box-shadow:0 8px 20px rgba(124,58,237,.3); }
+
+.ab-empty { padding:60px 26px; text-align:center; color:#94a3b8; background:#fff; border-radius:20px; border:1.5px solid rgba(124,58,237,.11); }
+.ab-empty .ei { font-size:3rem; opacity:.3; margin-bottom:10px; }
+</style>
+
+<div class="ab-head">
+    <div class="ico"><i class="fas fa-calendar-check"></i></div>
+    <div>
+        <h1>ຈອງລ່ວງໜ້າ</h1>
+        <p>ອໍເດີທີ່ລູກຄ້າຈອງໄວ້ ແລ້ວຈະມາຮັບພາຍຫຼັງ — ແຍກຕ່າງຫາກຈາກຄິວມື້ນີ້</p>
+    </div>
+</div>
+
+{% if data %}
+    {% for group in data %}
+    <div class="ab-card {% if group.is_fulfilled %}done{% endif %}">
+        <div class="ab-card-head">
+            <div class="ab-date-chip">
+                <span class="di"><i class="fas fa-calendar-day"></i></span>
+                ມາຮັບ {{ group.pickup_date|date:"d/m/Y" }}{% if group.pickup_time %} ເວລາ {{ group.pickup_time|time:"H:i" }}{% endif %}
+            </div>
+            {% if group.is_fulfilled %}
+            <span class="ab-status-chip done"><i class="fas fa-check-circle"></i> ຮັບແລ້ວ</span>
+            {% else %}
+            <span class="ab-status-chip pending"><i class="fas fa-hourglass-half"></i> ລໍຖ້າມາຮັບ</span>
+            {% endif %}
+        </div>
+        <div class="ab-body">
+            {% if group.customer %}
+            <div class="ab-cust">
+                <i class="fas fa-user-circle"></i> {{ group.customer.get_name }}
+                {% if group.canonical.mobile %}<span style="color:#94a3b8;font-weight:600;">· {{ group.canonical.mobile }}</span>{% endif %}
+            </div>
+            {% endif %}
+            <div class="ab-items">
+                {% for o in group.orders %}
+                <div class="ab-item-row">
+                    <span class="nm">{% if o.product %}{{ o.product.name }}{% else %}✍️ {{ o.note }}{% endif %} ×{{ o.quantity }}</span>
+                    <span class="amt">{{ o.amount|dotformat }} ກີບ</span>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="ab-foot">
+                <div class="ab-total">ລວມ {{ group.total_amount|dotformat }} ກີບ</div>
+                {% if not group.is_fulfilled %}
+                <form method="post" action="{% url 'fulfill-advance-booking' group.key %}" onsubmit="return confirm('ໝາຍລາຍການນີ້ວ່າລູກຄ້າມາຮັບແລ້ວບໍ?')">
+                    {% csrf_token %}
+                    <button type="submit" class="ab-fulfill-btn"><i class="fas fa-check"></i> ໝາຍວ່າຮັບແລ້ວ</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="ab-empty">
+        <div class="ei">📅</div>
+        <p>ຍັງບໍ່ມີການຈອງລ່ວງໜ້າ</p>
+    </div>
+{% endif %}
+
+{% endblock content %}

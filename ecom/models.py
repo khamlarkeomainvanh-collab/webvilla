@@ -58,6 +58,13 @@ class Orders(models.Model):
     delivery_fee   = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True)
     payment_method = models.CharField(max_length=20, null=True, blank=True, default='COD')
     note           = models.CharField(max_length=300, blank=True, default='')
+    # Set only for "ຈອງລ່ວງໜ້າ" (advance booking) orders — the day/time the
+    # customer will come collect it, instead of being prepared/queued today.
+    pickup_date    = models.DateField(null=True, blank=True)
+    pickup_time    = models.TimeField(null=True, blank=True)
+    # Set when an advance booking is actually collected (marked "ຮັບແລ້ວ") —
+    # revenue for advance bookings counts on this day, not the booking day.
+    fulfilled_at   = models.DateTimeField(null=True, blank=True)
 
 
 

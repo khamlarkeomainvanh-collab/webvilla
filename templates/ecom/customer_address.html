@@ -414,6 +414,7 @@ body {
         <input type="hidden" name="payment_method" id="h_pay"   value="COD">
         <input type="hidden" name="delivery_fee"   id="h_fee"   value="0">
         <input type="hidden" name="delivery_km"    id="h_km"    value="0">
+        <input type="hidden" name="is_advance"     id="h_advance" value="0">
 
         <div class="card">
 
@@ -432,6 +433,37 @@ body {
                     <input type="tel" name="Mobile" id="f_mobile"
                            value="{{ prefill.Mobile }}"
                            placeholder="020 xxxx xxxx">
+                </div>
+            </div>
+
+            <!-- BOOKING TIME -->
+            <div class="form-sec">
+                <div class="sec-label"><i class="fas fa-calendar-check"></i> ເວລາຮັບເຄື່ອງ</div>
+                <div class="del-grid">
+                    <div class="del-card active-d" id="opt-now" onclick="setBooking('now')">
+                        <span class="check-dot"><i class="fas fa-check fa-xs"></i></span>
+                        <span class="dc-ico">⚡</span>
+                        <span class="dc-name">ຮັບມື້ນີ້</span>
+                        <span class="dc-sub">ປົກກະຕິ</span>
+                    </div>
+                    <div class="del-card" id="opt-advance" onclick="setBooking('advance')">
+                        <span class="check-dot"><i class="fas fa-check fa-xs"></i></span>
+                        <span class="dc-ico">📅</span>
+                        <span class="dc-name">ຈອງລ່ວງໜ້າ</span>
+                        <span class="dc-sub">ລະບຸວັນທີ່ຈະມາຮັບ</span>
+                    </div>
+                </div>
+                <div id="box-advance" style="display:none; margin-top:14px;">
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <div class="f-group" style="flex:1; min-width:150px;">
+                            <label>📅 ວັນທີ່ຈະມາຮັບ</label>
+                            <input type="date" name="pickup_date" id="f_pickup_date">
+                        </div>
+                        <div class="f-group" style="flex:1; min-width:150px;">
+                            <label>🕐 ໂມງທີ່ຈະມາຮັບ</label>
+                            <input type="time" name="pickup_time" id="f_pickup_time">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -745,6 +777,36 @@ function _setFeeDisplay(fee) {
     document.getElementById('h_fee').value = fee;
     document.getElementById('h_km').value  = 0;
 }
+
+function setBooking(type) {
+    var isAdvance = (type === 'advance');
+    document.getElementById('h_advance').value = isAdvance ? '1' : '0';
+    document.getElementById('opt-now').className     = 'del-card' + (!isAdvance ? ' active-d' : '');
+    document.getElementById('opt-advance').className = 'del-card' + (isAdvance  ? ' active-d' : '');
+    document.getElementById('box-advance').style.display = isAdvance ? 'block' : 'none';
+    document.getElementById('f_pickup_date').required = isAdvance;
+    document.getElementById('f_pickup_time').required = isAdvance;
+}
+
+(function() {
+    var d = new Date();
+    d.setDate(d.getDate() + 1);
+    var tomorrow = d.toISOString().slice(0, 10);
+    var pd = document.getElementById('f_pickup_date');
+    if (pd) pd.min = tomorrow;
+})();
+
+document.getElementById('mainForm').addEventListener('submit', function(e) {
+    if (document.getElementById('h_advance').value === '1' && !document.getElementById('f_pickup_date').value) {
+        e.preventDefault();
+        alert('ກະລຸນາເລືອກວັນທີ່ຈະມາຮັບເຄື່ອງ');
+        return;
+    }
+    if (document.getElementById('h_advance').value === '1' && !document.getElementById('f_pickup_time').value) {
+        e.preventDefault();
+        alert('ກະລຸນາລະບຸໂມງທີ່ຈະມາຮັບເຄື່ອງ');
+    }
+});
 
 function setDel(t) {
     _currentDel = t;

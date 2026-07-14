@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,reverse
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -246,8 +246,9 @@ def admin_dashboard_view(request):
     cancelled_count = models.Orders.objects.filter(status='Cancelled').count()
     other_count     = ordercount - (delivered_count + pending_count)
 
-    # Stats ຂອງ selected_date
-    today_orders_qs       = models.Orders.objects.filter(order_date__gte=_ts, order_date__lte=_te).select_related('product')
+    # Stats ຂອງ selected_date — advance bookings only count once actually
+    # fulfilled (see _revenue_orders_qs), not on the day they were booked.
+    today_orders_qs       = _revenue_orders_qs(_ts, _te).select_related('product')
     today_order_count     = today_orders_qs.count()
 
     def _amt(o):
@@ -270,13 +271,14 @@ def admin_dashboard_view(request):
 
     sales_data = [10, 25, 15, 30, 45, 35, 55]
 
-    # ── ຕາຕະລາງ Orders grouped by order_group ──
+    # ── ຕາຕະລາງ Orders grouped by order_group — advance ("ຈອງລ່ວງໜ້າ") bookings
+    # have their own dedicated page, so they're excluded here same as admin-view-booking. ──
     from django.utils import timezone as _tz3
     all_day_orders = models.Orders.objects.filter(
-        order_date__gte=_ts, order_date__lte=_te
+        order_date__gte=_ts, order_date__lte=_te, pickup_date__isnull=True
     ).select_related('product', 'customer__user').order_by('id')
 
-    day_revenue = sum(_amt(o) for o in all_day_orders)
+    day_revenue = today_revenue
 
     _LAO_TZ2 = _dtz2(timedelta(hours=7))
 
@@ -328,16 +330,16 @@ def admin_dashboard_view(request):
     # ຂໍ້ມູນຍອດຂາຍລາຍວັນ 30 ວັນຫຼ້າສຸດ — group ດ້ວຍ Python ຫຼີກ SQLite functions
     from datetime import datetime as dt_dash
     today = date_cls.today()
-    range_start = dt_dash(today.year, today.month, today.day, 0, 0, 0) - timedelta(days=29)
-    recent_rows = models.Orders.objects.filter(
-        order_date__gte=range_start
-    ).values_list('order_date', 'amount')
+    range_start = _tz.make_aware(dt_dash(today.year, today.month, today.day, 0, 0, 0)) - timedelta(days=29)
+    range_end   = _tz.make_aware(dt_dash(today.year, today.month, today.day, 23, 59, 59))
+    recent_rows = _revenue_orders_qs(range_start, range_end).values_list('order_date', 'amount', 'pickup_date', 'fulfilled_at')
 
     date_map = {(today - timedelta(days=i)).isoformat(): {'orders': 0, 'amount': 0.0} for i in range(29, -1, -1)}
-    for odt, amt in recent_rows:
-        if odt is None:
+    for odt, amt, pdate, fulfilled_at in recent_rows:
+        rev_dt = fulfilled_at if pdate else odt
+        if rev_dt is None:
             continue
-        day_key = odt.date().isoformat() if hasattr(odt, 'date') else str(odt)[:10]
+        day_key = rev_dt.date().isoformat() if hasattr(rev_dt, 'date') else str(rev_dt)[:10]
         if day_key in date_map:
             date_map[day_key]['orders'] += 1
             date_map[day_key]['amount'] += float(amt or 0)
@@ -389,6 +391,28 @@ def admin_dashboard_view(request):
     return render(request, 'ecom/admin_dashboard.html', context=mydict)
 
 
+def _revenue_orders_qs(start_dt=None, end_dt=None):
+    """Orders that count as revenue (optionally within [start_dt, end_dt]):
+    - normal orders (no pickup_date): counted on the day they were placed
+    - advance ("ຈອງລ່ວງໜ້າ") bookings: only once actually collected
+      (status Delivered), counted on the day they were fulfilled — not the
+      day they were booked, and not while still pending pickup.
+    Pass no bounds for an all-time queryset (still excludes un-fulfilled
+    advance bookings)."""
+    regular_q = Q(pickup_date__isnull=True)
+    advance_q = Q(pickup_date__isnull=False, status='Delivered')
+    if start_dt is not None and end_dt is not None:
+        regular_q &= Q(order_date__gte=start_dt, order_date__lte=end_dt)
+        advance_q &= Q(fulfilled_at__gte=start_dt, fulfilled_at__lte=end_dt)
+    return models.Orders.objects.filter(regular_q | advance_q)
+
+
+def _revenue_date(order_dict):
+    """Given a dict with order_date/pickup_date/fulfilled_at keys (e.g. from
+    .values()), return whichever date the row's revenue should be attributed to."""
+    return order_dict['fulfilled_at'] if order_dict.get('pickup_date') else order_dict['order_date']
+
+
 @login_required(login_url='adminlogin')
 def admin_finance_view(request):
     from django.db.models import Sum, Count
@@ -421,9 +445,7 @@ def admin_finance_view(request):
     # ── Selected date stats ──
     sd_start = _dt.datetime(sel_year, sel_month, sel_day, 0, 0, 0, tzinfo=_lao_tz)
     sd_end   = sd_start + _td(days=1) - _td(seconds=1)
-    sd_orders = models.Orders.objects.filter(
-        order_date__gte=sd_start, order_date__lte=sd_end
-    ).select_related('product')
+    sd_orders = _revenue_orders_qs(sd_start, sd_end).select_related('product')
     today_revenue = float(sd_orders.aggregate(t=Sum('amount'))['t'] or 0)
     today_count   = sd_orders.count()
     today_expenses_qs = models.Expense.objects.filter(date=sel_date_obj)
@@ -451,7 +473,7 @@ def admin_finance_view(request):
         month_end = _dt.datetime(sel_year + 1, 1, 1, tzinfo=_lao_tz) - _td(seconds=1)
     else:
         month_end = _dt.datetime(sel_year, sel_month + 1, 1, tzinfo=_lao_tz) - _td(seconds=1)
-    month_orders  = models.Orders.objects.filter(order_date__gte=month_start, order_date__lte=month_end)
+    month_orders  = _revenue_orders_qs(month_start, month_end)
     month_revenue = float(month_orders.aggregate(t=Sum('amount'))['t'] or 0)
     month_count   = month_orders.count()
     month_start_d = month_start.date()
@@ -464,7 +486,7 @@ def admin_finance_view(request):
     # ── Year stats ──
     year_start = _dt.datetime(sel_year, 1, 1, tzinfo=_lao_tz)
     year_end   = _dt.datetime(sel_year, 12, 31, 23, 59, 59, tzinfo=_lao_tz)
-    year_orders  = models.Orders.objects.filter(order_date__gte=year_start, order_date__lte=year_end)
+    year_orders  = _revenue_orders_qs(year_start, year_end)
     year_revenue = float(year_orders.aggregate(t=Sum('amount'))['t'] or 0)
     year_count   = year_orders.count()
     year_expense = float(models.Expense.objects.filter(
@@ -476,8 +498,10 @@ def admin_finance_view(request):
     month_labels = ['ມ.ກ','ກ.ພ','ມີ.ນ','ເມ.ສ','ພ.ພ','ມິ.ຖ','ກ.ລ','ສ.ຫ','ກ.ຍ','ຕ.ລ','ພ.ຈ','ທ.ວ']
     monthly_revenue = [0.0] * 12
     monthly_count   = [0]   * 12
-    for o in year_orders.values('order_date', 'amount'):
-        m = o['order_date'].astimezone(_lao_tz).month - 1
+    for o in year_orders.values('order_date', 'amount', 'pickup_date', 'fulfilled_at'):
+        # advance bookings count on the day they were fulfilled, not booked
+        revenue_dt = o['fulfilled_at'] if o['pickup_date'] else o['order_date']
+        m = revenue_dt.astimezone(_lao_tz).month - 1
         monthly_revenue[m] += float(o['amount'] or 0)
         monthly_count[m]   += 1
     monthly_expense = [0.0] * 12
@@ -493,8 +517,9 @@ def admin_finance_view(request):
     _, days_in_month = _cal.monthrange(sel_year, sel_month)
     daily_rev  = [0.0] * days_in_month
     daily_exp  = [0.0] * days_in_month
-    for o in month_orders.values('order_date', 'amount'):
-        d_idx = (o['order_date'].astimezone(_lao_tz).date() - month_start_d).days
+    for o in month_orders.values('order_date', 'amount', 'pickup_date', 'fulfilled_at'):
+        revenue_dt = o['fulfilled_at'] if o['pickup_date'] else o['order_date']
+        d_idx = (revenue_dt.astimezone(_lao_tz).date() - month_start_d).days
         if 0 <= d_idx < days_in_month:
             daily_rev[d_idx] += float(o['amount'] or 0)
     for e in models.Expense.objects.filter(date__gte=month_start_d, date__lte=month_end_d).values('date', 'amount'):
@@ -884,10 +909,9 @@ def finance_month_daily_data(request):
     month_start = _dt.datetime(year, month, 1,  0, 0, 0, tzinfo=_lao_tz)
     month_end   = _dt.datetime(year, month, days_in_month, 23, 59, 59, tzinfo=_lao_tz)
 
-    for o in models.Orders.objects.filter(
-        order_date__gte=month_start, order_date__lte=month_end
-    ).values('order_date', 'amount'):
-        local_day = o['order_date'].astimezone(_lao_tz).day
+    for o in _revenue_orders_qs(month_start, month_end).values('order_date', 'amount', 'pickup_date', 'fulfilled_at'):
+        revenue_dt = o['fulfilled_at'] if o['pickup_date'] else o['order_date']
+        local_day = revenue_dt.astimezone(_lao_tz).day
         idx = local_day - 1
         if 0 <= idx < days_in_month:
             daily_rev[idx]    += float(o['amount'] or 0)
@@ -1023,13 +1047,15 @@ def admin_view_booking_view(request):
 
     _LAO_TZ = _dtz(timedelta(hours=7))
 
+    # Advance ("ຈອງລ່ວງໜ້າ") bookings live on their own dedicated page — keep
+    # them out of this day-by-day queue view.
     if show_all:
-        all_orders = models.Orders.objects.all().select_related('product', 'customer__user').order_by('id')
+        all_orders = models.Orders.objects.filter(pickup_date__isnull=True).select_related('product', 'customer__user').order_by('id')
     else:
         day_start = _tz2.make_aware(dt_cls(selected_date.year, selected_date.month, selected_date.day, 0, 0, 0))
         day_end   = _tz2.make_aware(dt_cls(selected_date.year, selected_date.month, selected_date.day, 23, 59, 59))
         all_orders = models.Orders.objects.filter(
-            order_date__gte=day_start, order_date__lte=day_end
+            order_date__gte=day_start, order_date__lte=day_end, pickup_date__isnull=True
         ).select_related('product', 'customer__user').order_by('id')
 
     # Build groups ordered by first-seen (oldest first)
@@ -1094,6 +1120,48 @@ def admin_view_booking_view(request):
         'status_counts': status_counts,
         'show_all':      show_all,
     })
+
+
+@login_required(login_url='adminlogin')
+def admin_advance_bookings_view(request):
+    orders = models.Orders.objects.filter(pickup_date__isnull=False) \
+        .select_related('product', 'customer__user').order_by('pickup_date', 'pickup_time', 'order_date')
+
+    groups = {}
+    group_order = []
+    for order in orders:
+        key = order.order_group or str(order.id)
+        if key not in groups:
+            groups[key] = {
+                'key':          key,
+                'canonical':    order,
+                'orders':       [],
+                'customer':     order.customer,
+                'pickup_date':  order.pickup_date,
+                'pickup_time':  order.pickup_time,
+            }
+            group_order.append(key)
+        groups[key]['orders'].append(order)
+
+    for key in group_order:
+        g = groups[key]
+        g['item_count']   = len(g['orders'])
+        g['total_amount'] = sum(float(o.amount or 0) for o in g['orders'])
+        non_cancelled = [o for o in g['orders'] if o.status != 'Cancelled']
+        g['is_fulfilled'] = bool(non_cancelled) and all(o.status == 'Delivered' for o in non_cancelled)
+
+    data = [groups[key] for key in group_order]
+
+    return render(request, 'ecom/admin_advance_bookings.html', {
+        'data': data,
+    })
+
+
+@login_required(login_url='adminlogin')
+def fulfill_advance_booking_view(request, order_group):
+    models.Orders.objects.filter(order_group=order_group, pickup_date__isnull=False) \
+        .exclude(status='Cancelled').update(status='Delivered', fulfilled_at=timezone.now())
+    return redirect('admin-advance-bookings')
 
 
 @login_required(login_url='adminlogin')
@@ -1734,6 +1802,25 @@ def customer_address_view(request):
         delivery_km    = request.POST.get('delivery_km',    '0') or '0'
         delivery_fee   = request.POST.get('delivery_fee',   '0') or '0'
 
+        # Advance booking — "ຈອງລ່ວງໜ້າ": customer picks a future day+time to
+        # come collect the order instead of it going into today's prep queue.
+        # Falls back to a normal (today) order if the date is missing/invalid/not future.
+        pickup_date_str = ''
+        pickup_time_str = ''
+        if request.POST.get('is_advance') == '1':
+            from datetime import datetime as _dt_parse
+            try:
+                _pd = _dt_parse.strptime(request.POST.get('pickup_date', ''), '%Y-%m-%d').date()
+                if _pd > timezone.localdate():
+                    pickup_date_str = _pd.isoformat()
+                    try:
+                        _pt = _dt_parse.strptime(request.POST.get('pickup_time', ''), '%H:%M').time()
+                        pickup_time_str = _pt.strftime('%H:%M')
+                    except (ValueError, TypeError):
+                        pickup_time_str = ''
+            except (ValueError, TypeError):
+                pass
+
         # Get mobile — fallback to customer profile
         mobile = request.POST.get('Mobile', '').strip()
         if not mobile and customer:
@@ -1760,6 +1847,8 @@ def customer_address_view(request):
         response.set_cookie('delivery_km',    _q(str(delivery_km)))
         response.set_cookie('delivery_fee',   _q(str(delivery_fee)))
         response.set_cookie('payment_method', _q(payment_method))
+        response.set_cookie('pickup_date',    _q(pickup_date_str))
+        response.set_cookie('pickup_time',    _q(pickup_time_str))
         return response
 
     # Build cart items for display
@@ -1838,6 +1927,16 @@ def payment_success_view(request):
         _order_address  = _uq(request.COOKIES.get('address', customer.address or ''))
         _order_delivery = _uq(request.COOKIES.get('delivery_type', 'Delivery'))
         _order_payment  = _uq(request.COOKIES.get('payment_method', 'COD'))
+        _pickup_date_str = _uq(request.COOKIES.get('pickup_date', ''))
+        _pickup_time_str = _uq(request.COOKIES.get('pickup_time', ''))
+        try:
+            _order_pickup_date = _dt.strptime(_pickup_date_str, '%Y-%m-%d').date() if _pickup_date_str else None
+        except ValueError:
+            _order_pickup_date = None
+        try:
+            _order_pickup_time = _dt.strptime(_pickup_time_str, '%H:%M').time() if _pickup_time_str else None
+        except ValueError:
+            _order_pickup_time = None
 
     if cart:
         product_ids = cart.keys()
@@ -1879,6 +1978,8 @@ def payment_success_view(request):
                     delivery_fee=d_fee or None,
                     payment_method=_order_payment,
                     note=note_str,
+                    pickup_date=_order_pickup_date,
+                    pickup_time=_order_pickup_time,
                 )
                 print(f"  ✓ Created order for product {product.id}")
             except Exception as e:
@@ -1920,6 +2021,8 @@ def payment_success_view(request):
                     delivery_fee=d_fee or None,
                     payment_method=_order_payment,
                     note=note_str,
+                    pickup_date=_order_pickup_date,
+                    pickup_time=_order_pickup_time,
                 )
                 models.CustomOrderRequest.objects.create(customer=customer, message=message, order_group=group_id)
                 print(f"  ✓ Created custom order {order.id}")
@@ -1983,17 +2086,18 @@ def my_order_view(request):
         order_date__lte=day_end,
     ).order_by('id')
 
-    # Queue map for today's pending orders
+    # Queue map for today's pending orders — advance ("ຈອງລ່ວງໜ້າ") bookings
+    # aren't being prepared today, so they don't take a spot in today's queue.
     _grp_pending = list(
         models.Orders.objects.filter(
             order_date__gte=day_start, order_date__lte=day_end,
-            status='Pending', order_group__isnull=False,
+            status='Pending', order_group__isnull=False, pickup_date__isnull=True,
         ).values('order_group').annotate(_fid=_MinQ('id')).order_by('_fid')
     )
     _sgl_pending = list(
         models.Orders.objects.filter(
             order_date__gte=day_start, order_date__lte=day_end,
-            status='Pending', order_group__isnull=True,
+            status='Pending', order_group__isnull=True, pickup_date__isnull=True,
         ).order_by('id').values_list('id', flat=True)
     )
     _slots = [(str(g['order_group']), g['_fid']) for g in _grp_pending]
@@ -2022,6 +2126,9 @@ def my_order_view(request):
                 'total_pending': total_pending if is_today else 0,
                 'order_date':    order_local_date,
                 'is_today':      is_today,
+                'pickup_date':   order.pickup_date,
+                'pickup_time':   order.pickup_time,
+                'is_advance':    bool(order.pickup_date),
             }
         date_groups[order_local_date][key]['orders'].append(order)
         date_groups[order_local_date][key]['items'].append({
@@ -2048,6 +2155,20 @@ def my_order_view(request):
             g['item_ids']  = ','.join(str(o.id) for o in g['orders'])
             g['daily_seq'] = seq_num   # resets to 1 every new day
             groups.append(g)
+
+    # Keep today's regular queue and advance ("ຈອງລ່ວງໜ້າ") bookings in two
+    # separate, non-interleaved blocks in the slide sequence — advance bookings
+    # never share a queue position with today's orders, so they shouldn't be
+    # interleaved with them here either. Advance block: soonest-pickup-first,
+    # numbered on its own (independent of the regular block's daily_seq).
+    regular_groups = [g for g in groups if not g['is_advance']]
+    advance_groups = sorted(
+        [g for g in groups if g['is_advance']],
+        key=lambda g: (g['pickup_date'], g['pickup_time'] or _dt.min.time())
+    )
+    for adv_seq, g in enumerate(advance_groups, start=1):
+        g['daily_seq'] = adv_seq
+    groups = regular_groups + advance_groups
 
     return render(request, 'ecom/my_order.html', {
         'groups': groups,
@@ -3175,9 +3296,7 @@ def export_finance_excel(request):
         ws.sheet_view.showGridLines = False
 
         if sel_type == 'revenue':
-            orders = list(models.Orders.objects.filter(
-                order_date__gte=day_start, order_date__lte=day_end
-            ).values('id', 'product__name', 'quantity', 'amount', 'status'))
+            orders = list(_revenue_orders_qs(day_start, day_end).values('id', 'product__name', 'quantity', 'amount', 'status'))
             total_rev = sum(float(o['amount'] or 0) for o in orders)
 
             ws.title = f"ລາຍຮັບ {sel_date_d}"
@@ -3270,9 +3389,7 @@ def export_finance_excel(request):
             filename = f"VILLA_ລາຍຈ່າຍ_{sel_date_d}.xlsx"
 
         else:  # profit
-            orders = list(models.Orders.objects.filter(
-                order_date__gte=day_start, order_date__lte=day_end
-            ).values('id', 'product__name', 'quantity', 'amount'))
+            orders = list(_revenue_orders_qs(day_start, day_end).values('id', 'product__name', 'quantity', 'amount'))
             expenses = list(models.Expense.objects.filter(
                 date=sel_date_d
             ).values('id', 'category', 'description', 'amount'))
@@ -3388,10 +3505,8 @@ def export_finance_excel(request):
         _tz_end   = _dt.datetime(range_end.year, range_end.month, range_end.day, 23, 59, 59, tzinfo=_LAO_TZ)
 
         if sel_type == 'revenue':
-            orders = list(models.Orders.objects.filter(
-                order_date__gte=_tz_start, order_date__lte=_tz_end
-            ).select_related('product').order_by('order_date').values(
-                'id', 'order_date', 'product__name', 'quantity', 'amount', 'status'
+            orders = list(_revenue_orders_qs(_tz_start, _tz_end).select_related('product').order_by('order_date').values(
+                'id', 'order_date', 'product__name', 'quantity', 'amount', 'status', 'pickup_date', 'fulfilled_at'
             ))
             total = sum(float(o['amount'] or 0) for o in orders)
             STATUS_LAO = {'Delivered':'ສຳເລັດ','Cancelled':'ຍົກເລີກ','Processing':'ກຳລັງຈັດ','Confirmed':'ຢືນຢັນ','Pending':'ລໍຖ້າ'}
@@ -3415,7 +3530,8 @@ def export_finance_excel(request):
             for i, o in enumerate(orders):
                 amt = float(o['amount'] or 0)
                 r = i + 4; rf = _fill("EFF6FF") if i % 2 == 0 else _fill("FFFFFF")
-                odate = o['order_date'].astimezone(_LAO_TZ).strftime('%d/%m/%Y') if o['order_date'] else '—'
+                _rev_dt = _revenue_date(o)
+                odate = _rev_dt.astimezone(_LAO_TZ).strftime('%d/%m/%Y') if _rev_dt else '—'
                 for ci, (v, a) in enumerate(zip(
                     [i+1, odate, o['product__name'] or '—', o['quantity'] or 1, _dotfmt_s(amt) if amt else '—', STATUS_LAO.get(o['status'], o['status'])],
                     [_center, _center, _left, _center, _right, _center]
@@ -3487,8 +3603,8 @@ def export_finance_excel(request):
 
         else:  # profit — aggregated per-day (month scope) or per-month (year scope)
             rev_map, exp_map = {}, {}
-            for o in models.Orders.objects.filter(order_date__gte=_tz_start, order_date__lte=_tz_end).values('order_date', 'amount'):
-                d = o['order_date'].astimezone(_LAO_TZ).date()
+            for o in _revenue_orders_qs(_tz_start, _tz_end).values('order_date', 'amount', 'pickup_date', 'fulfilled_at'):
+                d = _revenue_date(o).astimezone(_LAO_TZ).date()
                 rev_map[d] = rev_map.get(d, 0.0) + float(o['amount'] or 0)
             for e in models.Expense.objects.filter(date__gte=range_start, date__lte=range_end).values('date', 'amount'):
                 exp_map[e['date']] = exp_map.get(e['date'], 0.0) + float(e['amount'] or 0)
@@ -3583,8 +3699,8 @@ def export_finance_excel(request):
         ws.sheet_view.showGridLines = False
 
         if sel_type == 'revenue':
-            orders = list(models.Orders.objects.all().select_related('product').order_by('order_date').values(
-                'id', 'order_date', 'product__name', 'quantity', 'amount', 'status'
+            orders = list(_revenue_orders_qs().select_related('product').order_by('order_date').values(
+                'id', 'order_date', 'product__name', 'quantity', 'amount', 'status', 'pickup_date', 'fulfilled_at'
             ))
             total = sum(float(o['amount'] or 0) for o in orders)
             STATUS_LAO = {'Delivered':'ສຳເລັດ','Cancelled':'ຍົກເລີກ','Processing':'ກຳລັງຈັດ','Confirmed':'ຢືນຢັນ','Pending':'ລໍຖ້າ'}
@@ -3604,7 +3720,8 @@ def export_finance_excel(request):
             ws.row_dimensions[3].height = 28
             for i, o in enumerate(orders):
                 r = i + 4; rf = _fill("F8F7FF") if i % 2 == 0 else _fill("FFFFFF")
-                odate = o['order_date'].astimezone(_LAO_TZ).strftime('%d/%m/%Y') if o['order_date'] else '—'
+                _rev_dt = _revenue_date(o)
+                odate = _rev_dt.astimezone(_LAO_TZ).strftime('%d/%m/%Y') if _rev_dt else '—'
                 for ci, (v, a) in enumerate(zip(
                     [i + 1, odate, o['product__name'] or '—', o['quantity'], _dotfmt_all(o['amount']), STATUS_LAO.get(o['status'], o['status'] or '—')],
                     [_center, _center, _left, _center, _right, _center]
@@ -3693,7 +3810,7 @@ def export_finance_excel(request):
             for i, yr in enumerate(years):
                 y_start = _dt.datetime(yr, 1, 1, tzinfo=_LAO_TZ)
                 y_end   = _dt.datetime(yr, 12, 31, 23, 59, 59, tzinfo=_LAO_TZ)
-                r = float(models.Orders.objects.filter(order_date__gte=y_start, order_date__lte=y_end).aggregate(t=_Sum('amount'))['t'] or 0)
+                r = float(_revenue_orders_qs(y_start, y_end).aggregate(t=_Sum('amount'))['t'] or 0)
                 e = float(models.Expense.objects.filter(date__gte=_dt.date(yr, 1, 1), date__lte=_dt.date(yr, 12, 31)).aggregate(t=_Sum('amount'))['t'] or 0)
                 p = r - e
                 total_r += r; total_e += e; total_p += p
@@ -3779,10 +3896,8 @@ def export_finance_excel(request):
     _tz_start = _dt.datetime(sel_year, sel_month, 1, tzinfo=_LAO_TZ)
     _tz_end   = _dt.datetime(sel_year, sel_month, days_in_month, 23, 59, 59, tzinfo=_LAO_TZ)
     rev_map = {}
-    for o in models.Orders.objects.filter(
-        order_date__gte=_tz_start, order_date__lte=_tz_end
-    ).values('order_date', 'amount'):
-        d = o['order_date'].astimezone(_LAO_TZ).date()
+    for o in _revenue_orders_qs(_tz_start, _tz_end).values('order_date', 'amount', 'pickup_date', 'fulfilled_at'):
+        d = _revenue_date(o).astimezone(_LAO_TZ).date()
         rev_map[d] = rev_map.get(d, 0.0) + float(o['amount'] or 0)
 
     # Expense per day
@@ -3882,10 +3997,8 @@ def export_finance_excel(request):
     year_tz_s = _dt.datetime(sel_year, 1, 1, tzinfo=_LAO_TZ)
     year_tz_e = _dt.datetime(sel_year, 12, 31, 23, 59, 59, tzinfo=_LAO_TZ)
     rev_month = [0.0] * 12
-    for o in models.Orders.objects.filter(
-        order_date__gte=year_tz_s, order_date__lte=year_tz_e
-    ).values('order_date', 'amount'):
-        m = o['order_date'].astimezone(_LAO_TZ).month - 1
+    for o in _revenue_orders_qs(year_tz_s, year_tz_e).values('order_date', 'amount', 'pickup_date', 'fulfilled_at'):
+        m = _revenue_date(o).astimezone(_LAO_TZ).month - 1
         rev_month[m] += float(o['amount'] or 0)
 
     exp_month = [0.0] * 12
@@ -3992,10 +4105,8 @@ def export_finance_excel(request):
 
         # ── Build rev_map, exp_map, cnt_map for month ──
         rev_map_d = {}; cnt_map_d = {}
-        for o in models.Orders.objects.filter(
-            order_date__gte=_tz_ms, order_date__lte=_tz_me
-        ).values('order_date', 'amount'):
-            d = o['order_date'].astimezone(_LAO_TZ).date()
+        for o in _revenue_orders_qs(_tz_ms, _tz_me).values('order_date', 'amount', 'pickup_date', 'fulfilled_at'):
+            d = _revenue_date(o).astimezone(_LAO_TZ).date()
             rev_map_d[d] = rev_map_d.get(d, 0.0) + float(o['amount'] or 0)
             cnt_map_d[d] = cnt_map_d.get(d, 0) + 1
 
@@ -4008,10 +4119,8 @@ def export_finance_excel(request):
 
         # ── Build yearly summaries ──
         rev_map_m = [0.0]*12; cnt_map_m = [0]*12
-        for o in models.Orders.objects.filter(
-            order_date__gte=_tz_ys, order_date__lte=_tz_ye
-        ).values('order_date', 'amount'):
-            m = o['order_date'].astimezone(_LAO_TZ).month - 1
+        for o in _revenue_orders_qs(_tz_ys, _tz_ye).values('order_date', 'amount', 'pickup_date', 'fulfilled_at'):
+            m = _revenue_date(o).astimezone(_LAO_TZ).month - 1
             rev_map_m[m] += float(o['amount'] or 0)
             cnt_map_m[m] += 1
         exp_map_m = [0.0]*12

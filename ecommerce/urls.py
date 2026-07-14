@@ -53,6 +53,8 @@ urlpatterns = [
 
 
     path('admin-view-booking', views.admin_view_booking_view,name='admin-view-booking'),
+    path('admin-advance-bookings', views.admin_advance_bookings_view, name='admin-advance-bookings'),
+    path('fulfill-advance-booking/<str:order_group>', views.fulfill_advance_booking_view, name='fulfill-advance-booking'),
     path('delete-order/<int:pk>', views.delete_order_view,name='delete-order'),
     path('update-order/<int:pk>', views.update_order_view,name='update-order'),
 

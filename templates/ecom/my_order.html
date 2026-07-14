@@ -118,6 +118,7 @@ body {
 .sp-done      { background: #dcfce7; border:1.5px solid #86efac; color:#16a34a; }
 .sp-cancel    { background: #fff1f2; border:1.5px solid #fecdd3; color:#be123c; }
 .sp-mixed     { background: rgba(255,255,255,.25); border:1.5px solid rgba(255,255,255,.45); color:#fff; }
+.sp-advance   { background: #f5f3ff; border:1.5px solid #ddd6fe; color:#6d28d9; }
 
 .ldot { width: 8px; height: 8px; border-radius: 50%; background: #fef08a; box-shadow: 0 0 8px #fef08a; animation: blink 1.4s ease-in-out infinite; flex-shrink:0; display:inline-block; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
@@ -314,7 +315,12 @@ body {
                     <span class="order-date-tag">{% if g.is_today %}ມື້ນີ້{% else %}{{ g.order_date|date:"d/m/Y" }}{% endif %}</span>
                 </div>
 
-                {% if g.is_mixed %}
+                {% if g.is_advance %}
+                <div class="status-pill sp-advance">
+                    <i class="fas fa-calendar-check fa-xs"></i>
+                    ຈອງລ່ວງໜ້າ — ມາຮັບ {{ g.pickup_date|date:"d/m/Y" }}{% if g.pickup_time %} ເວລາ {{ g.pickup_time|time:"H:i" }}{% endif %}
+                </div>
+                {% elif g.is_mixed %}
                 <div class="status-pill sp-mixed" id="grp-badge-{{ g.first_order.id }}">
                     <i class="fas fa-layer-group fa-xs"></i>
                     {% if g.status_counts.Delivered %}<span>✅{{ g.status_counts.Delivered }}</span>{% endif %}

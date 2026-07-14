@@ -353,6 +353,10 @@
         <i class="fa-solid fa-calendar-days"></i>
         <span class="nav-label">ລາຍການຈອງຄິວ</span>
       </a>
+      <a href="/admin-advance-bookings" class="nav-item-custom {% if '/admin-advance-bookings' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-calendar-check"></i>
+        <span class="nav-label">ຈອງລ່ວງໜ້າ</span>
+      </a>
       <a href="/admin-products" class="nav-item-custom {% if '/admin-products' in request.path or '/admin-add-product' in request.path or '/update-product' in request.path %}active{% endif %}">
         <i class="fa-solid fa-layer-group"></i>
         <span class="nav-label">ຄັງສິນຄ້າ</span>
