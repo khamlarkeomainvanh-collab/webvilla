@@ -1,4 +1,5 @@
 import re
+import unicodedata
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
@@ -11,6 +12,17 @@ def _normalize_phone(raw):
     if digits.startswith('856'):
         digits = digits[3:]
     return digits.lstrip('0')
+
+
+def _norm_name(raw):
+    """NFKC-normalize + casefold so name comparisons survive Django's login
+    form silently NFKC-normalizing the submitted username (it does this on
+    every text login field, to guard against unicode look-alike spoofing).
+    For Lao script that normalization rewrites some very common letters —
+    e.g. 'ຳ' (U+0EB3) becomes 'ໍາ' (U+0ECD U+0EB2) — so a name typed
+    identically at signup and login can otherwise fail to match even though
+    it looks character-for-character the same on screen."""
+    return unicodedata.normalize('NFKC', (raw or '').strip()).casefold()
 
 
 class MobileOrUsernameBackend(ModelBackend):
@@ -40,17 +52,15 @@ class MobileOrUsernameBackend(ModelBackend):
                     if cust.user.check_password(password) and self.user_can_authenticate(cust.user):
                         return cust.user
 
-        # 3) first name / full name (not unique — check every match's password)
-        name_candidates = User.objects.filter(first_name__iexact=typed)
-        for u in name_candidates:
-            if u.check_password(password) and self.user_can_authenticate(u):
-                return u
-
-        # 4) full name ("first last") in case they typed both
-        for u in User.objects.exclude(first_name=''):
-            full_name = f"{u.first_name} {u.last_name}".strip()
-            if full_name.lower() == typed.lower():
-                if u.check_password(password) and self.user_can_authenticate(u):
-                    return u
+        # 3) first name, or full name ("first last") — compared after the same
+        # NFKC+casefold normalization on both sides so it's immune to whatever
+        # unicode form either the login form or the stored value happens to be in.
+        target_name = _norm_name(typed)
+        if target_name:
+            for u in User.objects.exclude(first_name=''):
+                full_name = f"{u.first_name} {u.last_name}".strip()
+                if _norm_name(u.first_name) == target_name or _norm_name(full_name) == target_name:
+                    if u.check_password(password) and self.user_can_authenticate(u):
+                        return u
 
         return None

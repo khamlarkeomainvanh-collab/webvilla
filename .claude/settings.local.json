@@ -6,7 +6,9 @@
       "Bash(python -c ' *)",
       "Bash(python -c \"import ast; ast.parse\\(open\\('ecommerce/urls.py', encoding='utf-8'\\).read\\(\\)\\)\")",
       "Bash(python manage.py shell -c ' *)",
-      "Bash(rm scratch_out.txt)"
+      "Bash(rm scratch_out.txt)",
+      "Bash(python manage.py check)",
+      "Bash(PYTHONIOENCODING=utf-8 python manage.py shell -c ' *)"
     ]
   }
 }

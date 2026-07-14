@@ -2024,14 +2024,14 @@ def my_order_view(request):
                 'is_today':      is_today,
             }
         date_groups[order_local_date][key]['orders'].append(order)
-        if order.product:
-            date_groups[order_local_date][key]['items'].append({
-                'id':       order.id,
-                'product':  order.product,
-                'status':   order.status,
-                'amount':   order.amount,
-                'quantity': order.quantity,
-            })
+        date_groups[order_local_date][key]['items'].append({
+            'id':       order.id,
+            'product':  order.product,
+            'note':     order.note,
+            'status':   order.status,
+            'amount':   order.amount,
+            'quantity': order.quantity,
+        })
 
     # Flatten newest-date-first; compute per-day sequence numbers
     groups = []
