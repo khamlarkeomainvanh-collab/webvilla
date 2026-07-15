@@ -780,7 +780,7 @@ def admin_walkin_sale_view(request):
     transfer_today = sales.filter(payment_method='Transfer').aggregate(t=Sum('amount'))['t'] or 0
 
     return render(request, 'ecom/admin_walkin_sale.html', {
-        'products':       models.Product.objects.all().order_by('name'),
+        'products':       models.Product.objects.filter(is_available=True).order_by('name'),
         'sales':          sales,
         'total_today':    total_today,
         'qty_today':      qty_today,
