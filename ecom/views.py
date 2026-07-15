@@ -1246,6 +1246,9 @@ def admin_advance_bookings_view(request):
 def delete_order_view(request,pk):
     order=models.Orders.objects.get(id=pk)
     order.delete()
+    referer = request.META.get('HTTP_REFERER')
+    if referer:
+        return redirect(referer)
     return redirect('admin-view-booking')
 
 # for changing status of order (pending,delivered...)
