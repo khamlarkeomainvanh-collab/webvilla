@@ -319,12 +319,11 @@ def admin_dashboard_view(request):
 
     sales_data = [10, 25, 15, 30, 45, 35, 55]
 
-    # ── ຕາຕະລາງ Orders grouped by order_group — advance ("ຈອງລ່ວງໜ້າ") bookings
-    # have their own dedicated page, so they're excluded here same as admin-view-booking. ──
+    # ── ຕາຕະລາງ Orders grouped by order_group — ໃຊ້ set ດຽວກັນກັບການ໋ໍນັບຍອດ
+    # ຂ້າງເທິງ (_revenue_orders_qs) ເພື່ອໃຫ້ ຂາຍໜ້າຮ້ານ + ຈອງອອນລາຍ + ຈອງລ່ວງໜ້າ
+    # (ທີ່ຮັບແລ້ວມື້ນີ້) ທັງໝົດສະແດງຢູ່ນີ້ ແລະ ຍອດຂາຍຕົງກັນທຸກບ່ອນ. ──
     from django.utils import timezone as _tz3
-    all_day_orders = models.Orders.objects.filter(
-        order_date__gte=_ts, order_date__lte=_te, pickup_date__isnull=True
-    ).select_related('product', 'customer__user').order_by('id')
+    all_day_orders = today_orders_qs.select_related('customer__user').order_by('id')
 
     day_revenue = today_revenue
 
@@ -336,12 +335,16 @@ def admin_dashboard_view(request):
     for _o in all_day_orders:
         _key = _o.order_group or str(_o.id)
         if _key not in _all_groups:
+            # ຈອງລ່ວງໜ້າ — ໃຊ້ເວລາ "ຮັບແທ້ຈິງ" (fulfilled_at) ແທນເວລາ "ຈອງ" (order_date)
+            _time_src = _o.fulfilled_at if (_o.pickup_date and _o.fulfilled_at) else _o.order_date
             _all_groups[_key] = {
                 'key': _key,
                 'canonical': _o,
                 'orders': [],
                 'customer': _o.customer,
-                'local_time': _o.order_date.astimezone(_LAO_TZ2).strftime("%H:%M") if _o.order_date else "--:--",
+                'local_time': _time_src.astimezone(_LAO_TZ2).strftime("%H:%M") if _time_src else "--:--",
+                'is_advance': bool(_o.pickup_date),
+                'is_walkin':  _o.delivery_type == WALKIN_DELIVERY_TYPE,
             }
             _group_order.append(_key)
         _all_groups[_key]['orders'].append(_o)
@@ -1528,13 +1531,36 @@ def _cust_unit_price(product_price, cust):
     topping_fee = cust.get('topping_fee', 0) or 0
     return (size_price if size_price else product_price) + topping_fee
 
+
+def _cart_lines(cart_dict, customizations):
+    """Yield (line_key, product, qty, cust, unit_price, subtotal) for every cart
+    line. A "line" is normally just a product id ("12"), but when a customer
+    splits off part of a multi-quantity order to customize separately (e.g.
+    2 cups where only 1 gets extra topping), the split-off portion gets its
+    own line key ("12-a1b2c3") so it can carry its own customization/price
+    independent of the rest of that product's quantity."""
+    if not cart_dict:
+        return
+    base_ids = {key.split('-')[0] for key in cart_dict.keys()}
+    products_by_id = {str(p.id): p for p in models.Product.objects.filter(id__in=base_ids)}
+    for line_key, qty in cart_dict.items():
+        pid = line_key.split('-')[0]
+        product = products_by_id.get(pid)
+        if not product:
+            continue
+        cust = customizations.get(line_key, {})
+        unit_price = _cust_unit_price(product.price, cust)
+        subtotal = unit_price * qty
+        yield line_key, product, qty, cust, unit_price, subtotal
+
 # ບັນທຶກ customization ຂອງສິນຄ້າໃນກະຕ່າ
 def save_customization_view(request, pk):
     if request.method == 'POST':
+        cart = request.session.get('cart', {})
         customizations = request.session.get('cart_customizations', {})
         size     = request.POST.get('size', '')
         toppings = [t for t in request.POST.getlist('topping') if t]
-        customizations[str(pk)] = {
+        cust = {
             'size':        size,
             'size_price':  _SIZE_PRICES.get(size, 0),
             'sweet':       request.POST.get('sweet', ''),
@@ -1543,6 +1569,16 @@ def save_customization_view(request, pk):
             'topping_fee': _TOPPING_FEE * len(toppings),
             'note':        request.POST.get('note', ''),
         }
+        line_key = request.POST.get('line_key') or str(pk)
+        split    = request.POST.get('split') == '1'
+        if split and cart.get(line_key, 0) > 1:
+            cart[line_key] -= 1
+            new_key = f"{pk}-{uuid.uuid4().hex[:6]}"
+            cart[new_key] = 1
+            customizations[new_key] = cust
+            request.session['cart'] = cart
+        else:
+            customizations[line_key] = cust
         request.session['cart_customizations'] = customizations
         request.session.modified = True
     return redirect('cart')
@@ -1557,32 +1593,26 @@ def cart_view(request):
 
     customizations = request.session.get('cart_customizations', {})
 
-    for p_id, item_qty in cart.items():
-        try:
-            product = Product.objects.get(id=p_id)
-            cust       = customizations.get(str(p_id), {})
-            unit_price = _cust_unit_price(product.price, cust)
-            subtotal   = unit_price * item_qty
-            total += subtotal
-            products_list.append({
-                'id':           product.id,
-                'name':         product.name,
-                'price':        product.price,
-                'unit_price':   unit_price,
-                'qty':          item_qty,
-                'subtotal':     subtotal,
-                'product_image': product.product_image,
-                'cust_size':    cust.get('size', ''),
-                'cust_sweet':   cust.get('sweet', ''),
-                'cust_pearl':   cust.get('pearl', ''),
-                'cust_topping': cust.get('topping', []),
-                'cust_topping_custom': [t for t in cust.get('topping', []) if t not in _FIXED_TOPPINGS],
-                'cust_note':    cust.get('note', ''),
-                'cust_size_price':  cust.get('size_price', 0),
-                'cust_topping_fee': cust.get('topping_fee', 0),
-            })
-        except Product.DoesNotExist:
-            continue
+    for line_key, product, item_qty, cust, unit_price, subtotal in _cart_lines(cart, customizations):
+        total += subtotal
+        products_list.append({
+            'id':           product.id,
+            'line_key':     line_key,
+            'name':         product.name,
+            'price':        product.price,
+            'unit_price':   unit_price,
+            'qty':          item_qty,
+            'subtotal':     subtotal,
+            'product_image': product.product_image,
+            'cust_size':    cust.get('size', ''),
+            'cust_sweet':   cust.get('sweet', ''),
+            'cust_pearl':   cust.get('pearl', ''),
+            'cust_topping': cust.get('topping', []),
+            'cust_topping_custom': [t for t in cust.get('topping', []) if t not in _FIXED_TOPPINGS],
+            'cust_note':    cust.get('note', ''),
+            'cust_size_price':  cust.get('size_price', 0),
+            'cust_topping_fee': cust.get('topping_fee', 0),
+        })
 
     custom_cart_items = request.session.get('custom_cart_items', [])
     for c in custom_cart_items:
@@ -1930,15 +1960,9 @@ def customer_address_view(request):
     cart_items = []
     subtotal = 0
     customizations = request.session.get('cart_customizations', {})
-    if cart:
-        products_qs = models.Product.objects.filter(id__in=cart.keys())
-        for p in products_qs:
-            qty = cart.get(str(p.id), 1)
-            cust       = customizations.get(str(p.id), {})
-            unit_price = _cust_unit_price(p.price, cust)
-            item_total = unit_price * qty
-            subtotal += item_total
-            cart_items.append({'product': p, 'qty': qty, 'total': item_total, 'unit_price': unit_price, 'cust': cust})
+    for line_key, p, qty, cust, unit_price, item_total in _cart_lines(cart, customizations):
+        subtotal += item_total
+        cart_items.append({'product': p, 'line_key': line_key, 'qty': qty, 'total': item_total, 'unit_price': unit_price, 'cust': cust})
 
     for c in custom_cart_items:
         c['subtotal'] = c.get('unit_price', _SIZE_PRICES['M']) * c['qty']
@@ -2014,16 +2038,8 @@ def payment_success_view(request):
             _order_pickup_time = None
 
     if cart:
-        product_ids = cart.keys()
-        products_qs = models.Product.objects.filter(id__in=product_ids)
-
         cart_customizations = request.session.get('cart_customizations', {})
-        for product in products_qs:
-            qty  = cart.get(str(product.id), 1)
-            cust = cart_customizations.get(str(product.id), {})
-
-            unit_price   = _cust_unit_price(product.price, cust)
-            total_amount = unit_price * qty
+        for line_key, product, qty, cust, unit_price, total_amount in _cart_lines(cart, cart_customizations):
             grand_total += total_amount
 
             # Build note string from customizations
@@ -2518,18 +2534,27 @@ def profit_invoice_view(request):
 
 
 STATUS_NOTIFY_LAO = {
-    'Confirmed':  ('✅ ຮ້ານຮັບອໍເດີແລ້ວ', 'ຮ້ານໄດ້ຮັບ ແລະ ຢືນຢັນອໍເດີຂອງທ່ານແລ້ວ ກຳລັງກຽມສິນຄ້າ'),
-    'Processing': ('🚚 ກຳລັງຈັດສົ່ງ', 'ອໍເດີຂອງທ່ານກຳລັງຈັດສົ່ງ / ກຽມພ້ອມໃຫ້ຮັບ'),
-    'Delivered':  ('🏠 ຈັດສົ່ງສຳເລັດ', 'ອໍເດີຂອງທ່ານຈັດສົ່ງ/ຮັບສຳເລັດແລ້ວ ຂອບໃຈທີ່ອຸດໜູນ 🙏'),
+    'Confirmed':  ('✅ ຮ້ານຮັບອໍເດີແລ້ວ', 'ຮ້ານໄດ້ຮັບ ແລະ ຢືນຢັນອໍເດີຂອງທ່ານແລ້ວ ກະລຸນາລໍຖ້າ ກຳລັງກຽມສິນຄ້າ'),
+    'Processing': ('👩‍🍳 ກຳລັງກຽມສິນຄ້າ', 'ຮ້ານກຳລັງກຽມອໍເດີຂອງທ່ານ ຈະແຈ້ງອີກເທື່ອໜຶ່ງເມື່ອພ້ອມ'),
 }
 
+# "Delivered" (ປຸ່ມ "ຈັດສົ່ງສຳເລັດ") ໃນລະບົບ ໝາຍເຖິງ "ພ້ອມໃຫ້ລູກຄ້າແລ້ວ" — ຂໍ້ຄວາມຈຶ່ງຕ້ອງ
+# ແຕກຕ່າງກັນລະຫວ່າງ ຮັບໜ້າຮ້ານ (ມາຮັບໄດ້ເລີຍ) ແລະ ຈັດສົ່ງ (ໄລເດີ້ກຳລັງນຳສົ່ງ)
+DELIVERED_NOTIFY_PICKUP   = ('🎉 ສິນຄ້າພ້ອມແລ້ວ', 'ອໍເດີຂອງທ່ານພ້ອມແລ້ວ ມາຮັບໄດ້ເລີຍທີ່ຮ້ານ 🏪')
+DELIVERED_NOTIFY_DELIVERY = ('🚴 ໄລເດີ້ກຳລັງຈັດສົ່ງ', 'ອໍເດີຂອງທ່ານພ້ອມແລ້ວ ໄລເດີ້ກຳລັງນຳສົ່ງໃຫ້ທ່ານ')
 
-def _notify_customer_status(user, status):
+
+def _notify_customer_status(user, status, delivery_type=None):
     """Best-effort push notification — a failure here must never break the
     actual status update (e.g. customer never subscribed to notifications)."""
-    if not user or status not in STATUS_NOTIFY_LAO:
+    if not user:
         return
-    title, body = STATUS_NOTIFY_LAO[status]
+    if status == 'Delivered':
+        title, body = DELIVERED_NOTIFY_PICKUP if delivery_type == 'Pickup' else DELIVERED_NOTIFY_DELIVERY
+    elif status in STATUS_NOTIFY_LAO:
+        title, body = STATUS_NOTIFY_LAO[status]
+    else:
+        return
     try:
         send_user_notification(user=user, payload={'title': title, 'body': body, 'url': '/my-order'}, ttl=1000)
     except Exception:
@@ -2544,12 +2569,12 @@ def ajax_update_group_status(request):
     if not group_key or status not in ['Pending', 'Confirmed', 'Processing', 'Delivered', 'Cancelled']:
         return JsonResponse({'ok': False}, status=400)
     group_orders = models.Orders.objects.filter(order_group=group_key)
-    customer = group_orders.select_related('customer__user').values_list('customer', flat=True).first()
+    customer, delivery_type = group_orders.select_related('customer__user').values_list('customer', 'delivery_type').first() or (None, None)
     updated = group_orders.update(status=status)
     if updated == 0:
         try:
             group_orders = models.Orders.objects.filter(id=int(group_key))
-            customer = group_orders.values_list('customer', flat=True).first()
+            customer, delivery_type = group_orders.values_list('customer', 'delivery_type').first() or (None, None)
             updated = group_orders.update(status=status)
         except (ValueError, TypeError):
             return JsonResponse({'ok': False}, status=400)
@@ -2560,7 +2585,7 @@ def ajax_update_group_status(request):
     if customer:
         cust = models.Customer.objects.filter(id=customer).select_related('user').first()
         if cust:
-            _notify_customer_status(cust.user, status)
+            _notify_customer_status(cust.user, status, delivery_type=delivery_type)
     return JsonResponse({'ok': True, 'status': status, 'updated': updated})
 
 
@@ -2701,7 +2726,7 @@ def ajax_update_order_status(request, pk):
             order.fulfilled_at = timezone.now()
         order.save()
         if order.customer:
-            _notify_customer_status(order.customer.user, status)
+            _notify_customer_status(order.customer.user, status, delivery_type=order.delivery_type)
         return JsonResponse({'ok': True, 'status': status})
     return JsonResponse({'ok': False}, status=400)
 
@@ -2821,9 +2846,9 @@ def ajax_day_orders(request):
         sel_date = _tz.localdate()
     d_start = _tz.make_aware(_dtt(sel_date.year, sel_date.month, sel_date.day, 0, 0, 0))
     d_end   = _tz.make_aware(_dtt(sel_date.year, sel_date.month, sel_date.day, 23, 59, 59))
-    qs = models.Orders.objects.filter(
-        order_date__gte=d_start, order_date__lte=d_end
-    ).select_related('product', 'customer__user').order_by('id')
+    # ໃຊ້ set ດຽວກັນກັບ _revenue_orders_qs ເພື່ອໃຫ້ຕົງກັບຍອດຂາຍທີ່ສະແດງຢູ່ card
+    # (ຂາຍໜ້າຮ້ານ + ຈອງອອນລາຍ + ຈອງລ່ວງໜ້າທີ່ຮັບແລ້ວມື້ນີ້)
+    qs = _revenue_orders_qs(d_start, d_end).select_related('product', 'customer__user').order_by('id')
     if status_filt and status_filt not in ('', 'All'):
         qs = qs.filter(status=status_filt)
     _lao_tz = _dtz(_td(hours=7))
@@ -2834,6 +2859,7 @@ def ajax_day_orders(request):
                 img_url = o.product.product_image.url if (o.product and o.product.product_image) else None
             except Exception:
                 img_url = None
+            _time_src = o.fulfilled_at if (o.pickup_date and o.fulfilled_at) else o.order_date
             orders_list.append({
                 'id':          o.id,
                 'product':     o.product.name if o.product else '—',
@@ -2843,7 +2869,7 @@ def ajax_day_orders(request):
                 'amount':      float(o.amount or 0),
                 'quantity':    o.quantity or 1,
                 'status':      o.status or 'Pending',
-                'time':        o.order_date.astimezone(_lao_tz).strftime('%H:%M') if o.order_date else '--:--',
+                'time':        _time_src.astimezone(_lao_tz).strftime('%H:%M') if _time_src else '--:--',
                 'address':     o.address or '',
             })
     except Exception as _ex:

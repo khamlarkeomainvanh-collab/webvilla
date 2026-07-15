@@ -45,9 +45,9 @@ urlpatterns = [
     path('update-product/<int:pk>', views.update_product_view,name='update-product'),
     path('toggle-product-stock/<int:pk>', views.toggle_product_stock_view, name='toggle-product-stock'),
 
-    path('add-qty/<int:pk>/', views.add_qty, name='add-qty'),
-    path('remove-qty/<int:pk>/', views.remove_qty, name='remove-qty'),
-    path('remove_qty_more/<int:pk>/', views.remove_qty_more, name='remove_qty_more'),
+    path('add-qty/<str:pk>/', views.add_qty, name='add-qty'),
+    path('remove-qty/<str:pk>/', views.remove_qty, name='remove-qty'),
+    path('remove_qty_more/<str:pk>/', views.remove_qty_more, name='remove_qty_more'),
     
     path('remove-from-cart/<int:pk>/', views.remove_from_cart_view, name='remove-from-cart'),
 

@@ -843,6 +843,11 @@ body { background: #ffffff !important; }
 
                     <td style="text-align:center;">
                         <div class="q-badge">Q{{ group.queue_num }}</div>
+                        {% if group.is_walkin %}
+                        <div style="font-size:.62rem;font-weight:800;color:#a855f7;margin-top:3px;" title="ຂາຍໜ້າຮ້ານ">🏪 ໜ້າຮ້ານ</div>
+                        {% elif group.is_advance %}
+                        <div style="font-size:.62rem;font-weight:800;color:#ec4899;margin-top:3px;" title="ຈອງລ່ວງໜ້າ — ຮັບແລ້ວມື້ນີ້">📅 ຈອງລ່ວງໜ້າ</div>
+                        {% endif %}
                     </td>
 
                     <!-- Products summary -->
