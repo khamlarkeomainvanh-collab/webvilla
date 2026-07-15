@@ -97,13 +97,29 @@ WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+#
+# Uses a real Postgres database (persists across deploys/restarts) when
+# DATABASE_URL is set — e.g. Railway sets this automatically once a
+# PostgreSQL service is added and linked to this app. Falls back to the
+# local SQLite file for local development only (SQLite on Railway is NOT
+# persistent: it gets reset to whatever was last committed to git on every
+# deploy, which silently wiped real customer/order data in the past).
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+import dj_database_url
+
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 
 # Password validation
