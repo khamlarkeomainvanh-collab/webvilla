@@ -296,8 +296,12 @@ button.ws-stat-card {
                         </label>
                         {% endfor %}
                     </div>
+                    <div id="wsMultiTotalRow" style="display:none; justify-content:space-between; align-items:center; margin-top:10px; padding:8px 12px; background:#f5f3ff; border-radius:10px;">
+                        <span style="font-size:.8rem; font-weight:800; color:#7c3aed;">ລວມ <span id="wsMultiSelCount">0</span> ລາຍການ</span>
+                        <span style="font-size:.92rem; font-weight:900; color:#059669;" id="wsMultiTotalPrice">0 ກີບ</span>
+                    </div>
                     <button type="button" class="ws-btn-queue" style="width:100%; margin-top:10px; justify-content:center;" onclick="wsAddSelectedMulti()">
-                        <i class="fas fa-cart-plus"></i> ເພີ່ມທີ່ເລືອກເຂົ້າຄິວ (<span id="wsMultiSelCount">0</span>)
+                        <i class="fas fa-cart-plus"></i> ເພີ່ມທີ່ເລືອກເຂົ້າຄິວ
                     </button>
                 </div>
             </div>
@@ -586,8 +590,11 @@ function wsFilterMultiList() {
     });
 }
 function wsUpdateMultiCount() {
-    const count = document.querySelectorAll('#wsMultiList input:checked').length;
-    document.getElementById('wsMultiSelCount').textContent = count;
+    const checked = document.querySelectorAll('#wsMultiList input:checked');
+    const total = Array.from(checked).reduce((sum, cb) => sum + (parseInt(cb.dataset.price, 10) || 0), 0);
+    document.getElementById('wsMultiSelCount').textContent = checked.length;
+    document.getElementById('wsMultiTotalPrice').textContent = total.toLocaleString('en-US') + ' ກີບ';
+    document.getElementById('wsMultiTotalRow').style.display = checked.length ? 'flex' : 'none';
 }
 function wsAddSelectedMulti() {
     const checked = document.querySelectorAll('#wsMultiList input:checked');
