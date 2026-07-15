@@ -296,7 +296,19 @@ def admin_dashboard_view(request):
 
     # Stats ຂອງ selected_date — advance bookings only count once actually
     # fulfilled (see _revenue_orders_qs), not on the day they were booked.
-    today_orders_qs       = _revenue_orders_qs(_ts, _te).select_related('product')
+    today_orders_qs = _revenue_orders_qs(_ts, _te).select_related('product')
+
+    # ── Source filter (?source=) — ອອນລາຍ / ໜ້າຮ້ານ, ຄືກັບ admin-view-booking.
+    # ຄ່າເລີ່ມຕົ້ນ "all" ຄືເກົ່າ (ລວມທຸກປະເພດ), ຕົວກອງນີ້ນຳໃຊ້ກັບທັງ card ແລະ
+    # ຕາຕະລາງລຸ່ມນຳກັນ ເພື່ອບໍ່ໃຫ້ຕົວເລກຄາດເຄື່ອນກັນ.
+    source = request.GET.get('source', 'all')
+    if source not in ('all', 'online', 'walkin'):
+        source = 'all'
+    if source == 'online':
+        today_orders_qs = today_orders_qs.exclude(delivery_type=WALKIN_DELIVERY_TYPE)
+    elif source == 'walkin':
+        today_orders_qs = today_orders_qs.filter(delivery_type=WALKIN_DELIVERY_TYPE)
+
     today_order_count     = today_orders_qs.count()
 
     def _amt(o):
@@ -438,6 +450,7 @@ def admin_dashboard_view(request):
         'day_order_count':  day_order_count,
         'active_status':    active_status,
         'status_counts':    status_counts,
+        'source':           source,
     }
     return render(request, 'ecom/admin_dashboard.html', context=mydict)
 
