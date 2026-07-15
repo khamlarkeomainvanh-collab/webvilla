@@ -5,16 +5,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ໃບບິນລາຍຈ່າຍ #{{ invoice_no }}</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700&family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700;800;900&family=Lexend:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-        font-family: 'Noto Sans Lao', 'Lexend', sans-serif;
-        background: #f0f4f8;
+        font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
+        background: linear-gradient(160deg,#fdf4ff 0%,#f5f3ff 50%,#fce7f3 100%);
         min-height: 100vh;
         padding: 30px 20px;
-        color: #1a202c;
+        color: #2d1457;
     }
 
     .print-bar {
@@ -26,31 +26,32 @@
     }
 
     .btn-print {
-        background: #991b1b;
+        background: linear-gradient(135deg,#7c3aed,#be185d);
         color: white;
         border: none;
         padding: 12px 28px;
-        border-radius: 12px;
-        font-family: 'Noto Sans Lao', sans-serif;
+        border-radius: 14px;
+        font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
         font-size: 15px;
-        font-weight: 600;
+        font-weight: 800;
         cursor: pointer;
         display: flex;
         align-items: center;
         gap: 8px;
         transition: 0.2s;
+        box-shadow: 0 8px 22px rgba(124,58,237,.32);
     }
-    .btn-print:hover { background: #b91c1c; transform: translateY(-1px); }
+    .btn-print:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(124,58,237,.42); }
 
     .btn-back {
         background: white;
-        color: #991b1b;
-        border: 2px solid #991b1b;
+        color: #7c3aed;
+        border: 2px solid #ede9fe;
         padding: 12px 24px;
-        border-radius: 12px;
-        font-family: 'Noto Sans Lao', sans-serif;
+        border-radius: 14px;
+        font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
         font-size: 15px;
-        font-weight: 600;
+        font-weight: 800;
         cursor: pointer;
         transition: 0.2s;
         text-decoration: none;
@@ -58,77 +59,100 @@
         align-items: center;
         gap: 8px;
     }
-    .btn-back:hover { background: #f0f4f8; }
+    .btn-back:hover { background: #f5f3ff; border-color:#ddd6fe; }
 
     .invoice {
         max-width: 800px;
         margin: 0 auto;
         background: white;
-        border-radius: 20px;
+        border-radius: 28px;
         overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+        box-shadow: 0 24px 70px rgba(124,58,237,.18);
+        border: 1.5px solid rgba(124,58,237,.12);
     }
 
     .invoice-top {
-        background: linear-gradient(135deg, #991b1b, #dc2626);
+        background: linear-gradient(135deg, #7c3aed, #be185d);
         padding: 40px 50px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .invoice-top::before {
+        content: '';
+        position: absolute; top: -60px; right: -60px;
+        width: 220px; height: 220px; border-radius: 50%;
+        background: rgba(255,255,255,.09);
+    }
+    .invoice-top::after {
+        content: '';
+        position: absolute; bottom: -40px; left: -40px;
+        width: 150px; height: 150px; border-radius: 50%;
+        background: rgba(255,255,255,.06);
     }
 
-    .brand h1 { font-size: 2.5rem; font-weight: 700; color: white; letter-spacing: 3px; }
-    .brand p  { color: rgba(255,255,255,0.75); font-size: 0.9rem; margin-top: 4px; }
+    .brand { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; }
+    .brand .logo-ico {
+        width: 56px; height: 56px; border-radius: 18px; background: rgba(255,255,255,.2);
+        display: flex; align-items: center; justify-content: center; font-size: 1.7rem;
+        border: 2px solid rgba(255,255,255,.35); flex-shrink: 0;
+    }
+    .brand h1 { font-size: 2rem; font-weight: 900; color: white; letter-spacing: -.5px; }
+    .brand p  { color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 2px; font-weight: 600; }
 
-    .inv-number { text-align: right; }
-    .inv-number .label { color: rgba(255,255,255,0.6); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; }
-    .inv-number .value { color: white; font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
-    .inv-number .date  { color: rgba(255,255,255,0.75); font-size: 0.9rem; margin-top: 6px; }
+    .inv-number { text-align: right; position: relative; z-index: 1; }
+    .inv-number .label { color: rgba(255,255,255,0.65); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+    .inv-number .value { color: white; font-size: 1.8rem; font-weight: 900; margin-top: 4px; }
+    .inv-number .date  { color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 6px; font-weight: 600; }
 
     .invoice-info {
-        padding: 40px 50px;
+        padding: 36px 50px;
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 30px;
-        border-bottom: 1px solid #e8edf2;
+        border-bottom: 1.5px solid #f5f3ff;
+        background: linear-gradient(135deg,#fdf4ff,#fff);
     }
-    .info-block .block-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #94a3b8; font-weight: 600; margin-bottom: 12px; }
-    .info-block .name   { font-size: 1.15rem; font-weight: 700; color: #991b1b; margin-bottom: 6px; }
-    .info-block .detail { font-size: 0.9rem; color: #64748b; line-height: 1.8; }
+    .info-block .block-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #a78bfa; font-weight: 800; margin-bottom: 12px; }
+    .info-block .name   { font-size: 1.15rem; font-weight: 900; color: #7c3aed; margin-bottom: 6px; }
+    .info-block .detail { font-size: 0.9rem; color: #64748b; line-height: 1.8; font-weight: 600; }
 
     .invoice-items { padding: 0 50px 10px; }
     .table-scroll { overflow-x: auto; }
-    .items-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #94a3b8; font-weight: 600; padding: 25px 0 12px; }
+    .items-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #a78bfa; font-weight: 800; padding: 25px 0 12px; }
 
     table { width: 100%; min-width: 520px; border-collapse: collapse; }
-    thead tr { background: #991b1b; }
-    thead th { padding: 14px 16px; color: white; font-size: 0.82rem; font-weight: 600; text-align: left; font-family: 'Noto Sans Lao', sans-serif; }
+    thead tr { background: linear-gradient(135deg,#7c3aed,#be185d); }
+    thead th { padding: 14px 16px; color: white; font-size: 0.82rem; font-weight: 800; text-align: left; font-family: 'Lexend', 'Noto Sans Lao', sans-serif; }
     thead th:last-child { text-align: right; }
     thead th:nth-child(1) { text-align: center; }
 
-    tbody tr { border-bottom: 1px solid #f1f5f9; transition: 0.15s; }
-    tbody tr:hover { background: #fef2f2; }
-    tbody tr:nth-child(even) { background: #fef8f8; }
-    tbody tr:nth-child(even):hover { background: #fee2e2; }
-    tbody td { padding: 14px 16px; font-size: 0.95rem; color: #374151; font-family: 'Noto Sans Lao', sans-serif; }
-    tbody td:last-child { text-align: right; font-weight: 700; color: #991b1b; }
-    .num-cell { width: 40px; text-align: center; color: #94a3b8; font-size: 0.85rem; }
+    tbody tr { border-bottom: 1px solid #f5f3ff; transition: 0.15s; }
+    tbody tr:hover { background: #fdf4ff; }
+    tbody tr:nth-child(even) { background: #faf5ff; }
+    tbody tr:nth-child(even):hover { background: #f5edff; }
+    tbody td { padding: 14px 16px; font-size: 0.95rem; color: #374151; font-family: 'Lexend', 'Noto Sans Lao', sans-serif; font-weight: 600; }
+    tbody td:last-child { text-align: right; font-weight: 800; color: #7c3aed; }
+    .num-cell { width: 40px; text-align: center; color: #a78bfa; font-size: 0.85rem; font-weight: 700; }
 
     .invoice-total { padding: 20px 50px 40px; display: flex; justify-content: flex-end; }
-    .total-box { background: #fef2f2; border: 2px solid #fecaca; border-radius: 16px; padding: 20px 30px; min-width: 260px; }
-    .total-row-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 0.9rem; color: #64748b; font-family: 'Noto Sans Lao', sans-serif; }
-    .total-row-item.grand { border-top: 2px solid #fca5a5; margin-top: 10px; padding-top: 14px; font-size: 1.15rem; font-weight: 700; color: #991b1b; }
+    .total-box { background: linear-gradient(135deg,#fdf4ff,#fce7f3); border: 2px solid #ede9fe; border-radius: 18px; padding: 20px 30px; min-width: 260px; }
+    .total-row-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 0.9rem; color: #64748b; font-family: 'Lexend', 'Noto Sans Lao', sans-serif; font-weight: 700; }
+    .total-row-item.grand { border-top: 2px solid #ddd6fe; margin-top: 10px; padding-top: 14px; font-size: 1.2rem; font-weight: 900; color: #7c3aed; }
 
-    .invoice-footer { background: #fef2f2; border-top: 1px solid #e8edf2; padding: 20px 50px; text-align: center; color: #94a3b8; font-size: 0.82rem; font-family: 'Noto Sans Lao', sans-serif; }
+    .invoice-footer { background: linear-gradient(135deg,#fdf4ff,#fce7f3); border-top: 1.5px solid #f5f3ff; padding: 20px 50px; text-align: center; color: #a78bfa; font-size: 0.82rem; font-family: 'Lexend', 'Noto Sans Lao', sans-serif; font-weight: 700; }
 
-    .empty-note { padding: 60px 50px; text-align: center; color: #94a3b8; font-size: 0.95rem; }
+    .empty-note { padding: 60px 50px; text-align: center; color: #a78bfa; font-size: 0.95rem; font-weight: 700; }
 
     @media(max-width:640px) {
         body { padding: 16px 10px; }
         .print-bar { flex-wrap: wrap; }
         .btn-print, .btn-back { padding: 10px 16px; font-size: 13px; }
         .invoice-top { padding: 26px 20px; flex-wrap: wrap; gap: 16px; }
-        .brand h1 { font-size: 1.9rem; letter-spacing: 1.5px; }
+        .brand h1 { font-size: 1.6rem; }
+        .brand .logo-ico { width: 44px; height: 44px; font-size: 1.3rem; }
         .inv-number { text-align: left; }
         .inv-number .value { font-size: 1.4rem; }
         .invoice-info { grid-template-columns: 1fr; padding: 26px 20px; gap: 20px; }
@@ -142,7 +166,7 @@
     @media print {
         body { background: white; padding: 0; }
         .print-bar { display: none !important; }
-        .invoice { box-shadow: none; border-radius: 0; }
+        .invoice { box-shadow: none; border-radius: 0; border: none; }
         .invoice-top { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
@@ -151,7 +175,7 @@
 <body>
 
 <div class="print-bar no-print">
-    <a href="javascript:void(0)" onclick="window.opener ? window.close() : history.back()" class="btn-back">← ກັບຄືນ</a>
+    <a href="/admin-finance" class="btn-back">← ກັບຄືນ</a>
     <button class="btn-print" onclick="window.print()">🖨 ພິມ / Save PDF</button>
 </div>
 
@@ -159,8 +183,11 @@
 
     <div class="invoice-top">
         <div class="brand">
-            <h1>VILLA</h1>
-            <p>ໃບບິນລາຍຈ່າຍ / Expense Invoice</p>
+            <div class="logo-ico">🥤</div>
+            <div>
+                <h1>VILLA</h1>
+                <p>ໃບບິນລາຍຈ່າຍ / Expense Invoice</p>
+            </div>
         </div>
         <div class="inv-number">
             <div class="label">ເລກທີ ໃບບິນ</div>
@@ -203,7 +230,7 @@
                 <tr>
                     <td class="num-cell">{{ forloop.counter }}</td>
                     <td>{{ item.date|date:"d/m/Y" }}</td>
-                    <td style="font-weight:600;">{{ item.category }}</td>
+                    <td style="font-weight:800; color:#7c3aed;">{{ item.category }}</td>
                     <td>{{ item.description|default:"—" }}</td>
                     <td>{{ item.amount|dotformat }} ກີບ</td>
                 </tr>

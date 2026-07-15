@@ -326,11 +326,11 @@ body { background: #ffffff !important; }
                 </div>
             </div>
             {% if show_all %}
-            <a href="{% url 'admin-view-booking' %}" class="btn-excel" style="background:linear-gradient(135deg,#7c3aed,#be185d);text-decoration:none;">
+            <a href="{% url 'admin-view-booking' %}?source={{ source }}" class="btn-excel" style="background:linear-gradient(135deg,#7c3aed,#be185d);text-decoration:none;">
                 <i class="fas fa-calendar-day"></i> ກັບໄປລາຍວັນ
             </a>
             {% else %}
-            <a href="?show_all=1&status={{ active_status }}" class="btn-excel" style="background:linear-gradient(135deg,#be185d,#9d174d);text-decoration:none;">
+            <a href="?show_all=1&status={{ active_status }}&source={{ source }}" class="btn-excel" style="background:linear-gradient(135deg,#be185d,#9d174d);text-decoration:none;">
                 <i class="fas fa-list"></i> ລາຍການຈອງທັງໝົດ
             </a>
             {% endif %}
@@ -341,7 +341,7 @@ body { background: #ffffff !important; }
     {% if not show_all %}
     <div class="date-nav">
         <div class="date-arrows">
-            <a href="?date={{ prev_date|date:'Y-m-d' }}&status={{ active_status }}" class="arrow-btn" title="ວັນກ່ອນ">‹</a>
+            <a href="?date={{ prev_date|date:'Y-m-d' }}&status={{ active_status }}&source={{ source }}" class="arrow-btn" title="ວັນກ່ອນ">‹</a>
 
             <!-- Clickable date label — opens native calendar picker -->
             <div class="date-pick-wrap" onclick="document.getElementById('datePicker').showPicker()">
@@ -357,55 +357,71 @@ body { background: #ffffff !important; }
                        onchange="goToDate(this.value)">
             </div>
 
-            <a href="?date={{ next_date|date:'Y-m-d' }}&status={{ active_status }}" class="arrow-btn {% if is_today %}disabled{% endif %}" title="ວັນຖັດໄປ">›</a>
+            <a href="?date={{ next_date|date:'Y-m-d' }}&status={{ active_status }}&source={{ source }}" class="arrow-btn {% if is_today %}disabled{% endif %}" title="ວັນຖັດໄປ">›</a>
         </div>
 
         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <span class="count-badge">📋 {{ day_count }} ກຸ່ມທັງໝົດ</span>
             {% if not is_today %}
-            <a href="?status={{ active_status }}" class="btn-today">ກັບມາມື້ນີ້</a>
+            <a href="?status={{ active_status }}&source={{ source }}" class="btn-today">ກັບມາມື້ນີ້</a>
             {% endif %}
         </div>
     </div>
     {% endif %}
 
+    <!-- Source Filter Tabs — separates online orders, walk-in sales, and advance bookings -->
+    <div class="status-tabs">
+        <span class="tabs-label"><i class="fas fa-layer-group"></i> ປະເພດ:</span>
+        <a href="?{% if show_all %}show_all=1&{% endif %}{% if not show_all %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}status={{ active_status }}&source=online"
+           class="stab s-confirmed {% if source == 'online' %}active{% endif %}">
+            <i class="fas fa-globe fa-xs"></i> ຈອງໜ້າເວັບ
+        </a>
+        <a href="?{% if show_all %}show_all=1&{% endif %}{% if not show_all %}date={{ selected_date|date:'Y-m-d' }}&{% endif %}status={{ active_status }}&source=walkin"
+           class="stab s-delivered {% if source == 'walkin' %}active{% endif %}">
+            <i class="fas fa-store fa-xs"></i> ຊື້ໜ້າຮ້ານ
+        </a>
+        <a href="{% url 'admin-advance-bookings' %}" class="stab s-pending">
+            <i class="fas fa-calendar-check fa-xs"></i> ຈອງລ່ວງໜ້າ
+        </a>
+    </div>
+
     <!-- Status Filter Tabs -->
     <div class="status-tabs">
         <span class="tabs-label"><i class="fas fa-filter"></i> ສະຖານະ:</span>
         {% if show_all %}
-        <a href="?show_all=1&status=All"       class="stab s-all       {% if active_status == 'All'        %}active{% endif %}"><i class="fas fa-border-all fa-xs"></i> ທັງໝົດ<span class="stab-count">{{ status_counts.All }}</span></a>
-        <a href="?show_all=1&status=Pending"   class="stab s-pending   {% if active_status == 'Pending'    %}active{% endif %}"><i class="fas fa-clock fa-xs"></i> ລໍຖ້າ<span class="stab-count">{{ status_counts.Pending }}</span></a>
-        <a href="?show_all=1&status=Confirmed" class="stab s-confirmed {% if active_status == 'Confirmed'  %}active{% endif %}"><i class="fas fa-inbox fa-xs"></i> ຢືນຢັນ<span class="stab-count">{{ status_counts.Confirmed }}</span></a>
-        <a href="?show_all=1&status=Processing"class="stab s-processing{% if active_status == 'Processing' %}active{% endif %}"><i class="fas fa-truck fa-xs"></i> ຈັດສົ່ງ<span class="stab-count">{{ status_counts.Processing }}</span></a>
-        <a href="?show_all=1&status=Delivered" class="stab s-delivered {% if active_status == 'Delivered'  %}active{% endif %}"><i class="fas fa-check-circle fa-xs"></i> ສຳເລັດ<span class="stab-count">{{ status_counts.Delivered }}</span></a>
-        <a href="?show_all=1&status=Cancelled" class="stab s-cancelled {% if active_status == 'Cancelled'  %}active{% endif %}"><i class="fas fa-ban fa-xs"></i> ຍົກເລີກ<span class="stab-count">{{ status_counts.Cancelled }}</span></a>
+        <a href="?show_all=1&status=All&source={{ source }}"       class="stab s-all       {% if active_status == 'All'        %}active{% endif %}"><i class="fas fa-border-all fa-xs"></i> ທັງໝົດ<span class="stab-count">{{ status_counts.All }}</span></a>
+        <a href="?show_all=1&status=Pending&source={{ source }}"   class="stab s-pending   {% if active_status == 'Pending'    %}active{% endif %}"><i class="fas fa-clock fa-xs"></i> ລໍຖ້າ<span class="stab-count">{{ status_counts.Pending }}</span></a>
+        <a href="?show_all=1&status=Confirmed&source={{ source }}" class="stab s-confirmed {% if active_status == 'Confirmed'  %}active{% endif %}"><i class="fas fa-inbox fa-xs"></i> ຢືນຢັນ<span class="stab-count">{{ status_counts.Confirmed }}</span></a>
+        <a href="?show_all=1&status=Processing&source={{ source }}"class="stab s-processing{% if active_status == 'Processing' %}active{% endif %}"><i class="fas fa-truck fa-xs"></i> ຈັດສົ່ງ<span class="stab-count">{{ status_counts.Processing }}</span></a>
+        <a href="?show_all=1&status=Delivered&source={{ source }}" class="stab s-delivered {% if active_status == 'Delivered'  %}active{% endif %}"><i class="fas fa-check-circle fa-xs"></i> ສຳເລັດ<span class="stab-count">{{ status_counts.Delivered }}</span></a>
+        <a href="?show_all=1&status=Cancelled&source={{ source }}" class="stab s-cancelled {% if active_status == 'Cancelled'  %}active{% endif %}"><i class="fas fa-ban fa-xs"></i> ຍົກເລີກ<span class="stab-count">{{ status_counts.Cancelled }}</span></a>
         {% else %}
-        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=All"
+        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=All&source={{ source }}"
            class="stab s-all {% if active_status == 'All' %}active{% endif %}">
             <i class="fas fa-border-all fa-xs"></i> ທັງໝົດ
             <span class="stab-count">{{ status_counts.All }}</span>
         </a>
-        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Pending"
+        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Pending&source={{ source }}"
            class="stab s-pending {% if active_status == 'Pending' %}active{% endif %}">
             <i class="fas fa-clock fa-xs"></i> ລໍຖ້າການຢືນຢັນ
             <span class="stab-count">{{ status_counts.Pending }}</span>
         </a>
-        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Confirmed"
+        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Confirmed&source={{ source }}"
            class="stab s-confirmed {% if active_status == 'Confirmed' %}active{% endif %}">
             <i class="fas fa-inbox fa-xs"></i> ຮັບ/ຢືນຢັນ
             <span class="stab-count">{{ status_counts.Confirmed }}</span>
         </a>
-        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Processing"
+        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Processing&source={{ source }}"
            class="stab s-processing {% if active_status == 'Processing' %}active{% endif %}">
             <i class="fas fa-truck fa-xs"></i> ກຳລັງຈັດສົ່ງ
             <span class="stab-count">{{ status_counts.Processing }}</span>
         </a>
-        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Delivered"
+        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Delivered&source={{ source }}"
            class="stab s-delivered {% if active_status == 'Delivered' %}active{% endif %}">
             <i class="fas fa-check-circle fa-xs"></i> ຈັດສົ່ງສຳເລັດ
             <span class="stab-count">{{ status_counts.Delivered }}</span>
         </a>
-        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Cancelled"
+        <a href="?date={{ selected_date|date:'Y-m-d' }}&status=Cancelled&source={{ source }}"
            class="stab s-cancelled {% if active_status == 'Cancelled' %}active{% endif %}">
             <i class="fas fa-ban fa-xs"></i> ຍົກເລີກ
             <span class="stab-count">{{ status_counts.Cancelled }}</span>
@@ -435,9 +451,13 @@ body { background: #ffffff !important; }
                         data-group-key="{{ group.key }}"
                         data-order-ids="{% for oid in group.order_ids %}{{ oid }}{% if not forloop.last %},{% endif %}{% endfor %}">
 
-                        <!-- Queue # -->
+                        <!-- Queue # (walk-in sales never wait in a queue) -->
                         <td style="text-align:center;">
+                            {% if group.is_walkin %}
+                            <div class="q-badge" style="font-size:1.4rem;" title="ຂາຍໜ້າຮ້ານ — ບໍ່ນັບຄິວ">🏪</div>
+                            {% else %}
                             <div class="q-badge">Q{{ group.queue_num }}</div>
+                            {% endif %}
                         </td>
 
                         <!-- Products summary -->
@@ -957,7 +977,7 @@ function removeGroup(groupIdx) {
 /* ─── Date Picker navigation ─── */
 function goToDate(val) {
     if (!val) return;
-    window.location.href = '?date=' + val + '&status={{ active_status }}';
+    window.location.href = '?date=' + val + '&status={{ active_status }}&source={{ source }}';
 }
 
 /* ─── Month export modal ─── */

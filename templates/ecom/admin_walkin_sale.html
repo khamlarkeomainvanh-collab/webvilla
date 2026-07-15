@@ -220,6 +220,31 @@ button.ws-stat-card {
 
 .ws-final-row { display:grid; grid-template-columns:1fr auto; gap:14px; align-items:end; padding:0 26px 22px; }
 
+/* ── Multi-select "add several menus at once" panel ── */
+.ws-multi-btn {
+    width:44px; flex-shrink:0; border-radius:12px; border:1.5px solid #ede9fe; background:#f8f7ff; color:#7c3aed;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; transition:.2s;
+}
+.ws-multi-btn:hover, .ws-multi-btn.active { background:#7c3aed; color:#fff; border-color:#7c3aed; }
+.ws-multi-panel {
+    position:absolute; top:100%; left:0; right:0; margin-top:8px; z-index:50;
+    background:#fff; border:1.5px solid #ede9fe; border-radius:16px; box-shadow:0 20px 50px rgba(124,58,237,.18);
+    padding:14px; max-height:380px; display:none; flex-direction:column;
+}
+.ws-multi-search {
+    padding:9px 12px; border-radius:10px; border:1.5px solid #ede9fe; background:#f8f7ff; color:#2d1457;
+    font-weight:700; font-size:.85rem; outline:none; margin-bottom:10px; font-family:'Lexend','Noto Sans Lao',sans-serif; width:100%;
+}
+.ws-multi-search:focus { border-color:#7c3aed; background:#fff; }
+.ws-multi-list { overflow-y:auto; max-height:260px; display:flex; flex-direction:column; gap:2px; }
+.ws-multi-item {
+    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px; cursor:pointer; transition:.15s;
+}
+.ws-multi-item:hover { background:#f8f7ff; }
+.ws-multi-item input[type=checkbox] { width:17px; height:17px; accent-color:#7c3aed; cursor:pointer; flex-shrink:0; }
+.ws-multi-item .ws-mi-name { flex:1; font-weight:700; font-size:.88rem; color:#2d1457; }
+.ws-multi-price { font-size:.78rem; color:#a78bfa; font-weight:700; white-space:nowrap; }
+
 @media(max-width:900px) { .ws-form-body { grid-template-columns:1fr 1fr; } .ws-add-row { grid-template-columns:1fr 1fr; } .ws-final-row { grid-template-columns:1fr 1fr; } }
 @media(max-width:560px) { .ws-form-body { grid-template-columns:1fr; } .ws-add-row { grid-template-columns:1fr; } .ws-final-row { grid-template-columns:1fr; } .ws-table th:nth-child(4), .ws-table td:nth-child(4) { display:none; } .ws-table-head { flex-direction:column; align-items:stretch; } .ws-toolbar { justify-content:space-between; } }
 </style>
@@ -244,15 +269,37 @@ button.ws-stat-card {
 
         <!-- Item picker → add to queue -->
         <div class="ws-add-row">
-            <div class="ws-field">
+            <div class="ws-field" style="position:relative;">
                 <label>🥤 ສິນຄ້າ</label>
-                <input type="text" id="wsProductInput" class="ws-select" list="wsProductDatalist"
-                       placeholder="ພິມຄົ້ນຫາ ຫຼື ພິມຊື່ສິນຄ້າໃໝ່..." autocomplete="off" oninput="wsProductChanged()">
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="wsProductInput" class="ws-select" list="wsProductDatalist"
+                           placeholder="ພິມຄົ້ນຫາ ຫຼື ພິມຊື່ສິນຄ້າໃໝ່..." autocomplete="off" oninput="wsProductChanged()" style="flex:1;">
+                    <button type="button" class="ws-multi-btn" onclick="wsToggleMultiPanel(event)" title="ເລືອກຫຼາຍລາຍການພ້ອມກັນ">
+                        <i class="fas fa-list-check"></i>
+                    </button>
+                </div>
                 <datalist id="wsProductDatalist">
                     {% for p in products %}
                     <option value="{{ p.name }}" data-id="{{ p.id }}" data-price="{{ p.price }}"></option>
                     {% endfor %}
                 </datalist>
+
+                <!-- Multi-select panel: tick several menus and add them all to the queue in one go -->
+                <div class="ws-multi-panel" id="wsMultiPanel">
+                    <input type="text" id="wsMultiSearch" class="ws-multi-search" placeholder="🔍 ຄົ້ນຫາສິນຄ້າ..." oninput="wsFilterMultiList()">
+                    <div class="ws-multi-list" id="wsMultiList">
+                        {% for p in products %}
+                        <label class="ws-multi-item" data-name="{{ p.name|lower }}">
+                            <input type="checkbox" value="{{ p.id }}" data-name="{{ p.name }}" data-price="{{ p.price }}" onchange="wsUpdateMultiCount()">
+                            <span class="ws-mi-name">{{ p.name }}</span>
+                            <span class="ws-multi-price">{{ p.price|dotformat }} ກີບ</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="ws-btn-queue" style="width:100%; margin-top:10px; justify-content:center;" onclick="wsAddSelectedMulti()">
+                        <i class="fas fa-cart-plus"></i> ເພີ່ມທີ່ເລືອກເຂົ້າຄິວ (<span id="wsMultiSelCount">0</span>)
+                    </button>
+                </div>
             </div>
             <div class="ws-field">
                 <label>🔢 ຈຳນວນ</label>
@@ -521,6 +568,51 @@ function wsChangeQty(idx, delta) {
     wsQueue[idx].qty = Math.max(1, wsQueue[idx].qty + delta);
     wsRenderQueue();
 }
+
+/* ── Multi-select: tick several menus, add them all to the queue at once ── */
+function wsToggleMultiPanel(e) {
+    if (e) e.stopPropagation();
+    const panel = document.getElementById('wsMultiPanel');
+    const btn = document.querySelector('.ws-multi-btn');
+    const isOpen = panel.style.display === 'flex';
+    panel.style.display = isOpen ? 'none' : 'flex';
+    if (btn) btn.classList.toggle('active', !isOpen);
+    if (!isOpen) document.getElementById('wsMultiSearch').focus();
+}
+function wsFilterMultiList() {
+    const q = document.getElementById('wsMultiSearch').value.trim().toLowerCase();
+    document.querySelectorAll('.ws-multi-item').forEach(el => {
+        el.style.display = el.dataset.name.includes(q) ? 'flex' : 'none';
+    });
+}
+function wsUpdateMultiCount() {
+    const count = document.querySelectorAll('#wsMultiList input:checked').length;
+    document.getElementById('wsMultiSelCount').textContent = count;
+}
+function wsAddSelectedMulti() {
+    const checked = document.querySelectorAll('#wsMultiList input:checked');
+    if (!checked.length) { alert('ກາລຸນາເລືອກສິນຄ້າຢ່າງໜ້ອຍ 1 ລາຍການ'); return; }
+    checked.forEach(cb => {
+        const pid = cb.value;
+        const name = cb.dataset.name;
+        const price = parseInt(cb.dataset.price, 10) || 0;
+        const existing = wsQueue.find(it => it.pid === pid && it.name === name && it.price === price);
+        if (existing) { existing.qty += 1; }
+        else { wsQueue.push({ pid, name, qty: 1, price, isCustom: false }); }
+        cb.checked = false;
+    });
+    wsUpdateMultiCount();
+    wsRenderQueue();
+    wsToggleMultiPanel();
+}
+document.addEventListener('click', function(e) {
+    const panel = document.getElementById('wsMultiPanel');
+    const btn = document.querySelector('.ws-multi-btn');
+    if (panel && panel.style.display === 'flex' && !panel.contains(e.target) && btn && !btn.contains(e.target)) {
+        panel.style.display = 'none';
+        btn.classList.remove('active');
+    }
+});
 
 function wsRemoveItem(idx) {
     wsQueue.splice(idx, 1);

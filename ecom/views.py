@@ -1095,8 +1095,13 @@ def admin_view_booking_view(request):
 
     _LAO_TZ = _dtz(timedelta(hours=7))
 
-    # Advance ("ຈອງລ່ວງໜ້າ") bookings live on their own dedicated page — keep
-    # them out of this day-by-day queue view.
+    # Source filter — separates online ("ຈອງໜ້າເວັບ") orders from admin-entered
+    # walk-in ("ຊື້ໜ້າຮ້ານ") sales. Advance ("ຈອງລ່ວງໜ້າ") bookings live entirely
+    # on their own dedicated page, so they're always excluded from this view.
+    source = request.GET.get('source', 'online')
+    if source not in ('online', 'walkin'):
+        source = 'online'
+
     if show_all:
         all_orders = models.Orders.objects.filter(pickup_date__isnull=True).select_related('product', 'customer__user').order_by('id')
     else:
@@ -1105,6 +1110,11 @@ def admin_view_booking_view(request):
         all_orders = models.Orders.objects.filter(
             order_date__gte=day_start, order_date__lte=day_end, pickup_date__isnull=True
         ).select_related('product', 'customer__user').order_by('id')
+
+    if source == 'walkin':
+        all_orders = all_orders.filter(delivery_type=WALKIN_DELIVERY_TYPE)
+    else:
+        all_orders = all_orders.exclude(delivery_type=WALKIN_DELIVERY_TYPE)
 
     # Build groups ordered by first-seen (oldest first)
     all_groups = {}
@@ -1122,10 +1132,18 @@ def admin_view_booking_view(request):
             group_order.append(key)
         all_groups[key]['orders'].append(order)
 
-    # Group-level queue numbers (based on first order in group)
-    for i, key in enumerate(group_order):
+    # Group-level queue numbers — walk-in (in-store) sales never waited in a
+    # queue, so only online orders consume a Q# position; walk-in groups still
+    # show up in the list (per delivery type badge) but with no queue number.
+    queue_counter = 0
+    for key in group_order:
         g = all_groups[key]
-        g['queue_num'] = i + 1
+        g['is_walkin'] = g['canonical'].delivery_type == WALKIN_DELIVERY_TYPE
+        if g['is_walkin']:
+            g['queue_num'] = None
+        else:
+            queue_counter += 1
+            g['queue_num'] = queue_counter
         g['item_count'] = len(g['orders'])
         g['total_amount'] = sum(float(o.amount or 0) for o in g['orders'])
         g['order_ids'] = [o.id for o in g['orders']]
@@ -1167,6 +1185,7 @@ def admin_view_booking_view(request):
         'active_status': active_status,
         'status_counts': status_counts,
         'show_all':      show_all,
+        'source':        source,
     })
 
 
@@ -1191,30 +1210,33 @@ def admin_advance_bookings_view(request):
             group_order.append(key)
         groups[key]['orders'].append(order)
 
+    status_counts = {'All': 0, 'Pending': 0, 'Confirmed': 0, 'Processing': 0, 'Delivered': 0, 'Cancelled': 0}
     for key in group_order:
         g = groups[key]
         g['item_count']   = len(g['orders'])
         g['total_amount'] = sum(float(o.amount or 0) for o in g['orders'])
+        g['order_ids']    = [o.id for o in g['orders']]
         non_cancelled = [o for o in g['orders'] if o.status != 'Cancelled']
-        g['is_fulfilled'] = bool(non_cancelled) and all(o.status == 'Delivered' for o in non_cancelled)
+        g['canonical']    = non_cancelled[0] if non_cancelled else g['orders'][0]
+        s = g['canonical'].status or 'Pending'
+        status_counts['All'] += 1
+        if s in status_counts:
+            status_counts[s] += 1
 
-    data = [groups[key] for key in group_order]
+    active_status = request.GET.get('status', 'All')
+    if active_status not in ['Pending', 'Confirmed', 'Processing', 'Delivered', 'Cancelled', 'All']:
+        active_status = 'All'
+
+    if active_status == 'All':
+        data = [groups[key] for key in group_order]
+    else:
+        data = [groups[key] for key in group_order if (groups[key]['canonical'].status or 'Pending') == active_status]
 
     return render(request, 'ecom/admin_advance_bookings.html', {
         'data': data,
+        'active_status': active_status,
+        'status_counts': status_counts,
     })
-
-
-@login_required(login_url='adminlogin')
-def fulfill_advance_booking_view(request, order_group):
-    bookings = models.Orders.objects.filter(order_group=order_group, pickup_date__isnull=False).exclude(status='Cancelled')
-    customer = bookings.select_related('customer__user').values_list('customer', flat=True).first()
-    bookings.update(status='Delivered', fulfilled_at=timezone.now())
-    if customer:
-        cust = models.Customer.objects.filter(id=customer).select_related('user').first()
-        if cust:
-            _notify_customer_status(cust.user, 'Delivered')
-    return redirect('admin-advance-bookings')
 
 
 @login_required(login_url='adminlogin')
@@ -2526,11 +2548,15 @@ def ajax_update_group_status(request):
     updated = group_orders.update(status=status)
     if updated == 0:
         try:
-            single = models.Orders.objects.filter(id=int(group_key))
-            customer = single.values_list('customer', flat=True).first()
-            updated = single.update(status=status)
+            group_orders = models.Orders.objects.filter(id=int(group_key))
+            customer = group_orders.values_list('customer', flat=True).first()
+            updated = group_orders.update(status=status)
         except (ValueError, TypeError):
             return JsonResponse({'ok': False}, status=400)
+    # Advance ("ຈອງລ່ວງໜ້າ") bookings track when they were actually collected —
+    # revenue for them counts on this day, not the (earlier) booking day.
+    if status == 'Delivered':
+        group_orders.filter(pickup_date__isnull=False).update(fulfilled_at=timezone.now())
     if customer:
         cust = models.Customer.objects.filter(id=customer).select_related('user').first()
         if cust:
@@ -2671,6 +2697,8 @@ def ajax_update_order_status(request, pk):
     status = request.POST.get('status')
     if status in ['Pending', 'Confirmed', 'Processing', 'Delivered', 'Cancelled']:
         order.status = status
+        if status == 'Delivered' and order.pickup_date:
+            order.fulfilled_at = timezone.now()
         order.save()
         if order.customer:
             _notify_customer_status(order.customer.user, status)
