@@ -238,12 +238,22 @@ button.ws-stat-card {
 .ws-multi-search:focus { border-color:#7c3aed; background:#fff; }
 .ws-multi-list { overflow-y:auto; max-height:260px; display:flex; flex-direction:column; gap:2px; }
 .ws-multi-item {
-    display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px; cursor:pointer; transition:.15s;
+    display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:10px; transition:.15s; flex-wrap:wrap;
 }
 .ws-multi-item:hover { background:#f8f7ff; }
 .ws-multi-item input[type=checkbox] { width:17px; height:17px; accent-color:#7c3aed; cursor:pointer; flex-shrink:0; }
-.ws-multi-item .ws-mi-name { flex:1; font-weight:700; font-size:.88rem; color:#2d1457; }
+.ws-multi-item .ws-mi-name { flex:1; min-width:80px; font-weight:700; font-size:.88rem; color:#2d1457; cursor:pointer; }
 .ws-multi-price { font-size:.78rem; color:#a78bfa; font-weight:700; white-space:nowrap; }
+.ws-mi-qty {
+    width:44px; padding:4px 2px; border-radius:8px; border:1.5px solid #ede9fe; background:#fff;
+    color:#2d1457; font-weight:700; font-size:.8rem; text-align:center; outline:none; flex-shrink:0;
+}
+.ws-mi-qty:focus { border-color:#7c3aed; }
+.ws-mi-price {
+    width:80px; padding:4px 6px; border-radius:8px; border:1.5px solid #ede9fe; background:#fff;
+    color:#059669; font-weight:800; font-size:.8rem; text-align:right; outline:none; flex-shrink:0;
+}
+.ws-mi-price:focus { border-color:#7c3aed; }
 
 @media(max-width:900px) { .ws-form-body { grid-template-columns:1fr 1fr; } .ws-add-row { grid-template-columns:1fr 1fr; } .ws-final-row { grid-template-columns:1fr 1fr; } }
 @media(max-width:560px) { .ws-form-body { grid-template-columns:1fr; } .ws-add-row { grid-template-columns:1fr; } .ws-final-row { grid-template-columns:1fr; } .ws-table th:nth-child(4), .ws-table td:nth-child(4) { display:none; } .ws-table-head { flex-direction:column; align-items:stretch; } .ws-toolbar { justify-content:space-between; } }
@@ -289,11 +299,12 @@ button.ws-stat-card {
                     <input type="text" id="wsMultiSearch" class="ws-multi-search" placeholder="🔍 ຄົ້ນຫາສິນຄ້າ..." oninput="wsFilterMultiList()">
                     <div class="ws-multi-list" id="wsMultiList">
                         {% for p in products %}
-                        <label class="ws-multi-item" data-name="{{ p.name|lower }}">
-                            <input type="checkbox" value="{{ p.id }}" data-name="{{ p.name }}" data-price="{{ p.price }}" onchange="wsUpdateMultiCount()">
-                            <span class="ws-mi-name">{{ p.name }}</span>
-                            <span class="ws-multi-price">{{ p.price|dotformat }} ກີບ</span>
-                        </label>
+                        <div class="ws-multi-item" data-name="{{ p.name|lower }}">
+                            <input type="checkbox" id="wsMi{{ p.id }}" value="{{ p.id }}" data-name="{{ p.name }}" onchange="wsUpdateMultiCount()">
+                            <label for="wsMi{{ p.id }}" class="ws-mi-name">{{ p.name }}</label>
+                            <input type="number" class="ws-mi-qty" value="1" min="1" title="ຈຳນວນ" oninput="wsUpdateMultiCount()">
+                            <input type="text" inputmode="numeric" class="ws-mi-price" value="{{ p.price|dotformat }}" title="ລາຄາ/ໜ່ວຍ" oninput="wsFmtMultiItemPrice(this)">
+                        </div>
                         {% endfor %}
                     </div>
                     <div id="wsMultiTotalRow" style="display:none; justify-content:space-between; align-items:center; margin-top:10px; padding:8px 12px; background:#f5f3ff; border-radius:10px;">
@@ -589,24 +600,40 @@ function wsFilterMultiList() {
         el.style.display = el.dataset.name.includes(q) ? 'flex' : 'none';
     });
 }
+/* type="text" so a typed "." (thousands separator, e.g. "30.000") is never
+   mistaken for a decimal point the way <input type="number"> would mistake it. */
+function wsFmtMultiItemPrice(el) {
+    const raw = el.value.replace(/\D/g, '');
+    el.value = raw ? Number(raw).toLocaleString('en-US').replace(/,/g, '.') : '';
+    wsUpdateMultiCount();
+}
 function wsUpdateMultiCount() {
-    const checked = document.querySelectorAll('#wsMultiList input:checked');
-    const total = Array.from(checked).reduce((sum, cb) => sum + (parseInt(cb.dataset.price, 10) || 0), 0);
+    const checked = document.querySelectorAll('#wsMultiList input[type=checkbox]:checked');
+    let total = 0;
+    checked.forEach(cb => {
+        const row = cb.closest('.ws-multi-item');
+        const qty = Math.max(1, parseInt(row.querySelector('.ws-mi-qty').value, 10) || 1);
+        const price = parseInt(row.querySelector('.ws-mi-price').value.replace(/\D/g, ''), 10) || 0;
+        total += qty * price;
+    });
     document.getElementById('wsMultiSelCount').textContent = checked.length;
     document.getElementById('wsMultiTotalPrice').textContent = total.toLocaleString('en-US') + ' ກີບ';
     document.getElementById('wsMultiTotalRow').style.display = checked.length ? 'flex' : 'none';
 }
 function wsAddSelectedMulti() {
-    const checked = document.querySelectorAll('#wsMultiList input:checked');
+    const checked = document.querySelectorAll('#wsMultiList input[type=checkbox]:checked');
     if (!checked.length) { alert('ກາລຸນາເລືອກສິນຄ້າຢ່າງໜ້ອຍ 1 ລາຍການ'); return; }
     checked.forEach(cb => {
+        const row = cb.closest('.ws-multi-item');
         const pid = cb.value;
         const name = cb.dataset.name;
-        const price = parseInt(cb.dataset.price, 10) || 0;
+        const qty = Math.max(1, parseInt(row.querySelector('.ws-mi-qty').value, 10) || 1);
+        const price = parseInt(row.querySelector('.ws-mi-price').value.replace(/\D/g, ''), 10) || 0;
         const existing = wsQueue.find(it => it.pid === pid && it.name === name && it.price === price);
-        if (existing) { existing.qty += 1; }
-        else { wsQueue.push({ pid, name, qty: 1, price, isCustom: false }); }
+        if (existing) { existing.qty += qty; }
+        else { wsQueue.push({ pid, name, qty, price, isCustom: false }); }
         cb.checked = false;
+        row.querySelector('.ws-mi-qty').value = 1;
     });
     wsUpdateMultiCount();
     wsRenderQueue();
