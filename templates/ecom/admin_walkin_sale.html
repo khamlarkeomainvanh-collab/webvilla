@@ -550,13 +550,11 @@ function wsProductChanged() {
 }
 
 function wsUpdateTotal() {
-    const qty = parseInt(document.getElementById('wsQty').value, 10) || 0;
-    const price = parseInt(document.getElementById('wsPrice').value.replace(/\D/g, ''), 10) || 0;
-    const single = qty * price;
+    // ພຽງແຕ່ນັບລາຍການທີ່ຖືກກົດ "ເພີ່ມໃສ່ຄິວ" ແລ້ວແທ້ໆ — ພິມ/ເລືອກຊື່ສິນຄ້າຢູ່ຊ່ອງເທິງ
+    // ບໍ່ໃຫ້ນັບເຂົ້າຍອດລວມຈົນກວ່າຈະກົດເພີ່ມໃສ່ຄິວແທ້.
     const el = document.getElementById('wsTotalPreview');
     const queueTotal = wsQueue.reduce((s, it) => s + it.qty * it.price, 0);
-    el.textContent = 'ລວມ: ' + (queueTotal + (single > 0 ? single : 0)).toLocaleString('en-US') + ' ກີບ' +
-        (single > 0 ? ' (ລວມລາຍການທີ່ຍັງບໍ່ທັນເພີ່ມໃສ່ຄິວ)' : '');
+    el.textContent = 'ລວມ: ' + queueTotal.toLocaleString('en-US') + ' ກີບ';
 }
 
 function wsAddToQueue() {
