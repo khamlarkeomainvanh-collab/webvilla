@@ -733,15 +733,30 @@ def admin_walkin_sale_view(request):
                 except (ValueError, TypeError):
                     continue
 
+                # Optional size/topping customization (mainly for off-menu items) —
+                # priced/labelled the same way as customer-side customization.
+                size     = str(it.get('size', '')).strip()
+                toppings = [t.strip() for t in (it.get('topping') or []) if str(t).strip()]
+                cust_parts = []
+                if size in _SIZE_PRICES:
+                    cust_parts.append(f'ຂະໜາດ: {size}')
+                if toppings:
+                    cust_parts.append(f'ທອັບ: {", ".join(toppings)}')
+                cust_note = ' | '.join(cust_parts)
+
                 if product:
-                    item_note = note
+                    item_note = note + (f' | {cust_note}' if cust_note else '')
                 else:
                     # Off-menu item typed in by hand — no matching Product row, so the
                     # typed name becomes the note (shown wherever product.name normally would be).
                     custom_name = str(it.get('name', '')).strip()[:80]
                     if not custom_name:
                         continue
-                    item_note = custom_name + (f' ({note_in})' if note_in else '')
+                    item_note = custom_name
+                    if cust_note:
+                        item_note += f' | {cust_note}'
+                    if note_in:
+                        item_note += f' ({note_in})'
 
                 models.Orders.objects.create(
                     customer=None,
@@ -2550,8 +2565,10 @@ def profit_invoice_view(request):
 
 
 STATUS_NOTIFY_LAO = {
+    'Pending':    ('🕐 ຮັບອໍເດີແລ້ວ', 'ຮ້ານໄດ້ຮັບອໍເດີຂອງທ່ານແລ້ວ ກຳລັງລໍຖ້າຢືນຢັນ'),
     'Confirmed':  ('✅ ຮ້ານຮັບອໍເດີແລ້ວ', 'ຮ້ານໄດ້ຮັບ ແລະ ຢືນຢັນອໍເດີຂອງທ່ານແລ້ວ ກະລຸນາລໍຖ້າ ກຳລັງກຽມສິນຄ້າ'),
     'Processing': ('👩‍🍳 ກຳລັງກຽມສິນຄ້າ', 'ຮ້ານກຳລັງກຽມອໍເດີຂອງທ່ານ ຈະແຈ້ງອີກເທື່ອໜຶ່ງເມື່ອພ້ອມ'),
+    'Cancelled':  ('❌ ອໍເດີຖືກຍົກເລີກ', 'ອໍເດີຂອງທ່ານຖືກຍົກເລີກແລ້ວ ຫາກມີຂໍ້ສົງໄສ ກະລຸນາຕິດຕໍ່ຮ້ານ'),
 }
 
 # "Delivered" (ປຸ່ມ "ຈັດສົ່ງສຳເລັດ") ໃນລະບົບ ໝາຍເຖິງ "ພ້ອມໃຫ້ລູກຄ້າແລ້ວ" — ຂໍ້ຄວາມຈຶ່ງຕ້ອງ
@@ -2841,7 +2858,7 @@ def ajax_check_new_orders(request):
             cname = o.customer.get_name if o.customer else '-'
         except Exception:
             cname = '-'
-        items.append({'id': o.id, 'product': pname, 'customer': cname, 'amount': str(o.amount or 0)})
+        items.append({'id': o.id, 'product': pname, 'customer': cname, 'amount': str(o.amount or 0), 'is_advance': bool(o.pickup_date)})
     return JsonResponse({
         'new_count': new_orders.count(),
         'latest_id': latest.id if latest else last_id,

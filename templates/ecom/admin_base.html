@@ -511,7 +511,7 @@
     </div>
     <div class="notif-items" id="notifItems"></div>
     <div class="notif-foot">
-      <a href="/admin-view-booking" style="background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff;">ເບີ່ງອໍເດີ</a>
+      <a href="/admin-view-booking" id="notifViewLink" style="background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff;">ເບີ່ງອໍເດີ</a>
       <button onclick="closeNotif()" style="background:#f5f3ff;border:1.5px solid rgba(124,58,237,.18);color:#64748b;">ປິດ</button>
     </div>
   </div>
@@ -692,6 +692,10 @@
           <div><div class="ni-prod">${o.product}</div><div class="ni-cust">${o.customer}</div></div>
           <div class="ni-amt">₭ ${Number(o.amount).toLocaleString()}</div>
         </div>`).join('');
+      // ຈອງລ່ວງໜ້າ → ພາໄປໜ້າຈອງລ່ວງໜ້າ, ຈອງໜ້າເວັບ (ຫຼືອື່ນໆ) → ພາໄປໜ້າລາຍການຈອງປົກກະຕິ
+      const hasAdvance = orders.some(o => o.is_advance);
+      const viewLink = document.getElementById('notifViewLink');
+      if (viewLink) viewLink.href = hasAdvance ? '/admin-advance-bookings' : '/admin-view-booking';
       const p = document.getElementById('notifPopup');
       p.style.display = 'block'; p.className = 'notif-popup show';
       try {

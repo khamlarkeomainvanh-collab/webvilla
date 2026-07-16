@@ -276,6 +276,33 @@ button.ws-stat-card {
 }
 .ws-mi-price:focus { border-color:var(--purple); }
 
+/* ── Optional size/topping customization (mainly for off-menu items) ── */
+.ws-cust-toggle {
+    background:#fff; border:1.5px dashed #ddd0fb; color:var(--purple); border-radius:13px;
+    padding:11px 20px; font-weight:800; font-size:.85rem; cursor:pointer; display:inline-flex;
+    align-items:center; gap:8px; transition:.2s; font-family:'Lexend','Noto Sans Lao',sans-serif;
+}
+.ws-cust-toggle:hover { background:var(--lav); border-color:var(--purple); }
+.ws-cust-panel {
+    display:none; margin-top:12px; padding:18px; background:var(--lav); border-radius:16px;
+    border:1.5px dashed #ddd0fb;
+}
+.ws-cust-lbl { font-size:.78rem; font-weight:800; color:var(--purple); margin-bottom:9px; display:flex; align-items:center; gap:6px; }
+.ws-cust-lbl span { font-weight:600; color:#a78bfa; font-size:.72rem; }
+.ws-size-pill, .ws-topping-pill {
+    padding:8px 16px; border-radius:50px; border:1.5px solid #ddd6fe; background:#fff; color:var(--ink);
+    font-weight:700; font-size:.85rem; cursor:pointer; transition:.2s; font-family:'Lexend','Noto Sans Lao',sans-serif;
+    display:inline-flex; align-items:center; gap:5px;
+}
+.ws-size-pill em, .ws-topping-pill em { font-style:normal; font-size:.72rem; opacity:.7; }
+.ws-size-pill:hover, .ws-topping-pill:hover { border-color:var(--purple); background:var(--lav); }
+.ws-size-pill.picked, .ws-topping-pill.picked { background:var(--grad2); color:#fff; border-color:transparent; box-shadow:0 4px 12px rgba(168,85,247,.3); }
+.ws-pill-row { display:flex; gap:8px; flex-wrap:wrap; }
+.ws-cust-badge {
+    display:inline-block; background:#ede9fe; color:var(--purple); padding:2px 10px; border-radius:50px;
+    font-size:.68rem; font-weight:800; margin-left:4px; vertical-align:middle;
+}
+
 @media(max-width:900px) { .ws-form-body { grid-template-columns:1fr 1fr; } .ws-add-row { grid-template-columns:1fr 1fr; } .ws-final-row { grid-template-columns:1fr 1fr; } }
 @media(max-width:560px) { .ws-head { padding:18px; } .ws-form-body { grid-template-columns:1fr; } .ws-add-row { grid-template-columns:1fr; } .ws-final-row { grid-template-columns:1fr; } .ws-table th:nth-child(4), .ws-table td:nth-child(4) { display:none; } .ws-table-head { flex-direction:column; align-items:stretch; } .ws-toolbar { justify-content:space-between; } }
 </style>
@@ -346,6 +373,30 @@ button.ws-stat-card {
                 <input type="text" inputmode="numeric" id="wsPrice" class="ws-input" placeholder="0" oninput="wsFmtPrice(this)">
             </div>
             <button type="button" class="ws-btn-queue" onclick="wsAddToQueue()"><i class="fas fa-cart-plus"></i> ເພີ່ມໃສ່ຄິວ</button>
+        </div>
+
+        <!-- Optional size/topping customization — mainly for off-menu ("ນອກລາຍການ") items -->
+        <div style="padding:0 26px 22px;">
+            <button type="button" class="ws-cust-toggle" onclick="wsToggleCustPanel()">
+                <i class="fas fa-sliders"></i> ຂະໜາດ / ທອັບປີ້ງ
+                <span style="font-weight:600; opacity:.7; font-size:.75rem;">(ສະເພາະສິນຄ້ານອກລາຍການ)</span>
+            </button>
+            <div class="ws-cust-panel" id="wsCustPanel">
+                <div class="ws-cust-lbl">📏 ຂະໜາດຈອກ</div>
+                <div class="ws-pill-row" id="wsSizePills" style="margin-bottom:16px;">
+                    <button type="button" class="ws-size-pill" data-size="S" onclick="wsPickSize('S')">S <em>25.000</em></button>
+                    <button type="button" class="ws-size-pill" data-size="M" onclick="wsPickSize('M')">M <em>30.000</em></button>
+                    <button type="button" class="ws-size-pill" data-size="L" onclick="wsPickSize('L')">L <em>35.000</em></button>
+                </div>
+                <div class="ws-cust-lbl">🍓 ທອັບປີ້ງ <span>(ເລືອກໄດ້ຫຼາຍລາຍການ · +5.000/ອັນ)</span></div>
+                <div class="ws-pill-row" id="wsToppingPills">
+                    <button type="button" class="ws-topping-pill" data-t="ໝາກໄມ້ສົດ" onclick="wsToggleTopping('ໝາກໄມ້ສົດ', this)">🍓 ໝາກໄມ້ສົດ</button>
+                    <button type="button" class="ws-topping-pill" data-t="ເຈລລີ" onclick="wsToggleTopping('ເຈລລີ', this)">🍮 ເຈລລີ</button>
+                    <button type="button" class="ws-topping-pill" data-t="ໂກໂກ້" onclick="wsToggleTopping('ໂກໂກ້', this)">🍫 ໂກໂກ້</button>
+                    <button type="button" class="ws-topping-pill" data-t="ໄຂ່ມຸກ" onclick="wsToggleTopping('ໄຂ່ມຸກ', this)">🧋 ໄຂ່ມຸກ</button>
+                    <button type="button" class="ws-topping-pill" data-t="ຊັອກໂກແລັດ" onclick="wsToggleTopping('ຊັອກໂກແລັດ', this)">🍪 ຊັອກໂກແລັດ</button>
+                </div>
+            </div>
         </div>
 
         <!-- Queue -->
@@ -542,6 +593,47 @@ button.ws-stat-card {
 <script>
 let wsQueue = [];
 let wsSelectedProductId = null;
+let wsSelectedProductPrice = null;
+let wsCustSize = '';
+let wsCustToppings = new Set();
+const WS_SIZE_PRICES = {S: 25000, M: 30000, L: 35000};
+const WS_TOPPING_FEE = 5000;
+
+function wsToggleCustPanel() {
+    const panel = document.getElementById('wsCustPanel');
+    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+}
+
+function wsPickSize(size) {
+    wsCustSize = (wsCustSize === size) ? '' : size;
+    document.querySelectorAll('.ws-size-pill').forEach(el => el.classList.toggle('picked', el.dataset.size === wsCustSize));
+    wsRecalcCustPrice();
+}
+
+function wsToggleTopping(name, btn) {
+    if (wsCustToppings.has(name)) { wsCustToppings.delete(name); btn.classList.remove('picked'); }
+    else { wsCustToppings.add(name); btn.classList.add('picked'); }
+    wsRecalcCustPrice();
+}
+
+/* Recompute ລາຄາ/ໜ່ວຍ from the chosen size (or the matched menu product's base
+   price if no size chosen) + topping fees — same formula as customer-side
+   customization, so an off-menu item priced this way stays consistent. */
+function wsRecalcCustPrice() {
+    let base = null;
+    if (wsCustSize) base = WS_SIZE_PRICES[wsCustSize];
+    else if (wsSelectedProductPrice !== null) base = wsSelectedProductPrice;
+    if (base === null) { wsUpdateTotal(); return; }
+    const total = base + wsCustToppings.size * WS_TOPPING_FEE;
+    document.getElementById('wsPrice').value = total.toLocaleString('en-US').replace(/,/g, '.');
+    wsUpdateTotal();
+}
+
+function wsResetCustPanel() {
+    wsCustSize = '';
+    wsCustToppings.clear();
+    document.querySelectorAll('.ws-size-pill, .ws-topping-pill').forEach(el => el.classList.remove('picked'));
+}
 
 /* type="text" so a typed "." (thousands separator, e.g. "30.000") is never
    mistaken for a decimal point the way <input type="number"> would mistake it. */
@@ -562,12 +654,12 @@ function wsProductChanged() {
 
     if (matched) {
         wsSelectedProductId = matched.getAttribute('data-id');
-        const price = matched.getAttribute('data-price');
-        document.getElementById('wsPrice').value = Number(price).toLocaleString('en-US').replace(/,/g, '.');
+        wsSelectedProductPrice = Number(matched.getAttribute('data-price'));
     } else {
         wsSelectedProductId = null;
+        wsSelectedProductPrice = null;
     }
-    wsUpdateTotal();
+    wsRecalcCustPrice();
 }
 
 function wsUpdateTotal() {
@@ -586,15 +678,20 @@ function wsAddToQueue() {
     const price = Math.max(0, parseInt(document.getElementById('wsPrice').value.replace(/\D/g, ''), 10) || 0);
     const pid = wsSelectedProductId;
     const isCustom = !pid;
+    const size = wsCustSize;
+    const topping = Array.from(wsCustToppings);
 
-    const existing = wsQueue.find(it => it.pid === pid && it.name === name && it.price === price);
+    const existing = wsQueue.find(it => it.pid === pid && it.name === name && it.price === price
+        && it.size === size && JSON.stringify(it.topping) === JSON.stringify(topping));
     if (existing) { existing.qty += qty; }
-    else { wsQueue.push({ pid, name, qty, price, isCustom }); }
+    else { wsQueue.push({ pid, name, qty, price, isCustom, size, topping }); }
 
     input.value = '';
     wsSelectedProductId = null;
+    wsSelectedProductPrice = null;
     document.getElementById('wsQty').value = 1;
     document.getElementById('wsPrice').value = '';
+    wsResetCustPanel();
     wsRenderQueue();
 }
 
@@ -648,9 +745,9 @@ function wsAddSelectedMulti() {
         const name = cb.dataset.name;
         const qty = Math.max(1, parseInt(row.querySelector('.ws-mi-qty').value, 10) || 1);
         const price = parseInt(row.querySelector('.ws-mi-price').value.replace(/\D/g, ''), 10) || 0;
-        const existing = wsQueue.find(it => it.pid === pid && it.name === name && it.price === price);
+        const existing = wsQueue.find(it => it.pid === pid && it.name === name && it.price === price && !it.size && !(it.topping && it.topping.length));
         if (existing) { existing.qty += qty; }
-        else { wsQueue.push({ pid, name, qty, price, isCustom: false }); }
+        else { wsQueue.push({ pid, name, qty, price, isCustom: false, size: '', topping: [] }); }
         cb.checked = false;
         row.querySelector('.ws-mi-qty').value = 1;
     });
@@ -687,9 +784,14 @@ function wsRenderQueue() {
     empty.style.display = 'none';
     table.style.display = 'table';
 
-    body.innerHTML = wsQueue.map((it, idx) => `
+    body.innerHTML = wsQueue.map((it, idx) => {
+        const custBits = [];
+        if (it.size) custBits.push('📏' + it.size);
+        if (it.topping && it.topping.length) custBits.push('🍓×' + it.topping.length);
+        const custBadge = custBits.length ? ` <span class="ws-cust-badge" title="${(it.topping||[]).join(', ')}">${custBits.join(' ')}</span>` : '';
+        return `
         <tr>
-            <td>${it.name}${it.isCustom ? ' <span class="ws-custom-badge">ນອກລາຍການ</span>' : ''}</td>
+            <td>${it.name}${it.isCustom ? ' <span class="ws-custom-badge">ນອກລາຍການ</span>' : ''}${custBadge}</td>
             <td>
                 <div class="ws-qty-stepper">
                     <button type="button" class="ws-qty-btn" onclick="wsChangeQty(${idx},-1)">−</button>
@@ -701,7 +803,8 @@ function wsRenderQueue() {
             <td style="text-align:right;color:#059669;">${(it.qty * it.price).toLocaleString('en-US')} ກີບ</td>
             <td><button type="button" class="ws-queue-rm" onclick="wsRemoveItem(${idx})"><i class="fas fa-xmark"></i></button></td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
     wsUpdateTotal();
 }
 
@@ -710,7 +813,7 @@ function wsSubmit() {
         alert('ກາລຸນາເພີ່ມສິນຄ້າໃສ່ຄິວຢ່າງໜ້ອຍ 1 ລາຍການ');
         return false;
     }
-    const items = wsQueue.map(it => ({ product: it.pid, quantity: it.qty, unit_price: it.price, name: it.name }));
+    const items = wsQueue.map(it => ({ product: it.pid, quantity: it.qty, unit_price: it.price, name: it.name, size: it.size || '', topping: it.topping || [] }));
     document.getElementById('wsItemsInput').value = JSON.stringify(items);
     return true;
 }
