@@ -10,17 +10,17 @@
 :root {
     --bg:     #ffffff;
     --card:   #ffffff;
-    --blue:   #7c3aed;
-    --purple: #be185d;
+    --blue:   #2563eb;
+    --purple: #10b981;
     --green:  #10b981;
     --amber:  #f59e0b;
     --red:    #ef4444;
     --dim:    #64748b;
-    --bright: #2d1457;
+    --bright: #1e3a5f;
     --border: rgba(124,58,237,.13);
-    --lav:    #f5f3ff;
-    --lav2:   #fdf2f8;
-    --grad:   linear-gradient(135deg, #7c3aed, #be185d);
+    --lav:    #eff6ff;
+    --lav2:   #f0fdf4;
+    --grad:   linear-gradient(135deg, #2563eb, #10b981);
 }
 
 body { background: #ffffff !important; }
@@ -57,7 +57,7 @@ body { background: #ffffff !important; }
     min-width:24px; text-align:center;
 }
 .stab.s-all { color:var(--bright); border-color:rgba(124,58,237,.18); background:var(--lav); }
-.stab.s-all:hover { background:#ede9fe; }
+.stab.s-all:hover { background:#dbeafe; }
 .stab.s-all.active { background:var(--grad); color:#fff; border-color:transparent; box-shadow:0 4px 16px rgba(124,58,237,.3); }
 .stab.s-all.active .stab-count { background:rgba(255,255,255,.25); }
 .stab.s-pending { color:#0891b2; background:rgba(8,145,178,.06); border-color:rgba(8,145,178,.2); }
@@ -190,10 +190,10 @@ body { background: #ffffff !important; }
             <a href="{% url 'export-advance-bookings-excel' %}?status={{ active_status }}" id="advExportExcelLink" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#1d6f42,#2ea05a);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
                 <i class="fas fa-file-excel"></i> Export Excel
             </a>
-            <a href="{% url 'advance-bookings-invoice' %}?status={{ active_status }}" id="advInvoiceLink" target="_blank" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#ec4899,#a855f7);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
+            <a href="{% url 'advance-bookings-invoice' %}?status={{ active_status }}" id="advInvoiceLink" target="_blank" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#10b981,#3b82f6);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
                 <i class="fas fa-receipt"></i> ອອກໃບບິນ
             </a>
-            <a href="{% url 'admin-view-booking' %}" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
+            <a href="{% url 'admin-view-booking' %}" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#2563eb,#10b981);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
                 <i class="fas fa-calendar-day"></i> ໄປລາຍການຈອງຄິວ
             </a>
         </div>

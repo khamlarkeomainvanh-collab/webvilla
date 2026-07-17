@@ -8,15 +8,15 @@
 
 <style>
 :root {
-  --pk:  #ec4899; --pk2: #f472b6; --pk-lt: #fce7f3;
-  --pu:  #7c3aed; --pu2: #a855f7; --pu-lt: #f5f3ff;
-  --lav: #ede9fe; --lav2:#ddd6fe;
-  --text:#2d1457; --gray:#94a3b8;
+  --pk:  #10b981; --pk2: #34d399; --pk-lt: #ecfdf5;
+  --pu:  #2563eb; --pu2: #3b82f6; --pu-lt: #eff6ff;
+  --lav: #dbeafe; --lav2:#bfdbfe;
+  --text:#1e3a5f; --gray:#94a3b8;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family:'Lexend','Noto Sans Lao',sans-serif;
-  background: linear-gradient(155deg,#fdf4ff 0%,#f5f3ff 50%,#fce7f3 100%);
+  background: linear-gradient(155deg,#eff6ff 0%,#eff6ff 50%,#ecfdf5 100%);
   background-attachment: fixed;
   color: var(--text); min-height:100vh;
 }
@@ -69,7 +69,7 @@ body {
 }
 @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 .title-text h1 { font-size: 1.5rem; font-weight: 900; color: var(--text); }
-.title-text p  { font-size: .9rem; color: #be185d; margin-top: 3px; font-weight: 700; }
+.title-text p  { font-size: .9rem; color: #10b981; margin-top: 3px; font-weight: 700; }
 
 /* ── CARD BASE ── */
 .card {
@@ -246,7 +246,7 @@ body {
 /* ── WARNING NOTICE ── */
 .cancel-notice {
     margin: 0 20px 12px;
-    background: var(--pk-lt); border: 1.5px solid #fbcfe8;
+    background: var(--pk-lt); border: 1.5px solid #a7f3d0;
     border-radius: 12px; padding: 10px 14px;
     display: flex; gap: 10px; align-items: flex-start;
 }
@@ -259,7 +259,7 @@ body {
 .btn-order {
     width: 100%; padding: 14px 20px;
     border: none; border-radius: 16px;
-    background: linear-gradient(135deg, #f472b6, #ec4899, #db2777);
+    background: linear-gradient(135deg, #34d399, #10b981, #db2777);
     color: #fff; font-size: 1.1rem; font-weight: 900;
     font-family:'Lexend','Noto Sans Lao',sans-serif;
     cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
@@ -290,11 +290,11 @@ body {
 
 .sum-head {
     padding: 16px 20px 14px;
-    border-bottom: 2px solid #fbcfe8;
-    background: linear-gradient(135deg, #fce7f3, #fdf4ff);
+    border-bottom: 2px solid #a7f3d0;
+    background: linear-gradient(135deg, #ecfdf5, #eff6ff);
     display: flex; align-items: center; gap: 10px;
 }
-.sum-head h3 { font-size: 1.2rem; font-weight: 900; color: #be185d; }
+.sum-head h3 { font-size: 1.2rem; font-weight: 900; color: #10b981; }
 .sum-head p  { font-size: .9rem; color: var(--pk); margin-top: 4px; font-weight: 800; }
 .sum-toggle-ico { display: none; color: var(--pk); font-size: 1rem; transition: .3s; flex-shrink: 0; }
 
@@ -310,41 +310,41 @@ body {
 
 .sum-item {
     display: flex; align-items: center; gap: 12px;
-    padding: 12px 0; border-bottom: 1.5px solid #fce7f3;
+    padding: 12px 0; border-bottom: 1.5px solid #ecfdf5;
 }
 .sum-item:last-child { border-bottom: none; }
 .si-img {
     width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
     overflow: hidden; background: var(--pk-lt);
     display: flex; align-items: center; justify-content: center;
-    border: 2px solid #fbcfe8;
+    border: 2px solid #a7f3d0;
 }
 .si-img img { width: 100%; height: 100%; object-fit: cover; }
 .si-img .si-ph { font-size: 1.6rem; }
 .si-info { flex: 1; min-width: 0; }
-.si-name  { font-size: 1rem; font-weight: 900; color: #be185d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.si-name  { font-size: 1rem; font-weight: 900; color: #10b981; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .si-qty   { font-size: .88rem; color: var(--pk); margin-top: 4px; font-weight: 800; }
-.si-price { font-size: 1.05rem; font-weight: 900; color: #9d174d; flex-shrink: 0; }
+.si-price { font-size: 1.05rem; font-weight: 900; color: #047857; flex-shrink: 0; }
 
 /* TOTALS */
-.sum-totals { padding: 12px 20px; border-top: 2px solid #fbcfe8; }
+.sum-totals { padding: 12px 20px; border-top: 2px solid #a7f3d0; }
 .tot-row {
     display: flex; justify-content: space-between; align-items: center;
     padding: 8px 0; font-size: .95rem;
-    border-bottom: 1px solid #fce7f3;
+    border-bottom: 1px solid #ecfdf5;
 }
 .tot-row:last-of-type { border-bottom: none; }
 .tot-row .tl { color: #db2777; font-weight: 800; }
-.tot-row .tv { font-weight: 900; color: #9d174d; font-size: 1rem; }
+.tot-row .tv { font-weight: 900; color: #047857; font-size: 1rem; }
 .tot-grand {
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 18px; margin-top: 10px;
-    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
-    border-radius: 16px; border: 2.5px solid #f472b6;
+    background: linear-gradient(135deg, #ecfdf5, #a7f3d0);
+    border-radius: 16px; border: 2.5px solid #34d399;
     box-shadow: 0 4px 16px rgba(236,72,153,.15);
 }
-.tot-grand .tg-l { font-size: 1rem; font-weight: 900; color: #be185d; }
-.tot-grand .tg-v { font-size: 1.7rem; font-weight: 900; color: #9d174d; }
+.tot-grand .tg-l { font-size: 1rem; font-weight: 900; color: #10b981; }
+.tot-grand .tg-v { font-size: 1.7rem; font-weight: 900; color: #047857; }
 
 /* EMPTY */
 .empty-wrap {
@@ -414,8 +414,6 @@ body {
         <input type="hidden" name="payment_method" id="h_pay"   value="COD">
         <input type="hidden" name="delivery_fee"   id="h_fee"   value="0">
         <input type="hidden" name="delivery_km"    id="h_km"    value="0">
-        <input type="hidden" name="is_advance"     id="h_advance" value="0">
-
         <div class="card">
 
             {% if addressForm.errors %}
@@ -436,33 +434,17 @@ body {
                 </div>
             </div>
 
-            <!-- BOOKING TIME -->
+            <!-- BOOKING TIME — every reservation needs a pickup day+time -->
             <div class="form-sec">
-                <div class="sec-label"><i class="fas fa-calendar-check"></i> ເວລາຮັບເຄື່ອງ</div>
-                <div class="del-grid">
-                    <div class="del-card active-d" id="opt-now" onclick="setBooking('now')">
-                        <span class="check-dot"><i class="fas fa-check fa-xs"></i></span>
-                        <span class="dc-ico">⚡</span>
-                        <span class="dc-name">ຮັບມື້ນີ້</span>
-                        <span class="dc-sub">ປົກກະຕິ</span>
+                <div class="sec-label"><i class="fas fa-calendar-check"></i> ຈອງຄິວມາຮັບລົດ</div>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <div class="f-group" style="flex:1; min-width:150px;">
+                        <label>📅 ວັນທີ່ຈະມາຮັບ</label>
+                        <input type="date" name="pickup_date" id="f_pickup_date" required>
                     </div>
-                    <div class="del-card" id="opt-advance" onclick="setBooking('advance')">
-                        <span class="check-dot"><i class="fas fa-check fa-xs"></i></span>
-                        <span class="dc-ico">📅</span>
-                        <span class="dc-name">ຈອງລ່ວງໜ້າ</span>
-                        <span class="dc-sub">ລະບຸວັນທີ່ຈະມາຮັບ</span>
-                    </div>
-                </div>
-                <div id="box-advance" style="display:none; margin-top:14px;">
-                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                        <div class="f-group" style="flex:1; min-width:150px;">
-                            <label>📅 ວັນທີ່ຈະມາຮັບ</label>
-                            <input type="date" name="pickup_date" id="f_pickup_date">
-                        </div>
-                        <div class="f-group" style="flex:1; min-width:150px;">
-                            <label>🕐 ໂມງທີ່ຈະມາຮັບ</label>
-                            <input type="time" name="pickup_time" id="f_pickup_time">
-                        </div>
+                    <div class="f-group" style="flex:1; min-width:150px;">
+                        <label>🕐 ໂມງທີ່ຈະມາຮັບ</label>
+                        <input type="time" name="pickup_time" id="f_pickup_time" required>
                     </div>
                 </div>
             </div>
@@ -508,7 +490,7 @@ body {
                         <div class="zone-warning" id="zone-warn">
                             <span class="zw-ico">🚫</span>
                             <strong>ໝາຍເຫດ:</strong> ທ່ານຢູ່ນອກເຂດທີ່ສາມາດຈັດສົ່ງໄດ້<br>
-                            ເນື່ອງຈາກສິນຄ້າຂອງເຮົາເປັນ<strong>ນໍ້າປັ່ນ</strong> ຈຶ່ງບໍ່ສາມາດສົ່ງໄລຍະໄກໄດ້<br>
+                            ເນື່ອງຈາກລົດຕ້ອງກວດເຊັກສະພາບ ຈຶ່ງບໍ່ສາມາດຈັດສົ່ງໄລຍະໄກໄດ້<br>
                             ກາລຸນາ <strong>ຮັບໜ້າຮ້ານ</strong> ຫລື ເລືອກເຂດທີ່ຮອງຮັບ
                         </div>
                     </div>
@@ -522,7 +504,7 @@ body {
                 <div id="box-pick" style="display:none;">
                     <div class="pickup-info">
                         <div class="pi-ico">📍</div>
-                        <div class="pi-name">ຮ້ານ VILLA PRO</div>
+                        <div class="pi-name">ຮ້ານ VOLT PRO</div>
                         <div class="pi-sub">ມາຮັບສິນຄ້າໄດ້ທີ່ຮ້ານ<br>ບໍ່ມີຄ່າຈັດສົ່ງ — ຟຣີ! 🎉</div>
                     </div>
                 </div>
@@ -600,58 +582,6 @@ body {
                         <div class="si-price">{{ item.total|dotformat }}<small style="font-size:.7rem;font-weight:600;color:#94a3b8;"> ກີບ</small></div>
                     </div>
 
-                    <!-- customization detail rows -->
-                    {% if item.cust.size or item.cust.sweet or item.cust.pearl or item.cust.topping or item.cust.note %}
-                    <div style="background:linear-gradient(135deg,#fdf4ff,#fce7f3); border:1.5px solid #fbcfe8; border-radius:14px; padding:10px 14px; display:grid; gap:6px;">
-
-                        {% if item.cust.size %}
-                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
-                            <span style="color:#9d174d; font-weight:700; display:flex; align-items:center; gap:5px;">
-                                <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">📏 ຂະໜາດຈອກ</span>
-                            </span>
-                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">
-                                {% if item.cust.size == 'S' %}S — ນ້ອຍ (25.000ກີບ)
-                                {% elif item.cust.size == 'M' %}M — ກາງ (30.000ກີບ)
-                                {% elif item.cust.size == 'L' %}L — ໃຫຍ່ (35.000ກີບ)
-                                {% else %}{{ item.cust.size }}{% endif %}
-                            </span>
-                        </div>
-                        {% endif %}
-
-                        {% if item.cust.topping %}
-                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
-                            <span style="color:#9d174d; font-weight:700; display:flex; align-items:center; gap:5px;">
-                                <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">🍓 ທອັບປີ້ງ</span>
-                            </span>
-                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">
-                                {{ item.cust.topping|join:", " }}
-                                <span style="color:#a855f7;font-size:.75rem;">(+{{ item.cust.topping|length }}×5.000ກີບ)</span>
-                            </span>
-                        </div>
-                        {% endif %}
-
-                        {% if item.cust.sweet %}
-                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
-                            <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">🍬 ຄວາມຫວານ</span>
-                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">{{ item.cust.sweet }}</span>
-                        </div>
-                        {% endif %}
-
-                        {% if item.cust.pearl %}
-                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
-                            <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">🫧 ໄຂ່ມຸກ</span>
-                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">{{ item.cust.pearl }}</span>
-                        </div>
-                        {% endif %}
-
-                        {% if item.cust.note %}
-                        <div style="font-size:.8rem; color:#7c3aed; font-weight:700; border-top:1px dashed #fbcfe8; padding-top:6px; margin-top:2px;">
-                            📝 <span style="color:#1e1040;">{{ item.cust.note }}</span>
-                        </div>
-                        {% endif %}
-
-                    </div>
-                    {% endif %}
 
                 </div>
                 {% endfor %}
@@ -661,63 +591,14 @@ body {
 
                     <!-- row: image + name + price (same layout as a regular product) -->
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <div class="si-img" style="background:linear-gradient(135deg,#a855f7,#ec4899);">
+                        <div class="si-img" style="background:linear-gradient(135deg,#3b82f6,#10b981);">
                             <span class="si-ph" style="color:#fff;">✍️</span>
                         </div>
                         <div class="si-info" style="flex:1;">
-                            <div class="si-name">ສັ່ງເມນູຕາມໃຈ</div>
-                            <div class="si-qty">×{{ c.qty|default:1 }} × {{ c.unit_price|dotformat }} ກີບ</div>
+                            <div class="si-name">ຄຳຂໍພິເສດ</div>
+                            <div class="si-qty">{{ c.message }}</div>
                         </div>
-                        <div class="si-price">{{ c.subtotal|default:c.unit_price|dotformat }}<small style="font-size:.7rem;font-weight:600;color:#94a3b8;"> ກີບ</small></div>
-                    </div>
-
-                    <!-- customization detail rows (identical style to regular products) -->
-                    <div style="background:linear-gradient(135deg,#fdf4ff,#fce7f3); border:1.5px solid #fbcfe8; border-radius:14px; padding:10px 14px; display:grid; gap:6px;">
-
-                        {% if c.cust.size %}
-                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
-                            <span style="color:#9d174d; font-weight:700; display:flex; align-items:center; gap:5px;">
-                                <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">📏 ຂະໜາດຈອກ</span>
-                            </span>
-                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">
-                                {% if c.cust.size == 'S' %}S — ນ້ອຍ (25.000ກີບ)
-                                {% elif c.cust.size == 'M' %}M — ກາງ (30.000ກີບ)
-                                {% elif c.cust.size == 'L' %}L — ໃຫຍ່ (35.000ກີບ)
-                                {% else %}{{ c.cust.size }}{% endif %}
-                            </span>
-                        </div>
-                        {% endif %}
-
-                        {% if c.cust.topping %}
-                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
-                            <span style="color:#9d174d; font-weight:700; display:flex; align-items:center; gap:5px;">
-                                <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">🍓 ທອັບປີ້ງ</span>
-                            </span>
-                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">
-                                {{ c.cust.topping|join:", " }}
-                                <span style="color:#a855f7;font-size:.75rem;">(+{{ c.cust.topping|length }}×5.000ກີບ)</span>
-                            </span>
-                        </div>
-                        {% endif %}
-
-                        {% if c.cust.sweet %}
-                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
-                            <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">🍬 ຄວາມຫວານ</span>
-                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">{{ c.cust.sweet }}</span>
-                        </div>
-                        {% endif %}
-
-                        {% if c.cust.pearl %}
-                        <div style="display:flex; align-items:center; justify-content:space-between; font-size:.82rem;">
-                            <span style="background:#fce7f3;border:1px solid #fbcfe8;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:900;color:#be185d;">🫧 ໄຂ່ມຸກ</span>
-                            <span style="font-weight:900; color:#ec4899; font-size:.9rem;">{{ c.cust.pearl }}</span>
-                        </div>
-                        {% endif %}
-
-                        <div style="font-size:.8rem; color:#7c3aed; font-weight:700; border-top:1px dashed #fbcfe8; padding-top:6px; margin-top:2px;">
-                            📝 <span style="color:#1e1040;">{{ c.message }}</span>
-                        </div>
-
+                        <div class="si-price">{% if c.unit_price %}{{ c.subtotal|default:c.unit_price|dotformat }}<small style="font-size:.7rem;font-weight:600;color:#94a3b8;"> ກີບ</small>{% else %}ລໍຖ້າຕັ້ງລາຄາ{% endif %}</div>
                     </div>
 
                 </div>
@@ -778,33 +659,22 @@ function _setFeeDisplay(fee) {
     document.getElementById('h_km').value  = 0;
 }
 
-function setBooking(type) {
-    var isAdvance = (type === 'advance');
-    document.getElementById('h_advance').value = isAdvance ? '1' : '0';
-    document.getElementById('opt-now').className     = 'del-card' + (!isAdvance ? ' active-d' : '');
-    document.getElementById('opt-advance').className = 'del-card' + (isAdvance  ? ' active-d' : '');
-    document.getElementById('box-advance').style.display = isAdvance ? 'block' : 'none';
-    document.getElementById('f_pickup_date').required = isAdvance;
-    document.getElementById('f_pickup_time').required = isAdvance;
-}
-
 (function() {
     var d = new Date();
-    d.setDate(d.getDate() + 1);
-    var tomorrow = d.toISOString().slice(0, 10);
+    var today = d.toISOString().slice(0, 10);
     var pd = document.getElementById('f_pickup_date');
-    if (pd) pd.min = tomorrow;
+    if (pd) { pd.min = today; pd.value = today; }
 })();
 
 document.getElementById('mainForm').addEventListener('submit', function(e) {
-    if (document.getElementById('h_advance').value === '1' && !document.getElementById('f_pickup_date').value) {
+    if (!document.getElementById('f_pickup_date').value) {
         e.preventDefault();
-        alert('ກະລຸນາເລືອກວັນທີ່ຈະມາຮັບເຄື່ອງ');
+        alert('ກະລຸນາເລືອກວັນທີ່ຈະມາຮັບລົດ');
         return;
     }
-    if (document.getElementById('h_advance').value === '1' && !document.getElementById('f_pickup_time').value) {
+    if (!document.getElementById('f_pickup_time').value) {
         e.preventDefault();
-        alert('ກະລຸນາລະບຸໂມງທີ່ຈະມາຮັບເຄື່ອງ');
+        alert('ກະລຸນາລະບຸໂມງທີ່ຈະມາຮັບລົດ');
     }
 });
 

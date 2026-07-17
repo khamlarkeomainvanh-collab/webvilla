@@ -8,14 +8,14 @@
 
 <style>
 :root {
-  --pk:  #ec4899; --pk2: #f472b6; --pk-lt: #fce7f3;
-  --pu:  #7c3aed; --pu2: #a855f7; --pu-lt: #f5f3ff;
-  --lav: #ede9fe; --lav2:#ddd6fe; --text:#2d1457;
+  --pk:  #10b981; --pk2: #34d399; --pk-lt: #ecfdf5;
+  --pu:  #2563eb; --pu2: #3b82f6; --pu-lt: #eff6ff;
+  --lav: #dbeafe; --lav2:#bfdbfe; --text:#1e3a5f;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Lexend','Noto Sans Lao', sans-serif;
-  background: linear-gradient(155deg,#fdf4ff 0%,#f5f3ff 50%,#fce7f3 100%);
+  background: linear-gradient(155deg,#eff6ff 0%,#eff6ff 50%,#ecfdf5 100%);
   background-attachment: fixed;
   min-height: 100vh;
 }
@@ -118,7 +118,7 @@ body {
 .oi-qty   { font-size:.82rem; color:var(--pk); font-weight:700; }
 .oi-note  { font-size:.75rem; color:#64748b; font-weight:600; margin-top:5px; line-height:1.5; }
 .oi-cust  { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
-.oi-pill  { background:#fff; border:1px solid #ddd6fe; border-radius:50px; padding:3px 10px; font-size:.72rem; font-weight:800; color:var(--pu); }
+.oi-pill  { background:#fff; border:1px solid #bfdbfe; border-radius:50px; padding:3px 10px; font-size:.72rem; font-weight:800; color:var(--pu); }
 .oi-sub   { font-size:1.1rem; font-weight:900; color:var(--pk); flex-shrink:0; white-space:nowrap; align-self:center; }
 
 /* PRICE BREAKDOWN */
@@ -133,7 +133,7 @@ body {
   padding:18px 24px;
   display:flex; justify-content:space-between; align-items:center;
 }
-.total-bar .tb-l { font-size:.95rem; font-weight:800; color:#4c1d95; }
+.total-bar .tb-l { font-size:.95rem; font-weight:800; color:#1e3a8a; }
 .total-bar .tb-v { font-size:2rem; font-weight:900; color:var(--pk); }
 .total-bar .tb-v small { font-size:.85rem; color:var(--pu2); font-weight:700; }
 
@@ -200,7 +200,7 @@ body {
     <div class="banner-icon">🎉</div>
     <div class="banner-text">
       <h1>ສັ່ງຊື້ສຳເລັດ!</h1>
-      <p>ຂອບໃຈທີ່ໃຊ້ ຮ້ານ ນໍ້າປັ່ນ VILLA  — ກຳລັງກຽມໃຫ້ທ່ານ</p>
+      <p>ຂອບໃຈທີ່ໃຊ້ VOLT EV  — ກຳລັງກຽມໃຫ້ທ່ານ</p>
     </div>
     <div class="queue-badge">
       <div class="qb-lbl">ຄິວທີ</div>
@@ -224,7 +224,7 @@ body {
         {% for item in ordered_products %}
         <div class="order-item">
           {% if item.is_custom %}
-          <div class="oi-img" style="background:linear-gradient(135deg,#a855f7,#ec4899);"><span style="color:#fff;">✍️</span></div>
+          <div class="oi-img" style="background:linear-gradient(135deg,#3b82f6,#10b981);"><span style="color:#fff;">✍️</span></div>
           <div class="oi-info">
             <div class="oi-name">{{ item.custom_message }}</div>
             <div class="oi-cust">
@@ -354,7 +354,7 @@ body {
         </a>
       </div>
 
-      <div class="footer-note">🍹 VILLA PRO &nbsp;·&nbsp; ນ້ຳປັ່ນສົດໃໝ່ທຸກແກ້ວ</div>
+      <div class="footer-note">⚡ VOLT EV &nbsp;·&nbsp; ຈອງງ່າຍ ຮັບໄວ ໝັ້ນໃຈທຸກຄັນ</div>
 
     </div><!-- /.right-col -->
 
@@ -367,7 +367,7 @@ body {
 <script>
 (function() {
   var end = Date.now() + 2800;
-  var colors = ['#ec4899','#a855f7','#f472b6','#ddd6fe','#fce7f3','#ffffff'];
+  var colors = ['#10b981','#3b82f6','#34d399','#bfdbfe','#ecfdf5','#ffffff'];
   (function frame() {
     confetti({ particleCount: 4, angle: 60,  spread: 55, origin: {x:0}, colors: colors });
     confetti({ particleCount: 4, angle: 120, spread: 55, origin: {x:1}, colors: colors });

@@ -214,7 +214,7 @@ def ajax_send_otp(request):
         from twilio.rest import Client as _TwilioClient
         client = _TwilioClient(sid, token)
         client.messages.create(
-            body=f'VILLA Smoothie\nລະຫັດ OTP: {otp}\n(ໃຊ້ໄດ້ 5 ນາທີ - ຢ່າໃຫ້ໃຜ)',
+            body=f'VOLT EV\nລະຫັດ OTP: {otp}\n(ໃຊ້ໄດ້ 5 ນາທີ - ຢ່າໃຫ້ໃຜ)',
             from_=frm,
             to=mobile,
         )
@@ -733,19 +733,8 @@ def admin_walkin_sale_view(request):
                 except (ValueError, TypeError):
                     continue
 
-                # Optional size/topping customization (mainly for off-menu items) —
-                # priced/labelled the same way as customer-side customization.
-                size     = str(it.get('size', '')).strip()
-                toppings = [t.strip() for t in (it.get('topping') or []) if str(t).strip()]
-                cust_parts = []
-                if size in _SIZE_PRICES:
-                    cust_parts.append(f'ຂະໜາດ: {size}')
-                if toppings:
-                    cust_parts.append(f'ທອັບ: {", ".join(toppings)}')
-                cust_note = ' | '.join(cust_parts)
-
                 if product:
-                    item_note = note + (f' | {cust_note}' if cust_note else '')
+                    item_note = note
                 else:
                     # Off-menu item typed in by hand — no matching Product row, so the
                     # typed name becomes the note (shown wherever product.name normally would be).
@@ -753,8 +742,6 @@ def admin_walkin_sale_view(request):
                     if not custom_name:
                         continue
                     item_note = custom_name
-                    if cust_note:
-                        item_note += f' | {cust_note}'
                     if note_in:
                         item_note += f' ({note_in})'
 
@@ -887,7 +874,7 @@ def export_walkin_excel_view(request):
     c.font = hfont(size=14); c.fill = fill("7C3AED"); c.alignment = center
     ws.row_dimensions[1].height = 36
     ws.merge_cells("A2:F2")
-    s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+    s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
     s.font = dfont(color="94A3B8", size=10); s.fill = fill("1E293B"); s.alignment = center
     ws.row_dimensions[2].height = 22
 
@@ -924,7 +911,7 @@ def export_walkin_excel_view(request):
         ws.column_dimensions[col].width = w
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = f'attachment; filename="VILLA_ຍອດຂາຍໜ້າຮ້ານ_{invoice_no}.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename="VOLT_ຍອດຂາຍໜ້າຮ້ານ_{invoice_no}.xlsx"'
     wb.save(response)
     return response
 
@@ -1351,7 +1338,7 @@ def export_advance_bookings_excel(request):
     c.font = hfont(size=14); c.fill = fill("7C3AED"); c.alignment = center
     ws.row_dimensions[1].height = 36
     ws.merge_cells("A2:H2")
-    s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+    s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
     s.font = dfont(color="94A3B8", size=10); s.fill = fill("1E293B"); s.alignment = center
     ws.row_dimensions[2].height = 22
 
@@ -1397,7 +1384,7 @@ def export_advance_bookings_excel(request):
 
     fname_suffix = pickup_date_obj.strftime('%Y-%m-%d') if pickup_date_obj else 'ທັງໝົດ'
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = f'attachment; filename="VILLA_ຈອງລ່ວງໜ້າ_{fname_suffix}.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename="VOLT_ຈອງລ່ວງໜ້າ_{fname_suffix}.xlsx"'
     wb.save(response)
     return response
 
@@ -1703,23 +1690,8 @@ def update_cart_qty(request, p_id, delta):
         'total_items': sum(cart.values())
     })
 
-_SIZE_PRICES   = {'S': 25000, 'M': 30000, 'L': 35000}
-_TOPPING_FEE   = 5000
-_FIXED_TOPPINGS = {'ໝາກໄມ້ສົດ', 'ເຈລລີ', 'ໂກໂກ້', 'ໄຂ່ມຸກ', 'ຊັອກໂກແລັດ'}
-
-def _cust_unit_price(product_price, cust):
-    size_price  = cust.get('size_price', 0) or 0
-    topping_fee = cust.get('topping_fee', 0) or 0
-    return (size_price if size_price else product_price) + topping_fee
-
-
-def _cart_lines(cart_dict, customizations):
-    """Yield (line_key, product, qty, cust, unit_price, subtotal) for every cart
-    line. A "line" is normally just a product id ("12"), but when a customer
-    splits off part of a multi-quantity order to customize separately (e.g.
-    2 cups where only 1 gets extra topping), the split-off portion gets its
-    own line key ("12-a1b2c3") so it can carry its own customization/price
-    independent of the rest of that product's quantity."""
+def _cart_lines(cart_dict):
+    """Yield (line_key, product, qty, unit_price, subtotal) for every cart line."""
     if not cart_dict:
         return
     base_ids = {key.split('-')[0] for key in cart_dict.keys()}
@@ -1729,40 +1701,9 @@ def _cart_lines(cart_dict, customizations):
         product = products_by_id.get(pid)
         if not product:
             continue
-        cust = customizations.get(line_key, {})
-        unit_price = _cust_unit_price(product.price, cust)
+        unit_price = product.price
         subtotal = unit_price * qty
-        yield line_key, product, qty, cust, unit_price, subtotal
-
-# ບັນທຶກ customization ຂອງສິນຄ້າໃນກະຕ່າ
-def save_customization_view(request, pk):
-    if request.method == 'POST':
-        cart = request.session.get('cart', {})
-        customizations = request.session.get('cart_customizations', {})
-        size     = request.POST.get('size', '')
-        toppings = [t for t in request.POST.getlist('topping') if t]
-        cust = {
-            'size':        size,
-            'size_price':  _SIZE_PRICES.get(size, 0),
-            'sweet':       request.POST.get('sweet', ''),
-            'pearl':       request.POST.get('pearl', ''),
-            'topping':     toppings,
-            'topping_fee': _TOPPING_FEE * len(toppings),
-            'note':        request.POST.get('note', ''),
-        }
-        line_key = request.POST.get('line_key') or str(pk)
-        split    = request.POST.get('split') == '1'
-        if split and cart.get(line_key, 0) > 1:
-            cart[line_key] -= 1
-            new_key = f"{pk}-{uuid.uuid4().hex[:6]}"
-            cart[new_key] = 1
-            customizations[new_key] = cust
-            request.session['cart'] = cart
-        else:
-            customizations[line_key] = cust
-        request.session['cart_customizations'] = customizations
-        request.session.modified = True
-    return redirect('cart')
+        yield line_key, product, qty, unit_price, subtotal
 
 
 # for checkout of cart
@@ -1772,9 +1713,7 @@ def cart_view(request):
     products_list = [] # 💡 ສ້າງ List ໃໝ່ເພື່ອເກັບຂໍ້ມູນຈາກ Session
     total = 0
 
-    customizations = request.session.get('cart_customizations', {})
-
-    for line_key, product, item_qty, cust, unit_price, subtotal in _cart_lines(cart, customizations):
+    for line_key, product, item_qty, unit_price, subtotal in _cart_lines(cart):
         total += subtotal
         products_list.append({
             'id':           product.id,
@@ -1785,20 +1724,12 @@ def cart_view(request):
             'qty':          item_qty,
             'subtotal':     subtotal,
             'product_image': product.product_image,
-            'cust_size':    cust.get('size', ''),
-            'cust_sweet':   cust.get('sweet', ''),
-            'cust_pearl':   cust.get('pearl', ''),
-            'cust_topping': cust.get('topping', []),
-            'cust_topping_custom': [t for t in cust.get('topping', []) if t not in _FIXED_TOPPINGS],
-            'cust_note':    cust.get('note', ''),
-            'cust_size_price':  cust.get('size_price', 0),
-            'cust_topping_fee': cust.get('topping_fee', 0),
         })
 
     custom_cart_items = request.session.get('custom_cart_items', [])
     for c in custom_cart_items:
         c.setdefault('qty', 1)
-        c['subtotal'] = c.get('unit_price', _SIZE_PRICES['M']) * c['qty']
+        c['subtotal'] = c.get('unit_price', 0) * c['qty']
     total += sum(c['subtotal'] for c in custom_cart_items)
 
     # ຄິວຕໍ່ມື້ — ນັບສະເພາະ Pending orders ທີ່ຍັງຄ້າງຢູ່ + 1
@@ -1888,31 +1819,19 @@ def custom_order_request_view(request):
         return JsonResponse({'ok': False}, status=405)
     message = request.POST.get('message', '').strip()
     if not message:
-        return JsonResponse({'ok': False, 'error': 'ກະລຸນາພິມລາຍລະອຽດເມນູທີ່ຕ້ອງການ'})
+        return JsonResponse({'ok': False, 'error': 'ກະລຸນາພິມລາຍລະອຽດຄຳຂໍພິເສດ'})
     message = message[:300]
 
-    # Same size/sweet/pearl/topping pricing as a real menu item — base price
-    # defaults to the M-size price (30,000) when no size is chosen.
-    size     = request.POST.get('size', 'M')
-    toppings = [t for t in request.POST.getlist('topping') if t]
-    cust = {
-        'size':        size,
-        'size_price':  _SIZE_PRICES.get(size, 0),
-        'sweet':       request.POST.get('sweet', ''),
-        'pearl':       request.POST.get('pearl', ''),
-        'topping':     toppings,
-        'topping_fee': _TOPPING_FEE * len(toppings),
-    }
-    unit_price = _cust_unit_price(_SIZE_PRICES['M'], cust)
-
+    # Price is quoted by admin afterward (via ajax_set_order_price) — there's
+    # no formula to auto-price a one-off special request.
     custom_items = request.session.get('custom_cart_items', [])
-    custom_items.append({'id': str(uuid.uuid4()), 'message': message, 'cust': cust, 'unit_price': unit_price, 'qty': 1})
+    custom_items.append({'id': str(uuid.uuid4()), 'message': message, 'unit_price': 0, 'qty': 1})
     request.session['custom_cart_items'] = custom_items
     request.session.modified = True
 
     cart = request.session.get('cart', {})
     cart_total_items = sum(cart.values()) + sum(c.get('qty', 1) for c in custom_items)
-    return JsonResponse({'ok': True, 'cart_total_items': cart_total_items, 'unit_price': unit_price})
+    return JsonResponse({'ok': True, 'cart_total_items': cart_total_items, 'unit_price': 0})
 
 
 @login_required(login_url='customerlogin')
@@ -2088,24 +2007,23 @@ def customer_address_view(request):
         delivery_km    = request.POST.get('delivery_km',    '0') or '0'
         delivery_fee   = request.POST.get('delivery_fee',   '0') or '0'
 
-        # Advance booking — "ຈອງລ່ວງໜ້າ": customer picks a future day+time to
-        # come collect the order instead of it going into today's prep queue.
-        # Falls back to a normal (today) order if the date is missing/invalid/not future.
+        # Every booking reserves a specific pickup day+time to come buy/collect
+        # the vehicle — falls back to today if the date is missing/invalid.
         pickup_date_str = ''
         pickup_time_str = ''
-        if request.POST.get('is_advance') == '1':
-            from datetime import datetime as _dt_parse
-            try:
-                _pd = _dt_parse.strptime(request.POST.get('pickup_date', ''), '%Y-%m-%d').date()
-                if _pd > timezone.localdate():
-                    pickup_date_str = _pd.isoformat()
-                    try:
-                        _pt = _dt_parse.strptime(request.POST.get('pickup_time', ''), '%H:%M').time()
-                        pickup_time_str = _pt.strftime('%H:%M')
-                    except (ValueError, TypeError):
-                        pickup_time_str = ''
-            except (ValueError, TypeError):
-                pass
+        from datetime import datetime as _dt_parse
+        try:
+            _pd = _dt_parse.strptime(request.POST.get('pickup_date', ''), '%Y-%m-%d').date()
+            if _pd < timezone.localdate():
+                _pd = timezone.localdate()
+            pickup_date_str = _pd.isoformat()
+        except (ValueError, TypeError):
+            pickup_date_str = timezone.localdate().isoformat()
+        try:
+            _pt = _dt_parse.strptime(request.POST.get('pickup_time', ''), '%H:%M').time()
+            pickup_time_str = _pt.strftime('%H:%M')
+        except (ValueError, TypeError):
+            pickup_time_str = ''
 
         # Get mobile — fallback to customer profile
         mobile = request.POST.get('Mobile', '').strip()
@@ -2140,13 +2058,12 @@ def customer_address_view(request):
     # Build cart items for display
     cart_items = []
     subtotal = 0
-    customizations = request.session.get('cart_customizations', {})
-    for line_key, p, qty, cust, unit_price, item_total in _cart_lines(cart, customizations):
+    for line_key, p, qty, unit_price, item_total in _cart_lines(cart):
         subtotal += item_total
-        cart_items.append({'product': p, 'line_key': line_key, 'qty': qty, 'total': item_total, 'unit_price': unit_price, 'cust': cust})
+        cart_items.append({'product': p, 'line_key': line_key, 'qty': qty, 'total': item_total, 'unit_price': unit_price})
 
     for c in custom_cart_items:
-        c['subtotal'] = c.get('unit_price', _SIZE_PRICES['M']) * c['qty']
+        c['subtotal'] = c.get('unit_price', 0) * c['qty']
     subtotal += sum(c['subtotal'] for c in custom_cart_items)
 
     return render(request, 'ecom/customer_address.html', {
@@ -2219,20 +2136,11 @@ def payment_success_view(request):
             _order_pickup_time = None
 
     if cart:
-        cart_customizations = request.session.get('cart_customizations', {})
-        for line_key, product, qty, cust, unit_price, total_amount in _cart_lines(cart, cart_customizations):
+        for line_key, product, qty, unit_price, total_amount in _cart_lines(cart):
             grand_total += total_amount
+            note_str = ''
 
-            # Build note string from customizations
-            note_parts = []
-            if cust.get('size'):    note_parts.append(f"ຂະໜາດ: {cust['size']}")
-            if cust.get('sweet'):   note_parts.append(f"ຫວານ: {cust['sweet']}")
-            if cust.get('pearl'):   note_parts.append(f"ໄຂ່ມຸກ: {cust['pearl']}")
-            if cust.get('topping'): note_parts.append(f"ທອັບ: {', '.join(cust['topping'])}")
-            if cust.get('note'):    note_parts.append(cust['note'])
-            note_str = ' | '.join(note_parts)
-
-            ordered_products.append({'product': product, 'qty': qty, 'subtotal': total_amount, 'unit_price': unit_price, 'note': note_str, 'cust': cust})
+            ordered_products.append({'product': product, 'qty': qty, 'subtotal': total_amount, 'unit_price': unit_price, 'note': note_str})
 
             try:
                 models.Orders.objects.create(
@@ -2260,22 +2168,15 @@ def payment_success_view(request):
     if custom_cart_items:
         for c in custom_cart_items:
             message    = c.get('message', '')[:300]
-            cust       = c.get('cust', {})
-            unit_price = c.get('unit_price', _SIZE_PRICES['M'])
+            unit_price = c.get('unit_price', 0)
             qty        = max(1, c.get('qty', 1))
             item_total = unit_price * qty
             grand_total += item_total
-
-            note_parts = [message]
-            if cust.get('size'):    note_parts.append(f"ຂະໜາດ: {cust['size']}")
-            if cust.get('sweet'):   note_parts.append(f"ຫວານ: {cust['sweet']}")
-            if cust.get('pearl'):   note_parts.append(f"ໄຂ່ມຸກ: {cust['pearl']}")
-            if cust.get('topping'): note_parts.append(f"ທອັບ: {', '.join(cust['topping'])}")
-            note_str = ' | '.join(note_parts)
+            note_str = message
 
             ordered_products.append({
                 'product': None, 'qty': qty, 'subtotal': item_total, 'unit_price': unit_price,
-                'note': note_str, 'cust': cust, 'is_custom': True, 'custom_message': message,
+                'note': note_str, 'is_custom': True, 'custom_message': message,
             })
             try:
                 order = models.Orders.objects.create(
@@ -2301,15 +2202,13 @@ def payment_success_view(request):
             except Exception as e:
                 print(f"  ✗ ERROR creating custom order: {e}")
 
-    # ລາຄາລວມທັງໝົດ ຕ້ອງບວກຄ່າຈັດສົ່ງເຂົ້ານຳ (ຄ່າທອັບປີ້ງ/ຂະໜາດ ຖືກລວມເຂົ້າ
-    # unit_price ຂອງແຕ່ລະລາຍການແລ້ວຜ່ານ _cust_unit_price — ບໍ່ໄດ້ຕົກຫຼົ່ນ)
+    # ລາຄາລວມທັງໝົດ ຕ້ອງບວກຄ່າຈັດສົ່ງເຂົ້ານຳ
     subtotal = grand_total
     delivery_fee_amount = d_fee if (cart or custom_cart_items) and _order_delivery != 'Pickup' else 0
     grand_total = subtotal + delivery_fee_amount
 
     if cart or custom_cart_items:
         request.session['cart'] = {}
-        request.session['cart_customizations'] = {}
         request.session['custom_cart_items'] = []
         request.session.modified = True
 
@@ -3666,7 +3565,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("3B82F6"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:E2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, (h, fc) in enumerate(zip(
@@ -3700,7 +3599,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCDE", [8, 28, 10, 18, 14]):
                 ws.column_dimensions[col].width = w
-            filename = f"VILLA_ລາຍຮັບ_{sel_date_d}.xlsx"
+            filename = f"VOLT_ລາຍຮັບ_{sel_date_d}.xlsx"
 
         elif sel_type == 'expense':
             expenses = list(models.Expense.objects.filter(
@@ -3714,7 +3613,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("B91C1C"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:D2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, (h, fc) in enumerate(zip(
@@ -3747,7 +3646,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCD", [8, 20, 32, 18]):
                 ws.column_dimensions[col].width = w
-            filename = f"VILLA_ລາຍຈ່າຍ_{sel_date_d}.xlsx"
+            filename = f"VOLT_ລາຍຈ່າຍ_{sel_date_d}.xlsx"
 
         else:  # profit
             orders = list(_revenue_orders_qs(day_start, day_end).values('id', 'product__name', 'quantity', 'amount'))
@@ -3766,7 +3665,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("065F46"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:C2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
 
@@ -3828,7 +3727,7 @@ def export_finance_excel(request):
 
             for col, w in zip("ABC", [28, 32, 20]):
                 ws.column_dimensions[col].width = w
-            filename = f"VILLA_ກຳໄລ_{sel_date_d}.xlsx"
+            filename = f"VOLT_ກຳໄລ_{sel_date_d}.xlsx"
 
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -3878,7 +3777,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("1D4ED8"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:F2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, (h, fc) in enumerate(zip(
@@ -3913,7 +3812,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCDEF", [8, 13, 26, 10, 16, 14]):
                 ws.column_dimensions[col].width = w
-            filename = f"VILLA_ລາຍຮັບ_{fname_lbl}.xlsx"
+            filename = f"VOLT_ລາຍຮັບ_{fname_lbl}.xlsx"
 
         elif sel_type == 'expense':
             expenses = list(models.Expense.objects.filter(
@@ -3927,7 +3826,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("B91C1C"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:E2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, (h, fc) in enumerate(zip(
@@ -3960,7 +3859,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCDE", [8, 14, 20, 32, 18]):
                 ws.column_dimensions[col].width = w
-            filename = f"VILLA_ລາຍຈ່າຍ_{fname_lbl}.xlsx"
+            filename = f"VOLT_ລາຍຈ່າຍ_{fname_lbl}.xlsx"
 
         else:  # profit — aggregated per-day (month scope) or per-month (year scope)
             rev_map, exp_map = {}, {}
@@ -3976,7 +3875,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("065F46"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:D2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             LAO_DAYS3 = ['ຈັນ','ອັງຄານ','ພຸດ','ພະຫັດ','ສຸກ','ເສົາ','ອາທິດ']
@@ -4037,7 +3936,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCD", [18, 18, 18, 18]):
                 ws.column_dimensions[col].width = w
-            filename = f"VILLA_ກຳໄລ_{fname_lbl}.xlsx"
+            filename = f"VOLT_ກຳໄລ_{fname_lbl}.xlsx"
 
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -4072,7 +3971,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("1D4ED8"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:F2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, h in enumerate(["ລຳດັບ","ວັນທີ","ສິນຄ້າ","ຈຳນວນ","ລາຍຮັບ (ກີບ)","ສະຖານະ"], 1):
@@ -4101,7 +4000,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCDEF", [8, 14, 26, 10, 16, 14]):
                 ws.column_dimensions[col].width = w
-            filename = "VILLA_ລາຍຮັບ_ທັງໝົດ.xlsx"
+            filename = "VOLT_ລາຍຮັບ_ທັງໝົດ.xlsx"
 
         elif sel_type == 'expense':
             expenses = list(models.Expense.objects.all().order_by('date', 'id').values(
@@ -4115,7 +4014,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("B91C1C"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:E2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, h in enumerate(["ລຳດັບ","ວັນທີ","ໝວດໝູ່","ລາຍລະອຽດ","ຈຳນວນ (ກີບ)"], 1):
@@ -4142,7 +4041,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCDE", [8, 14, 18, 32, 16]):
                 ws.column_dimensions[col].width = w
-            filename = "VILLA_ລາຍຈ່າຍ_ທັງໝົດ.xlsx"
+            filename = "VOLT_ລາຍຈ່າຍ_ທັງໝົດ.xlsx"
 
         else:  # profit — year-by-year summary across every year that has any data
             from django.db.models import Min as _Min, Max as _Max
@@ -4159,7 +4058,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("065F46"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:D2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, (h, fc) in enumerate(zip(["ປີ","ລາຍຮັບ (ກີບ)","ລາຍຈ່າຍ (ກີບ)","ກຳໄລ (ກີບ)"], ["1E3A5F","1D4ED8","B91C1C","065F46"]), 1):
@@ -4198,7 +4097,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCD", [14, 18, 18, 18]):
                 ws.column_dimensions[col].width = w
-            filename = "VILLA_ກຳໄລ_ທັງໝົດ.xlsx"
+            filename = "VOLT_ກຳໄລ_ທັງໝົດ.xlsx"
 
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -4230,7 +4129,7 @@ def export_finance_excel(request):
     # Sub-title row
     ws_day.merge_cells("A2:G2")
     sub = ws_day["A2"]
-    sub.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+    sub.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
     sub.font  = _hfont(bold=False, color="94A3B8", size=10)
     sub.fill  = _fill("1E293B")
     sub.alignment = _center
@@ -4337,7 +4236,7 @@ def export_finance_excel(request):
 
     ws_mon.merge_cells("A2:G2")
     s2 = ws_mon["A2"]
-    s2.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+    s2.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
     s2.font  = _hfont(bold=False, color="94A3B8", size=10)
     s2.fill  = _fill("1E293B")
     s2.alignment = _center
@@ -4451,7 +4350,7 @@ def export_finance_excel(request):
             ws.row_dimensions[1].height = 36
             ws.merge_cells(f"A2:{chr(64+cols)}2")
             s = ws["A2"]
-            s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+            s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
             s.font  = _hfont(bold=False, color="94A3B8", size=10)
             s.fill  = _fill("1E293B")
             s.alignment = _center
@@ -4566,7 +4465,7 @@ def export_finance_excel(request):
             ws2.row_dimensions[tr2].height = 28
             for col, w in zip("ABCD", [8,20,16,22]):
                 ws2.column_dimensions[col].width = w
-            filename = f"VILLA_ລາຍຮັບ_{sel_year}_{sel_month:02d}.xlsx"
+            filename = f"VOLT_ລາຍຮັບ_{sel_year}_{sel_month:02d}.xlsx"
 
         # ════════════ EXPENSE EXPORT ════════════
         elif sel_type == 'expense':
@@ -4643,7 +4542,7 @@ def export_finance_excel(request):
             ws2.row_dimensions[tr2].height = 28
             for col, w in zip("ABC", [8,22,22]):
                 ws2.column_dimensions[col].width = w
-            filename = f"VILLA_ລາຍຈ່າຍ_{sel_year}_{sel_month:02d}.xlsx"
+            filename = f"VOLT_ລາຍຈ່າຍ_{sel_year}_{sel_month:02d}.xlsx"
 
         # ════════════ PROFIT EXPORT ════════════
         elif sel_type == 'profit':
@@ -4742,11 +4641,11 @@ def export_finance_excel(request):
             ws2.row_dimensions[tr2].height = 28
             for col, w in zip("ABCDE", [8,20,22,22,22]):
                 ws2.column_dimensions[col].width = w
-            filename = f"VILLA_ກຳໄລ_{sel_year}_{sel_month:02d}.xlsx"
+            filename = f"VOLT_ກຳໄລ_{sel_year}_{sel_month:02d}.xlsx"
 
     else:
         # default (type=all) — use the wb already built above (daily + monthly sheets)
-        filename = f"VILLA_ສະຫຼຸບ_{sel_year}_{sel_month:02d}.xlsx"
+        filename = f"VOLT_ສະຫຼຸບ_{sel_year}_{sel_month:02d}.xlsx"
 
     # ── Response ──
     response = HttpResponse(

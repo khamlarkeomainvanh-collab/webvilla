@@ -7,15 +7,15 @@
 
 <style>
 :root {
-  --pink:    #ec4899;
-  --pink2:   #f472b6;
-  --pink-lt: #fce7f3;
-  --purp:    #7c3aed;
-  --purp2:   #a855f7;
-  --lav:     #f5f3ff;
-  --lav2:    #ede9fe;
-  --lav3:    #ddd6fe;
-  --text:    #2d1457;
+  --pink:    #10b981;
+  --pink2:   #34d399;
+  --pink-lt: #ecfdf5;
+  --purp:    #2563eb;
+  --purp2:   #3b82f6;
+  --lav:     #eff6ff;
+  --lav2:    #dbeafe;
+  --lav3:    #bfdbfe;
+  --text:    #1e3a5f;
   --gray:    #6b7280;
 }
 
@@ -24,7 +24,7 @@ html { font-size: 17px; }
 
 body {
   font-family:'Lexend','Noto Sans Lao',sans-serif;
-  background: linear-gradient(155deg,#fdf4ff 0%,#f5f3ff 50%,#fce7f3 100%);
+  background: linear-gradient(155deg,#eff6ff 0%,#eff6ff 50%,#ecfdf5 100%);
   background-attachment: fixed;
   color: var(--text);
   min-height:100vh; overflow-x:hidden;
@@ -32,10 +32,10 @@ body {
 
 /* ====== HERO BANNER ====== */
 .hero {
-  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 55%, #f9a8d4 100%);
+  background: linear-gradient(135deg, #ecfdf5 0%, #a7f3d0 55%, #a7f3d0 100%);
   padding: clamp(16px, 4vw, 20px) clamp(16px, 5vw, 24px) clamp(16px, 4vw, 22px);
   text-align: center; position: relative; overflow: hidden;
-  border-bottom: 2px solid #f472b6;
+  border-bottom: 2px solid #34d399;
 }
 .hero::before {
   content:''; position:absolute; inset:0;
@@ -48,13 +48,13 @@ body {
 @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
 .hero h1 {
   font-size: clamp(1.7rem, 5vw + 1rem, 3rem); font-weight: 900;
-  color: #9d174d;
+  color: #047857;
   margin-bottom: 5px; line-height: 1.15;
   letter-spacing: -.5px;
   text-shadow: 0 2px 10px rgba(190,24,93,.15);
 }
 .hero p {
-  font-size: clamp(.8rem, 1.5vw + .55rem, .98rem); color: #be185d;
+  font-size: clamp(.8rem, 1.5vw + .55rem, .98rem); color: #10b981;
   font-weight: 700; margin-bottom: 0; letter-spacing: .3px;
   opacity: .85;
 }
@@ -156,7 +156,7 @@ body {
 .count-tag {
   background: var(--pink-lt); color: var(--pink);
   padding: 8px 20px; border-radius: 50px;
-  font-size: .9rem; font-weight: 900; border: 1.5px solid #fbcfe8;
+  font-size: .9rem; font-weight: 900; border: 1.5px solid #a7f3d0;
 }
 
 /* ====== GRID ====== */
@@ -190,7 +190,7 @@ body {
 }
 .card:hover {
   transform: translateY(-9px);
-  border-color: #c4b5fd;
+  border-color: #93c5fd;
   box-shadow: 0 22px 52px rgba(124,58,237,.20);
 }
 
@@ -287,7 +287,7 @@ body {
 .add-btn:hover { transform:translateY(-3px); box-shadow:0 14px 30px rgba(124,58,237,.42); }
 .add-btn:active { transform:scale(.97); }
 .add-btn.added {
-  background: linear-gradient(135deg,#be185d,#6d28d9);
+  background: linear-gradient(135deg,#10b981,#1d4ed8);
   box-shadow: 0 6px 18px rgba(109,40,217,.32);
 }
 
@@ -337,7 +337,7 @@ body {
   animation: authPop .35s cubic-bezier(.175,.885,.32,1.275);
 }
 .auth-top {
-  background: linear-gradient(135deg,#7c3aed,#be185d);
+  background: linear-gradient(135deg,#2563eb,#10b981);
   padding: 42px 32px 34px; text-align: center; position: relative;
 }
 .auth-top::before {
@@ -361,10 +361,10 @@ body {
 .auth-sub   { color:rgba(255,255,255,.72); font-size:13px; margin:0; position:relative; z-index:1; line-height:1.6; }
 .auth-body  { padding:32px; }
 .auth-desc  { text-align:center; color:#64748b; font-size:14px; line-height:1.9; margin-bottom:26px; }
-.auth-desc strong { color:#7c3aed; }
+.auth-desc strong { color:#2563eb; }
 .auth-btn-main {
   display:flex; align-items:center; justify-content:center; gap:11px;
-  background:linear-gradient(135deg,#7c3aed,#be185d);
+  background:linear-gradient(135deg,#2563eb,#10b981);
   color:#fff !important; text-decoration:none !important;
   padding:17px; border-radius:18px; font-weight:900; font-size:16px;
   margin-bottom:12px; box-shadow:0 10px 28px rgba(124,58,237,.35);
@@ -379,11 +379,11 @@ body {
 .auth-btn-main:hover { transform:translateY(-3px); box-shadow:0 16px 40px rgba(190,24,93,.45); }
 .auth-btn-sec {
   display:flex; align-items:center; justify-content:center; gap:11px;
-  background:#f5f3ff; color:#7c3aed !important; text-decoration:none !important;
+  background:#eff6ff; color:#2563eb !important; text-decoration:none !important;
   padding:17px; border-radius:18px; font-weight:900; font-size:16px;
-  border:2px solid #ddd6fe; transition:.3s;
+  border:2px solid #bfdbfe; transition:.3s;
 }
-.auth-btn-sec:hover { background:#ede9fe; border-color:#c4b5fd; transform:translateY(-2px); box-shadow:0 8px 22px rgba(124,58,237,.18); }
+.auth-btn-sec:hover { background:#dbeafe; border-color:#93c5fd; transform:translateY(-2px); box-shadow:0 8px 22px rgba(124,58,237,.18); }
 .auth-divider { text-align:center; color:#cbd5e1; font-size:12px; margin:14px 0; font-weight:600; letter-spacing:.5px; }
 
 /* ====== ANNOUNCEMENT BANNERS ====== */
@@ -391,15 +391,15 @@ body {
   max-width: 1400px; margin: 0 auto; padding: 16px clamp(14px,4vw,24px) 0;
 }
 .closure-banner-inner {
-  background: linear-gradient(135deg,#f9a8d4 0%,#c4b5fd 55%,#ffffff 100%);
-  color: #831843; border: 2px solid #f472b6; border-radius: 24px;
+  background: linear-gradient(135deg,#a7f3d0 0%,#93c5fd 55%,#ffffff 100%);
+  color: #831843; border: 2px solid #34d399; border-radius: 24px;
   padding: 26px 24px;
   display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
   box-shadow: 0 12px 32px rgba(236,72,153,.25);
 }
 .closure-banner-icon { font-size: 2.4rem; }
 .closure-banner-title { font-weight: 900; font-size: clamp(1.25rem, 1.4vw + 1rem, 1.7rem); }
-.closure-banner-msg { font-size: clamp(.9rem, .5vw + .8rem, 1.05rem); color: #9d174d; font-weight: 600; }
+.closure-banner-msg { font-size: clamp(.9rem, .5vw + .8rem, 1.05rem); color: #047857; font-weight: 600; }
 
 .promo-banners {
   max-width: 1400px; margin: 0 auto; padding: 14px clamp(14px,4vw,24px) 0;
@@ -449,11 +449,13 @@ body {
 <!-- HERO BANNER -->
 <div class="hero">
   <div class="hero-inner">
-    <span class="hero-emoji"></span>
+    <span class="hero-emoji">⚡</span>
+    <h1>VOLT EV</h1>
+    <p>ລະບົບການຈອງຄິວ Electric Vehicle ຜ່ານເວັບໄຊ</p>
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:18px;">
       <a href="/queue#payment" style="
         display:inline-flex;align-items:center;gap:9px;
-        background:linear-gradient(135deg,#7c3aed,#be185d);
+        background:linear-gradient(135deg,#2563eb,#10b981);
         color:#fff;text-decoration:none;
         padding:clamp(10px,2.5vw,13px) clamp(18px,5vw,26px);border-radius:50px;
         font-weight:900;font-size:clamp(.85rem,1.5vw + .6rem,1rem);
@@ -466,12 +468,12 @@ body {
       <a href="/queue#contact" style="
         display:inline-flex;align-items:center;gap:9px;
         background:#fff;
-        color:#be185d;text-decoration:none;
+        color:#10b981;text-decoration:none;
         padding:clamp(10px,2.5vw,13px) clamp(18px,5vw,26px);border-radius:50px;
-        font-weight:900;font-size:clamp(.85rem,1.5vw + .6rem,1rem);border:2.5px solid #fbcfe8;
+        font-weight:900;font-size:clamp(.85rem,1.5vw + .6rem,1rem);border:2.5px solid #a7f3d0;
         box-shadow:0 6px 22px rgba(236,72,153,.18);
         transition:.28s;letter-spacing:.2px;
-      " onmouseover="this.style.transform='translateY(-3px)';this.style.background='#fce7f3'"
+      " onmouseover="this.style.transform='translateY(-3px)';this.style.background='#ecfdf5'"
          onmouseout="this.style.transform='';this.style.background='#fff'">
         <i class="fas fa-phone"></i> ຕິດຕໍ່ຮ້ານ
       </a>
@@ -485,43 +487,43 @@ body {
     <div class="promo-track" id="promoTrack">
       {% for _rep in "12" %}
       <div class="promo-slide">
-        <img src="{% static 'images/shop1.jpg' %}" alt="ຂ້າງນອກຮ້ານ VILLA"
+        <img src="{% static 'images/shop1.jpg' %}" alt="ຂ້າງນອກຮ້ານ VOLT"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span>🏪</span><span>ຮ້ານ VILLA Smoothie</span></div>
+        <div class="ps-ph" style="display:none;"><span>🏪</span><span>ຮ້ານ VOLT EV</span></div>
         <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">🏪 ຂ້າງນອກຮ້ານ VILLA</div><div class="ps">ບ້ານ ໄຊສົມບູນ · ວຽງຈັນ</div></div>
+        <div class="ps-cap"><div class="pt">🏪 ຂ້າງນອກຮ້ານ VOLT</div><div class="ps">ບ້ານ ໄຊສົມບູນ · ວຽງຈັນ</div></div>
       </div>
 
       <div class="promo-slide">
-        <img src="{% static 'images/shop2.jpg' %}" alt="ເຄື່ອງດື່ມ VILLA"
+        <img src="{% static 'images/shop2.jpg' %}" alt="ລົດໄຟຟ້າ VOLT"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span>🥤</span><span>ເຄື່ອງດື່ມ VILLA</span></div>
+        <div class="ps-ph" style="display:none;"><span>⚡</span><span>ລົດໄຟຟ້າ VOLT</span></div>
         <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">🥤 ເຄື່ອງດື່ມ VILLA</div><div class="ps">ສົດໃໝ່ · ອ່ອຍຫວານ · Premium</div></div>
+        <div class="ps-cap"><div class="pt">⚡ ລົດໄຟຟ້າ VOLT</div><div class="ps">ຄຸນນະພາບແທ້ · ຮັບປະກັນ · Premium</div></div>
       </div>
 
       <div class="promo-slide">
-        <img src="{% static 'images/shop3.jpg' %}" alt="ໜ້ຮ້ານ VILLA"
+        <img src="{% static 'images/shop3.jpg' %}" alt="ໜ້ຮ້ານ VOLT"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span>🍹</span><span>ໜ້ຮ້ານ VILLA</span></div>
+        <div class="ps-ph" style="display:none;"><span>🏍️</span><span>ໜ້ຮ້ານ VOLT</span></div>
         <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">🍹 Counter ຮ້ານ VILLA</div><div class="ps">ສ້ວຍທຸກໂຄ້ດ · ສົດທຸກຄັ້ງ</div></div>
+        <div class="ps-cap"><div class="pt">🏍️ Showroom VOLT</div><div class="ps">ລົດຫຼາກຫຼາຍຮຸ່ນ · ພ້ອມໃຫ້ບໍລິການ</div></div>
       </div>
 
       <div class="promo-slide">
-        <img src="{% static 'images/shop4.jpg' %}" alt="ວັດຖຸດິບສົດ VILLA"
+        <img src="{% static 'images/shop4.jpg' %}" alt="ລົດໄຟຟ້າ VOLT"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span>🍑</span><span>ວັດຖຸດິບສົດ</span></div>
+        <div class="ps-ph" style="display:none;"><span>🔋</span><span>ຄຸນນະພາບແທ້</span></div>
         <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">🍑 ວັດຖຸດິບສົດໃໝ່</div><div class="ps">ໝາກໄມ້ 100% ຄັດຄຸນນະພາບ</div></div>
+        <div class="ps-cap"><div class="pt">🔋 ແບັດເຕີຣີຄຸນນະພາບ</div><div class="ps">ໄລຍະທາງໄກ · ຊາດໄວ · ຄັດຄຸນນະພາບ</div></div>
       </div>
 
       <div class="promo-slide">
-        <img src="{% static 'images/shop5.jpg' %}" alt="Signature Drinks VILLA"
+        <img src="{% static 'images/shop5.jpg' %}" alt="Signature Drinks VOLT"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="ps-ph" style="display:none;"><span>🧋</span><span>Signature Drinks</span></div>
         <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">🧋 Signature Drinks</div><div class="ps">ລົດຊາດສະເພາະຂອງ VILLA</div></div>
+        <div class="ps-cap"><div class="pt">🧋 Signature Drinks</div><div class="ps">ລົດຊາດສະເພາະຂອງ VOLT</div></div>
       </div>
       {% endfor %}
     </div><!-- /promo-track -->
@@ -558,7 +560,7 @@ body {
   {% for p in products %}
   <div class="card {% if not p.is_available %}is-sold-out{% endif %}">
 
-    <div class="card-badge">VILLA </div>
+    <div class="card-badge">VOLT </div>
     {% if p.category %}
     <div class="cat-badge">{{ p.category.name }}</div>
     {% endif %}
@@ -577,7 +579,7 @@ body {
     <div class="card-body">
       <div class="c-name">{{ p.name }}</div>
       {% if p.category %}<div class="c-cat">📂 {{ p.category.name }}</div>{% endif %}
-      <div class="c-desc">{{ p.description|default:"ດື່ມແລ້ວສົດຊື່ນທັນທີ ທຸກໂຄ້ດປັ່ນໃໝ່ 🌿" }}</div>
+      <div class="c-desc">{{ p.description|default:"ຄຸນນະພາບແທ້ ຮັບປະກັນທຸກຄັນ ⚡" }}</div>
 
       <div class="c-price">
         <div class="price-pill">

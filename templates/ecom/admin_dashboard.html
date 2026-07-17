@@ -11,18 +11,18 @@
 :root {
     --bg:     #ffffff;
     --card:   #ffffff;
-    --card2:  #f5f3ff;
-    --purple: #7c3aed;
-    --pink:   #be185d;
-    --grad:   linear-gradient(135deg,#7c3aed,#be185d);
+    --card2:  #eff6ff;
+    --purple: #2563eb;
+    --pink:   #10b981;
+    --grad:   linear-gradient(135deg,#2563eb,#10b981);
     --green:  #10b981;
     --amber:  #f59e0b;
     --red:    #ef4444;
     --dim:    #64748b;
-    --bright: #2d1457;
+    --bright: #1e3a5f;
     --border: rgba(124,58,237,.13);
-    --lav:    #f5f3ff;
-    --lav2:   #ede9fe;
+    --lav:    #eff6ff;
+    --lav2:   #dbeafe;
 }
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -118,7 +118,7 @@ body { background: #ffffff !important; }
 /* ===== EXPORT BAR (top) ===== */
 .export-top-bar {
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    background: linear-gradient(135deg,#f5f3ff,#fdf2f8);
+    background: linear-gradient(135deg,#eff6ff,#f0fdf4);
     border: 1.5px solid var(--border); border-radius: 18px;
     padding: 14px 22px; margin-bottom: 24px;
     box-shadow: 0 3px 12px rgba(124,58,237,.06);
@@ -131,7 +131,7 @@ body { background: #ffffff !important; }
 .export-top-bar .etb-label i { color: var(--purple); }
 /* ===== EXPORT PANEL (kept for compat) ===== */
 .export-panel {
-    background: linear-gradient(135deg,#f5f3ff,#fdf2f8);
+    background: linear-gradient(135deg,#eff6ff,#f0fdf4);
     border: 1.5px solid var(--border);
     border-radius: 20px; padding: 22px 28px;
     margin-bottom: 24px;
@@ -188,7 +188,7 @@ body { background: #ffffff !important; }
     border: 1px solid var(--border);
     text-decoration: none; transition: .2s; cursor: pointer;
 }
-.dl-row:hover { background: #ede9fe; border-color: rgba(124,58,237,.28); transform: translateX(3px); }
+.dl-row:hover { background: #dbeafe; border-color: rgba(124,58,237,.28); transform: translateX(3px); }
 .dl-dot { width: 14px; height: 14px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; }
 .dl-lbl { font-size: 1.08rem; color: var(--dim); display: flex; align-items: center; font-weight: 600; }
 .dl-val { font-size: 1.18rem; font-weight: 800; color: var(--bright); }
@@ -205,7 +205,7 @@ body { background: #ffffff !important; }
     padding: 22px 28px;
     border-bottom: 1.5px solid var(--border);
     display: flex; align-items: center; flex-wrap: wrap; gap: 14px;
-    background: linear-gradient(135deg,#f5f3ff,#fdf2f8);
+    background: linear-gradient(135deg,#eff6ff,#f0fdf4);
 }
 .oh-title {
     font-size: 1.18rem; font-weight: 700; color: var(--bright);
@@ -236,14 +236,14 @@ body { background: #ffffff !important; }
     position: relative; cursor: pointer;
     padding: 12px 18px; border-radius: 16px;
     border: 1.5px solid rgba(124,58,237,.18);
-    background: #f5f3ff;
+    background: #eff6ff;
     transition: .22s;
     display: flex; align-items: center; gap: 12px;
     user-select: none;
 }
 .date-pick-wrap:hover {
     border-color: rgba(124,58,237,.42);
-    background: #ede9fe;
+    background: #dbeafe;
     box-shadow: 0 4px 14px rgba(124,58,237,.12);
 }
 .date-pick-wrap .cal-icon { font-size: 1.6rem; color: var(--purple); flex-shrink: 0; }
@@ -516,13 +516,13 @@ body { background: #ffffff !important; }
 .m-card-head {
     display: flex; align-items: center; gap: 12px;
     padding: 13px 16px;
-    background: linear-gradient(135deg,#f5f3ff,#fdf2f8);
+    background: linear-gradient(135deg,#eff6ff,#f0fdf4);
     border-bottom: 1.5px solid var(--border);
 }
 .m-card-img { width: 44px; height: 44px; border-radius: 11px; object-fit:cover; flex-shrink:0; border:2px solid var(--lav2); }
 .m-card-img-ph { width:44px;height:44px;border-radius:11px;background:var(--lav);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;border:2px solid var(--lav2); }
 .m-prod-name { font-size: .95rem; font-weight: 700; color: var(--bright); }
-.m-prod-price { font-size: .82rem; color: #be185d; font-weight: 800; margin-top: 2px; }
+.m-prod-price { font-size: .82rem; color: #10b981; font-weight: 800; margin-top: 2px; }
 .m-status-pill {
     margin-left: auto; padding: 5px 13px; border-radius: 30px;
     font-size: .74rem; font-weight: 800; white-space: nowrap;
@@ -571,14 +571,14 @@ body { background: #ffffff !important; }
         <h2>📅 ສະຖິຕິ {% if is_today %}ມື້ນີ້{% else %}ວັນທີ {{ current_date }}{% endif %}</h2>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <a href="?date={{ prev_date|date:'Y-m-d' }}"
-               style="width:36px;height:36px;border-radius:10px;background:#f5f3ff;border:1.5px solid #ddd6fe;display:flex;align-items:center;justify-content:center;color:#7c3aed;text-decoration:none;font-size:1.1rem;transition:.2s;"
+               style="width:36px;height:36px;border-radius:10px;background:#eff6ff;border:1.5px solid #bfdbfe;display:flex;align-items:center;justify-content:center;color:#2563eb;text-decoration:none;font-size:1.1rem;transition:.2s;"
                title="ວັນກ່ອນໜ້າ">‹</a>
             <form method="GET" id="datepickerForm" style="display:inline;">
                 <input type="date" name="date" value="{{ current_date }}"
                     max="{{ today_str }}"
                     onchange="document.getElementById('datepickerForm').submit()"
                     style="
-                        background:linear-gradient(135deg,#7c3aed,#be185d);
+                        background:linear-gradient(135deg,#2563eb,#10b981);
                         color:#fff; border:none; border-radius:12px;
                         padding:8px 16px; font-weight:800; font-size:.92rem;
                         cursor:pointer; outline:none;
@@ -593,13 +593,13 @@ body { background: #ffffff !important; }
             </a>
             {% endif %}
             <a href="?date={{ next_date|date:'Y-m-d' }}"
-               style="width:36px;height:36px;border-radius:10px;background:#f5f3ff;border:1.5px solid #ddd6fe;display:flex;align-items:center;justify-content:center;color:#7c3aed;text-decoration:none;font-size:1.1rem;transition:.2s;{% if is_today %}pointer-events:none;opacity:.35;{% endif %}"
+               style="width:36px;height:36px;border-radius:10px;background:#eff6ff;border:1.5px solid #bfdbfe;display:flex;align-items:center;justify-content:center;color:#2563eb;text-decoration:none;font-size:1.1rem;transition:.2s;{% if is_today %}pointer-events:none;opacity:.35;{% endif %}"
                title="ວັນຖັດໄປ">›</a>
         </div>
     </div>
     <div class="stat-grid">
         <!-- Orders today -->
-        <div class="stat-card" onclick="openStatModal('All','{{ current_date }}','📦 ອໍເດີທັງໝົດມື້ນີ້')" style="--card-line:linear-gradient(90deg,#7c3aed,#be185d); --icon-bg:rgba(124,58,237,.1);">
+        <div class="stat-card" onclick="openStatModal('All','{{ current_date }}','📦 ອໍເດີທັງໝົດມື້ນີ້')" style="--card-line:linear-gradient(90deg,#2563eb,#10b981); --icon-bg:rgba(124,58,237,.1);">
             <div class="sc-top">
                 <div class="sc-icon">📦</div>
                 <span class="sc-badge" style="--tag-bg:rgba(124,58,237,.1);--tag-col:var(--purple);">ມື້ນີ້</span>
@@ -681,8 +681,8 @@ body { background: #ffffff !important; }
                     <span class="dl-val" style="color:#6366f1;">{{ today_confirmed_count }}</span>
                 </div>
                 <div class="dl-row" onclick="openStatModal('Processing','{{ current_date }}','🚚 ກຳລັງຈັດສົ່ງ')">
-                    <span class="dl-lbl"><span class="dl-dot" style="background:#7c3aed;"></span>🚚 ກຳລັງຈັດສົ່ງ <span style="font-size:.7rem;color:rgba(0,0,0,.35);">— ຄລິກ</span></span>
-                    <span class="dl-val" style="color:#7c3aed;">{{ today_processing_count }}</span>
+                    <span class="dl-lbl"><span class="dl-dot" style="background:#2563eb;"></span>🚚 ກຳລັງຈັດສົ່ງ <span style="font-size:.7rem;color:rgba(0,0,0,.35);">— ຄລິກ</span></span>
+                    <span class="dl-val" style="color:#2563eb;">{{ today_processing_count }}</span>
                 </div>
                 <div class="dl-row" onclick="openStatModal('Delivered','{{ current_date }}','🏠 ຈັດສົ່ງສຳເລັດ')">
                     <span class="dl-lbl"><span class="dl-dot" style="background:#10b981;"></span>🏠 ຈັດສົ່ງສຳເລັດ <span style="font-size:.7rem;color:rgba(0,0,0,.35);">— ຄລິກ</span></span>
@@ -806,9 +806,9 @@ body { background: #ffffff !important; }
                     <td style="text-align:center;">
                         <div class="q-badge">Q{{ group.queue_num }}</div>
                         {% if group.is_walkin %}
-                        <div style="font-size:.62rem;font-weight:800;color:#a855f7;margin-top:3px;" title="ຂາຍໜ້າຮ້ານ">🏪 ໜ້າຮ້ານ</div>
+                        <div style="font-size:.62rem;font-weight:800;color:#3b82f6;margin-top:3px;" title="ຂາຍໜ້າຮ້ານ">🏪 ໜ້າຮ້ານ</div>
                         {% elif group.is_advance %}
-                        <div style="font-size:.62rem;font-weight:800;color:#ec4899;margin-top:3px;" title="ຈອງລ່ວງໜ້າ — ຮັບແລ້ວມື້ນີ້">📅 ຈອງລ່ວງໜ້າ</div>
+                        <div style="font-size:.62rem;font-weight:800;color:#10b981;margin-top:3px;" title="ຈອງລ່ວງໜ້າ — ຮັບແລ້ວມື້ນີ້">📅 ຈອງລ່ວງໜ້າ</div>
                         {% endif %}
                     </td>
 
@@ -1022,10 +1022,10 @@ body { background: #ffffff !important; }
         <div style="overflow-x:auto;border-radius:14px;border:1px solid var(--border);">
             <table style="width:100%;border-collapse:collapse;font-family:'Lexend','Noto Sans Lao',sans-serif;">
                 <thead>
-                    <tr style="background:#f5f3ff;">
-                        <th style="padding:13px 16px;color:#7c3aed;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;text-align:left;border-bottom:1.5px solid rgba(124,58,237,.13);">ວັນທີ</th>
-                        <th style="padding:13px 16px;color:#7c3aed;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;text-align:center;border-bottom:1.5px solid rgba(124,58,237,.13);">ອໍເດີ</th>
-                        <th style="padding:13px 16px;color:#7c3aed;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;text-align:right;border-bottom:1.5px solid rgba(124,58,237,.13);">ຍອດ (ກີບ)</th>
+                    <tr style="background:#eff6ff;">
+                        <th style="padding:13px 16px;color:#2563eb;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;text-align:left;border-bottom:1.5px solid rgba(124,58,237,.13);">ວັນທີ</th>
+                        <th style="padding:13px 16px;color:#2563eb;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;text-align:center;border-bottom:1.5px solid rgba(124,58,237,.13);">ອໍເດີ</th>
+                        <th style="padding:13px 16px;color:#2563eb;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;text-align:right;border-bottom:1.5px solid rgba(124,58,237,.13);">ຍອດ (ກີບ)</th>
                     </tr>
                 </thead>
                 <tbody id="salesTbody"></tbody>
@@ -1098,7 +1098,7 @@ body { background: #ffffff !important; }
             <a id="sdmExportLink" href="#" class="ic-btn" style="width:auto;padding:0 16px;background:linear-gradient(135deg,#1d6f42,#2ea05a);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.85rem;">
                 <i class="fas fa-file-excel"></i> Export Excel
             </a>
-            <a id="sdmInvoiceLink" href="#" target="_blank" class="ic-btn" style="width:auto;padding:0 16px;background:linear-gradient(135deg,#ec4899,#a855f7);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.85rem;">
+            <a id="sdmInvoiceLink" href="#" target="_blank" class="ic-btn" style="width:auto;padding:0 16px;background:linear-gradient(135deg,#10b981,#3b82f6);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.85rem;">
                 <i class="fas fa-receipt"></i> ອອກໃບບິນ
             </a>
         </div>
@@ -1128,7 +1128,7 @@ Chart.defaults.font.family = "'Lexend','Noto Sans Lao'";
             labels: DAILY_LABELS,
             datasets: [
                 { type:'bar', label:'ອໍເດີ', data:DAILY_ORDERS, backgroundColor:'rgba(124,58,237,.55)', borderRadius:5, yAxisID:'y' },
-                { type:'line', label:'ຍອດຂາຍ', data:DAILY_AMOUNTS, borderColor:'#be185d', backgroundColor:'rgba(190,24,93,.07)', fill:true, tension:.4, pointRadius:2, borderWidth:2, yAxisID:'y1' }
+                { type:'line', label:'ຍອດຂາຍ', data:DAILY_AMOUNTS, borderColor:'#10b981', backgroundColor:'rgba(190,24,93,.07)', fill:true, tension:.4, pointRadius:2, borderWidth:2, yAxisID:'y1' }
             ]
         },
         options: {
@@ -1137,7 +1137,7 @@ Chart.defaults.font.family = "'Lexend','Noto Sans Lao'";
             scales:{
                 x:{ grid:{display:false}, ticks:{ maxTicksLimit:10, font:{size:10} } },
                 y:{ grid:{color:'rgba(124,58,237,.06)'}, ticks:{font:{size:10}}, position:'left' },
-                y1:{ grid:{display:false}, ticks:{color:'#be185d',font:{size:10}}, position:'right' }
+                y1:{ grid:{display:false}, ticks:{color:'#10b981',font:{size:10}}, position:'right' }
             },
             onClick(e, els) {
                 if (!els.length) { openSalesModal(); return; }
@@ -1159,7 +1159,7 @@ Chart.defaults.font.family = "'Lexend','Noto Sans Lao'";
     const STATUSES = [
         { key:'Pending',    label:'⏳ ຮັບອໍເດີ',       title:'⏳ ຮັບ/ລໍຖ້າຢືນຢັນ', color:'#f59e0b' },
         { key:'Confirmed',  label:'✅ ຢືນຢັນ',          title:'✅ ຢືນຢັນອໍເດີ',     color:'#6366f1' },
-        { key:'Processing', label:'🚚 ກຳລັງຈັດສົ່ງ',   title:'🚚 ກຳລັງຈັດສົ່ງ',   color:'#7c3aed' },
+        { key:'Processing', label:'🚚 ກຳລັງຈັດສົ່ງ',   title:'🚚 ກຳລັງຈັດສົ່ງ',   color:'#2563eb' },
         { key:'Delivered',  label:'🏠 ສຳເລັດ',          title:'🏠 ຈັດສົ່ງສຳເລັດ',  color:'#10b981' },
         { key:'Cancelled',  label:'❌ ຍົກເລີກ',         title:'❌ ຍົກເລີກ',         color:'#ef4444' },
     ];
@@ -1215,16 +1215,16 @@ function openSalesModal() {
         const o = DAILY_ORDERS[i], a = DAILY_AMOUNTS[i];
         const fullDate = DAILY_FULL_DATES[i];
         const rowClick = o > 0 ? `style="cursor:pointer;" onclick="closeSalesModal();setTimeout(()=>openDayDetailModal('${fullDate}'),200)"` : '';
-        const hoverStyle = o > 0 ? `onmouseover="this.style.background='#f5f3ff'" onmouseout="this.style.background=''"` : '';
+        const hoverStyle = o > 0 ? `onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background=''"` : '';
         tbody.insertAdjacentHTML('beforeend',`
             <tr ${rowClick} ${hoverStyle} style="border-bottom:1px solid rgba(124,58,237,.08);${o>0?'cursor:pointer;':''}">
-                <td style="padding:11px 16px;color:#2d1457;font-weight:600;">${fullDate}
+                <td style="padding:11px 16px;color:#1e3a5f;font-weight:600;">${fullDate}
                     ${o>0?`<span style="font-size:.7rem;color:rgba(124,58,237,.5);margin-left:6px;">ຄລິກລາຍລະອຽດ</span>`:''}
                 </td>
                 <td style="padding:11px 16px;text-align:center;">
-                    ${o>0?`<span style="background:rgba(124,58,237,.1);color:#7c3aed;padding:3px 11px;border-radius:20px;font-weight:700;">${o}</span>`:'<span style="color:#94a3b8;">—</span>'}
+                    ${o>0?`<span style="background:rgba(124,58,237,.1);color:#2563eb;padding:3px 11px;border-radius:20px;font-weight:700;">${o}</span>`:'<span style="color:#94a3b8;">—</span>'}
                 </td>
-                <td style="padding:11px 16px;text-align:right;color:${a>0?'#be185d':'#94a3b8'};font-weight:700;">
+                <td style="padding:11px 16px;text-align:right;color:${a>0?'#10b981':'#94a3b8'};font-weight:700;">
                     ${a>0?Number(a).toLocaleString()+' ກີບ':'—'}
                 </td>
             </tr>`);
@@ -1237,7 +1237,7 @@ function openSalesModal() {
             labels:DAILY_LABELS,
             datasets:[
                 { label:'ອໍເດີ', data:DAILY_ORDERS, backgroundColor:'rgba(124,58,237,.55)', borderRadius:5, yAxisID:'y' },
-                { label:'ຍອດ', type:'line', data:DAILY_AMOUNTS, borderColor:'#be185d', tension:.4, pointRadius:2, borderWidth:2, yAxisID:'y1', fill:false }
+                { label:'ຍອດ', type:'line', data:DAILY_AMOUNTS, borderColor:'#10b981', tension:.4, pointRadius:2, borderWidth:2, yAxisID:'y1', fill:false }
             ]
         },
         options:{
@@ -1246,7 +1246,7 @@ function openSalesModal() {
             scales:{
                 x:{grid:{display:false},ticks:{maxTicksLimit:15}},
                 y:{grid:{color:'rgba(124,58,237,.06)'},position:'left'},
-                y1:{grid:{display:false},ticks:{color:'#be185d'},position:'right'}
+                y1:{grid:{display:false},ticks:{color:'#10b981'},position:'right'}
             },
             onClick(e, els) {
                 if (!els.length) return;

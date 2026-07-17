@@ -10,17 +10,17 @@
 :root {
     --bg:     #ffffff;
     --card:   #ffffff;
-    --blue:   #7c3aed;
-    --purple: #be185d;
+    --blue:   #2563eb;
+    --purple: #10b981;
     --green:  #10b981;
     --amber:  #f59e0b;
     --red:    #ef4444;
     --dim:    #64748b;
-    --bright: #2d1457;
+    --bright: #1e3a5f;
     --border: rgba(124,58,237,.13);
-    --lav:    #f5f3ff;
-    --lav2:   #fdf2f8;
-    --grad:   linear-gradient(135deg, #7c3aed, #be185d);
+    --lav:    #eff6ff;
+    --lav2:   #f0fdf4;
+    --grad:   linear-gradient(135deg, #2563eb, #10b981);
 }
 
 body { background: #ffffff !important; }
@@ -97,7 +97,7 @@ body { background: #ffffff !important; }
 }
 .date-pick-wrap:hover {
     border-color: rgba(124,58,237,.42);
-    background: #ede9fe;
+    background: #dbeafe;
     box-shadow: 0 4px 14px rgba(124,58,237,.12);
 }
 .date-pick-wrap .cal-icon {
@@ -138,7 +138,7 @@ body { background: #ffffff !important; }
     min-width:24px; text-align:center;
 }
 .stab.s-all { color:var(--bright); border-color:rgba(124,58,237,.18); background:var(--lav); }
-.stab.s-all:hover { background:#ede9fe; }
+.stab.s-all:hover { background:#dbeafe; }
 .stab.s-all.active { background:var(--grad); color:#fff; border-color:transparent; box-shadow:0 4px 16px rgba(124,58,237,.3); }
 .stab.s-all.active .stab-count { background:rgba(255,255,255,.25); }
 .stab.s-pending { color:#0891b2; background:rgba(8,145,178,.06); border-color:rgba(8,145,178,.2); }
@@ -326,11 +326,11 @@ body { background: #ffffff !important; }
                 </div>
             </div>
             {% if show_all %}
-            <a href="{% url 'admin-view-booking' %}?source={{ source }}" class="btn-excel" style="background:linear-gradient(135deg,#7c3aed,#be185d);text-decoration:none;">
+            <a href="{% url 'admin-view-booking' %}?source={{ source }}" class="btn-excel" style="background:linear-gradient(135deg,#2563eb,#10b981);text-decoration:none;">
                 <i class="fas fa-calendar-day"></i> ກັບໄປລາຍວັນ
             </a>
             {% else %}
-            <a href="?show_all=1&status={{ active_status }}&source={{ source }}" class="btn-excel" style="background:linear-gradient(135deg,#be185d,#9d174d);text-decoration:none;">
+            <a href="?show_all=1&status={{ active_status }}&source={{ source }}" class="btn-excel" style="background:linear-gradient(135deg,#10b981,#047857);text-decoration:none;">
                 <i class="fas fa-list"></i> ລາຍການຈອງທັງໝົດ
             </a>
             {% endif %}
@@ -712,22 +712,22 @@ body { background: #ffffff !important; }
     animation:popIn .3s cubic-bezier(.34,1.56,.64,1);
     position:relative;
   ">
-    <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:70%;height:3px;background:linear-gradient(90deg,transparent,#7c3aed,#be185d,transparent);border-radius:2px;"></div>
+    <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:70%;height:3px;background:linear-gradient(90deg,transparent,#2563eb,#10b981,transparent);border-radius:2px;"></div>
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;">
-      <div style="width:48px;height:48px;border-radius:14px;flex-shrink:0;background:linear-gradient(135deg,#7c3aed,#be185d);display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 8px 22px rgba(124,58,237,.3);">📅</div>
+      <div style="width:48px;height:48px;border-radius:14px;flex-shrink:0;background:linear-gradient(135deg,#2563eb,#10b981);display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 8px 22px rgba(124,58,237,.3);">📅</div>
       <div>
-        <div style="color:#2d1457;font-weight:800;font-size:1.05rem;">Export ທັງໝົດເດືອນ</div>
+        <div style="color:#1e3a5f;font-weight:800;font-size:1.05rem;">Export ທັງໝົດເດືອນ</div>
         <div style="color:#64748b;font-size:.8rem;margin-top:2px;">ເລືອກເດືອນທີ່ຕ້ອງການ export</div>
       </div>
     </div>
     <label style="display:block;color:#64748b;font-size:.8rem;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">ເດືອນ / ປີ</label>
     <input type="month" id="monthInput" value="{{ selected_date|date:'Y-m' }}"
-      style="width:100%;padding:13px 16px;border-radius:14px;background:#f5f3ff;border:1.5px solid rgba(124,58,237,.2);color:#2d1457;font-size:1rem;font-weight:700;outline:none;font-family:'Lexend','Noto Sans Lao',sans-serif;transition:.2s;"
+      style="width:100%;padding:13px 16px;border-radius:14px;background:#eff6ff;border:1.5px solid rgba(124,58,237,.2);color:#1e3a5f;font-size:1rem;font-weight:700;outline:none;font-family:'Lexend','Noto Sans Lao',sans-serif;transition:.2s;"
       onfocus="this.style.borderColor='rgba(124,58,237,.5)';this.style.boxShadow='0 0 0 3px rgba(124,58,237,.12)'"
       onblur="this.style.borderColor='rgba(124,58,237,.2)';this.style.boxShadow='none'">
     <div style="display:flex;gap:10px;margin-top:22px;">
       <button onclick="closeMonthModal()" style="flex:1;padding:13px;border-radius:14px;border:1.5px solid rgba(124,58,237,.15);background:rgba(124,58,237,.06);color:#64748b;font-size:.9rem;font-weight:700;cursor:pointer;transition:.2s;font-family:'Lexend','Noto Sans Lao',sans-serif;">ຍົກເລີກ</button>
-      <button onclick="doMonthExport()" style="flex:2;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff;font-size:.9rem;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(124,58,237,.3);transition:.3s;font-family:'Lexend','Noto Sans Lao',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <button onclick="doMonthExport()" style="flex:2;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#2563eb,#10b981);color:#fff;font-size:.9rem;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(124,58,237,.3);transition:.3s;font-family:'Lexend','Noto Sans Lao',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
         <i class="fas fa-file-excel"></i> Export Excel
       </button>
     </div>
@@ -747,22 +747,22 @@ body { background: #ffffff !important; }
     animation:popIn .3s cubic-bezier(.34,1.56,.64,1);
     position:relative;
   ">
-    <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:70%;height:3px;background:linear-gradient(90deg,transparent,#7c3aed,#be185d,transparent);border-radius:2px;"></div>
+    <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:70%;height:3px;background:linear-gradient(90deg,transparent,#2563eb,#10b981,transparent);border-radius:2px;"></div>
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;">
-      <div style="width:48px;height:48px;border-radius:14px;flex-shrink:0;background:linear-gradient(135deg,#7c3aed,#be185d);display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 8px 22px rgba(124,58,237,.3);">📅</div>
+      <div style="width:48px;height:48px;border-radius:14px;flex-shrink:0;background:linear-gradient(135deg,#2563eb,#10b981);display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 8px 22px rgba(124,58,237,.3);">📅</div>
       <div>
-        <div style="color:#2d1457;font-weight:800;font-size:1.05rem;">Export ທັງໝົດປີ</div>
+        <div style="color:#1e3a5f;font-weight:800;font-size:1.05rem;">Export ທັງໝົດປີ</div>
         <div style="color:#64748b;font-size:.8rem;margin-top:2px;">ເລືອກປີທີ່ຕ້ອງການ export</div>
       </div>
     </div>
     <label style="display:block;color:#64748b;font-size:.8rem;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">ປີ (YYYY)</label>
     <input type="number" id="yearInput" min="2020" max="2099" value="{{ selected_date|date:'Y' }}"
-      style="width:100%;padding:13px 16px;border-radius:14px;background:#f5f3ff;border:1.5px solid rgba(124,58,237,.2);color:#2d1457;font-size:1.1rem;font-weight:700;outline:none;font-family:'Lexend','Noto Sans Lao',sans-serif;transition:.2s;letter-spacing:2px;"
+      style="width:100%;padding:13px 16px;border-radius:14px;background:#eff6ff;border:1.5px solid rgba(124,58,237,.2);color:#1e3a5f;font-size:1.1rem;font-weight:700;outline:none;font-family:'Lexend','Noto Sans Lao',sans-serif;transition:.2s;letter-spacing:2px;"
       onfocus="this.style.borderColor='rgba(124,58,237,.5)';this.style.boxShadow='0 0 0 3px rgba(124,58,237,.12)'"
       onblur="this.style.borderColor='rgba(124,58,237,.2)';this.style.boxShadow='none'">
     <div style="display:flex;gap:10px;margin-top:22px;">
       <button onclick="closeYearModal()" style="flex:1;padding:13px;border-radius:14px;border:1.5px solid rgba(124,58,237,.15);background:rgba(124,58,237,.06);color:#64748b;font-size:.9rem;font-weight:700;cursor:pointer;transition:.2s;font-family:'Lexend','Noto Sans Lao',sans-serif;">ຍົກເລີກ</button>
-      <button onclick="doYearExport()" style="flex:2;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff;font-size:.9rem;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(124,58,237,.3);transition:.3s;font-family:'Lexend','Noto Sans Lao',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <button onclick="doYearExport()" style="flex:2;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#2563eb,#10b981);color:#fff;font-size:.9rem;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(124,58,237,.3);transition:.3s;font-family:'Lexend','Noto Sans Lao',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
         <i class="fas fa-file-excel"></i> Export Excel
       </button>
     </div>

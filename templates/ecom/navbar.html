@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VILLA Smoothie</title>
+    <title>VOLT EV</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800;900&family=Noto+Sans+Lao:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
@@ -12,11 +12,11 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <style>
 :root {
-    --pk:   #ec4899; --pk2:  #f472b6; --pk-lt: #fce7f3;
-    --pk-d: #be185d;
-    --pu:   #7c3aed; --pu2:  #a855f7; --pu-lt: #f5f3ff;
-    --lav:  #ede9fe; --lav2: #ddd6fe;
-    --text: #2d1457;
+    --pk:   #10b981; --pk2:  #34d399; --pk-lt: #ecfdf5;
+    --pk-d: #10b981;
+    --pu:   #2563eb; --pu2:  #3b82f6; --pu-lt: #eff6ff;
+    --lav:  #dbeafe; --lav2: #bfdbfe;
+    --text: #1e3a5f;
 }
 html { font-size: 17px; }
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -55,15 +55,15 @@ body {
     background: #ffffff; border: 1.5px solid var(--lav2);
     letter-spacing: .2px;
 }
-.links:hover { background: var(--lav); color: #5b21b6; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124,58,237,.18); }
-.links b { color: #5b21b6; font-weight: 900; }
+.links:hover { background: var(--lav); color: #1e40af; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124,58,237,.18); }
+.links b { color: #1e40af; font-weight: 900; }
 
 /* DROPDOWN — show/hide driven by our own JS toggling `.open` on `.dropdown` (see script below),
    NOT the Bootstrap JS plugin, so it keeps working even if the CDN bootstrap.js/jQuery fails
    to load on a slow/flaky mobile connection. */
 .dropdown-menu {
     display: none !important;
-    border-radius: 20px !important; border: 2px solid #fbcfe8 !important;
+    border-radius: 20px !important; border: 2px solid #a7f3d0 !important;
     box-shadow: 0 16px 48px rgba(236,72,153,.18) !important;
     padding: 8px !important; margin-top: 10px !important;
     background: #ffffff !important;
@@ -76,7 +76,7 @@ body {
     align-items: center !important; gap: 9px !important;
 }
 .dropdown-menu li a:hover { background: var(--pk-lt) !important; color: var(--pk-d) !important; }
-.dropdown-menu .divider { background: #fbcfe8 !important; margin: 6px 0 !important; }
+.dropdown-menu .divider { background: #a7f3d0 !important; margin: 6px 0 !important; }
 
 /* MAIN NAV ROW */
 .main-navbar {
@@ -91,7 +91,7 @@ body {
 }
 .logo-icon {
     width: 68px; height: 68px; border-radius: 20px; flex-shrink: 0;
-    background: linear-gradient(145deg, #f472b6 0%, #ec4899 40%, #a855f7 100%);
+    background: linear-gradient(145deg, #34d399 0%, #10b981 40%, #3b82f6 100%);
     display: flex; align-items: center; justify-content: center;
     font-size: 2.1rem; color: #fff; position: relative; overflow: hidden;
     box-shadow: 0 10px 32px rgba(236,72,153,.40);
@@ -110,13 +110,13 @@ body {
     box-shadow: 0 18px 48px rgba(236,72,153,.5);
 }
 .logo-text { display: flex; flex-direction: column; line-height: 1.1; }
-.logo-text .t2 { font-size: 2rem; font-weight: 900; color: #9d174d; letter-spacing: -.5px; }
+.logo-text .t2 { font-size: 2rem; font-weight: 900; color: #047857; letter-spacing: -.5px; }
 
 /* SEARCH */
 .search-wrapper {
-    background: #fce7f3; border-radius: 50px; padding: 5px;
+    background: #ecfdf5; border-radius: 50px; padding: 5px;
     display: flex; align-items: center;
-    border: 2px solid #fbcfe8; transition: .3s;
+    border: 2px solid #a7f3d0; transition: .3s;
 }
 .search-wrapper:focus-within {
     border-color: var(--pk);
@@ -130,7 +130,7 @@ body {
     color: var(--text);
     font-family:'Lexend','Noto Sans Lao',sans-serif;
 }
-.navbar-input::placeholder { color: #f9a8d4; font-weight: 500; }
+.navbar-input::placeholder { color: #a7f3d0; font-weight: 500; }
 .search-btn {
     background: linear-gradient(135deg, var(--pk), var(--pk-d));
     color: #fff; border: none; padding: 12px 24px; border-radius: 50px;
@@ -238,7 +238,7 @@ body {
                         <li>
                             <form action="{% url 'logout' %}" method="POST" id="logout-form-n">{% csrf_token %}</form>
                             <a href="javascript:void(0)" onclick="document.getElementById('logout-form-n').submit();"
-                               style="color:#ec4899 !important;">
+                               style="color:#10b981 !important;">
                                 <i class="fas fa-sign-out-alt"></i> ອອກຈາກລະບົບ
                             </a>
                         </li>
@@ -251,7 +251,7 @@ body {
                 <a href="/adminclick" class="links"><i class="fas fa-gear"></i> ແອດມິນ</a>
                 <a href="/contactus"  class="links"><i class="fas fa-envelope"></i> ຕິດຕໍ່</a>
                 <a href="/aboutus"    class="links"><i class="fas fa-circle-info"></i> ກ່ຽວກັບ</a>
-                <a href="/queue" class="links" style="background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff!important;border-color:transparent;box-shadow:0 4px 14px rgba(124,58,237,.3);">
+                <a href="/queue" class="links" style="background:linear-gradient(135deg,#2563eb,#10b981);color:#fff!important;border-color:transparent;box-shadow:0 4px 14px rgba(124,58,237,.3);">
                     <i class="fas fa-qrcode"></i> ຊຳລະ &amp; ຕິດຕໍ່
                 </a>
             </div>
@@ -264,7 +264,7 @@ body {
         <a class="brand-logo" href="/">
             <div class="logo-icon"><i class="fas fa-blender"></i></div>
             <div class="logo-text">
-                <span class="t2"> ຮ້ານ ນໍ້າປັ່ນ VILLA </span>
+                <span class="t2"> VOLT EV </span>
             </div>
         </a>
 
@@ -334,7 +334,7 @@ function _showToast() {
     t.innerHTML = '<i class="fas fa-check-circle"></i> ເພີ່ມສິນຄ້າສຳເລັດ';
     Object.assign(t.style, {
         position:'fixed', bottom:'28px', right:'28px',
-        background:'linear-gradient(135deg,#ec4899,#7c3aed)',
+        background:'linear-gradient(135deg,#10b981,#2563eb)',
         color:'#fff', padding:'14px 22px', borderRadius:'50px',
         fontWeight:'800', fontSize:'15px', zIndex:'99999',
         boxShadow:'0 12px 32px rgba(124,58,237,.35)',

@@ -4,16 +4,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ສະໝັກສະມາຊິກ | ຮ້ານ ນໍ້າປັ່ນ VILLA </title>
+    <title>ສະໝັກສະມາຊິກ | VOLT EV </title>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;600;800&family=Noto+Sans+Lao:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
-            --purple:  #7c3aed;
-            --pink:    #be185d;
-            --grad:    linear-gradient(135deg,#7c3aed,#be185d);
-            --lav:     #f5f3ff;
-            --lav2:    #ede9fe;
+            --purple:  #2563eb;
+            --pink:    #10b981;
+            --grad:    linear-gradient(135deg,#2563eb,#10b981);
+            --lav:     #eff6ff;
+            --lav2:    #dbeafe;
             --green:   #10b981;
             --red:     #ef4444;
             --amber:   #f59e0b;
@@ -25,7 +25,7 @@
             margin: 0; padding: 0;
             font-family: 'Lexend','Noto Sans Lao',sans-serif;
             min-height: 100vh; display: flex; flex-direction: column;
-            background: linear-gradient(145deg,#f5f3ff,#fce7f3);
+            background: linear-gradient(145deg,#eff6ff,#ecfdf5);
             overflow-x: hidden;
         }
         .main-wrapper {
@@ -70,13 +70,13 @@
             width: 34px; height: 34px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 13px; font-weight: 800;
-            border: 2px solid #ddd6fe; color: #a78bfa; background: #fff; transition: .3s;
+            border: 2px solid #bfdbfe; color: #60a5fa; background: #fff; transition: .3s;
         }
         .step-dot.active { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 4px 14px rgba(124,58,237,.35); }
         .step-dot.done   { background: var(--green); color: #fff; border-color: transparent; }
-        .step-line { flex: 1; height: 2px; background: #ede9fe; max-width: 70px; transition: .3s; }
+        .step-line { flex: 1; height: 2px; background: #dbeafe; max-width: 70px; transition: .3s; }
         .step-line.done { background: var(--green); }
-        .step-lbl { font-size: 10px; color: #a78bfa; margin-top: 4px; font-weight: 700; }
+        .step-lbl { font-size: 10px; color: #60a5fa; margin-top: 4px; font-weight: 700; }
 
         /* ── PANELS ── */
         .form-panel { display: none; }
@@ -88,8 +88,8 @@
         .span-2 { grid-column: span 2; }
         .custom-input {
             width: 100%; background: var(--lav) !important;
-            border: 2px solid #ddd6fe !important; border-radius: 14px !important;
-            padding: 13px 18px !important; color: #2d1457 !important;
+            border: 2px solid #bfdbfe !important; border-radius: 14px !important;
+            padding: 13px 18px !important; color: #1e3a5f !important;
             font-size: 15px !important; font-family: 'Noto Sans Lao','Lexend',sans-serif !important;
             outline: none; transition: .22s !important;
         }
@@ -98,13 +98,13 @@
 
         .phone-wrap {
             display: flex; align-items: stretch;
-            background: var(--lav); border: 2px solid #ddd6fe; border-radius: 14px;
+            background: var(--lav); border: 2px solid #bfdbfe; border-radius: 14px;
             overflow: hidden; transition: .22s;
         }
         .phone-wrap:focus-within { border-color: var(--purple); background: #fff; box-shadow: 0 0 0 4px rgba(124,58,237,.1); }
         .phone-prefix {
             display: flex; align-items: center; padding: 0 14px;
-            background: #ede9fe; border-right: 2px solid #ddd6fe;
+            background: #dbeafe; border-right: 2px solid #bfdbfe;
             color: var(--purple); font-weight: 800; font-size: 15px; flex-shrink: 0;
         }
         .phone-wrap .custom-input { border: none !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; }
@@ -120,7 +120,7 @@
         }
         .btn-next, .btn-submit { background: var(--grad); color: #fff; box-shadow: 0 8px 24px rgba(124,58,237,.32); }
         .btn-next:hover, .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(124,58,237,.42); }
-        .btn-back { background: var(--lav); color: var(--purple); border: 2px solid #ddd6fe; flex: 0 0 auto; padding: 14px 20px; }
+        .btn-back { background: var(--lav); color: var(--purple); border: 2px solid #bfdbfe; flex: 0 0 auto; padding: 14px 20px; }
         .btn-back:hover { background: var(--lav2); }
         .btn-submit:disabled { opacity: .42; cursor: not-allowed; transform: none !important; }
 
@@ -134,12 +134,12 @@
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto 10px; box-shadow: 0 8px 22px rgba(124,58,237,.3);
         }
-        .scan-header h3 { font-size: 16px; font-weight: 800; color: #2d1457; margin: 0 0 4px; }
+        .scan-header h3 { font-size: 16px; font-weight: 800; color: #1e3a5f; margin: 0 0 4px; }
         .scan-header p { font-size: 13px; color: #64748b; margin: 0; }
 
         .camera-wrap {
             background: var(--lav); border-radius: 18px;
-            padding: 18px 20px; border: 2px dashed #ddd6fe; text-align: center;
+            padding: 18px 20px; border: 2px dashed #bfdbfe; text-align: center;
         }
         .cam-placeholder {
             width: 100%; max-width: 380px; height: 160px; border-radius: 14px;
@@ -182,12 +182,12 @@
             display: none;
             margin-top: 18px;
             background: var(--lav); border-radius: 18px;
-            padding: 18px 20px; border: 2px solid #ddd6fe; text-align: center;
+            padding: 18px 20px; border: 2px solid #bfdbfe; text-align: center;
             animation: panelIn .4s ease;
         }
         .pic-upload-wrap.show { display: block; }
         .pic-upload-wrap h4 {
-            font-size: 14px; font-weight: 800; color: #2d1457; margin: 0 0 4px;
+            font-size: 14px; font-weight: 800; color: #1e3a5f; margin: 0 0 4px;
             display: flex; align-items: center; justify-content: center; gap: 6px;
         }
         .pic-upload-wrap p { font-size: 12px; color: #64748b; margin: 0 0 14px; }
@@ -195,7 +195,7 @@
         .pic-preview-area {
             width: 100px; height: 100px; border-radius: 50%;
             margin: 0 auto 14px; position: relative;
-            background: #ede9fe; border: 3px solid #ddd6fe;
+            background: #dbeafe; border: 3px solid #bfdbfe;
             display: flex; align-items: center; justify-content: center;
             overflow: hidden;
         }
@@ -203,7 +203,7 @@
         .pic-preview-area .pic-ph { font-size: 2.4rem; color: rgba(124,58,237,.3); }
 
         .btn-pick-pic {
-            padding: 10px 24px; border-radius: 12px; border: 2px dashed #c4b5fd;
+            padding: 10px 24px; border-radius: 12px; border: 2px dashed #93c5fd;
             background: #fff; color: var(--purple); font-weight: 700; font-size: 14px;
             cursor: pointer; font-family: 'Noto Sans Lao','Lexend',sans-serif;
             display: inline-flex; align-items: center; gap: 8px; transition: .2s;
@@ -220,7 +220,7 @@
 
         /* footer */
         .footer-text {
-            margin-top: 22px; padding-top: 18px; border-top: 1.5px dashed #ede9fe;
+            margin-top: 22px; padding-top: 18px; border-top: 1.5px dashed #dbeafe;
             font-size: 14px; color: #94a3b8; text-align: center;
         }
         .footer-text a { color: var(--purple); text-decoration: none; font-weight: 800; }
@@ -241,7 +241,7 @@
 
     <div class="card-top">
         <div class="icon-box"><i class="fas fa-blender"></i></div>
-        <h1> ຮ້ານ ນໍ້າປັ່ນ VILLA </h1>
+        <h1> VOLT EV </h1>
         <p>ສະໜັກສະມາຊິກ · ໄວ ງ່າຍ ປອດໄພ </p>
     </div>
 

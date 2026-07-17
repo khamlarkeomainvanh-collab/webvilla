@@ -7,11 +7,11 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <style>
 :root {
-    --purple:#7c3aed; --pink:#be185d; --pk2:#ec4899;
-    --grad:linear-gradient(135deg,#7c3aed,#be185d);
-    --grad2:linear-gradient(135deg,#ec4899,#a855f7);
+    --purple:#2563eb; --pink:#10b981; --pk2:#10b981;
+    --grad:linear-gradient(135deg,#2563eb,#10b981);
+    --grad2:linear-gradient(135deg,#10b981,#3b82f6);
     --green:#10b981; --red:#ef4444; --amber:#f59e0b; --blue:#3b82f6;
-    --ink:#2d1457; --dim:#8b86a8; --lav:#f5f3ff; --lav2:#fdf2f8;
+    --ink:#1e3a5f; --dim:#8b86a8; --lav:#eff6ff; --lav2:#f0fdf4;
     --border:rgba(124,58,237,.12);
 }
 * { font-family:'Lexend','Noto Sans Lao',sans-serif; box-sizing:border-box; }
@@ -19,7 +19,7 @@
 
 .ws-head {
     display:flex; align-items:center; gap:16px; margin-bottom:26px;
-    padding:22px 26px; border-radius:24px; background:linear-gradient(135deg,#fdf4ff,#fce7f3 55%,#f5f3ff);
+    padding:22px 26px; border-radius:24px; background:linear-gradient(135deg,#eff6ff,#ecfdf5 55%,#eff6ff);
     border:1.5px solid var(--border); animation:wsFadeUp .5s cubic-bezier(.23,1,.32,1);
 }
 .ws-head .ico {
@@ -41,7 +41,7 @@
 }
 .ws-form-head {
     display:flex; align-items:center; gap:12px; padding:22px 26px;
-    background:linear-gradient(135deg,#faf8ff,#fdf4ff); border-bottom:1.5px solid var(--border);
+    background:linear-gradient(135deg,#faf8ff,#eff6ff); border-bottom:1.5px solid var(--border);
 }
 .ws-form-head .plus {
     width:38px; height:38px; border-radius:12px; background:var(--grad2);
@@ -53,7 +53,7 @@
 .ws-form-body { padding:22px 26px; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:14px; align-items:end; }
 .ws-field label { display:block; font-size:.78rem; font-weight:800; color:var(--purple); margin-bottom:7px; letter-spacing:.2px; }
 .ws-input, .ws-select {
-    width:100%; padding:12px 15px; border-radius:13px; border:1.5px solid #ede9fe;
+    width:100%; padding:12px 15px; border-radius:13px; border:1.5px solid #dbeafe;
     background:var(--lav); color:var(--ink); font-weight:700; font-size:.9rem; outline:none; transition:.2s;
 }
 .ws-input:focus, .ws-select:focus { border-color:var(--purple); background:#fff; box-shadow:0 0 0 4px rgba(124,58,237,.1); }
@@ -69,7 +69,7 @@
 
 .ws-table-head {
     display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
-    padding:22px 26px; background:linear-gradient(135deg,#fdf4ff,#f5f3ff); border-bottom:1.5px solid var(--border);
+    padding:22px 26px; background:linear-gradient(135deg,#eff6ff,#eff6ff); border-bottom:1.5px solid var(--border);
 }
 .ws-table-title { display:flex; align-items:center; gap:10px; font-weight:900; color:var(--ink); font-size:1.05rem; }
 .ws-table-title i { color:var(--purple); }
@@ -91,7 +91,7 @@ button.ws-stat-card {
 .ws-stat-card.active { border-color:var(--purple); box-shadow:0 0 0 3px rgba(124,58,237,.14),0 10px 26px rgba(124,58,237,.16); background:var(--lav); }
 .ws-stat-card.--teal.active   { border-color:#14b8a6; box-shadow:0 0 0 3px rgba(20,184,166,.16),0 10px 26px rgba(20,184,166,.14); background:#f0fdfa; }
 .ws-stat-card.--blue.active   { border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.16),0 10px 26px rgba(59,130,246,.14); background:#eff6ff; }
-.ws-stat-card.--purple.active { border-color:#7c3aed; box-shadow:0 0 0 3px rgba(124,58,237,.16),0 10px 26px rgba(124,58,237,.14); background:var(--lav); }
+.ws-stat-card.--purple.active { border-color:#2563eb; box-shadow:0 0 0 3px rgba(124,58,237,.16),0 10px 26px rgba(124,58,237,.14); background:var(--lav); }
 .ws-filter-chip {
     display:none; align-items:center; gap:8px; background:#fef3c7; color:#92400e; padding:7px 16px;
     border-radius:50px; font-weight:800; font-size:.8rem; border:1.5px solid #fde68a;
@@ -107,7 +107,7 @@ button.ws-stat-card {
 .ws-stat-card.--teal   .ws-stat-ico { background:linear-gradient(135deg,#14b8a6,#0d9488); box-shadow:0 6px 16px rgba(20,184,166,.28); }
 .ws-stat-lbl { font-size:.72rem; font-weight:800; color:var(--dim); text-transform:uppercase; letter-spacing:.5px; }
 .ws-stat-val { font-size:1.3rem; font-weight:900; color:var(--ink); margin-top:3px; }
-.ws-stat-card.--purple .ws-stat-val { color:#5b21b6; }
+.ws-stat-card.--purple .ws-stat-val { color:#1e40af; }
 .ws-stat-card.--amber  .ws-stat-val { color:#92400e; }
 .ws-stat-card.--blue   .ws-stat-val { color:#1d4ed8; }
 .ws-stat-card.--teal   .ws-stat-val { color:#0d9488; }
@@ -127,7 +127,7 @@ button.ws-stat-card {
 }
 .ws-prod-cell { display:flex; align-items:center; gap:12px; }
 .ws-prod-ico {
-    width:40px; height:40px; border-radius:12px; flex-shrink:0; background:linear-gradient(135deg,#ede9fe,#fce7f3);
+    width:40px; height:40px; border-radius:12px; flex-shrink:0; background:linear-gradient(135deg,#dbeafe,#ecfdf5);
     display:flex; align-items:center; justify-content:center; font-size:1.1rem;
 }
 .ws-qty-pill {
@@ -179,7 +179,7 @@ button.ws-stat-card {
 .ws-edit-body { padding:22px; display:flex; flex-direction:column; gap:14px; }
 .ws-edit-total { text-align:right; font-weight:900; color:var(--purple); font-size:1.1rem; }
 .ws-edit-foot { display:flex; justify-content:flex-end; gap:10px; padding:0 22px 22px; }
-.ws-edit-cancel { padding:12px 22px; border-radius:13px; border:1.5px solid #ede9fe; background:#fff; color:var(--purple); font-weight:800; cursor:pointer; transition:.2s; }
+.ws-edit-cancel { padding:12px 22px; border-radius:13px; border:1.5px solid #dbeafe; background:#fff; color:var(--purple); font-weight:800; cursor:pointer; transition:.2s; }
 .ws-edit-cancel:hover { background:var(--lav); }
 
 @media(max-width:700px) { .ws-stats-bar { grid-template-columns:1fr; } }
@@ -221,15 +221,15 @@ button.ws-stat-card {
 .ws-queue-title { font-size:.85rem; font-weight:800; color:var(--purple); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
 .ws-queue-empty { padding:20px; text-align:center; color:#b6aef0; background:var(--lav); border-radius:16px; font-size:.85rem; font-weight:600; border:1.5px dashed #ddd0fb; }
 .ws-queue-table { width:100%; border-collapse:collapse; background:var(--lav); border-radius:16px; overflow:hidden; }
-.ws-queue-table th { padding:10px 15px; text-align:left; font-size:.72rem; color:#a78bfa; text-transform:uppercase; font-weight:800; letter-spacing:.4px; }
-.ws-queue-table td { padding:11px 15px; font-size:.88rem; color:var(--ink); font-weight:700; border-top:1px solid #ede9fe; }
+.ws-queue-table th { padding:10px 15px; text-align:left; font-size:.72rem; color:#60a5fa; text-transform:uppercase; font-weight:800; letter-spacing:.4px; }
+.ws-queue-table td { padding:11px 15px; font-size:.88rem; color:var(--ink); font-weight:700; border-top:1px solid #dbeafe; }
 .ws-custom-badge {
     display:inline-block; background:var(--lav2); color:var(--pink); padding:2px 10px; border-radius:50px;
     font-size:.68rem; font-weight:800; margin-left:4px; vertical-align:middle;
 }
 .ws-qty-stepper { display:flex; align-items:center; gap:8px; }
 .ws-qty-btn {
-    width:27px; height:27px; border-radius:8px; border:1.5px solid #ddd6fe; background:#fff; color:var(--purple);
+    width:27px; height:27px; border-radius:8px; border:1.5px solid #bfdbfe; background:#fff; color:var(--purple);
     cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:.85rem; transition:.15s;
 }
 .ws-qty-btn:hover { background:var(--purple); color:#fff; }
@@ -243,17 +243,17 @@ button.ws-stat-card {
 
 /* ── Multi-select "add several menus at once" panel ── */
 .ws-multi-btn {
-    width:46px; flex-shrink:0; border-radius:13px; border:1.5px solid #ede9fe; background:var(--lav); color:var(--purple);
+    width:46px; flex-shrink:0; border-radius:13px; border:1.5px solid #dbeafe; background:var(--lav); color:var(--purple);
     cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; transition:.2s;
 }
 .ws-multi-btn:hover, .ws-multi-btn.active { background:var(--purple); color:#fff; border-color:var(--purple); }
 .ws-multi-panel {
     position:absolute; top:100%; left:0; right:0; margin-top:8px; z-index:50;
-    background:#fff; border:1.5px solid #ede9fe; border-radius:18px; box-shadow:0 24px 55px rgba(124,58,237,.2);
+    background:#fff; border:1.5px solid #dbeafe; border-radius:18px; box-shadow:0 24px 55px rgba(124,58,237,.2);
     padding:14px; max-height:380px; display:none; flex-direction:column;
 }
 .ws-multi-search {
-    padding:10px 13px; border-radius:11px; border:1.5px solid #ede9fe; background:var(--lav); color:var(--ink);
+    padding:10px 13px; border-radius:11px; border:1.5px solid #dbeafe; background:var(--lav); color:var(--ink);
     font-weight:700; font-size:.85rem; outline:none; margin-bottom:10px; font-family:'Lexend','Noto Sans Lao',sans-serif; width:100%;
 }
 .ws-multi-search:focus { border-color:var(--purple); background:#fff; }
@@ -264,14 +264,14 @@ button.ws-stat-card {
 .ws-multi-item:hover { background:var(--lav); }
 .ws-multi-item input[type=checkbox] { width:17px; height:17px; accent-color:var(--purple); cursor:pointer; flex-shrink:0; }
 .ws-multi-item .ws-mi-name { flex:1; min-width:80px; font-weight:700; font-size:.88rem; color:var(--ink); cursor:pointer; }
-.ws-multi-price { font-size:.78rem; color:#a78bfa; font-weight:700; white-space:nowrap; }
+.ws-multi-price { font-size:.78rem; color:#60a5fa; font-weight:700; white-space:nowrap; }
 .ws-mi-qty {
-    width:46px; padding:5px 2px; border-radius:8px; border:1.5px solid #ede9fe; background:#fff;
+    width:46px; padding:5px 2px; border-radius:8px; border:1.5px solid #dbeafe; background:#fff;
     color:var(--ink); font-weight:700; font-size:.8rem; text-align:center; outline:none; flex-shrink:0;
 }
 .ws-mi-qty:focus { border-color:var(--purple); }
 .ws-mi-price {
-    width:82px; padding:5px 6px; border-radius:8px; border:1.5px solid #ede9fe; background:#fff;
+    width:82px; padding:5px 6px; border-radius:8px; border:1.5px solid #dbeafe; background:#fff;
     color:#059669; font-weight:800; font-size:.8rem; text-align:right; outline:none; flex-shrink:0;
 }
 .ws-mi-price:focus { border-color:var(--purple); }
@@ -288,9 +288,9 @@ button.ws-stat-card {
     border:1.5px dashed #ddd0fb;
 }
 .ws-cust-lbl { font-size:.78rem; font-weight:800; color:var(--purple); margin-bottom:9px; display:flex; align-items:center; gap:6px; }
-.ws-cust-lbl span { font-weight:600; color:#a78bfa; font-size:.72rem; }
+.ws-cust-lbl span { font-weight:600; color:#60a5fa; font-size:.72rem; }
 .ws-size-pill, .ws-topping-pill {
-    padding:8px 16px; border-radius:50px; border:1.5px solid #ddd6fe; background:#fff; color:var(--ink);
+    padding:8px 16px; border-radius:50px; border:1.5px solid #bfdbfe; background:#fff; color:var(--ink);
     font-weight:700; font-size:.85rem; cursor:pointer; transition:.2s; font-family:'Lexend','Noto Sans Lao',sans-serif;
     display:inline-flex; align-items:center; gap:5px;
 }
@@ -299,7 +299,7 @@ button.ws-stat-card {
 .ws-size-pill.picked, .ws-topping-pill.picked { background:var(--grad2); color:#fff; border-color:transparent; box-shadow:0 4px 12px rgba(168,85,247,.3); }
 .ws-pill-row { display:flex; gap:8px; flex-wrap:wrap; }
 .ws-cust-badge {
-    display:inline-block; background:#ede9fe; color:var(--purple); padding:2px 10px; border-radius:50px;
+    display:inline-block; background:#dbeafe; color:var(--purple); padding:2px 10px; border-radius:50px;
     font-size:.68rem; font-weight:800; margin-left:4px; vertical-align:middle;
 }
 
@@ -355,8 +355,8 @@ button.ws-stat-card {
                         </div>
                         {% endfor %}
                     </div>
-                    <div id="wsMultiTotalRow" style="display:none; justify-content:space-between; align-items:center; margin-top:10px; padding:8px 12px; background:#f5f3ff; border-radius:10px;">
-                        <span style="font-size:.8rem; font-weight:800; color:#7c3aed;">ລວມ <span id="wsMultiSelCount">0</span> ລາຍການ</span>
+                    <div id="wsMultiTotalRow" style="display:none; justify-content:space-between; align-items:center; margin-top:10px; padding:8px 12px; background:#eff6ff; border-radius:10px;">
+                        <span style="font-size:.8rem; font-weight:800; color:#2563eb;">ລວມ <span id="wsMultiSelCount">0</span> ລາຍການ</span>
                         <span style="font-size:.92rem; font-weight:900; color:#059669;" id="wsMultiTotalPrice">0 ກີບ</span>
                     </div>
                     <button type="button" class="ws-btn-queue" style="width:100%; margin-top:10px; justify-content:center;" onclick="wsAddSelectedMulti()">
@@ -373,30 +373,6 @@ button.ws-stat-card {
                 <input type="text" inputmode="numeric" id="wsPrice" class="ws-input" placeholder="0" oninput="wsFmtPrice(this)">
             </div>
             <button type="button" class="ws-btn-queue" onclick="wsAddToQueue()"><i class="fas fa-cart-plus"></i> ເພີ່ມໃສ່ຄິວ</button>
-        </div>
-
-        <!-- Optional size/topping customization — mainly for off-menu ("ນອກລາຍການ") items -->
-        <div style="padding:0 26px 22px;">
-            <button type="button" class="ws-cust-toggle" onclick="wsToggleCustPanel()">
-                <i class="fas fa-sliders"></i> ຂະໜາດ / ທອັບປີ້ງ
-                <span style="font-weight:600; opacity:.7; font-size:.75rem;">(ສະເພາະສິນຄ້ານອກລາຍການ)</span>
-            </button>
-            <div class="ws-cust-panel" id="wsCustPanel">
-                <div class="ws-cust-lbl">📏 ຂະໜາດຈອກ</div>
-                <div class="ws-pill-row" id="wsSizePills" style="margin-bottom:16px;">
-                    <button type="button" class="ws-size-pill" data-size="S" onclick="wsPickSize('S')">S <em>25.000</em></button>
-                    <button type="button" class="ws-size-pill" data-size="M" onclick="wsPickSize('M')">M <em>30.000</em></button>
-                    <button type="button" class="ws-size-pill" data-size="L" onclick="wsPickSize('L')">L <em>35.000</em></button>
-                </div>
-                <div class="ws-cust-lbl">🍓 ທອັບປີ້ງ <span>(ເລືອກໄດ້ຫຼາຍລາຍການ · +5.000/ອັນ)</span></div>
-                <div class="ws-pill-row" id="wsToppingPills">
-                    <button type="button" class="ws-topping-pill" data-t="ໝາກໄມ້ສົດ" onclick="wsToggleTopping('ໝາກໄມ້ສົດ', this)">🍓 ໝາກໄມ້ສົດ</button>
-                    <button type="button" class="ws-topping-pill" data-t="ເຈລລີ" onclick="wsToggleTopping('ເຈລລີ', this)">🍮 ເຈລລີ</button>
-                    <button type="button" class="ws-topping-pill" data-t="ໂກໂກ້" onclick="wsToggleTopping('ໂກໂກ້', this)">🍫 ໂກໂກ້</button>
-                    <button type="button" class="ws-topping-pill" data-t="ໄຂ່ມຸກ" onclick="wsToggleTopping('ໄຂ່ມຸກ', this)">🧋 ໄຂ່ມຸກ</button>
-                    <button type="button" class="ws-topping-pill" data-t="ຊັອກໂກແລັດ" onclick="wsToggleTopping('ຊັອກໂກແລັດ', this)">🍪 ຊັອກໂກແລັດ</button>
-                </div>
-            </div>
         </div>
 
         <!-- Queue -->
@@ -423,7 +399,7 @@ button.ws-stat-card {
                 </select>
             </div>
             <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
-                <div id="wsTotalPreview" style="font-weight:900; color:#7c3aed; font-size:1.05rem;">ລວມ: 0 ກີບ</div>
+                <div id="wsTotalPreview" style="font-weight:900; color:#2563eb; font-size:1.05rem;">ລວມ: 0 ກີບ</div>
                 <button type="submit" class="ws-btn-add"><i class="fas fa-check"></i> ບັນທຶກຍອດຂາຍ</button>
             </div>
         </div>
@@ -594,45 +570,12 @@ button.ws-stat-card {
 let wsQueue = [];
 let wsSelectedProductId = null;
 let wsSelectedProductPrice = null;
-let wsCustSize = '';
-let wsCustToppings = new Set();
-const WS_SIZE_PRICES = {S: 25000, M: 30000, L: 35000};
-const WS_TOPPING_FEE = 5000;
 
-function wsToggleCustPanel() {
-    const panel = document.getElementById('wsCustPanel');
-    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-}
-
-function wsPickSize(size) {
-    wsCustSize = (wsCustSize === size) ? '' : size;
-    document.querySelectorAll('.ws-size-pill').forEach(el => el.classList.toggle('picked', el.dataset.size === wsCustSize));
-    wsRecalcCustPrice();
-}
-
-function wsToggleTopping(name, btn) {
-    if (wsCustToppings.has(name)) { wsCustToppings.delete(name); btn.classList.remove('picked'); }
-    else { wsCustToppings.add(name); btn.classList.add('picked'); }
-    wsRecalcCustPrice();
-}
-
-/* Recompute ລາຄາ/ໜ່ວຍ from the chosen size (or the matched menu product's base
-   price if no size chosen) + topping fees — same formula as customer-side
-   customization, so an off-menu item priced this way stays consistent. */
+/* Fill ລາຄາ/ໜ່ວຍ from the matched menu product's price. */
 function wsRecalcCustPrice() {
-    let base = null;
-    if (wsCustSize) base = WS_SIZE_PRICES[wsCustSize];
-    else if (wsSelectedProductPrice !== null) base = wsSelectedProductPrice;
-    if (base === null) { wsUpdateTotal(); return; }
-    const total = base + wsCustToppings.size * WS_TOPPING_FEE;
-    document.getElementById('wsPrice').value = total.toLocaleString('en-US').replace(/,/g, '.');
+    if (wsSelectedProductPrice === null) { wsUpdateTotal(); return; }
+    document.getElementById('wsPrice').value = wsSelectedProductPrice.toLocaleString('en-US').replace(/,/g, '.');
     wsUpdateTotal();
-}
-
-function wsResetCustPanel() {
-    wsCustSize = '';
-    wsCustToppings.clear();
-    document.querySelectorAll('.ws-size-pill, .ws-topping-pill').forEach(el => el.classList.remove('picked'));
 }
 
 /* type="text" so a typed "." (thousands separator, e.g. "30.000") is never
@@ -678,11 +621,11 @@ function wsAddToQueue() {
     const price = Math.max(0, parseInt(document.getElementById('wsPrice').value.replace(/\D/g, ''), 10) || 0);
     const pid = wsSelectedProductId;
     const isCustom = !pid;
-    const size = wsCustSize;
-    const topping = Array.from(wsCustToppings);
+    const size = '';
+    const topping = [];
 
     const existing = wsQueue.find(it => it.pid === pid && it.name === name && it.price === price
-        && it.size === size && JSON.stringify(it.topping) === JSON.stringify(topping));
+        && !it.size && !(it.topping && it.topping.length));
     if (existing) { existing.qty += qty; }
     else { wsQueue.push({ pid, name, qty, price, isCustom, size, topping }); }
 
@@ -691,7 +634,6 @@ function wsAddToQueue() {
     wsSelectedProductPrice = null;
     document.getElementById('wsQty').value = 1;
     document.getElementById('wsPrice').value = '';
-    wsResetCustPanel();
     wsRenderQueue();
 }
 
