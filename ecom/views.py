@@ -1272,10 +1272,22 @@ def admin_advance_bookings_view(request):
 
 # ―― Shared by both the Excel export and the printable invoice below: rebuilds
 # the same grouped/filtered advance-booking list admin_advance_bookings_view
-# shows, so "ທັງໝົດ" (All) always includes every past booking too. ――
+# shows, so "ທັງໝົດ" (All) always includes every past booking too. Also honours
+# an optional ?pickup_date=YYYY-MM-DD so admins can export/print just one
+# specific pickup day instead of everything. ――
 def _advance_bookings_for_export(request):
     orders = models.Orders.objects.filter(pickup_date__isnull=False) \
         .select_related('product', 'customer__user').order_by('pickup_date', 'pickup_time', 'order_date')
+
+    pickup_date_str = request.GET.get('pickup_date', '')
+    pickup_date_obj = None
+    if pickup_date_str:
+        try:
+            from datetime import date as _d
+            pickup_date_obj = _d.fromisoformat(pickup_date_str)
+            orders = orders.filter(pickup_date=pickup_date_obj)
+        except ValueError:
+            pickup_date_obj = None
 
     groups = {}
     group_order = []
@@ -1303,14 +1315,14 @@ def _advance_bookings_for_export(request):
         data = [groups[key] for key in group_order]
     else:
         data = [groups[key] for key in group_order if (groups[key]['canonical'].status or 'Pending') == active_status]
-    return data, active_status
+    return data, active_status, pickup_date_obj
 
 
 @login_required(login_url='adminlogin')
 def export_advance_bookings_excel(request):
     from django.utils import timezone as _tz
 
-    data, active_status = _advance_bookings_for_export(request)
+    data, active_status, pickup_date_obj = _advance_bookings_for_export(request)
     today = _tz.localdate()
 
     LAO_FONT = "Phetsarath OT"
@@ -1333,8 +1345,9 @@ def export_advance_bookings_excel(request):
     ws.title = "ຈອງລ່ວງໜ້າ"[:31]
     ws.sheet_view.showGridLines = False
 
+    date_label = pickup_date_obj.strftime('%d/%m/%Y') if pickup_date_obj else STATUS_LAO.get(active_status, 'ທັງໝົດ')
     ws.merge_cells("A1:H1")
-    c = ws["A1"]; c.value = f"ລາຍການຈອງລ່ວງໜ້າ — {STATUS_LAO.get(active_status, 'ທັງໝົດ')}"
+    c = ws["A1"]; c.value = f"ລາຍການຈອງລ່ວງໜ້າ — {date_label}"
     c.font = hfont(size=14); c.fill = fill("7C3AED"); c.alignment = center
     ws.row_dimensions[1].height = 36
     ws.merge_cells("A2:H2")
@@ -1382,8 +1395,9 @@ def export_advance_bookings_excel(request):
     for col, w in zip("ABCDEFGHI", [8, 13, 10, 28, 18, 15, 10, 16, 14]):
         ws.column_dimensions[col].width = w
 
+    fname_suffix = pickup_date_obj.strftime('%Y-%m-%d') if pickup_date_obj else 'ທັງໝົດ'
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="VILLA_ຈອງລ່ວງໜ້າ.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename="VILLA_ຈອງລ່ວງໜ້າ_{fname_suffix}.xlsx"'
     wb.save(response)
     return response
 
@@ -1392,15 +1406,16 @@ def export_advance_bookings_excel(request):
 def advance_bookings_invoice_view(request):
     from django.utils import timezone as _tz
 
-    data, active_status = _advance_bookings_for_export(request)
+    data, active_status, pickup_date_obj = _advance_bookings_for_export(request)
     total = sum(g['total_amount'] for g in data)
     STATUS_LAO = {'Pending': 'ລໍຖ້າມາຮັບ', 'Confirmed': 'ຢືນຢັນແລ້ວ', 'Processing': 'ກຳລັງກຽມ', 'Delivered': 'ຮັບແລ້ວ', 'Cancelled': 'ຍົກເລີກ', 'All': 'ທັງໝົດ'}
+    status_label = pickup_date_obj.strftime('ວັນທີ %d/%m/%Y') if pickup_date_obj else STATUS_LAO.get(active_status, 'ທັງໝົດ')
 
     return render(request, 'ecom/advance_bookings_invoice.html', {
         'data': data,
         'total': total,
         'active_status': active_status,
-        'status_label': STATUS_LAO.get(active_status, 'ທັງໝົດ'),
+        'status_label': status_label,
         'generated_at': _tz.localtime(),
     })
 
