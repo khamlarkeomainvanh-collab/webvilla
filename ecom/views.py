@@ -2346,6 +2346,24 @@ def payment_success_view(request):
 
 
 
+# AJAX: fired from every customer page on load — pops up any unread order-status
+# notifications immediately as a toast, no push opt-in required, then marks them
+# read so they don't pop up again on the next page.
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def ajax_customer_notifications(request):
+    try:
+        customer = models.Customer.objects.get(user_id=request.user.id)
+    except models.Customer.DoesNotExist:
+        return JsonResponse({'ok': False}, status=404)
+
+    unread = list(customer.notifications.filter(is_read=False).order_by('-created_at')[:10])
+    items = [{'title': n.title, 'body': n.body} for n in unread]
+    if unread:
+        models.CustomerNotification.objects.filter(id__in=[n.id for n in unread]).update(is_read=True)
+    return JsonResponse({'ok': True, 'notifications': items})
+
+
 @login_required(login_url='customerlogin')
 @user_passes_test(is_customer)
 def my_order_view(request):

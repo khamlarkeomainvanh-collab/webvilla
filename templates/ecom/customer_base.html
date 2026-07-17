@@ -431,6 +431,42 @@ function _showToast() {
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 2500);
 }
+
+{% if user.is_authenticated %}
+/* ── Order-status notification toast — pops up automatically on ANY page,
+   no push opt-in needed, the instant the shop confirms/ships/cancels an order. ── */
+function _showOrderNotifToast(title, body, delayMs) {
+    const t = document.createElement('div');
+    t.innerHTML = `
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="font-size:1.4rem;flex-shrink:0;">🔔</div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-weight:900;font-size:.95rem;margin-bottom:3px;">${title}</div>
+                <div style="font-size:.82rem;opacity:.92;line-height:1.5;">${body}</div>
+            </div>
+            <button type="button" style="background:rgba(255,255,255,.22);border:none;color:#fff;width:24px;height:24px;border-radius:8px;cursor:pointer;flex-shrink:0;" onclick="this.closest('.order-notif-toast').remove()">✕</button>
+        </div>`;
+    t.className = 'order-notif-toast';
+    Object.assign(t.style, {
+        position:'fixed', bottom: (28 + delayMs / 100) + 'px', right:'28px', maxWidth:'340px',
+        background:'linear-gradient(135deg,#7c3aed,#ec4899)',
+        color:'#fff', padding:'16px 18px', borderRadius:'18px',
+        zIndex:'999999', boxShadow:'0 16px 40px rgba(124,58,237,.4)',
+        fontFamily:"'Lexend','Noto Sans Lao',sans-serif",
+        opacity:'0', transform:'translateY(20px)', transition:'.3s',
+    });
+    document.body.appendChild(t);
+    requestAnimationFrame(() => { t.style.opacity = '1'; t.style.transform = 'translateY(0)'; });
+    setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; setTimeout(() => t.remove(), 300); }, 8000);
+}
+fetch('/ajax-customer-notifications')
+    .then(r => r.ok ? r.json() : null)
+    .then(d => {
+        if (!d || !d.ok || !d.notifications || !d.notifications.length) return;
+        d.notifications.forEach((n, i) => setTimeout(() => _showOrderNotifToast(n.title, n.body, i * 90), i * 350));
+    })
+    .catch(() => {});
+{% endif %}
 </script>
 </body>
 </html>

@@ -1094,6 +1094,14 @@ body { background: #ffffff !important; }
                 <div class="dms-lbl">ຈຳນວນລາຍການ</div>
             </div>
         </div>
+        <div style="display:flex;gap:10px;padding:14px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap;">
+            <a id="sdmExportLink" href="#" class="ic-btn" style="width:auto;padding:0 16px;background:linear-gradient(135deg,#1d6f42,#2ea05a);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.85rem;">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </a>
+            <a id="sdmInvoiceLink" href="#" target="_blank" class="ic-btn" style="width:auto;padding:0 16px;background:linear-gradient(135deg,#ec4899,#a855f7);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.85rem;">
+                <i class="fas fa-receipt"></i> ອອກໃບບິນ
+            </a>
+        </div>
         <div class="dmodal-body" id="sdm-body">
             <div class="dmodal-loading"><div class="spin"></div> ກຳລັງໂຫຼດ...</div>
         </div>
@@ -1326,6 +1334,8 @@ function openStatModal(status, dateStr, title) {
     modal.style.display = 'flex';
     document.getElementById('sdm-title').textContent = title || 'ລາຍລະອຽດ';
     document.getElementById('sdm-sub').textContent = dateStr;
+    document.getElementById('sdmExportLink').href  = `/export-orders-excel?date=${dateStr}` + (status && status !== 'All' ? `&status=${status}` : '');
+    document.getElementById('sdmInvoiceLink').href = `/revenue-invoice?date=${dateStr}`;
     document.getElementById('sdm-count').textContent = '—';
     document.getElementById('sdm-total').textContent = '—';
     document.getElementById('sdm-delivered').textContent = '—';
