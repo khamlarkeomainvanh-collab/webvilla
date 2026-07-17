@@ -13,6 +13,10 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
 
     <style>
+    .notif-unread-badge {
+        display:inline-block; background:#ec4899; color:#fff; border-radius:50px;
+        padding:1px 7px; font-size:.7rem; font-weight:800; margin-left:6px; vertical-align:middle;
+    }
     :root {
         --pk:   #ec4899;
         --pk2:  #f472b6;
@@ -240,7 +244,9 @@
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu" id="acctDropdownMenu">
-                        <li><a href="{% url 'my-order' %}"><i class="fas fa-list-alt"></i> ລາຍການສັ່ງຊື້</a></li>
+                        <li><a href="{% url 'my-order' %}"><i class="fas fa-list-alt"></i> ລາຍການສັ່ງຊື້
+                            {% if unread_notif_count %}<span class="notif-unread-badge">{{ unread_notif_count }}</span>{% endif %}
+                        </a></li>
                         <li><a href="{% url 'my-profile' %}"><i class="fas fa-user-circle"></i> ໂປຣໄຟລ໌</a></li>
                         <li>
                             <a href="javascript:void(0)" id="notifToggleLink" onclick="toggleWebpushNotif(event)">

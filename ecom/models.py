@@ -141,3 +141,19 @@ class Expense(models.Model):
 
     def __str__(self):
         return f"{self.date} | {self.category} | {self.amount:,} ກີບ"
+
+
+class CustomerNotification(models.Model):
+    """In-site order-status inbox — shown on the customer's my-order page so
+    status updates reach them even if they never enabled browser push."""
+    customer   = models.ForeignKey('Customer', on_delete=models.CASCADE, related_name='notifications')
+    title      = models.CharField(max_length=200)
+    body       = models.CharField(max_length=500)
+    is_read    = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at', '-id']
+
+    def __str__(self):
+        return f"{self.customer} | {self.title}"

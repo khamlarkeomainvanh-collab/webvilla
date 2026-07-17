@@ -179,9 +179,17 @@ body { background: #ffffff !important; }
             <h1>ຈອງ <span>ລ່ວງໜ້າ</span> 📅</h1>
             <p>ອໍເດີທີ່ລູກຄ້າຈອງໄວ້ ແລ້ວຈະມາຮັບພາຍຫຼັງ — ແຍກຕ່າງຫາກຈາກຄິວມື້ນີ້</p>
         </div>
-        <a href="{% url 'admin-view-booking' %}" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
-            <i class="fas fa-calendar-day"></i> ໄປລາຍການຈອງຄິວ
-        </a>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <a href="{% url 'export-advance-bookings-excel' %}?status={{ active_status }}" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#1d6f42,#2ea05a);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </a>
+            <a href="{% url 'advance-bookings-invoice' %}?status={{ active_status }}" target="_blank" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#ec4899,#a855f7);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
+                <i class="fas fa-receipt"></i> ອອກໃບບິນ
+            </a>
+            <a href="{% url 'admin-view-booking' %}" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#7c3aed,#be185d);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
+                <i class="fas fa-calendar-day"></i> ໄປລາຍການຈອງຄິວ
+            </a>
+        </div>
     </div>
 
     <!-- Status Filter Tabs -->

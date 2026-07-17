@@ -121,6 +121,11 @@ body {
 .oi-pill  { background:#fff; border:1px solid #ddd6fe; border-radius:50px; padding:3px 10px; font-size:.72rem; font-weight:800; color:var(--pu); }
 .oi-sub   { font-size:1.1rem; font-weight:900; color:var(--pk); flex-shrink:0; white-space:nowrap; align-self:center; }
 
+/* PRICE BREAKDOWN */
+.price-breakdown { display:grid; gap:6px; margin-bottom:12px; padding:0 4px; }
+.pb-row { display:flex; justify-content:space-between; font-size:.86rem; font-weight:700; color:#64748b; }
+.pb-row span:last-child { color:var(--text); font-weight:800; }
+
 /* TOTAL BAR */
 .total-bar {
   background:linear-gradient(135deg,var(--pk-lt),var(--lav));
@@ -267,6 +272,18 @@ body {
       {% endif %}
 
       {% if grand_total %}
+      <div class="price-breakdown">
+        <div class="pb-row">
+          <span>ລາຄາສິນຄ້າ</span>
+          <span>{{ subtotal|dotformat }} ກີບ</span>
+        </div>
+        {% if delivery_fee_amount %}
+        <div class="pb-row">
+          <span>🛵 ຄ່າຈັດສົ່ງ</span>
+          <span>{{ delivery_fee_amount|dotformat }} ກີບ</span>
+        </div>
+        {% endif %}
+      </div>
       <div class="total-bar">
         <span class="tb-l">💰 ລາຄາລວມທັງໝົດ</span>
         <span class="tb-v">{{ grand_total|dotformat }}<small> ກີບ</small></span>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+{% load lao_filters %}
+<html lang="lo">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ໃບບິນຈອງລ່ວງໜ້າ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700&family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Noto Sans Lao', 'Lexend', sans-serif;
+        background: #f0f4f8;
+        min-height: 100vh;
+        padding: 30px 20px;
+        color: #1a202c;
+    }
+
+    .print-bar { max-width: 900px; margin: 0 auto 20px auto; display: flex; justify-content: flex-end; gap: 10px; }
+    .btn-print {
+        background: #6d28d9; color: white; border: none; padding: 12px 28px; border-radius: 12px;
+        font-family: 'Noto Sans Lao', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer;
+        display: flex; align-items: center; gap: 8px; transition: 0.2s;
+    }
+    .btn-print:hover { background: #7c3aed; transform: translateY(-1px); }
+    .btn-back {
+        background: white; color: #6d28d9; border: 2px solid #6d28d9; padding: 12px 24px; border-radius: 12px;
+        font-family: 'Noto Sans Lao', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer;
+        transition: 0.2s; text-decoration: none; display: flex; align-items: center; gap: 8px;
+    }
+    .btn-back:hover { background: #f0f4f8; }
+
+    .invoice { max-width: 900px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.12); }
+
+    .invoice-top { background: linear-gradient(135deg, #ec4899, #a855f7); padding: 40px 50px; display: flex; justify-content: space-between; align-items: center; }
+    .brand h1 { font-size: 2.5rem; font-weight: 700; color: white; letter-spacing: 3px; }
+    .brand p  { color: rgba(255,255,255,0.75); font-size: 0.9rem; margin-top: 4px; }
+    .inv-number { text-align: right; }
+    .inv-number .label { color: rgba(255,255,255,0.6); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; }
+    .inv-number .value { color: white; font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
+    .inv-number .date  { color: rgba(255,255,255,0.75); font-size: 0.9rem; margin-top: 6px; }
+
+    .invoice-info { padding: 40px 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; border-bottom: 1px solid #e8edf2; }
+    .info-block .block-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #94a3b8; font-weight: 600; margin-bottom: 12px; }
+    .info-block .name   { font-size: 1.15rem; font-weight: 700; color: #a855f7; margin-bottom: 6px; }
+    .info-block .detail { font-size: 0.9rem; color: #64748b; line-height: 1.8; }
+
+    .invoice-items { padding: 0 50px 10px; }
+    .table-scroll { overflow-x: auto; }
+    .items-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #94a3b8; font-weight: 600; padding: 25px 0 12px; }
+
+    table { width: 100%; min-width: 640px; border-collapse: collapse; }
+    thead tr { background: #a855f7; }
+    thead th { padding: 14px 16px; color: white; font-size: 0.82rem; font-weight: 600; text-align: left; font-family: 'Noto Sans Lao', sans-serif; }
+    thead th:last-child { text-align: right; }
+    thead th:nth-child(1), thead th:nth-child(2), thead th:nth-child(3), thead th:nth-child(6), thead th:nth-child(7) { text-align: center; }
+
+    tbody tr { border-bottom: 1px solid #f1f5f9; }
+    tbody tr:nth-child(even) { background: #fdf4ff; }
+    tbody td { padding: 14px 16px; font-size: 0.95rem; color: #374151; font-family: 'Noto Sans Lao', sans-serif; }
+    tbody td:last-child { text-align: right; font-weight: 600; color: #a855f7; }
+    tbody td:nth-child(2), tbody td:nth-child(3), tbody td:nth-child(6), tbody td:nth-child(7) { text-align: center; }
+    .num-cell { width: 40px; text-align: center; color: #94a3b8; font-size: 0.85rem; }
+    .status-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: #f5f3ff; color: #7c3aed; }
+    .status-pill.st-delivered { background: #dcfce7; color: #059669; }
+    .status-pill.st-cancelled { background: #fee2e2; color: #ef4444; }
+    .status-pill.st-confirmed { background: #ede9fe; color: #7c3aed; }
+    .status-pill.st-processing { background: #fef3c7; color: #d97706; }
+
+    .invoice-total { padding: 20px 50px 40px; display: flex; justify-content: flex-end; }
+    .total-box { background: #fdf4ff; border: 2px solid #f3e8ff; border-radius: 16px; padding: 20px 30px; min-width: 260px; }
+    .total-row-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 0.9rem; color: #64748b; font-family: 'Noto Sans Lao', sans-serif; }
+    .total-row-item.grand { border-top: 2px solid #f3e8ff; margin-top: 10px; padding-top: 14px; font-size: 1.15rem; font-weight: 700; color: #a855f7; }
+
+    .invoice-footer { background: #fdf4ff; border-top: 1px solid #e8edf2; padding: 20px 50px; text-align: center; color: #94a3b8; font-size: 0.82rem; font-family: 'Noto Sans Lao', sans-serif; }
+    .empty-note { padding: 60px 50px; text-align: center; color: #94a3b8; font-size: 0.95rem; }
+
+    @media(max-width:640px) {
+        body { padding: 16px 10px; }
+        .print-bar { flex-wrap: wrap; }
+        .btn-print, .btn-back { padding: 10px 16px; font-size: 13px; }
+        .invoice-top { padding: 26px 20px; flex-wrap: wrap; gap: 16px; }
+        .brand h1 { font-size: 1.9rem; letter-spacing: 1.5px; }
+        .inv-number { text-align: left; }
+        .inv-number .value { font-size: 1.4rem; }
+        .invoice-info { grid-template-columns: 1fr; padding: 26px 20px; gap: 20px; }
+        .invoice-items { padding: 0 20px 10px; }
+        thead th, tbody td { padding: 10px; font-size: .82rem; }
+        .invoice-total { padding: 16px 20px 30px; }
+        .total-box { min-width: 0; width: 100%; padding: 16px 18px; }
+        .invoice-footer { padding: 16px 20px; font-size: .78rem; }
+    }
+
+    @media print {
+        body { background: white; padding: 0; }
+        .print-bar { display: none !important; }
+        .invoice { box-shadow: none; border-radius: 0; }
+        .invoice-top { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+</style>
+</head>
+<body>
+
+<div class="print-bar no-print">
+    <a href="/admin-advance-bookings" class="btn-back">← ກັບຄືນ</a>
+    <button class="btn-print" onclick="window.print()">🖨 ພິມ / Save PDF</button>
+</div>
+
+<div class="invoice">
+
+    <div class="invoice-top">
+        <div class="brand">
+            <h1>VILLA</h1>
+            <p>ໃບບິນຈອງລ່ວງໜ້າ / Advance Bookings</p>
+        </div>
+        <div class="inv-number">
+            <div class="label">ສະຖານະ</div>
+            <div class="value">{{ status_label }}</div>
+            <div class="date">ພິມ: {{ generated_at|date:"d/m/Y H:i" }}</div>
+        </div>
+    </div>
+
+    <div class="invoice-info">
+        <div class="info-block">
+            <div class="block-title">ໄລຍະເວລາ</div>
+            <div class="name">{{ status_label }}</div>
+            <div class="detail">🍹 ຮ້ານ ນ້ຳປັ່ນ VILLA — ຈອງລ່ວງໜ້າ</div>
+        </div>
+        <div class="info-block">
+            <div class="block-title">ສະຫຼຸບ</div>
+            <div class="detail" style="font-size:1rem; color:#374151; line-height:1.6;">
+                🧾 {{ data|length }} ການຈອງ<br>
+                💰 ລວມ {{ total|dotformat }} ກີບ
+            </div>
+        </div>
+    </div>
+
+    {% if data %}
+    <div class="invoice-items">
+        <div class="items-title">ລາຍການຈອງລ່ວງໜ້າ</div>
+        <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th class="num-cell">#</th>
+                    <th>ວັນທີມາຮັບ</th>
+                    <th>ໂມງມາຮັບ</th>
+                    <th>ສິນຄ້າ</th>
+                    <th>ລູກຄ້າ</th>
+                    <th>ເບີໂທ</th>
+                    <th>ສະຖານະ</th>
+                    <th>ຍອດ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in data %}
+                <tr>
+                    <td class="num-cell">{{ forloop.counter }}</td>
+                    <td>{{ g.pickup_date|date:"d/m/Y" }}</td>
+                    <td>{{ g.pickup_time|time:"H:i" }}</td>
+                    <td style="font-weight:600;">{{ g.item_names }}</td>
+                    <td>{{ g.customer.get_name|default:"—" }}</td>
+                    <td>{{ g.customer.mobile|default:"—" }}</td>
+                    <td>
+                        <span class="status-pill
+                            {% if g.canonical.status == 'Delivered' %}st-delivered
+                            {% elif g.canonical.status == 'Cancelled' %}st-cancelled
+                            {% elif g.canonical.status == 'Confirmed' %}st-confirmed
+                            {% elif g.canonical.status == 'Processing' %}st-processing{% endif %}">
+                            {% if g.canonical.status == 'Delivered' %}ຮັບແລ້ວ
+                            {% elif g.canonical.status == 'Cancelled' %}ຍົກເລີກ
+                            {% elif g.canonical.status == 'Confirmed' %}ຢືນຢັນແລ້ວ
+                            {% elif g.canonical.status == 'Processing' %}ກຳລັງກຽມ
+                            {% else %}ລໍຖ້າມາຮັບ{% endif %}
+                        </span>
+                    </td>
+                    <td>{{ g.total_amount|dotformat }} ກີບ</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <div class="invoice-total">
+        <div class="total-box">
+            <div class="total-row-item">
+                <span>ຈຳນວນການຈອງ</span>
+                <span>{{ data|length }} ລາຍການ</span>
+            </div>
+            <div class="total-row-item grand">
+                <span>ລວມຍອດຈອງລ່ວງໜ້າ</span>
+                <span>{{ total|dotformat }} ກີບ</span>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-note">📭 ບໍ່ມີການຈອງລ່ວງໜ້າໃນສະຖານະນີ້</div>
+    {% endif %}
+
+    <div class="invoice-footer">
+        ໃບບິນຈອງລ່ວງໜ້າ ຮ້ານ ນ້ຳປັ່ນ VILLA &nbsp;·&nbsp; ໃບບິນນີ້ສ້າງໂດຍອັດຕະໂນມັດ
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1270,6 +1270,141 @@ def admin_advance_bookings_view(request):
     })
 
 
+# ―― Shared by both the Excel export and the printable invoice below: rebuilds
+# the same grouped/filtered advance-booking list admin_advance_bookings_view
+# shows, so "ທັງໝົດ" (All) always includes every past booking too. ――
+def _advance_bookings_for_export(request):
+    orders = models.Orders.objects.filter(pickup_date__isnull=False) \
+        .select_related('product', 'customer__user').order_by('pickup_date', 'pickup_time', 'order_date')
+
+    groups = {}
+    group_order = []
+    for order in orders:
+        key = order.order_group or str(order.id)
+        if key not in groups:
+            groups[key] = {'key': key, 'canonical': order, 'orders': [], 'customer': order.customer,
+                            'pickup_date': order.pickup_date, 'pickup_time': order.pickup_time}
+            group_order.append(key)
+        groups[key]['orders'].append(order)
+
+    for key in group_order:
+        g = groups[key]
+        non_cancelled = [o for o in g['orders'] if o.status != 'Cancelled']
+        g['canonical']    = non_cancelled[0] if non_cancelled else g['orders'][0]
+        g['total_amount'] = sum(float(o.amount or 0) for o in g['orders'])
+        g['item_names']   = ', '.join(o.product.name if o.product else (o.note or '—') for o in g['orders'])
+        g['item_qty']     = sum(o.quantity for o in g['orders'])
+
+    active_status = request.GET.get('status', 'All')
+    if active_status not in ['Pending', 'Confirmed', 'Processing', 'Delivered', 'Cancelled', 'All']:
+        active_status = 'All'
+
+    if active_status == 'All':
+        data = [groups[key] for key in group_order]
+    else:
+        data = [groups[key] for key in group_order if (groups[key]['canonical'].status or 'Pending') == active_status]
+    return data, active_status
+
+
+@login_required(login_url='adminlogin')
+def export_advance_bookings_excel(request):
+    from django.utils import timezone as _tz
+
+    data, active_status = _advance_bookings_for_export(request)
+    today = _tz.localdate()
+
+    LAO_FONT = "Phetsarath OT"
+    def hfont(size=12): return Font(name=LAO_FONT, bold=True, color="FFFFFF", size=size)
+    def dfont(bold=False, size=11, color="000000"): return Font(name=LAO_FONT, bold=bold, size=size, color=color)
+    center = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    left   = Alignment(horizontal="left",   vertical="center", wrap_text=True)
+    right  = Alignment(horizontal="right",  vertical="center")
+    thin   = Side(style="thin", color="CCCCCC")
+    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+    def fill(hex_color): return PatternFill("solid", fgColor=hex_color)
+    def dotfmt(n):
+        if n is None: return '—'
+        return f"{int(round(float(n))):,}".replace(',', '.') + ' ກີບ'
+
+    STATUS_LAO = {'Pending': 'ລໍຖ້າມາຮັບ', 'Confirmed': 'ຢືນຢັນແລ້ວ', 'Processing': 'ກຳລັງກຽມ', 'Delivered': 'ຮັບແລ້ວ', 'Cancelled': 'ຍົກເລີກ'}
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "ຈອງລ່ວງໜ້າ"[:31]
+    ws.sheet_view.showGridLines = False
+
+    ws.merge_cells("A1:H1")
+    c = ws["A1"]; c.value = f"ລາຍການຈອງລ່ວງໜ້າ — {STATUS_LAO.get(active_status, 'ທັງໝົດ')}"
+    c.font = hfont(size=14); c.fill = fill("7C3AED"); c.alignment = center
+    ws.row_dimensions[1].height = 36
+    ws.merge_cells("A2:H2")
+    s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VILLA Smoothie"
+    s.font = dfont(color="94A3B8", size=10); s.fill = fill("1E293B"); s.alignment = center
+    ws.row_dimensions[2].height = 22
+
+    headers = ["ລຳດັບ", "ວັນທີມາຮັບ", "ໂມງມາຮັບ", "ສິນຄ້າ", "ລູກຄ້າ", "ເບີໂທ", "ຈຳນວນ", "ລາຄາລວມ (ກີບ)", "ສະຖານະ"]
+    for ci, h in enumerate(headers, 1):
+        cell = ws.cell(row=3, column=ci, value=h)
+        cell.font = hfont(size=11); cell.fill = fill("1E3A5F"); cell.alignment = center; cell.border = border
+    ws.row_dimensions[3].height = 28
+
+    total = 0.0
+    for i, g in enumerate(data):
+        amt = g['total_amount']
+        total += amt
+        r = i + 4; rf = fill("F5F3FF") if i % 2 == 0 else fill("FFFFFF")
+        row_vals = [
+            i + 1,
+            g['pickup_date'].strftime('%d/%m/%Y') if g['pickup_date'] else '—',
+            g['pickup_time'].strftime('%H:%M') if g['pickup_time'] else '—',
+            g['item_names'],
+            g['customer'].get_name if g['customer'] else '—',
+            g['customer'].mobile if g['customer'] else '—',
+            g['item_qty'],
+            dotfmt(amt),
+            STATUS_LAO.get(g['canonical'].status or 'Pending', g['canonical'].status),
+        ]
+        aligns = [center, center, center, left, left, center, center, right, center]
+        for ci, (v, a) in enumerate(zip(row_vals, aligns), 1):
+            cell = ws.cell(row=r, column=ci, value=v)
+            cell.font = dfont(color="7C3AED" if ci == 8 else "374151", bold=(ci == 8))
+            cell.fill = rf; cell.alignment = a; cell.border = border
+        ws.row_dimensions[r].height = 22
+
+    tr = len(data) + 4
+    tot_vals = ["", "", "", f"ລວມ {len(data)} ລາຍການ", "", "", "", dotfmt(total), ""]
+    for ci, (v, a) in enumerate(zip(tot_vals, [center]*8 + [right]), 1):
+        cell = ws.cell(row=tr, column=ci, value=v)
+        cell.font = hfont(size=12)
+        cell.fill = fill("7C3AED") if ci == 8 else fill("1E3A5F")
+        cell.alignment = a; cell.border = border
+    ws.row_dimensions[tr].height = 28
+    for col, w in zip("ABCDEFGHI", [8, 13, 10, 28, 18, 15, 10, 16, 14]):
+        ws.column_dimensions[col].width = w
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="VILLA_ຈອງລ່ວງໜ້າ.xlsx"'
+    wb.save(response)
+    return response
+
+
+@login_required(login_url='adminlogin')
+def advance_bookings_invoice_view(request):
+    from django.utils import timezone as _tz
+
+    data, active_status = _advance_bookings_for_export(request)
+    total = sum(g['total_amount'] for g in data)
+    STATUS_LAO = {'Pending': 'ລໍຖ້າມາຮັບ', 'Confirmed': 'ຢືນຢັນແລ້ວ', 'Processing': 'ກຳລັງກຽມ', 'Delivered': 'ຮັບແລ້ວ', 'Cancelled': 'ຍົກເລີກ', 'All': 'ທັງໝົດ'}
+
+    return render(request, 'ecom/advance_bookings_invoice.html', {
+        'data': data,
+        'total': total,
+        'active_status': active_status,
+        'status_label': STATUS_LAO.get(active_status, 'ທັງໝົດ'),
+        'generated_at': _tz.localtime(),
+    })
+
+
 @login_required(login_url='adminlogin')
 def delete_order_view(request,pk):
     order=models.Orders.objects.get(id=pk)
@@ -2151,6 +2286,12 @@ def payment_success_view(request):
             except Exception as e:
                 print(f"  ✗ ERROR creating custom order: {e}")
 
+    # ລາຄາລວມທັງໝົດ ຕ້ອງບວກຄ່າຈັດສົ່ງເຂົ້ານຳ (ຄ່າທອັບປີ້ງ/ຂະໜາດ ຖືກລວມເຂົ້າ
+    # unit_price ຂອງແຕ່ລະລາຍການແລ້ວຜ່ານ _cust_unit_price — ບໍ່ໄດ້ຕົກຫຼົ່ນ)
+    subtotal = grand_total
+    delivery_fee_amount = d_fee if (cart or custom_cart_items) and _order_delivery != 'Pickup' else 0
+    grand_total = subtotal + delivery_fee_amount
+
     if cart or custom_cart_items:
         request.session['cart'] = {}
         request.session['cart_customizations'] = {}
@@ -2179,6 +2320,8 @@ def payment_success_view(request):
     return render(request, 'ecom/payment_success.html', {
         'queue_number':    queue_number,
         'grand_total':     grand_total,
+        'subtotal':        subtotal,
+        'delivery_fee_amount': delivery_fee_amount,
         'ordered_products': ordered_products,
         'delivery_type':   delivery_type,
         'payment_method':  payment_method,
@@ -2292,9 +2435,18 @@ def my_order_view(request):
         g['daily_seq'] = adv_seq
     groups = regular_groups + advance_groups
 
+    # In-site notification inbox — show recent status updates, mark them read
+    # once the customer has viewed this page.
+    notifications = list(customer.notifications.all()[:20])
+    unread_ids = [n.id for n in notifications if not n.is_read]
+    if unread_ids:
+        models.CustomerNotification.objects.filter(id__in=unread_ids).update(is_read=True)
+
     return render(request, 'ecom/my_order.html', {
         'groups': groups,
         'today': today,
+        'notifications': notifications,
+        'unread_notif_count': len(unread_ids),
     })
 
 
@@ -2577,10 +2729,13 @@ DELIVERED_NOTIFY_PICKUP   = ('🎉 ສິນຄ້າພ້ອມແລ້ວ', 
 DELIVERED_NOTIFY_DELIVERY = ('🚴 ໄລເດີ້ກຳລັງຈັດສົ່ງ', 'ອໍເດີຂອງທ່ານພ້ອມແລ້ວ ໄລເດີ້ກຳລັງນຳສົ່ງໃຫ້ທ່ານ')
 
 
-def _notify_customer_status(user, status, delivery_type=None):
-    """Best-effort push notification — a failure here must never break the
-    actual status update (e.g. customer never subscribed to notifications)."""
-    if not user:
+def _notify_customer_status(customer, status, delivery_type=None):
+    """Notify the customer of a status change two ways:
+    - always create an in-site inbox entry (CustomerNotification) shown on
+      /my-order — works for every customer, no opt-in needed
+    - best-effort browser push, only reaches customers who enabled it
+    Neither failure mode should ever break the actual status update."""
+    if not customer:
         return
     if status == 'Delivered':
         title, body = DELIVERED_NOTIFY_PICKUP if delivery_type == 'Pickup' else DELIVERED_NOTIFY_DELIVERY
@@ -2589,7 +2744,11 @@ def _notify_customer_status(user, status, delivery_type=None):
     else:
         return
     try:
-        send_user_notification(user=user, payload={'title': title, 'body': body, 'url': '/my-order'}, ttl=1000)
+        models.CustomerNotification.objects.create(customer=customer, title=title, body=body)
+    except Exception:
+        pass
+    try:
+        send_user_notification(user=customer.user, payload={'title': title, 'body': body, 'url': '/my-order'}, ttl=1000)
     except Exception:
         pass
 
@@ -2618,7 +2777,7 @@ def ajax_update_group_status(request):
     if customer:
         cust = models.Customer.objects.filter(id=customer).select_related('user').first()
         if cust:
-            _notify_customer_status(cust.user, status, delivery_type=delivery_type)
+            _notify_customer_status(cust, status, delivery_type=delivery_type)
     return JsonResponse({'ok': True, 'status': status, 'updated': updated})
 
 
@@ -2759,7 +2918,7 @@ def ajax_update_order_status(request, pk):
             order.fulfilled_at = timezone.now()
         order.save()
         if order.customer:
-            _notify_customer_status(order.customer.user, status, delivery_type=order.delivery_type)
+            _notify_customer_status(order.customer, status, delivery_type=order.delivery_type)
         return JsonResponse({'ok': True, 'status': status})
     return JsonResponse({'ok': False}, status=400)
 
