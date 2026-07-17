@@ -443,18 +443,20 @@ function _showOrderNotifToast(title, body, delayMs) {
             <div style="flex:1;min-width:0;">
                 <div style="font-weight:900;font-size:.95rem;margin-bottom:3px;">${title}</div>
                 <div style="font-size:.82rem;opacity:.92;line-height:1.5;">${body}</div>
+                <div style="font-size:.72rem;opacity:.75;margin-top:6px;font-weight:700;">👉 ກົດເພື່ອຕິດຕາມສະຖານະ</div>
             </div>
-            <button type="button" style="background:rgba(255,255,255,.22);border:none;color:#fff;width:24px;height:24px;border-radius:8px;cursor:pointer;flex-shrink:0;" onclick="this.closest('.order-notif-toast').remove()">✕</button>
+            <button type="button" style="background:rgba(255,255,255,.22);border:none;color:#fff;width:24px;height:24px;border-radius:8px;cursor:pointer;flex-shrink:0;" onclick="event.stopPropagation();this.closest('.order-notif-toast').remove()">✕</button>
         </div>`;
     t.className = 'order-notif-toast';
     Object.assign(t.style, {
         position:'fixed', bottom: (28 + delayMs / 100) + 'px', right:'28px', maxWidth:'340px',
         background:'linear-gradient(135deg,#7c3aed,#ec4899)',
-        color:'#fff', padding:'16px 18px', borderRadius:'18px',
+        color:'#fff', padding:'16px 18px', borderRadius:'18px', cursor:'pointer',
         zIndex:'999999', boxShadow:'0 16px 40px rgba(124,58,237,.4)',
         fontFamily:"'Lexend','Noto Sans Lao',sans-serif",
         opacity:'0', transform:'translateY(20px)', transition:'.3s',
     });
+    t.onclick = () => { window.location.href = '/my-order'; };
     document.body.appendChild(t);
     requestAnimationFrame(() => { t.style.opacity = '1'; t.style.transform = 'translateY(0)'; });
     setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; setTimeout(() => t.remove(), 300); }, 8000);
