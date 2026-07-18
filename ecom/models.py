@@ -27,10 +27,37 @@ class Product(models.Model):
     name=models.CharField(max_length=40)
     product_image= models.ImageField(upload_to='product_image/',null=True,blank=True)
     price = models.PositiveIntegerField()
-    description=models.CharField(max_length=40)
+    description=models.CharField(max_length=500)
     is_available = models.BooleanField(default=True)
     def __str__(self):
         return self.name
+
+    @property
+    def total_stock_qty(self):
+        return sum(c.stock_qty for c in self.colors.all())
+
+    @property
+    def total_remaining_qty(self):
+        return sum(c.remaining_qty for c in self.colors.all())
+
+
+class ProductColor(models.Model):
+    """A single color variant of a Product, with its own stock ledger —
+    admin sets stock_qty when receiving units and sold_qty as they sell."""
+    product    = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='colors')
+    color_name = models.CharField(max_length=40)
+    stock_qty  = models.PositiveIntegerField(default=0)
+    sold_qty   = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['id']
+
+    @property
+    def remaining_qty(self):
+        return max(self.stock_qty - self.sold_qty, 0)
+
+    def __str__(self):
+        return f"{self.product.name} — {self.color_name}"
 
 
 STATUS_CHOICES = (

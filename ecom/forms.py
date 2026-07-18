@@ -20,6 +20,9 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model=models.Product
         fields=['category','name','price','description','product_image','is_available']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4}),
+        }
 
 #address of shipment
 # ແກ້ໄຂບ່ອນນີ້ໃນໄຟລ໌ forms.py

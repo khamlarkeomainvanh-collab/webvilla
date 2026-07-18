@@ -331,6 +331,11 @@
                                 <span class="dot"></span>
                                 <span id="stock-lbl-{{ p.id }}">{% if p.is_available %}ມີສິນຄ້າ{% else %}ໝົດແລ້ວ{% endif %}</span>
                             </button>
+                            {% if p.colors.all %}
+                            <div style="margin-top:6px; font-size:.72rem; color:var(--dim); font-weight:700;">
+                                🎨 {{ p.colors.count }} ສີ &middot; ເຫຼືອ {{ p.total_remaining_qty }} ຄັນ
+                            </div>
+                            {% endif %}
                         </td>
 
                         <td class="no-print">

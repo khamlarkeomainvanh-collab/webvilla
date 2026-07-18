@@ -1066,6 +1066,51 @@ def admin_products_view(request):
     })
 
 
+def _sync_product_colors(request, product):
+    """Create/update/delete this product's ProductColor rows from the
+    submitted color_id[]/color_name[]/color_stock[]/color_sold[] arrays.
+    Rows with an empty color_id are new; existing rows whose id is not
+    resubmitted are removed (matches whatever the admin left in the form)."""
+    names  = request.POST.getlist('color_name[]')
+    stocks = request.POST.getlist('color_stock[]')
+    solds  = request.POST.getlist('color_sold[]')
+    ids    = request.POST.getlist('color_id[]')
+    while len(ids) < len(names):
+        ids.append('')
+    while len(solds) < len(names):
+        solds.append('0')
+
+    kept_ids = set()
+    for idx, name in enumerate(names):
+        name = (name or '').strip()
+        if not name:
+            continue
+        try:
+            stock = max(int(stocks[idx] or 0), 0)
+        except (ValueError, IndexError):
+            stock = 0
+        try:
+            sold = max(int(solds[idx] or 0), 0)
+        except (ValueError, IndexError):
+            sold = 0
+        color_id = ids[idx].strip() if idx < len(ids) else ''
+        pc = None
+        if color_id:
+            try:
+                pc = models.ProductColor.objects.get(id=int(color_id), product=product)
+                pc.color_name = name
+                pc.stock_qty = stock
+                pc.sold_qty = sold
+                pc.save()
+            except (models.ProductColor.DoesNotExist, ValueError):
+                pc = None
+        if pc is None:
+            pc = models.ProductColor.objects.create(product=product, color_name=name, stock_qty=stock, sold_qty=sold)
+        kept_ids.add(pc.id)
+
+    product.colors.exclude(id__in=kept_ids).delete()
+
+
 # admin add product by clicking on floating button
 @login_required(login_url='adminlogin')
 def admin_add_product_view(request):
@@ -1073,7 +1118,8 @@ def admin_add_product_view(request):
     if request.method=='POST':
         productForm=forms.ProductForm(request.POST, request.FILES)
         if productForm.is_valid():
-            productForm.save()
+            product = productForm.save()
+            _sync_product_colors(request, product)
         return HttpResponseRedirect('admin-products')
     return render(request,'ecom/admin_add_products.html',{'productForm':productForm})
 
@@ -1093,8 +1139,9 @@ def update_product_view(request,pk):
         productForm=forms.ProductForm(request.POST,request.FILES,instance=product)
         if productForm.is_valid():
             productForm.save()
+            _sync_product_colors(request, product)
             return redirect('admin-products')
-    return render(request,'ecom/admin_update_product.html',{'productForm':productForm})
+    return render(request,'ecom/admin_update_product.html',{'productForm':productForm, 'colors': product.colors.all()})
 
 
 @login_required(login_url='adminlogin')

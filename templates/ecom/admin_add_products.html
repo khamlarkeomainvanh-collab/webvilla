@@ -193,6 +193,28 @@ input[type="file"].form-control::-webkit-file-upload-button {
 .btn-submit:hover::after { transform: translateX(100%); }
 .btn-submit:hover { transform: translateY(-3px); box-shadow: 0 16px 38px rgba(190,24,93,.42); }
 .btn-submit:active { transform: translateY(0); }
+
+/* COLOR / STOCK ROWS */
+.color-rows { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.color-row { display: flex; gap: 10px; align-items: center; }
+.color-row .form-control { margin: 0; }
+.color-row .cr-name  { flex: 2; }
+.color-row .cr-stock { flex: 1; min-width: 90px; }
+.cr-remove {
+    flex-shrink: 0; width: 42px; height: 42px; border-radius: 12px;
+    border: 1.5px solid rgba(239,68,68,.3); background: #fef2f2; color: #ef4444;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 0.95rem; transition: .2s;
+}
+.cr-remove:hover { background: #fee2e2; transform: scale(1.05); }
+.btn-add-color {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 13px; border-radius: 14px;
+    border: 1.5px dashed var(--purple); background: var(--lav); color: var(--purple);
+    font-weight: 700; font-size: 0.88rem; cursor: pointer;
+    font-family: 'Lexend', 'Noto Sans Lao', sans-serif; transition: .2s;
+}
+.btn-add-color:hover { background: var(--lav2); }
 </style>
 
 <form method="post" enctype="multipart/form-data">
@@ -246,6 +268,20 @@ input[type="file"].form-control::-webkit-file-upload-button {
                 </div>
             </div>
 
+            <!-- Colors & Stock -->
+            <div class="section-label" style="margin-top:8px;"><i class="fas fa-palette"></i> ສີ ແລະ ສະຕອກ</div>
+
+            <div class="color-rows" id="colorRows">
+                <div class="color-row">
+                    <input type="text" class="form-control cr-name" name="color_name[]" placeholder="ຊື່ສີ ເຊັ່ນ: ແດງ, ດຳ, ຂາວ">
+                    <input type="number" class="form-control cr-stock" name="color_stock[]" placeholder="ຈຳນວນ" min="0">
+                    <button type="button" class="cr-remove" onclick="removeColorRow(this)"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+            <button type="button" class="btn-add-color" onclick="addColorRow()">
+                <i class="fas fa-plus"></i> ເພີ່ມສີ
+            </button>
+
             <button type="submit" class="btn-submit">
                 <i class="fas fa-save"></i> ບັນທຶກສິນຄ້າ
             </button>
@@ -253,5 +289,27 @@ input[type="file"].form-control::-webkit-file-upload-button {
 
     </div>
 </form>
+
+<script>
+function addColorRow() {
+    const wrap = document.getElementById('colorRows');
+    const row = document.createElement('div');
+    row.className = 'color-row';
+    row.innerHTML = `
+        <input type="text" class="form-control cr-name" name="color_name[]" placeholder="ຊື່ສີ ເຊັ່ນ: ແດງ, ດຳ, ຂາວ">
+        <input type="number" class="form-control cr-stock" name="color_stock[]" placeholder="ຈຳນວນ" min="0">
+        <button type="button" class="cr-remove" onclick="removeColorRow(this)"><i class="fas fa-trash"></i></button>
+    `;
+    wrap.appendChild(row);
+}
+function removeColorRow(btn) {
+    const wrap = document.getElementById('colorRows');
+    if (wrap.children.length > 1) {
+        btn.closest('.color-row').remove();
+    } else {
+        btn.closest('.color-row').querySelectorAll('input').forEach(i => i.value = '');
+    }
+}
+</script>
 
 {% endblock content %}
