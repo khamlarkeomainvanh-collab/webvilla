@@ -3096,7 +3096,10 @@ def admin_categories_view(request):
         name = request.POST.get('name', '').strip()
         if name:
             models.Category.objects.create(name=name)
-    categories = models.Category.objects.annotate(product_count=Count('products'))
+    categories = models.Category.objects.annotate(
+        product_count=Count('products', distinct=True),
+        color_count=Count('products__colors', distinct=True),
+    )
     return render(request, 'ecom/admin_categories.html', {'categories': categories})
 
 @login_required(login_url='adminlogin')
