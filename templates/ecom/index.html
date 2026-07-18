@@ -110,45 +110,6 @@ body {
 .promo-banner-title { font-weight: 800; color: var(--text); font-size: .95rem; }
 .promo-banner-msg { color: var(--muted); font-size: .84rem; margin-top: 2px; }
 
-/* ====== PROMO CAROUSEL ====== */
-.promo-wrap { max-width: 1320px; margin: 0 auto; padding: 30px 20px 0; }
-.promo-label {
-  font-size: .74rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 14px; padding-left: 2px;
-}
-.promo-frame { position: relative; border-radius: 18px; overflow: hidden; }
-.promo-frame::before, .promo-frame::after {
-  content: ''; position: absolute; top: 0; bottom: 0; width: 70px; z-index: 2; pointer-events: none;
-}
-.promo-frame::before { left: 0;  background: linear-gradient(90deg, var(--panel), transparent); }
-.promo-frame::after  { right: 0; background: linear-gradient(-90deg, var(--panel), transparent); }
-
-.promo-track { display: flex; gap: 16px; width: max-content; animation: promoScroll 30s linear infinite; }
-.promo-frame:hover .promo-track { animation-play-state: paused; }
-@keyframes promoScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-.promo-slide {
-  position: relative; flex: 0 0 auto;
-  width: clamp(230px, 30vw, 340px); aspect-ratio: 4 / 3;
-  border-radius: 16px; overflow: hidden;
-  background: linear-gradient(135deg,#e2e8f0,#f1f5f9);
-  border: 1px solid var(--line);
-}
-.promo-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.promo-slide .ps-ph {
-  width: 100%; height: 100%; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 8px; color: #94a3b8;
-}
-.promo-slide .ps-ph span:first-child { font-size: 2.2rem; }
-.promo-slide .ps-ph span:last-child { font-weight: 700; font-size: .8rem; letter-spacing: .3px; }
-.promo-slide .ps-overlay {
-  position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(180deg, transparent 40%, rgba(6,10,20,.82) 100%);
-}
-.promo-slide .ps-cap { position: absolute; left: 18px; right: 18px; bottom: 14px; color: #fff; }
-.promo-slide .ps-cap .pt { font-weight: 800; font-size: .92rem; letter-spacing: .1px; }
-.promo-slide .ps-cap .ps { font-size: .74rem; opacity: .78; margin-top: 3px; font-weight: 500; }
-
 /* ====== CATEGORY NAV ====== */
 .cat-wrap {
   position: sticky; top: 172px; z-index: 200;
@@ -489,55 +450,6 @@ body {
   </div>
 </div>
 
-<!-- PROMO CAROUSEL -->
-<div class="promo-wrap">
-  <div class="promo-label">Showroom · EX ມໍເຕີ້</div>
-  <div class="promo-frame">
-    <div class="promo-track" id="promoTrack">
-      {% for _rep in "12" %}
-      <div class="promo-slide">
-        <img src="{% static 'images/shop1.jpg' %}" alt="ໜ້າຮ້ານ EX ມໍເຕີ້"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span><i class="fas fa-store"></i></span><span>ໜ້າຮ້ານ EX ມໍເຕີ້</span></div>
-        <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">Showroom ວຽງຈັນ</div><div class="ps">ບ້ານ ໄຊສົມບູນ · ເປີດທຸກມື້</div></div>
-      </div>
-
-      <div class="promo-slide">
-        <img src="{% static 'images/shop2.jpg' %}" alt="ລົດໄຟຟ້າ EX ມໍເຕີ້"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span><i class="fas fa-bolt"></i></span><span>ລົດໄຟຟ້າ EX ມໍເຕີ້</span></div>
-        <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">ລົດໄຟຟ້າ Premium</div><div class="ps">ຄຸນນະພາບແທ້ · ຮັບປະກັນ</div></div>
-      </div>
-
-      <div class="promo-slide">
-        <img src="{% static 'images/shop3.jpg' %}" alt="Showroom EX ມໍເຕີ້"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span><i class="fas fa-motorcycle"></i></span><span>Showroom EX ມໍເຕີ້</span></div>
-        <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">ລົດຫຼາກຫຼາຍຮຸ່ນ</div><div class="ps">ພ້ອມໃຫ້ບໍລິການ ແລະ ທົດລອງຂັບ</div></div>
-      </div>
-
-      <div class="promo-slide">
-        <img src="{% static 'images/shop4.jpg' %}" alt="ແບັດເຕີຣີ EX ມໍເຕີ້"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span><i class="fas fa-car-battery"></i></span><span>ແບັດເຕີຣີ</span></div>
-        <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">ແບັດເຕີຣີຄຸນນະພາບ</div><div class="ps">ໄລຍະທາງໄກ · ຊາດໄວ</div></div>
-      </div>
-
-      <div class="promo-slide">
-        <img src="{% static 'images/shop5.jpg' %}" alt="ບໍລິການຫຼັງການຂາຍ EX ມໍເຕີ້"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span><i class="fas fa-headset"></i></span><span>ບໍລິການຫຼັງການຂາຍ</span></div>
-        <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">ບໍລິການຫຼັງການຂາຍ</div><div class="ps">ຮັບປະກັນ · ສ້ອມແປງ · ອະໄຫຼ່ແທ້</div></div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</div>
 
 <!-- CATEGORY NAV -->
 <div class="cat-wrap">
