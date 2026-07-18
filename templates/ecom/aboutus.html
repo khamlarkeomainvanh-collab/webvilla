@@ -273,10 +273,8 @@
   .sil-sub  { font-size:.82rem; color:rgba(255,255,255,.75); margin-top:3px; }
 
   /* ════════════════════════════════════════
-     MENU SECTION
+     SECTION HEADERS (shared)
   ════════════════════════════════════════ */
-  .menu-section { background:#fff; padding:80px 32px; }
-  .menu-inner   { max-width:1100px; margin:0 auto; }
   .sec-head      { text-align:center; margin-bottom:48px; }
   .sec-eyebrow {
     display:inline-flex; align-items:center; gap:10px;
@@ -295,30 +293,6 @@
     -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
   }
   .sec-sub { font-size:1.15rem; color:var(--text2); font-weight:600; }
-
-  .menu-grid {
-    display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-    gap:20px; margin-top:40px;
-  }
-  .menu-card {
-    background:#fff; border:2px solid var(--lav2);
-    border-radius:28px; overflow:hidden; transition:.35s;
-    box-shadow:0 4px 16px rgba(124,58,237,.06);
-    position:relative;
-  }
-  .menu-card::after {
-    content:''; position:absolute; bottom:0; left:0; right:0; height:4px;
-    background:linear-gradient(90deg,var(--pk),var(--pu)); transform:scaleX(0); transition:.3s;
-  }
-  .menu-card:hover { border-color:var(--lav2); transform:translateY(-9px); box-shadow:0 24px 56px rgba(124,58,237,.18); }
-  .menu-card:hover::after { transform:scaleX(1); }
-  .mc-img { width:100%; height:200px; overflow:hidden; background:var(--lav); }
-  .mc-img img { width:100%; height:100%; object-fit:cover; transition:.5s; }
-  .menu-card:hover .mc-img img { transform:scale(1.09); }
-  .mc-body { padding:20px 18px 22px; }
-  .mc-name { font-weight:900; color:var(--text); font-size:1.15rem; }
-  .mc-sub  { color:var(--text3); font-size:.88rem; margin-top:6px; font-weight:600; }
-  .mc-ico  { font-size:3.5rem; margin-bottom:14px; display:block; }
 
   .btn-center { text-align:center; margin-top:50px; }
   .btn-main {
@@ -442,7 +416,6 @@
     .slider-slide { height:280px; }
     .slider-btn { width:44px; height:44px; font-size:1rem; }
     .slide-caption .cap-text { font-size:1.1rem; }
-    .menu-grid { grid-template-columns:repeat(2,1fr); }
     .thumb-item { min-width:90px; height:60px; }
     .promo-bar { padding:22px 0; }
   }
@@ -459,18 +432,18 @@
 <!-- ══ PROMO TICKER  ×5 BIG ══ -->
 <div class="promo-bar">
   <div class="promo-track">
-    <span>🍓 ນ້ຳໝາກໄມ້ສົດ 100%</span>
-    <span>🥑 ໄຮ້ສານກັນເສຍ</span>
-    <span>🍊 Premium Smoothie &amp; Coffee</span>
-    <span>🥝 ສຸຂະພາບດີ ເລີ່ມທີ່ EX ມໍເຕີ້</span>
-    <span>🍍 ເປີດທຸກວັນ 09:00 — 18:00</span>
-    <span>🧋 ສັ່ງ Online ຮອດໜ້າ</span>
-    <span>🍓 ນ້ຳໝາກໄມ້ສົດ 100%</span>
-    <span>🥑 ໄຮ້ສານກັນເສຍ</span>
-    <span>🍊 Premium Smoothie &amp; Coffee</span>
-    <span>🥝 ສຸຂະພາບດີ ເລີ່ມທີ່ EX ມໍເຕີ້</span>
-    <span>🍍 ເປີດທຸກວັນ 09:00 — 18:00</span>
-    <span>🧋 ສັ່ງ Online ຮອດໜ້າ</span>
+    <span>⚡ ລົດໄຟຟ້າແທ້ 100%</span>
+    <span>🔋 ແບັດເຕີຣີຄຸນນະພາບ</span>
+    <span>🏍️ Premium EV Dealer</span>
+    <span>🛡️ ຮັບປະກັນທຸກຄັນ ເລີ່ມທີ່ EX ມໍເຕີ້</span>
+    <span>🕘 ເປີດທຸກວັນ 09:00 — 18:00</span>
+    <span>📱 ຈອງ Online ງ່າຍໆ</span>
+    <span>⚡ ລົດໄຟຟ້າແທ້ 100%</span>
+    <span>🔋 ແບັດເຕີຣີຄຸນນະພາບ</span>
+    <span>🏍️ Premium EV Dealer</span>
+    <span>🛡️ ຮັບປະກັນທຸກຄັນ ເລີ່ມທີ່ EX ມໍເຕີ້</span>
+    <span>🕘 ເປີດທຸກວັນ 09:00 — 18:00</span>
+    <span>📱 ຈອງ Online ງ່າຍໆ</span>
   </div>
 </div>
 
@@ -588,42 +561,6 @@
 </div><!-- /gallery-section -->
 
 
-
-
-<!-- ══ MENU ══ -->
-<div class="menu-section">
-  <div class="menu-inner">
-    <div class="sec-head" data-reveal="up">
-      <div class="sec-eyebrow">Our Menu</div>
-      <div class="sec-title-big">ເມນູ<span class="v">ໂດດເດັ່ນ</span></div>
-      <div class="sec-sub">ເຄື່ອງດື່ມຫຼາກຫຼາຍ ຕາມໃຈທ່ານ 🍹</div>
-    </div>
-    <div class="menu-grid">
-      {% if featured_products %}
-        {% for p in featured_products %}
-        <div class="menu-card" data-reveal="up">
-          <div class="mc-img">
-            <img src="{{ p.product_image.url }}" alt="{{ p.name }}" loading="lazy">
-          </div>
-          <div class="mc-body">
-            <div class="mc-name">{{ p.name }}</div>
-            <div class="mc-sub">{{ p.description }}</div>
-          </div>
-        </div>
-        {% endfor %}
-      {% else %}
-        <div class="menu-card" data-reveal="up" data-d="1"><div class="mc-body"><span class="mc-ico">🍓</span><div class="mc-name">Smoothie</div><div class="mc-sub">ນ້ຳໝາກໄມ້ປັ່ນ</div></div></div>
-        <div class="menu-card" data-reveal="up" data-d="2"><div class="mc-body"><span class="mc-ico">☕</span><div class="mc-name">Coffee</div><div class="mc-sub">ກາເຟສົດ</div></div></div>
-        <div class="menu-card" data-reveal="up" data-d="3"><div class="mc-body"><span class="mc-ico">🧋</span><div class="mc-name">Bubble Tea</div><div class="mc-sub">ຊາໄຂ່ມຸກ</div></div></div>
-        <div class="menu-card" data-reveal="up" data-d="4"><div class="mc-body"><span class="mc-ico">🍹</span><div class="mc-name">Soda</div><div class="mc-sub">ໂຊດາໝາກໄມ້</div></div></div>
-        <div class="menu-card" data-reveal="up" data-d="5"><div class="mc-body"><span class="mc-ico">🥛</span><div class="mc-name">Milk</div><div class="mc-sub">ນົມຫຼາກຊະນິດ</div></div></div>
-      {% endif %}
-    </div>
-    <div class="btn-center" data-reveal="fade">
-      <a href="/" class="btn-main"><i class="fas fa-store"></i> ເບີ່ງເມນູທັງໝົດ</a>
-    </div>
-  </div>
-</div>
 
 
 <!-- ══ CONTACT ══ -->

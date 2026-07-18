@@ -2888,9 +2888,7 @@ def edit_profile_view(request):
 #------------------------ ABOUT US AND CONTACT US VIEWS START --------------------
 #---------------------------------------------------------------------------------
 def aboutus_view(request):
-    from .models import Product
-    featured = Product.objects.filter(product_image__isnull=False).exclude(product_image='').order_by('?')[:6]
-    return render(request, 'ecom/aboutus.html', {'featured_products': featured})
+    return render(request, 'ecom/aboutus.html', {})
 
 
 def queue_view(request):
