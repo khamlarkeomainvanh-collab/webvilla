@@ -11,6 +11,7 @@ from django.http import HttpResponseRedirect,HttpResponse
 from django.core.mail import send_mail
 from django.contrib.auth.models import Group, User
 from django.contrib.auth import login as auth_login
+from django.contrib.auth.forms import AuthenticationForm as _AuthForm
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.contrib import messages
 from django.conf import settings
@@ -83,6 +84,20 @@ def _is_valid_lao_mobile(raw):
     return bool(LAO_MOBILE_RE.match(_normalize_lao_mobile(raw)))
 
 
+def customer_login_view(request):
+    login_form = _AuthForm(request, data=request.POST or None)
+    if request.method == 'POST':
+        if login_form.is_valid():
+            auth_login(request, login_form.get_user())
+            return HttpResponseRedirect('afterlogin')
+    return render(request, 'ecom/auth.html', context={
+        'form': login_form,
+        'userForm': forms.CustomerUserForm(),
+        'customerForm': forms.CustomerForm(),
+        'active_tab': 'login',
+    })
+
+
 def customer_signup_view(request):
     userForm = forms.CustomerUserForm()
     customerForm = forms.CustomerForm()
@@ -94,23 +109,23 @@ def customer_signup_view(request):
         otp_mobile = request.session.get('otp_mobile', '')
         if userForm.is_valid() and customerForm.is_valid():
             if verify_method == 'otp' and not otp_ok:
-                mydict = {'userForm': userForm, 'customerForm': customerForm, 'error': 'ກາລຸນາຢືນຢັນ OTP ກ່ອນ'}
-                return render(request, 'ecom/customersignup.html', context=mydict)
+                mydict = {'userForm': userForm, 'customerForm': customerForm, 'form': _AuthForm(), 'error': 'ກາລຸນາຢືນຢັນ OTP ກ່ອນ', 'active_tab': 'signup'}
+                return render(request, 'ecom/auth.html', context=mydict)
             mobile_raw = request.POST.get('mobile', otp_mobile).strip()
             if not _is_valid_lao_mobile(mobile_raw):
                 mydict = {
-                    'userForm': userForm, 'customerForm': customerForm,
-                    'error': 'ກະລຸນາໃສ່ເບີໂທທີ່ຖືກຕ້ອງ (ຮູບແບບ 20XXXXXXXX ຂອງລາວ)',
+                    'userForm': userForm, 'customerForm': customerForm, 'form': _AuthForm(),
+                    'error': 'ກະລຸນາໃສ່ເບີໂທທີ່ຖືກຕ້ອງ (ຮູບແບບ 20XXXXXXXX ຂອງລາວ)', 'active_tab': 'signup',
                 }
-                return render(request, 'ecom/customersignup.html', context=mydict)
+                return render(request, 'ecom/auth.html', context=mydict)
             target_mobile = _normalize_lao_mobile(mobile_raw)
             for existing_cust in models.Customer.objects.exclude(mobile=''):
                 if _normalize_lao_mobile(existing_cust.mobile) == target_mobile:
                     mydict = {
-                        'userForm': userForm, 'customerForm': customerForm,
-                        'error': 'ເບີໂທນີ້ລົງທະບຽນເປັນສະມາຊິກແລ້ວ — ກະລຸນາໄປໜ້າ "ເຂົ້າສູ່ລະບົບ" ແທນ (ໃຊ້ຊື່ ຫຼື ເບີໂທ ເພື່ອເຂົ້າ)',
+                        'userForm': userForm, 'customerForm': customerForm, 'form': _AuthForm(),
+                        'error': 'ເບີໂທນີ້ລົງທະບຽນເປັນສະມາຊິກແລ້ວ — ກະລຸນາໄປໜ້າ "ເຂົ້າສູ່ລະບົບ" ແທນ (ໃຊ້ຊື່ ຫຼື ເບີໂທ ເພື່ອເຂົ້າ)', 'active_tab': 'signup',
                     }
-                    return render(request, 'ecom/customersignup.html', context=mydict)
+                    return render(request, 'ecom/auth.html', context=mydict)
             user = userForm.save(commit=False)
             # auto-generate unique username from mobile number
             mobile_clean = mobile_raw.lstrip('+').replace('856', '', 1).replace(' ', '').lstrip('0') or 'user'
@@ -133,9 +148,9 @@ def customer_signup_view(request):
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             auth_login(request, user)
             return HttpResponseRedirect('afterlogin')
-        mydict = {'userForm': userForm, 'customerForm': customerForm, 'error': 'ກາລຸນາກວດຂໍ້ມູນທີ່ປ້ອນໃຫ້ຖືກຕ້ອງ'}
-        return render(request, 'ecom/customersignup.html', context=mydict)
-    return render(request, 'ecom/customersignup.html', context={'userForm': userForm, 'customerForm': customerForm})
+        mydict = {'userForm': userForm, 'customerForm': customerForm, 'form': _AuthForm(), 'error': 'ກາລຸນາກວດຂໍ້ມູນທີ່ປ້ອນໃຫ້ຖືກຕ້ອງ', 'active_tab': 'signup'}
+        return render(request, 'ecom/auth.html', context=mydict)
+    return render(request, 'ecom/auth.html', context={'userForm': userForm, 'customerForm': customerForm, 'form': _AuthForm(), 'active_tab': 'signup'})
 
 
 def _find_customer_by_mobile(mobile_raw):

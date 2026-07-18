@@ -62,7 +62,7 @@ urlpatterns = [
     path('customersignup', views.customer_signup_view),
     path('ajax-send-otp', views.ajax_send_otp, name='ajax-send-otp'),
     path('ajax-verify-otp', views.ajax_verify_otp, name='ajax-verify-otp'),
-    path('customerlogin', LoginView.as_view(template_name='ecom/customerlogin.html'),name='customerlogin'),
+    path('customerlogin', views.customer_login_view, name='customerlogin'),
     path('forgot-password', views.forgot_password_view, name='forgot-password'),
     path('customer-home', views.customer_home_view,name='customer-home'),
     path('my-order', views.my_order_view,name='my-order'),
