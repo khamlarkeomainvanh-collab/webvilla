@@ -1,5 +1,6 @@
 {% extends 'ecom/customer_base.html' %}
 {% load static %}
+{% load lao_filters %}
 {% block content %}
 
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&family=Noto+Sans+Lao:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -39,7 +40,7 @@ body {
 .hero::before {
   content:''; position:absolute; top:-30%; right:-10%;
   width: 620px; height: 620px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(15,23,42,.22) 0%, transparent 68%);
+  background: radial-gradient(circle, rgba(239,68,68,.16) 0%, transparent 68%);
   pointer-events: none;
 }
 .hero::after {
@@ -51,22 +52,17 @@ body {
 .hero-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
 .hero-kicker {
   display: inline-flex; align-items: center; gap: 8px;
-  color: #6ee7b7; font-size: .78rem; font-weight: 700;
+  color: #f87171; font-size: .78rem; font-weight: 700;
   letter-spacing: 3px; text-transform: uppercase;
   margin-bottom: 18px; opacity: .9;
 }
 .hero-kicker i { font-size: .7rem; }
 .hero h1 {
   font-size: clamp(2.2rem, 5vw + 1rem, 3.6rem); font-weight: 800;
-  color: #fff; margin-bottom: 14px; line-height: 1.08;
+  color: #fff; margin-bottom: 34px; line-height: 1.08;
   letter-spacing: -1px;
 }
-.hero h1 span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.hero p {
-  font-size: clamp(.92rem, 1vw + .6rem, 1.08rem); color: rgba(255,255,255,.62);
-  font-weight: 400; margin-bottom: 30px; letter-spacing: .2px;
-  max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.7;
-}
+.hero h1 span { background: linear-gradient(120deg, #2563eb 0%, #ef4444 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .hero-cta { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
 .hero-btn {
   display:inline-flex; align-items:center; gap:9px;
@@ -84,16 +80,6 @@ body {
   border: 1.5px solid rgba(255,255,255,.18); backdrop-filter: blur(6px);
 }
 .hero-btn-sec:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.32); transform: translateY(-3px); color:#fff; }
-
-/* stat strip */
-.hero-stats {
-  position: relative; z-index: 1; display: flex; justify-content: center; gap: clamp(20px,5vw,52px);
-  margin-top: 42px; flex-wrap: wrap; padding-top: 30px; border-top: 1px solid rgba(255,255,255,.1);
-  max-width: 560px; margin-left: auto; margin-right: auto;
-}
-.hero-stat { text-align: center; }
-.hero-stat b { display:block; font-size: 1.35rem; font-weight: 800; color:#fff; letter-spacing:-.5px; }
-.hero-stat span { font-size: .74rem; color: rgba(255,255,255,.5); font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
 
 /* ====== ANNOUNCEMENTS ====== */
 .closure-banner { max-width: 1320px; margin: 0 auto; padding: 22px clamp(16px,4vw,24px) 0; }
@@ -293,15 +279,6 @@ body {
 .c-price { display: flex; align-items: baseline; gap: 6px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px dashed var(--line); }
 .c-price .amount { font-size: clamp(1.2rem, 1.3vw + .8rem, 1.5rem); font-weight: 800; color: var(--text); letter-spacing: -.5px; }
 .c-price .unit { font-size: .78rem; font-weight: 600; color: var(--muted); }
-
-.select-model-btn {
-  width: 100%; padding: 11px; margin-bottom: 12px; border-radius: 10px;
-  background: var(--paper); border: 1.5px solid var(--blue); color: var(--blue);
-  font-size: .82rem; font-weight: 700; font-family:'Lexend','Noto Sans Lao',sans-serif;
-  cursor: pointer; transition: .2s;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.select-model-btn:hover { background: var(--blue); color: #fff; }
 
 .qty-row {
   display: flex; align-items: center; justify-content: center; gap: clamp(12px, 4vw, 20px);
@@ -504,16 +481,10 @@ body {
 <div class="hero">
   <div class="hero-inner">
     <div class="hero-kicker"><i class="fas fa-bolt"></i> ຕົວແທນຈຳໜ່າຍລົດໄຟຟ້າ</div>
-    <h1>EX ມໍເຕີ້ <span>EV</span></h1>
-    <p>ຈອງຄິວເລືອກຊົມ ແລະ ຮັບລົດໄຟຟ້າຂອງທ່ານ — ລົດຈັກ, ລົດຖີບ ແລະ ລົດໃຫຍ່ ຄັດສັນຄຸນນະພາບ ພ້ອມການຮັບປະກັນ</p>
+    <h1>EX <span>ມໍເຕີ້</span></h1>
     <div class="hero-cta">
       <a href="/queue#payment" class="hero-btn hero-btn-main"><i class="fas fa-qrcode"></i> ສະແກນຊຳລະ</a>
       <a href="/queue#contact" class="hero-btn hero-btn-sec"><i class="fas fa-phone"></i> ຕິດຕໍ່ຮ້ານ</a>
-    </div>
-    <div class="hero-stats">
-      <div class="hero-stat"><b>100%</b><span>ລົດແທ້</span></div>
-      <div class="hero-stat"><b>ຮັບປະກັນ</b><span>ທຸກຄັນ</span></div>
-      <div class="hero-stat"><b>ຈອງອອນລາຍ</b><span>ງ່າຍ ໄວ</span></div>
     </div>
   </div>
 </div>
@@ -622,13 +593,12 @@ body {
     {% endif %}
 
     <div class="view-trigger"
-         id="viewTrigger-{{ p.id }}"
          onclick="openProductModal(this)"
          data-id="{{ p.id }}"
          data-name="{{ p.name }}"
          data-cat="{{ p.category.name|default:'' }}{% if p.subcategory %} · {{ p.subcategory.name }}{% endif %}"
          data-desc="{{ p.description|default:'ຄຸນນະພາບແທ້ ຮັບປະກັນທຸກຄັນ' }}"
-         data-price="{{ p.price }}"
+         data-price="{{ p.price|dotformat }}"
          data-available="{% if p.is_available %}1{% else %}0{% endif %}"
          data-colors="{% for c in p.colors.all %}{{ c.color_name }}::{{ c.remaining_qty }}{% if not forloop.last %}||{% endif %}{% endfor %}"
          data-images="{% if p.product_image %}{{ p.product_image.url }}{% endif %}||{% for g in p.extra_images.all %}{{ g.image.url }}{% if not forloop.last %}||{% endif %}{% endfor %}">
@@ -650,15 +620,9 @@ body {
 
     <div class="card-body">
       <div class="c-price">
-        <span class="amount">{{ p.price }}</span>
+        <span class="amount">{{ p.price|dotformat }}</span>
         <span class="unit">ກີບ</span>
       </div>
-
-      {% if p.colors.all %}
-      <button type="button" class="select-model-btn" onclick="openProductModal(document.getElementById('viewTrigger-{{ p.id }}'))">
-        <i class="fas fa-palette"></i> ເລືອກລຸ້ນ ແລະ ສີ ({{ p.colors.count }} ສີ)
-      </button>
-      {% endif %}
 
       <div class="qty-row">
         <button class="q-btn" onclick="chgQty('{{ p.id }}',-1)"><i class="fas fa-minus"></i></button>
@@ -667,7 +631,7 @@ body {
       </div>
 
       <button class="add-btn" id="btn-{{ p.id }}" onclick="{% if request.user.is_authenticated %}addCart('{{ p.id }}'){% else %}openAuthModal(){% endif %}">
-        {% if p.is_available %}<i class="fas fa-cart-plus"></i> ເພີ່ມລົງກະຕ່າ{% else %}<i class="fas fa-ban"></i> ໝົດແລ້ວ{% endif %}
+        {% if p.is_available %}<i class="fas fa-cart-plus"></i> ເພີ່ມການສັ່ງຈອງ{% else %}<i class="fas fa-ban"></i> ໝົດແລ້ວ{% endif %}
       </button>
     </div>
   </div>
@@ -708,7 +672,7 @@ body {
         <span><span id="pmPrice" class="pm-price"></span> <span class="pm-unit">ກີບ</span></span>
       </div>
       <button class="pm-add-btn" id="pmAddBtn" onclick="{% if request.user.is_authenticated %}addCartFromModal(){% else %}closeProductModal(); openAuthModal();{% endif %}">
-        <i class="fas fa-cart-plus"></i> ເພີ່ມລົງກະຕ່າ
+        <i class="fas fa-cart-plus"></i> ເພີ່ມການສັ່ງຈອງ
       </button>
     </div>
   </div>
