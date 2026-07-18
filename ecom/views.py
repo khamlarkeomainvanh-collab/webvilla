@@ -21,7 +21,7 @@ from django.shortcuts import get_object_or_404
 from webpush import send_group_notification, send_user_notification
 
 def home_view(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and not is_customer(request.user):
         return HttpResponseRedirect('afterlogin')
     cat_id = request.GET.get('cat')
     if cat_id:
@@ -30,7 +30,10 @@ def home_view(request):
         products = models.Product.objects.all()
     products = products.prefetch_related('colors', 'extra_images')
     categories = models.Category.objects.all()
-    if 'product_ids' in request.COOKIES:
+    if request.user.is_authenticated:
+        cart = request.session.get('cart', {})
+        product_count_in_cart = sum(cart.values())
+    elif 'product_ids' in request.COOKIES:
         product_ids = request.COOKIES['product_ids']
         counter = product_ids.split('|')
         product_count_in_cart = len(set(counter))
@@ -269,7 +272,7 @@ def is_customer(user):
 #---------AFTER ENTERING CREDENTIALS WE CHECK WHETHER USERNAME AND PASSWORD IS OF ADMIN,CUSTOMER
 def afterlogin_view(request):
     if is_customer(request.user):
-        return redirect('customer-home')
+        return redirect('/')
     else:
         return redirect('admin-dashboard')
 
@@ -1600,8 +1603,11 @@ def ajax_check_new_custom_orders(request):
 def search_view(request):
     # whatever user write in search box we get in query
     query = request.GET['query']
-    products=models.Product.objects.all().filter(name__icontains=query)
-    if 'product_ids' in request.COOKIES:
+    products=models.Product.objects.all().filter(name__icontains=query).prefetch_related('colors', 'extra_images')
+    if request.user.is_authenticated:
+        cart = request.session.get('cart', {})
+        product_count_in_cart = sum(cart.values())
+    elif 'product_ids' in request.COOKIES:
         product_ids = request.COOKIES['product_ids']
         counter=product_ids.split('|')
         product_count_in_cart=len(set(counter))
@@ -1612,8 +1618,6 @@ def search_view(request):
     word="ຜົນການຄົ້ນຫາສີນຄ້າ :"
 
     categories = models.Category.objects.all()
-    if request.user.is_authenticated:
-        return render(request, 'ecom/customer_home.html', {'products': products, 'word': word, 'categories': categories, 'product_count_in_cart': product_count_in_cart})
     return render(request, 'ecom/index.html', {'products': products, 'word': word, 'categories': categories, 'product_count_in_cart': product_count_in_cart})
 
 
@@ -1954,29 +1958,11 @@ def remove_custom_cart_item_view(request, custom_id):
 #---------------------------------------------------------------------------------
 #------------------------ CUSTOMER RELATED VIEWS START ------------------------------
 #---------------------------------------------------------------------------------
-@login_required(login_url='customerlogin')
-@user_passes_test(is_customer)
 def customer_home_view(request):
-    categories = models.Category.objects.all()
+    """The customer shop now lives entirely on the main site ('/') for both
+    guests and logged-in customers — this route just bounces old links there."""
     cat_id = request.GET.get('cat')
-    if cat_id:
-        try:
-            products = models.Product.objects.filter(category_id=int(cat_id))
-        except (ValueError, TypeError):
-            products = models.Product.objects.all()
-    else:
-        products = models.Product.objects.all()
-    products = products.prefetch_related('colors', 'extra_images')
-    cart = request.session.get('cart', {})
-    product_count_in_cart = sum(cart.values())
-    return render(request, 'ecom/customer_home.html', {
-        'products': products,
-        'categories': categories,
-        'selected_cat': int(cat_id) if cat_id else None,
-        'product_count_in_cart': product_count_in_cart,
-        'closure_announcement': models.Announcement.objects.filter(kind='closed', is_active=True).order_by('-id').first(),
-        'promo_announcements': models.Announcement.objects.filter(kind='promo', is_active=True),
-    })
+    return redirect('/?cat=' + cat_id if cat_id else '/')
 
 
 

@@ -291,6 +291,7 @@ body {
 }
 .add-btn:hover { background: var(--grad); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(15,23,42,.3); }
 .add-btn:active { transform: scale(.97); }
+.add-btn.added { background: var(--grad); }
 
 /* ====== SOLD-OUT ====== */
 .card.is-sold-out .img-box img { filter: grayscale(1) brightness(.8); }
@@ -566,6 +567,7 @@ body {
 
     <div class="view-trigger"
          onclick="openProductModal(this)"
+         data-id="{{ p.id }}"
          data-name="{{ p.name }}"
          data-cat="{{ p.category.name|default:'' }}"
          data-desc="{{ p.description|default:'ຄຸນນະພາບແທ້ ຮັບປະກັນທຸກຄັນ' }}"
@@ -602,7 +604,7 @@ body {
         <button class="q-btn" onclick="chgQty('{{ p.id }}',1)"><i class="fas fa-plus"></i></button>
       </div>
 
-      <button class="add-btn" onclick="openAuthModal()">
+      <button class="add-btn" id="btn-{{ p.id }}" onclick="{% if request.user.is_authenticated %}addCart('{{ p.id }}'){% else %}openAuthModal(){% endif %}">
         {% if p.is_available %}<i class="fas fa-cart-plus"></i> ເພີ່ມລົງກະຕ່າ{% else %}<i class="fas fa-ban"></i> ໝົດແລ້ວ{% endif %}
       </button>
     </div>
@@ -643,7 +645,7 @@ body {
         <span class="pm-price-label">ລາຄາ</span>
         <span><span id="pmPrice" class="pm-price"></span> <span class="pm-unit">ກີບ</span></span>
       </div>
-      <button class="pm-add-btn" onclick="closeProductModal(); openAuthModal();">
+      <button class="pm-add-btn" id="pmAddBtn" onclick="{% if request.user.is_authenticated %}addCartFromModal(){% else %}closeProductModal(); openAuthModal();{% endif %}">
         <i class="fas fa-cart-plus"></i> ເພີ່ມລົງກະຕ່າ
       </button>
     </div>
@@ -677,6 +679,15 @@ function chgQty(id, d) {
   const v = parseInt(el.textContent) + d;
   if (v >= 1 && v <= 20) el.textContent = v;
 }
+function addCart(id) {
+  const qty = document.getElementById('qty-' + id).textContent;
+  const btn = document.getElementById('btn-' + id);
+  btn.innerHTML = '<i class="fas fa-check"></i> ເພີ່ມສຳເລັດ!';
+  btn.classList.add('added');
+  setTimeout(() => {
+    window.location.href = '/add-to-cart/' + id + '?quantity=' + qty;
+  }, 400);
+}
 function openAuthModal()  { document.getElementById('authOverlay').classList.add('open'); }
 function closeAuthModal() { document.getElementById('authOverlay').classList.remove('open'); }
 document.getElementById('authOverlay').addEventListener('click', function(e) {
@@ -685,6 +696,7 @@ document.getElementById('authOverlay').addEventListener('click', function(e) {
 
 let pmImages = [];
 let pmIndex  = 0;
+let currentModalProductId = null;
 
 function pmRenderGallery() {
   const gallery = document.getElementById('pmGallery');
@@ -728,6 +740,7 @@ document.getElementById('pmGallery').addEventListener('scroll', function() {
 function openProductModal(el) {
   const gallery   = document.getElementById('pmGallery');
   const pmImagePh = document.getElementById('pmImagePh');
+  currentModalProductId = el.dataset.id;
   document.getElementById('pmName').textContent  = el.dataset.name;
   document.getElementById('pmCat').textContent   = el.dataset.cat;
   document.getElementById('pmDesc').textContent  = el.dataset.desc;
@@ -766,12 +779,24 @@ function openProductModal(el) {
     colorsBox.style.display = 'none';
   }
 
+  const addBtn = document.getElementById('pmAddBtn');
+  const available = el.dataset.available !== '0';
+  addBtn.disabled = !available;
+  addBtn.style.opacity = available ? '1' : '.5';
+  addBtn.style.cursor = available ? 'pointer' : 'not-allowed';
+
   document.getElementById('productModalOverlay').classList.add('open');
 }
 function closeProductModal() { document.getElementById('productModalOverlay').classList.remove('open'); }
 document.getElementById('productModalOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeProductModal();
 });
+
+function addCartFromModal() {
+  if (!currentModalProductId) return;
+  closeProductModal();
+  addCart(currentModalProductId);
+}
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') { closeAuthModal(); closeProductModal(); }
