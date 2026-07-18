@@ -8,9 +8,9 @@
 
 <style>
 :root {
-  --pink:    #10b981;
-  --pink2:   #34d399;
-  --pink-lt: #ecfdf5;
+  --pink:    #0f172a;
+  --pink2:   #3b82f6;
+  --pink-lt: #f8fafc;
   --purp:    #2563eb;
   --purp2:   #3b82f6;
   --lav:     #eff6ff;
@@ -24,7 +24,7 @@
 
 body {
   font-family:'Lexend','Noto Sans Lao',sans-serif;
-  background: linear-gradient(155deg,#eff6ff 0%,#eff6ff 50%,#ecfdf5 100%);
+  background: linear-gradient(155deg,#eff6ff 0%,#eff6ff 50%,#f8fafc 100%);
   background-attachment: fixed;
   color: var(--text);
   min-height:100vh; overflow-x:hidden;
@@ -32,10 +32,10 @@ body {
 
 /* ====== HERO BANNER ====== */
 .hero {
-  background: linear-gradient(135deg, #ecfdf5 0%, #a7f3d0 55%, #a7f3d0 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #a7f3d0 55%, #a7f3d0 100%);
   padding: clamp(16px, 4vw, 20px) clamp(16px, 5vw, 24px) clamp(16px, 4vw, 22px);
   text-align: center; position: relative; overflow: hidden;
-  border-bottom: 2px solid #34d399;
+  border-bottom: 2px solid #3b82f6;
 }
 .hero::before {
   content:''; position:absolute; inset:0;
@@ -48,13 +48,13 @@ body {
 @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
 .hero h1 {
   font-size: clamp(1.7rem, 5vw + 1rem, 3rem); font-weight: 900;
-  color: #047857;
+  color: #1e293b;
   margin-bottom: 5px; line-height: 1.15;
   letter-spacing: -.5px;
   text-shadow: 0 2px 10px rgba(190,24,93,.15);
 }
 .hero p {
-  font-size: clamp(.8rem, 1.5vw + .55rem, .98rem); color: #10b981;
+  font-size: clamp(.8rem, 1.5vw + .55rem, .98rem); color: #0f172a;
   font-weight: 700; margin-bottom: 0; letter-spacing: .3px;
   opacity: .85;
 }
@@ -253,7 +253,7 @@ body {
 .co-custom-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 .co-custom-tag {
   display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 50px;
-  background: linear-gradient(135deg,#ecfdf5,#eff6ff); border: 1.5px solid var(--lav3);
+  background: linear-gradient(135deg,#f8fafc,#eff6ff); border: 1.5px solid var(--lav3);
   color: var(--text); font-size: .8rem; font-weight: 700;
 }
 .co-custom-tag button {
@@ -274,7 +274,7 @@ body {
 
 .co-price-preview {
   display: flex; align-items: center; justify-content: space-between;
-  background: linear-gradient(135deg,#ecfdf5,#eff6ff); border: 1.5px solid var(--lav3);
+  background: linear-gradient(135deg,#f8fafc,#eff6ff); border: 1.5px solid var(--lav3);
   border-radius: 16px; padding: 14px 18px; margin: 20px 0 4px;
 }
 .co-price-preview .cpp-lbl { font-size: .82rem; font-weight: 800; color: var(--purp2); }
@@ -293,7 +293,7 @@ body {
   margin-top: 12px; padding: 10px 14px; border-radius: 12px; font-size: .82rem; font-weight: 700;
   display: none;
 }
-.co-toast.ok  { display: block; background: rgba(16,185,129,.1); color: #10b981; }
+.co-toast.ok  { display: block; background: rgba(15,23,42,.1); color: #0f172a; }
 .co-toast.err { display: block; background: rgba(239,68,68,.1); color: #ef4444; }
 
 /* ====== GRID ====== */
@@ -430,7 +430,7 @@ body {
 .add-btn:hover { transform:translateY(-3px); box-shadow:0 14px 30px rgba(124,58,237,.42); }
 .add-btn:active { transform:scale(.97); }
 .add-btn.added {
-  background: linear-gradient(135deg,#10b981,#1d4ed8);
+  background: linear-gradient(135deg,#0f172a,#1d4ed8);
   box-shadow: 0 6px 18px rgba(109,40,217,.32);
 }
 
@@ -457,14 +457,14 @@ body {
 }
 .closure-banner-inner {
   background: linear-gradient(135deg,#a7f3d0 0%,#93c5fd 55%,#ffffff 100%);
-  color: #831843; border: 2px solid #34d399; border-radius: 24px;
+  color: #831843; border: 2px solid #3b82f6; border-radius: 24px;
   padding: 26px 24px;
   display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
   box-shadow: 0 12px 32px rgba(236,72,153,.25);
 }
 .closure-banner-icon { font-size: 2.4rem; }
 .closure-banner-title { font-weight: 900; font-size: clamp(1.25rem, 1.4vw + 1rem, 1.7rem); }
-.closure-banner-msg { font-size: clamp(.9rem, .5vw + .8rem, 1.05rem); color: #047857; font-weight: 600; }
+.closure-banner-msg { font-size: clamp(.9rem, .5vw + .8rem, 1.05rem); color: #1e293b; font-weight: 600; }
 
 .promo-banners {
   max-width: 1400px; margin: 0 auto; padding: 14px clamp(14px,4vw,24px) 0;
@@ -515,7 +515,7 @@ body {
 <div class="hero">
   <div class="hero-inner">
     <span class="hero-emoji">⚡</span>
-    <h1>VOLT EV</h1>
+    <h1>EX ມໍເຕີ້</h1>
     <p>ລະບົບການຈອງຄິວ Electric Vehicle ຜ່ານເວັບໄຊ</p>
   </div>
 </div>
@@ -526,31 +526,31 @@ body {
     <div class="promo-track" id="promoTrack">
       {% for _rep in "12" %}
       <div class="promo-slide">
-        <img src="{% static 'images/shop1.jpg' %}" alt="ຂ້າງນອກຮ້ານ VOLT"
+        <img src="{% static 'images/shop1.jpg' %}" alt="ຂ້າງນອກຮ້ານ EX ມໍເຕີ້"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span>🏪</span><span>ຮ້ານ VOLT EV</span></div>
+        <div class="ps-ph" style="display:none;"><span>🏪</span><span>ຮ້ານ EX ມໍເຕີ້</span></div>
         <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">🏪 ຂ້າງນອກຮ້ານ VOLT</div><div class="ps">ບ້ານ ໄຊສົມບູນ · ວຽງຈັນ</div></div>
+        <div class="ps-cap"><div class="pt">🏪 ຂ້າງນອກຮ້ານ EX ມໍເຕີ້</div><div class="ps">ບ້ານ ໄຊສົມບູນ · ວຽງຈັນ</div></div>
       </div>
 
       <div class="promo-slide">
-        <img src="{% static 'images/shop2.jpg' %}" alt="ລົດໄຟຟ້າ VOLT"
+        <img src="{% static 'images/shop2.jpg' %}" alt="ລົດໄຟຟ້າ EX ມໍເຕີ້"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span>⚡</span><span>ລົດໄຟຟ້າ VOLT</span></div>
+        <div class="ps-ph" style="display:none;"><span>⚡</span><span>ລົດໄຟຟ້າ EX ມໍເຕີ້</span></div>
         <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">⚡ ລົດໄຟຟ້າ VOLT</div><div class="ps">ຄຸນນະພາບແທ້ · ຮັບປະກັນ · Premium</div></div>
+        <div class="ps-cap"><div class="pt">⚡ ລົດໄຟຟ້າ EX ມໍເຕີ້</div><div class="ps">ຄຸນນະພາບແທ້ · ຮັບປະກັນ · Premium</div></div>
       </div>
 
       <div class="promo-slide">
-        <img src="{% static 'images/shop3.jpg' %}" alt="ໜ້ຮ້ານ VOLT"
+        <img src="{% static 'images/shop3.jpg' %}" alt="ໜ້ຮ້ານ EX ມໍເຕີ້"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span>🏍️</span><span>ໜ້ຮ້ານ VOLT</span></div>
+        <div class="ps-ph" style="display:none;"><span>🏍️</span><span>ໜ້ຮ້ານ EX ມໍເຕີ້</span></div>
         <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">🏍️ Showroom VOLT</div><div class="ps">ລົດຫຼາກຫຼາຍຮຸ່ນ · ພ້ອມໃຫ້ບໍລິການ</div></div>
+        <div class="ps-cap"><div class="pt">🏍️ Showroom EX ມໍເຕີ້</div><div class="ps">ລົດຫຼາກຫຼາຍຮຸ່ນ · ພ້ອມໃຫ້ບໍລິການ</div></div>
       </div>
 
       <div class="promo-slide">
-        <img src="{% static 'images/shop4.jpg' %}" alt="ລົດໄຟຟ້າ VOLT"
+        <img src="{% static 'images/shop4.jpg' %}" alt="ລົດໄຟຟ້າ EX ມໍເຕີ້"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="ps-ph" style="display:none;"><span>🔋</span><span>ຄຸນນະພາບແທ້</span></div>
         <div class="ps-overlay"></div>
@@ -558,11 +558,11 @@ body {
       </div>
 
       <div class="promo-slide">
-        <img src="{% static 'images/shop5.jpg' %}" alt="Signature Drinks VOLT"
+        <img src="{% static 'images/shop5.jpg' %}" alt="Signature Drinks EX ມໍເຕີ້"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="ps-ph" style="display:none;"><span>🧋</span><span>Signature Drinks</span></div>
         <div class="ps-overlay"></div>
-        <div class="ps-cap"><div class="pt">🧋 Signature Drinks</div><div class="ps">ລົດຊາດສະເພາະຂອງ VOLT</div></div>
+        <div class="ps-cap"><div class="pt">🧋 Signature Drinks</div><div class="ps">ລົດຊາດສະເພາະຂອງ EX ມໍເຕີ້</div></div>
       </div>
       {% endfor %}
     </div><!-- /promo-track -->
@@ -608,7 +608,7 @@ body {
   {% for p in products %}
   <div class="card {% if not p.is_available %}is-sold-out{% endif %}">
 
-    <div class="card-badge">VOLT 🍒</div>
+    <div class="card-badge">EX</div>
     {% if p.category %}
     <div class="cat-badge">{{ p.category.name }}</div>
     {% endif %}

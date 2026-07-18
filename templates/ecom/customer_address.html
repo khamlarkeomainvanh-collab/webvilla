@@ -8,7 +8,7 @@
 
 <style>
 :root {
-  --pk:  #10b981; --pk2: #34d399; --pk-lt: #ecfdf5;
+  --pk:  #0f172a; --pk2: #3b82f6; --pk-lt: #f8fafc;
   --pu:  #2563eb; --pu2: #3b82f6; --pu-lt: #eff6ff;
   --lav: #dbeafe; --lav2:#bfdbfe;
   --text:#1e3a5f; --gray:#94a3b8;
@@ -16,7 +16,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family:'Lexend','Noto Sans Lao',sans-serif;
-  background: linear-gradient(155deg,#eff6ff 0%,#eff6ff 50%,#ecfdf5 100%);
+  background: linear-gradient(155deg,#eff6ff 0%,#eff6ff 50%,#f8fafc 100%);
   background-attachment: fixed;
   color: var(--text); min-height:100vh;
 }
@@ -69,7 +69,7 @@ body {
 }
 @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 .title-text h1 { font-size: 1.5rem; font-weight: 900; color: var(--text); }
-.title-text p  { font-size: .9rem; color: #10b981; margin-top: 3px; font-weight: 700; }
+.title-text p  { font-size: .9rem; color: #0f172a; margin-top: 3px; font-weight: 700; }
 
 /* ── CARD BASE ── */
 .card {
@@ -259,7 +259,7 @@ body {
 .btn-order {
     width: 100%; padding: 14px 20px;
     border: none; border-radius: 16px;
-    background: linear-gradient(135deg, #34d399, #10b981, #db2777);
+    background: linear-gradient(135deg, #3b82f6, #0f172a, #db2777);
     color: #fff; font-size: 1.1rem; font-weight: 900;
     font-family:'Lexend','Noto Sans Lao',sans-serif;
     cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
@@ -291,10 +291,10 @@ body {
 .sum-head {
     padding: 16px 20px 14px;
     border-bottom: 2px solid #a7f3d0;
-    background: linear-gradient(135deg, #ecfdf5, #eff6ff);
+    background: linear-gradient(135deg, #f8fafc, #eff6ff);
     display: flex; align-items: center; gap: 10px;
 }
-.sum-head h3 { font-size: 1.2rem; font-weight: 900; color: #10b981; }
+.sum-head h3 { font-size: 1.2rem; font-weight: 900; color: #0f172a; }
 .sum-head p  { font-size: .9rem; color: var(--pk); margin-top: 4px; font-weight: 800; }
 .sum-toggle-ico { display: none; color: var(--pk); font-size: 1rem; transition: .3s; flex-shrink: 0; }
 
@@ -310,7 +310,7 @@ body {
 
 .sum-item {
     display: flex; align-items: center; gap: 12px;
-    padding: 12px 0; border-bottom: 1.5px solid #ecfdf5;
+    padding: 12px 0; border-bottom: 1.5px solid #f8fafc;
 }
 .sum-item:last-child { border-bottom: none; }
 .si-img {
@@ -322,29 +322,29 @@ body {
 .si-img img { width: 100%; height: 100%; object-fit: cover; }
 .si-img .si-ph { font-size: 1.6rem; }
 .si-info { flex: 1; min-width: 0; }
-.si-name  { font-size: 1rem; font-weight: 900; color: #10b981; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.si-name  { font-size: 1rem; font-weight: 900; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .si-qty   { font-size: .88rem; color: var(--pk); margin-top: 4px; font-weight: 800; }
-.si-price { font-size: 1.05rem; font-weight: 900; color: #047857; flex-shrink: 0; }
+.si-price { font-size: 1.05rem; font-weight: 900; color: #1e293b; flex-shrink: 0; }
 
 /* TOTALS */
 .sum-totals { padding: 12px 20px; border-top: 2px solid #a7f3d0; }
 .tot-row {
     display: flex; justify-content: space-between; align-items: center;
     padding: 8px 0; font-size: .95rem;
-    border-bottom: 1px solid #ecfdf5;
+    border-bottom: 1px solid #f8fafc;
 }
 .tot-row:last-of-type { border-bottom: none; }
 .tot-row .tl { color: #db2777; font-weight: 800; }
-.tot-row .tv { font-weight: 900; color: #047857; font-size: 1rem; }
+.tot-row .tv { font-weight: 900; color: #1e293b; font-size: 1rem; }
 .tot-grand {
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 18px; margin-top: 10px;
-    background: linear-gradient(135deg, #ecfdf5, #a7f3d0);
-    border-radius: 16px; border: 2.5px solid #34d399;
+    background: linear-gradient(135deg, #f8fafc, #a7f3d0);
+    border-radius: 16px; border: 2.5px solid #3b82f6;
     box-shadow: 0 4px 16px rgba(236,72,153,.15);
 }
-.tot-grand .tg-l { font-size: 1rem; font-weight: 900; color: #10b981; }
-.tot-grand .tg-v { font-size: 1.7rem; font-weight: 900; color: #047857; }
+.tot-grand .tg-l { font-size: 1rem; font-weight: 900; color: #0f172a; }
+.tot-grand .tg-v { font-size: 1.7rem; font-weight: 900; color: #1e293b; }
 
 /* EMPTY */
 .empty-wrap {
@@ -504,7 +504,7 @@ body {
                 <div id="box-pick" style="display:none;">
                     <div class="pickup-info">
                         <div class="pi-ico">📍</div>
-                        <div class="pi-name">ຮ້ານ VOLT PRO</div>
+                        <div class="pi-name">ຮ້ານ EX ມໍເຕີ້ PRO</div>
                         <div class="pi-sub">ມາຮັບສິນຄ້າໄດ້ທີ່ຮ້ານ<br>ບໍ່ມີຄ່າຈັດສົ່ງ — ຟຣີ! 🎉</div>
                     </div>
                 </div>
@@ -591,7 +591,7 @@ body {
 
                     <!-- row: image + name + price (same layout as a regular product) -->
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <div class="si-img" style="background:linear-gradient(135deg,#3b82f6,#10b981);">
+                        <div class="si-img" style="background:linear-gradient(135deg,#3b82f6,#0f172a);">
                             <span class="si-ph" style="color:#fff;">✍️</span>
                         </div>
                         <div class="si-info" style="flex:1;">

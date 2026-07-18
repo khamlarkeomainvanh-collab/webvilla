@@ -5,9 +5,9 @@
 {% block content %}
 <style>
 :root {
-    --purple:#2563eb; --pink:#10b981;
-    --grad:linear-gradient(135deg,#2563eb,#10b981);
-    --green:#10b981; --amber:#f59e0b; --blue:#3b82f6; --red:#ef4444;
+    --purple:#2563eb; --pink:#0f172a;
+    --grad:linear-gradient(135deg,#2563eb,#0f172a);
+    --green:#0f172a; --amber:#f59e0b; --blue:#3b82f6; --red:#ef4444;
     --lav:#eff6ff; --red-lt:#fef2f2; --green-lt:#f0fdf4;
 }
 
@@ -129,7 +129,7 @@
 }
 .exp-form-title .icon-box {
     width:44px; height:44px; border-radius:12px;
-    background:linear-gradient(135deg,#2563eb,#10b981);
+    background:linear-gradient(135deg,#2563eb,#0f172a);
     display:flex; align-items:center; justify-content:center;
     color:#fff; font-size:1.2rem;
 }
@@ -171,7 +171,7 @@
 }
 .exp-btn-add {
     padding:14px 30px; border-radius:14px; border:none; cursor:pointer;
-    background:linear-gradient(135deg,#2563eb,#10b981);
+    background:linear-gradient(135deg,#2563eb,#0f172a);
     color:#fff; font-weight:900; font-size:1.1rem;
     font-family:'Lexend','Noto Sans Lao',sans-serif;
     box-shadow:0 8px 22px rgba(124,58,237,.35); transition:.25s;
@@ -239,8 +239,8 @@
     display:flex; align-items:center; justify-content:center; font-size:.88rem; flex-shrink:0;
 }
 .exp-action-btn:hover { transform:translateY(-3px) scale(1.03); }
-.exp-action-btn--green  { background:linear-gradient(135deg,#10b981,#059669); box-shadow:0 6px 16px rgba(16,185,129,.32); }
-.exp-action-btn--green:hover  { box-shadow:0 12px 26px rgba(16,185,129,.42); }
+.exp-action-btn--green  { background:linear-gradient(135deg,#0f172a,#059669); box-shadow:0 6px 16px rgba(15,23,42,.32); }
+.exp-action-btn--green:hover  { box-shadow:0 12px 26px rgba(15,23,42,.42); }
 .exp-action-btn--indigo { background:linear-gradient(135deg,#6366f1,#4338ca); box-shadow:0 6px 16px rgba(99,102,241,.32); }
 .exp-action-btn--indigo:hover { box-shadow:0 12px 26px rgba(99,102,241,.42); }
 .exp-action-btn--amber  { background:linear-gradient(135deg,#f59e0b,#d97706); box-shadow:0 6px 16px rgba(245,158,11,.32); }
@@ -253,16 +253,16 @@
 
 .exp-btn-export {
     padding:8px 22px 8px 8px; border-radius:50px; border:none; cursor:pointer;
-    background:#10b981; color:#fff; font-weight:800; font-size:.9rem;
+    background:#0f172a; color:#fff; font-weight:800; font-size:.9rem;
     font-family:'Lexend','Noto Sans Lao',sans-serif;
     display:inline-flex; align-items:center; gap:10px; transition:.25s;
-    text-decoration:none; box-shadow:0 6px 16px rgba(16,185,129,.32);
+    text-decoration:none; box-shadow:0 6px 16px rgba(15,23,42,.32);
 }
 .exp-btn-export .ebe-ico {
     width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.24);
     display:flex; align-items:center; justify-content:center; font-size:.9rem; flex-shrink:0;
 }
-.exp-btn-export:hover { color:#fff; transform:translateY(-3px) scale(1.03); box-shadow:0 12px 26px rgba(16,185,129,.45); text-decoration:none; }
+.exp-btn-export:hover { color:#fff; transform:translateY(-3px) scale(1.03); box-shadow:0 12px 26px rgba(15,23,42,.45); text-decoration:none; }
 .exp-btn-filter {
     padding:11px 18px; border-radius:12px; cursor:pointer;
     background:#eff6ff; border:1.5px solid rgba(124,58,237,.2);
@@ -313,12 +313,12 @@
 .exp-empty p { font-size:1.05rem; font-weight:600; }
 
 /* category color map */
-.cc-fruit  { background:rgba(251,113,133,.12); color:#10b981; }
+.cc-fruit  { background:rgba(251,113,133,.12); color:#0f172a; }
 .cc-drink  { background:rgba(59,130,246,.1);   color:#1d4ed8; }
 .cc-sugar  { background:rgba(245,158,11,.1);   color:#b45309; }
 .cc-ice    { background:rgba(14,165,233,.1);   color:#0369a1; }
 .cc-cup    { background:rgba(124,58,237,.1);   color:#1d4ed8; }
-.cc-bag    { background:rgba(16,185,129,.1);   color:#047857; }
+.cc-bag    { background:rgba(15,23,42,.1);   color:#1e293b; }
 .cc-elec   { background:rgba(251,191,36,.12);  color:#92400e; }
 .cc-tool   { background:rgba(107,114,128,.1);  color:#374151; }
 .cc-other  { background:rgba(124,58,237,.07);  color:#2563eb; }
@@ -398,7 +398,7 @@
 @keyframes modalIn { from{opacity:0;transform:translateY(24px) scale(.97)} to{opacity:1;transform:none} }
 .fin-modal-head {
     padding:22px 28px; display:flex; align-items:center; justify-content:space-between;
-    background:linear-gradient(135deg,#2563eb,#10b981); color:#fff;
+    background:linear-gradient(135deg,#2563eb,#0f172a); color:#fff;
     font-size:1.15rem; font-weight:800;
 }
 .fin-modal-close {
@@ -478,7 +478,7 @@
 <div class="fin-head">
     <div class="ico"><i class="fas fa-chart-line"></i></div>
     <div>
-        <h1>ສະຫຼຸບລາຍຮັບ-ລາຍຈ່າຍ VOLT</h1>
+        <h1>ສະຫຼຸບລາຍຮັບ-ລາຍຈ່າຍ EX ມໍເຕີ້</h1>
         <p>ພາບລວມທຸລະກິດ ແບບເບິ່ງງ່າຍ — ຕໍ່ມື້ · ຕໍ່ເດືອນ · ຕໍ່ປີ</p>
     </div>
 </div>
@@ -502,7 +502,7 @@
         <button onclick="doExport('expense')" class="exp-btn-export" style="background:linear-gradient(135deg,#ef4444,#b91c1c);" title="Export ຕາມແທັບທີ່ເລືອກຢູ່ (ມື້/ເດືອນ/ປີ)">
             <span class="ebe-ico"><i class="fas fa-file-excel"></i></span> Export ລາຍຈ່າຍ
         </button>
-        <button onclick="doExport('profit')" class="exp-btn-export" style="background:linear-gradient(135deg,#10b981,#059669);" title="Export ຕາມແທັບທີ່ເລືອກຢູ່ (ມື້/ເດືອນ/ປີ)">
+        <button onclick="doExport('profit')" class="exp-btn-export" style="background:linear-gradient(135deg,#0f172a,#059669);" title="Export ຕາມແທັບທີ່ເລືອກຢູ່ (ມື້/ເດືອນ/ປີ)">
             <span class="ebe-ico"><i class="fas fa-file-excel"></i></span> Export ກຳໄລ
         </button>
         <div class="fin-all-dd" id="finAllDd">
@@ -512,7 +512,7 @@
             <div class="fin-all-dd-menu">
                 <button type="button" onclick="doExportAll('revenue')"><i class="fas fa-box" style="color:#3b82f6;"></i> ລາຍຮັບ ທັງໝົດ</button>
                 <button type="button" onclick="doExportAll('expense')"><i class="fas fa-cart-shopping" style="color:#ef4444;"></i> ລາຍຈ່າຍ ທັງໝົດ</button>
-                <button type="button" onclick="doExportAll('profit')"><i class="fas fa-coins" style="color:#10b981;"></i> ກຳໄລ ທັງໝົດ</button>
+                <button type="button" onclick="doExportAll('profit')"><i class="fas fa-coins" style="color:#0f172a;"></i> ກຳໄລ ທັງໝົດ</button>
             </div>
         </div>
     </div>
@@ -543,14 +543,14 @@
             <span class="fin-card-badge" style="background:rgba(59,130,246,.1);color:#3b82f6;">{% if is_sel_today %}ວັນນີ້{% else %}{{ sel_date_str }}{% endif %}</span>
         </div>
 
-        <div class="fin-card" style="--card-accent:rgba(16,185,129,.08);cursor:pointer;" onclick="openModal('profit')">
+        <div class="fin-card" style="--card-accent:rgba(15,23,42,.08);cursor:pointer;" onclick="openModal('profit')">
             <div class="fin-card-icon">💰</div>
             <div class="fin-card-lbl">ຜົນກຳໄລ</div>
             <div class="fin-card-val {% if today_profit >= 0 %}profit-pos{% else %}profit-neg{% endif %}">
                 {% if today_profit >= 0 %}+{% endif %}{{ today_profit|dotformat }}
             </div>
             <div class="fin-card-sub">ກີບ · ຮັບ {{ today_revenue|dotformat }} − ຈ່າຍ {{ today_expense|dotformat }}</div>
-            <span class="fin-card-badge" style="background:rgba(16,185,129,.1);color:#10b981;">{% if is_sel_today %}ວັນນີ້{% else %}{{ sel_date_str }}{% endif %} · <u>ກົດເບິ່ງ</u></span>
+            <span class="fin-card-badge" style="background:rgba(15,23,42,.1);color:#0f172a;">{% if is_sel_today %}ວັນນີ້{% else %}{{ sel_date_str }}{% endif %} · <u>ກົດເບິ່ງ</u></span>
         </div>
 
         <div class="fin-card" style="--card-accent:rgba(239,68,68,.08);cursor:pointer;" onclick="openModal('expense')">
@@ -576,14 +576,14 @@
             <span class="fin-card-badge" style="background:rgba(124,58,237,.1);color:#2563eb;">ເດືອນ {{ sel_month }}/{{ sel_year }}</span>
         </div>
 
-        <div class="fin-card" style="--card-accent:rgba(16,185,129,.08);cursor:pointer;" onclick="openModal('month_profit')">
+        <div class="fin-card" style="--card-accent:rgba(15,23,42,.08);cursor:pointer;" onclick="openModal('month_profit')">
             <div class="fin-card-icon">📈</div>
             <div class="fin-card-lbl">ຜົນກຳໄລ</div>
             <div class="fin-card-val {% if month_profit >= 0 %}profit-pos{% else %}profit-neg{% endif %}">
                 {% if month_profit >= 0 %}+{% endif %}{{ month_profit|dotformat }}
             </div>
             <div class="fin-card-sub">ກີບ · ຮັບ {{ month_revenue|dotformat }} − ຈ່າຍ {{ month_expense|dotformat }} · <u>ກົດເບິ່ງ</u></div>
-            <span class="fin-card-badge" style="background:rgba(16,185,129,.1);color:#10b981;">ເດືອນ {{ sel_month }}/{{ sel_year }}</span>
+            <span class="fin-card-badge" style="background:rgba(15,23,42,.1);color:#0f172a;">ເດືອນ {{ sel_month }}/{{ sel_year }}</span>
         </div>
 
         <div class="fin-card" style="--card-accent:rgba(239,68,68,.08);cursor:pointer;" onclick="openModal('month_expense')">
@@ -604,19 +604,19 @@
         <div class="fin-card" style="--card-accent:rgba(190,24,93,.08);cursor:pointer;" onclick="openModal('year_revenue')">
             <div class="fin-card-icon">🏆</div>
             <div class="fin-card-lbl">ລາຍຮັບ</div>
-            <div class="fin-card-val" style="color:#10b981;">{{ year_revenue|dotformat }}</div>
+            <div class="fin-card-val" style="color:#0f172a;">{{ year_revenue|dotformat }}</div>
             <div class="fin-card-sub">ກີບ · {{ year_count }} ອໍເດີ · <u>ກົດເບິ່ງ</u></div>
-            <span class="fin-card-badge" style="background:rgba(190,24,93,.1);color:#10b981;">ປີ {{ sel_year }}</span>
+            <span class="fin-card-badge" style="background:rgba(190,24,93,.1);color:#0f172a;">ປີ {{ sel_year }}</span>
         </div>
 
-        <div class="fin-card" style="--card-accent:rgba(16,185,129,.08);cursor:pointer;" onclick="openModal('year_profit')">
+        <div class="fin-card" style="--card-accent:rgba(15,23,42,.08);cursor:pointer;" onclick="openModal('year_profit')">
             <div class="fin-card-icon">🏅</div>
             <div class="fin-card-lbl">ຜົນກຳໄລ</div>
             <div class="fin-card-val {% if year_profit >= 0 %}profit-pos{% else %}profit-neg{% endif %}">
                 {% if year_profit >= 0 %}+{% endif %}{{ year_profit|dotformat }}
             </div>
             <div class="fin-card-sub">ກີບ · ຮັບ {{ year_revenue|dotformat }} − ຈ່າຍ {{ year_expense|dotformat }} · <u>ກົດເບິ່ງ</u></div>
-            <span class="fin-card-badge" style="background:rgba(16,185,129,.1);color:#10b981;">ປີ {{ sel_year }}</span>
+            <span class="fin-card-badge" style="background:rgba(15,23,42,.1);color:#0f172a;">ປີ {{ sel_year }}</span>
         </div>
 
         <div class="fin-card" style="--card-accent:rgba(239,68,68,.08);cursor:pointer;" onclick="openModal('year_expense')">
@@ -1027,7 +1027,7 @@ function openDailyModal(monthNum){
                 const cnt = d.daily_orders[i] || 0;
                 totR += r; totE += e; totP += p;
                 const hasAny = r > 0 || e > 0;
-                const pCol   = p >= 0 ? '#10b981' : '#ef4444';
+                const pCol   = p >= 0 ? '#0f172a' : '#ef4444';
                 const day    = i + 1;
                 const dayStr = day < 10 ? '0'+day : ''+day;
                 rows += `<tr style="${hasAny ? '' : 'opacity:.45;'}">
@@ -1039,7 +1039,7 @@ function openDailyModal(monthNum){
                     <td style="text-align:right;font-weight:900;color:${hasAny?pCol:'#e2e8f0'};">${hasAny?(p>=0?'+':'')+dotFmt(p)+'<span style="font-size:.68rem;opacity:.6;"> ກີບ</span>':'<span style="color:#e2e8f0;">—</span>'}</td>
                 </tr>`;
             }
-            const totPCol = totP >= 0 ? '#10b981' : '#ef4444';
+            const totPCol = totP >= 0 ? '#0f172a' : '#ef4444';
             const summary = `
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px;">
                     <div style="background:#eff6ff;border-radius:14px;padding:14px;text-align:center;">
@@ -1112,7 +1112,7 @@ function openModal(type){
             body.innerHTML = '<div class="modal-empty"><i class="fas fa-box-open"></i><p>ບໍ່ມີອໍເດີໃນວັນທີ ' + SEL_DATE_LBL + '</p></div>';
         } else {
             const STATUS_LAO = {
-                'Delivered':  { lbl:'✅ ສຳເລັດ',  color:'#10b981' },
+                'Delivered':  { lbl:'✅ ສຳເລັດ',  color:'#0f172a' },
                 'Cancelled':  { lbl:'❌ ຍົກເລີກ',  color:'#ef4444' },
                 'Processing': { lbl:'🚚 ຈັດສົ່ງ',  color:'#2563eb' },
                 'Confirmed':  { lbl:'📋 ຢືນຢັນ',  color:'#3b82f6' },
@@ -1171,7 +1171,7 @@ function openModal(type){
         const rev  = {{ today_revenue }};
         const exp  = {{ today_expense }};
         const prof = {{ today_profit }};
-        const pColor = prof >= 0 ? '#10b981' : '#ef4444';
+        const pColor = prof >= 0 ? '#0f172a' : '#ef4444';
         body.innerHTML = `
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
                 <div style="background:#eff6ff;border-radius:16px;padding:20px;text-align:center;">
@@ -1264,7 +1264,7 @@ function openModal(type){
             if(r > 0 || e > 0) hasData = true;
             totR += r; totE += e; totP += p;
             const day = i + 1;
-            const pCol = p >= 0 ? '#10b981' : '#ef4444';
+            const pCol = p >= 0 ? '#0f172a' : '#ef4444';
             rows += `<tr>
                 <td style="color:#94a3b8;">${day < 10 ? '0'+day : day}</td>
                 <td style="text-align:right;color:#3b82f6;">${r > 0 ? dotFmt(r) : '<span style="color:#cbd5e1;">—</span>'}</td>
@@ -1272,7 +1272,7 @@ function openModal(type){
                 <td style="text-align:right;font-weight:800;color:${pCol};">${(r>0||e>0) ? (p>=0?'+':'')+dotFmt(p) : '<span style="color:#cbd5e1;">—</span>'}</td>
             </tr>`;
         });
-        const totPCol = totP >= 0 ? '#10b981' : '#ef4444';
+        const totPCol = totP >= 0 ? '#0f172a' : '#ef4444';
         if(!hasData){
             body.innerHTML = `<div class="modal-empty"><i class="fas fa-chart-line"></i><p>ບໍ່ມີຂໍ້ມູນໃນເດືອນ${mName}</p></div>`;
         } else {
@@ -1291,7 +1291,7 @@ function openModal(type){
             const p = MONTHLY_PROFIT[i] || 0;
             if(r > 0 || e > 0) hasData = true;
             totR += r; totE += e; totP += p;
-            const pCol = p >= 0 ? '#10b981' : '#ef4444';
+            const pCol = p >= 0 ? '#0f172a' : '#ef4444';
             rows += `<tr>
                 <td style="font-weight:700;color:#1e3a5f;">${LAO_MONTHS_FULL[i]}</td>
                 <td style="text-align:right;color:#3b82f6;">${r > 0 ? dotFmt(r) : '<span style="color:#cbd5e1;">—</span>'}</td>
@@ -1299,7 +1299,7 @@ function openModal(type){
                 <td style="text-align:right;font-weight:800;color:${pCol};">${(r>0||e>0) ? (p>=0?'+':'')+dotFmt(p) : '<span style="color:#cbd5e1;">—</span>'}</td>
             </tr>`;
         });
-        const totPCol = totP >= 0 ? '#10b981' : '#ef4444';
+        const totPCol = totP >= 0 ? '#0f172a' : '#ef4444';
         if(!hasData){
             body.innerHTML = `<div class="modal-empty"><i class="fas fa-chart-line"></i><p>ບໍ່ມີຂໍ້ມູນໃນປີ ${SEL_YEAR}</p></div>`;
         } else {
@@ -1419,7 +1419,7 @@ function printOrInvoiceModal(){
                 padding:14px 22px;border-top:1.5px solid #dbeafe;background:#faf9ff;">
             <button type="button" onclick="exportModalData()"
                     style="padding:8px 16px;border-radius:12px;border:none;cursor:pointer;
-                           background:linear-gradient(135deg,#10b981,#059669);color:#fff;
+                           background:linear-gradient(135deg,#0f172a,#059669);color:#fff;
                            font-weight:800;font-size:.82rem;font-family:'Lexend','Noto Sans Lao',sans-serif;
                            display:flex;align-items:center;gap:6px;">
                 <i class="fas fa-file-excel"></i> Export .xlsx

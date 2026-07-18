@@ -13,9 +13,9 @@
     --card:   #ffffff;
     --card2:  #eff6ff;
     --purple: #2563eb;
-    --pink:   #10b981;
-    --grad:   linear-gradient(135deg,#2563eb,#10b981);
-    --green:  #10b981;
+    --pink:   #0f172a;
+    --grad:   linear-gradient(135deg,#2563eb,#0f172a);
+    --green:  #0f172a;
     --amber:  #f59e0b;
     --red:    #ef4444;
     --dim:    #64748b;
@@ -151,11 +151,11 @@ body { background: #ffffff !important; }
     text-decoration: none; transition: .22s;
     border: 1.5px solid transparent; white-space: nowrap;
 }
-.xbtn-day   { background: rgba(16,185,129,.1);  color: #059669; border-color: rgba(16,185,129,.25); }
+.xbtn-day   { background: rgba(15,23,42,.1);  color: #059669; border-color: rgba(15,23,42,.25); }
 .xbtn-month { background: rgba(124,58,237,.1);  color: var(--purple); border-color: rgba(124,58,237,.25); }
 .xbtn-year  { background: rgba(245,158,11,.1);  color: #d97706; border-color: rgba(245,158,11,.25); }
 .xbtn-all   { background: rgba(239,68,68,.1);   color: #dc2626; border-color: rgba(239,68,68,.25); }
-.xbtn-day:hover   { background: #10b981; color: #fff; border-color: #10b981; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(16,185,129,.3); }
+.xbtn-day:hover   { background: #0f172a; color: #fff; border-color: #0f172a; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(15,23,42,.3); }
 .xbtn-month:hover { background: var(--purple); color: #fff; border-color: var(--purple); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(124,58,237,.3); }
 .xbtn-year:hover  { background: #f59e0b; color: #fff; border-color: #f59e0b; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(245,158,11,.3); }
 .xbtn-all:hover   { background: #ef4444; color: #fff; border-color: #ef4444; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(239,68,68,.3); }
@@ -274,13 +274,13 @@ body { background: #ffffff !important; }
 .s-pending   { color: #0891b2;       border-color: rgba(8,145,178,.2);   background: rgba(8,145,178,.06); }
 .s-confirmed { color: var(--purple); border-color: rgba(124,58,237,.2);  background: rgba(124,58,237,.06); }
 .s-process   { color: var(--amber);  border-color: rgba(245,158,11,.2);  background: rgba(245,158,11,.06); }
-.s-delivered { color: var(--green);  border-color: rgba(16,185,129,.2);  background: rgba(16,185,129,.06); }
+.s-delivered { color: var(--green);  border-color: rgba(15,23,42,.2);  background: rgba(15,23,42,.06); }
 .s-cancelled { color: var(--red);    border-color: rgba(239,68,68,.2);   background: rgba(239,68,68,.06); }
 .s-all.active       { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 4px 16px rgba(124,58,237,.3); }
 .s-pending.active   { background: #0891b2;    color: #fff; border-color: #0891b2;    box-shadow: 0 4px 16px rgba(8,145,178,.35); }
 .s-confirmed.active { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 4px 16px rgba(124,58,237,.35); }
 .s-process.active   { background: var(--amber); color: #fff; border-color: var(--amber); box-shadow: 0 4px 16px rgba(245,158,11,.35); }
-.s-delivered.active { background: var(--green); color: #fff; border-color: var(--green); box-shadow: 0 4px 16px rgba(16,185,129,.35); }
+.s-delivered.active { background: var(--green); color: #fff; border-color: var(--green); box-shadow: 0 4px 16px rgba(15,23,42,.35); }
 .s-cancelled.active { background: var(--red);   color: #fff; border-color: var(--red);   box-shadow: 0 4px 16px rgba(239,68,68,.35); }
 
 /* Table */
@@ -341,17 +341,17 @@ body { background: #ffffff !important; }
 .sbtn-pending   { background: rgba(8,145,178,.1);   color: #0891b2; }
 .sbtn-confirmed { background: rgba(124,58,237,.1);  color: var(--purple); }
 .sbtn-process   { background: rgba(245,158,11,.1);  color: var(--amber); }
-.sbtn-delivered { background: rgba(16,185,129,.1);  color: var(--green); }
+.sbtn-delivered { background: rgba(15,23,42,.1);  color: var(--green); }
 .sbtn-cancel    { background: rgba(239,68,68,.1);   color: var(--red); }
 .sbtn-pending.act   { background: #0891b2;       color: #fff; box-shadow: 0 4px 14px rgba(8,145,178,.35); }
 .sbtn-confirmed.act { background: var(--purple); color: #fff; box-shadow: 0 4px 14px rgba(124,58,237,.35); }
 .sbtn-process.act   { background: var(--amber);  color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,.4); }
-.sbtn-delivered.act { background: var(--green);  color: #fff; box-shadow: 0 4px 14px rgba(16,185,129,.35); }
+.sbtn-delivered.act { background: var(--green);  color: #fff; box-shadow: 0 4px 14px rgba(15,23,42,.35); }
 .sbtn-cancel.act    { background: var(--red);    color: #fff; box-shadow: 0 4px 14px rgba(239,68,68,.4); }
 
 /* Action buttons */
 .ic-btn { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; border: none; cursor: pointer; font-size: 1rem; transition: .2s; }
-.ic-inv { background: rgba(16,185,129,.1); color: var(--green); }
+.ic-inv { background: rgba(15,23,42,.1); color: var(--green); }
 .ic-inv:hover { background: var(--green); color: #fff; }
 .ic-del { background: rgba(239,68,68,.1); color: var(--red); }
 .ic-del:hover { background: var(--red); color: #fff; }
@@ -384,7 +384,7 @@ body { background: #ffffff !important; }
 .price-set-btn:hover { filter:brightness(1.1); transform:translateY(-1px); }
 .ic-cancel-item { width: auto; padding: 0 9px; font-size: .78rem; font-weight: 700; background: rgba(239,68,68,.08); color: var(--red); border: 1px solid rgba(239,68,68,.2); border-radius: 9px; height: 26px; cursor: pointer; font-family: 'Noto Sans Lao','Lexend',sans-serif; transition: .18s; }
 .ic-cancel-item:hover { background: var(--red); color: #fff; }
-.ic-restore-item { width: auto; padding: 0 9px; font-size: .78rem; font-weight: 700; background: rgba(16,185,129,.08); color: var(--green); border: 1px solid rgba(16,185,129,.2); border-radius: 9px; height: 26px; cursor: pointer; font-family: 'Noto Sans Lao','Lexend',sans-serif; transition: .18s; }
+.ic-restore-item { width: auto; padding: 0 9px; font-size: .78rem; font-weight: 700; background: rgba(15,23,42,.08); color: var(--green); border: 1px solid rgba(15,23,42,.2); border-radius: 9px; height: 26px; cursor: pointer; font-family: 'Noto Sans Lao','Lexend',sans-serif; transition: .18s; }
 .ic-restore-item:hover { background: var(--green); color: #fff; }
 
 .d-status-btns { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
@@ -392,12 +392,12 @@ body { background: #ffffff !important; }
 .dsb-pending    { background:rgba(8,145,178,.1);   color:#0891b2; }
 .dsb-confirmed  { background:rgba(124,58,237,.1);  color:var(--purple); }
 .dsb-processing { background:rgba(245,158,11,.1);  color:var(--amber); }
-.dsb-delivered  { background:rgba(16,185,129,.1);  color:var(--green); }
+.dsb-delivered  { background:rgba(15,23,42,.1);  color:var(--green); }
 .dsb-cancelled  { background:rgba(239,68,68,.1);   color:var(--red); }
 .dsb-pending.active    { background:#0891b2;      color:#fff; box-shadow:0 3px 10px rgba(8,145,178,.35); }
 .dsb-confirmed.active  { background:var(--purple);color:#fff; box-shadow:0 3px 10px rgba(124,58,237,.35); }
 .dsb-processing.active { background:var(--amber); color:#fff; box-shadow:0 3px 10px rgba(245,158,11,.4); }
-.dsb-delivered.active  { background:var(--green); color:#fff; box-shadow:0 3px 10px rgba(16,185,129,.35); }
+.dsb-delivered.active  { background:var(--green); color:#fff; box-shadow:0 3px 10px rgba(15,23,42,.35); }
 .dsb-cancelled.active  { background:var(--red);   color:#fff; box-shadow:0 3px 10px rgba(239,68,68,.4); }
 .dsb:hover { filter:brightness(1.1); transform:translateY(-1px); }
 .item-row.is-cancelled td { opacity:.6; }
@@ -522,7 +522,7 @@ body { background: #ffffff !important; }
 .m-card-img { width: 44px; height: 44px; border-radius: 11px; object-fit:cover; flex-shrink:0; border:2px solid var(--lav2); }
 .m-card-img-ph { width:44px;height:44px;border-radius:11px;background:var(--lav);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;border:2px solid var(--lav2); }
 .m-prod-name { font-size: .95rem; font-weight: 700; color: var(--bright); }
-.m-prod-price { font-size: .82rem; color: #10b981; font-weight: 800; margin-top: 2px; }
+.m-prod-price { font-size: .82rem; color: #0f172a; font-weight: 800; margin-top: 2px; }
 .m-status-pill {
     margin-left: auto; padding: 5px 13px; border-radius: 30px;
     font-size: .74rem; font-weight: 800; white-space: nowrap;
@@ -578,7 +578,7 @@ body { background: #ffffff !important; }
                     max="{{ today_str }}"
                     onchange="document.getElementById('datepickerForm').submit()"
                     style="
-                        background:linear-gradient(135deg,#2563eb,#10b981);
+                        background:linear-gradient(135deg,#2563eb,#0f172a);
                         color:#fff; border:none; border-radius:12px;
                         padding:8px 16px; font-weight:800; font-size:.92rem;
                         cursor:pointer; outline:none;
@@ -588,7 +588,7 @@ body { background: #ffffff !important; }
             </form>
             {% if not is_today %}
             <a href="?date={{ today_str }}"
-               style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border-radius:10px;padding:8px 14px;text-decoration:none;font-weight:800;font-size:.82rem;box-shadow:0 4px 12px rgba(16,185,129,.3);">
+               style="background:linear-gradient(135deg,#0f172a,#059669);color:#fff;border-radius:10px;padding:8px 14px;text-decoration:none;font-weight:800;font-size:.82rem;box-shadow:0 4px 12px rgba(15,23,42,.3);">
                 ກັບມື້ນີ້
             </a>
             {% endif %}
@@ -599,7 +599,7 @@ body { background: #ffffff !important; }
     </div>
     <div class="stat-grid">
         <!-- Orders today -->
-        <div class="stat-card" onclick="openStatModal('All','{{ current_date }}','📦 ອໍເດີທັງໝົດມື້ນີ້')" style="--card-line:linear-gradient(90deg,#2563eb,#10b981); --icon-bg:rgba(124,58,237,.1);">
+        <div class="stat-card" onclick="openStatModal('All','{{ current_date }}','📦 ອໍເດີທັງໝົດມື້ນີ້')" style="--card-line:linear-gradient(90deg,#2563eb,#0f172a); --icon-bg:rgba(124,58,237,.1);">
             <div class="sc-top">
                 <div class="sc-icon">📦</div>
                 <span class="sc-badge" style="--tag-bg:rgba(124,58,237,.1);--tag-col:var(--purple);">ມື້ນີ້</span>
@@ -608,13 +608,13 @@ body { background: #ffffff !important; }
             <div class="sc-lbl">ອໍເດີທັງໝົດ <span style="font-size:.7rem;color:rgba(124,58,237,.5);">— ຄລິກລາຍລະອຽດ</span></div>
         </div>
         <!-- Revenue today -->
-        <div class="stat-card" onclick="openStatModal('All','{{ current_date }}','💰 ລາຍຮັບມື້ນີ້')" style="--card-line:linear-gradient(90deg,#10b981,#34d399); --icon-bg:rgba(16,185,129,.1);">
+        <div class="stat-card" onclick="openStatModal('All','{{ current_date }}','💰 ລາຍຮັບມື້ນີ້')" style="--card-line:linear-gradient(90deg,#0f172a,#3b82f6); --icon-bg:rgba(15,23,42,.1);">
             <div class="sc-top">
                 <div class="sc-icon">💰</div>
-                <span class="sc-badge" style="--tag-bg:rgba(16,185,129,.1);--tag-col:#059669;">ກີບ</span>
+                <span class="sc-badge" style="--tag-bg:rgba(15,23,42,.1);--tag-col:#059669;">ກີບ</span>
             </div>
-            <div class="sc-num" style="color:#10b981;font-size:1.6rem;">{{ today_revenue|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
-            <div class="sc-lbl">ລາຍຮັບມື້ນີ້ <span style="font-size:.7rem;color:rgba(16,185,129,.5);">— ຄລິກລາຍລະອຽດ</span></div>
+            <div class="sc-num" style="color:#0f172a;font-size:1.6rem;">{{ today_revenue|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
+            <div class="sc-lbl">ລາຍຮັບມື້ນີ້ <span style="font-size:.7rem;color:rgba(15,23,42,.5);">— ຄລິກລາຍລະອຽດ</span></div>
         </div>
         <!-- Pending today -->
         <div class="stat-card" onclick="openStatModal('Pending','{{ current_date }}','⏳ ລໍຖ້າຢືນຢັນ')" style="--card-line:linear-gradient(90deg,#f59e0b,#fbbf24); --icon-bg:rgba(245,158,11,.1);">
@@ -644,13 +644,13 @@ body { background: #ffffff !important; }
             <div class="sc-lbl">ກຳລັງຈັດສົ່ງ <span style="font-size:.7rem;color:rgba(249,115,22,.5);">— ຄລິກລາຍລະອຽດ</span></div>
         </div>
         <!-- Delivered today -->
-        <div class="stat-card" onclick="openStatModal('Delivered','{{ current_date }}','🏠 ຈັດສົ່ງສຳເລັດ')" style="--card-line:linear-gradient(90deg,#10b981,#059669); --icon-bg:rgba(16,185,129,.1);">
+        <div class="stat-card" onclick="openStatModal('Delivered','{{ current_date }}','🏠 ຈັດສົ່ງສຳເລັດ')" style="--card-line:linear-gradient(90deg,#0f172a,#059669); --icon-bg:rgba(15,23,42,.1);">
             <div class="sc-top">
                 <div class="sc-icon">🏠</div>
-                <span class="sc-badge" style="--tag-bg:rgba(16,185,129,.1);--tag-col:#059669;">ສຳເລັດ</span>
+                <span class="sc-badge" style="--tag-bg:rgba(15,23,42,.1);--tag-col:#059669;">ສຳເລັດ</span>
             </div>
-            <div class="sc-num" style="color:#10b981;">{{ today_delivered_count }}</div>
-            <div class="sc-lbl">ຈັດສົ່ງສຳເລັດ <span style="font-size:.7rem;color:rgba(16,185,129,.5);">— ຄລິກລາຍລະອຽດ</span></div>
+            <div class="sc-num" style="color:#0f172a;">{{ today_delivered_count }}</div>
+            <div class="sc-lbl">ຈັດສົ່ງສຳເລັດ <span style="font-size:.7rem;color:rgba(15,23,42,.5);">— ຄລິກລາຍລະອຽດ</span></div>
         </div>
     </div>
 
@@ -685,8 +685,8 @@ body { background: #ffffff !important; }
                     <span class="dl-val" style="color:#2563eb;">{{ today_processing_count }}</span>
                 </div>
                 <div class="dl-row" onclick="openStatModal('Delivered','{{ current_date }}','🏠 ຈັດສົ່ງສຳເລັດ')">
-                    <span class="dl-lbl"><span class="dl-dot" style="background:#10b981;"></span>🏠 ຈັດສົ່ງສຳເລັດ <span style="font-size:.7rem;color:rgba(0,0,0,.35);">— ຄລິກ</span></span>
-                    <span class="dl-val" style="color:#10b981;">{{ today_delivered_count }}</span>
+                    <span class="dl-lbl"><span class="dl-dot" style="background:#0f172a;"></span>🏠 ຈັດສົ່ງສຳເລັດ <span style="font-size:.7rem;color:rgba(0,0,0,.35);">— ຄລິກ</span></span>
+                    <span class="dl-val" style="color:#0f172a;">{{ today_delivered_count }}</span>
                 </div>
                 <div class="dl-row" onclick="openStatModal('Cancelled','{{ current_date }}','❌ ຍົກເລີກ')">
                     <span class="dl-lbl"><span class="dl-dot" style="background:#ef4444;"></span>❌ ຍົກເລີກ <span style="font-size:.7rem;color:rgba(0,0,0,.35);">— ຄລິກ</span></span>
@@ -808,7 +808,7 @@ body { background: #ffffff !important; }
                         {% if group.is_walkin %}
                         <div style="font-size:.62rem;font-weight:800;color:#3b82f6;margin-top:3px;" title="ຂາຍໜ້າຮ້ານ">🏪 ໜ້າຮ້ານ</div>
                         {% elif group.is_advance %}
-                        <div style="font-size:.62rem;font-weight:800;color:#10b981;margin-top:3px;" title="ຈອງລ່ວງໜ້າ — ຮັບແລ້ວມື້ນີ້">📅 ຈອງລ່ວງໜ້າ</div>
+                        <div style="font-size:.62rem;font-weight:800;color:#0f172a;margin-top:3px;" title="ຈອງລ່ວງໜ້າ — ຮັບແລ້ວມື້ນີ້">📅 ຈອງລ່ວງໜ້າ</div>
                         {% endif %}
                     </td>
 
@@ -1053,7 +1053,7 @@ body { background: #ffffff !important; }
                 <div class="dms-lbl">ອໍເດີທັງໝົດ</div>
             </div>
             <div class="dms-cell">
-                <div class="dms-num" id="ddm-total" style="color:#10b981;">—</div>
+                <div class="dms-num" id="ddm-total" style="color:#0f172a;">—</div>
                 <div class="dms-lbl">ຍອດ (ກີບ)</div>
             </div>
             <div class="dms-cell">
@@ -1086,7 +1086,7 @@ body { background: #ffffff !important; }
                 <div class="dms-lbl">ຈຳນວນອໍເດີ</div>
             </div>
             <div class="dms-cell">
-                <div class="dms-num" id="sdm-total" style="color:#10b981;">—</div>
+                <div class="dms-num" id="sdm-total" style="color:#0f172a;">—</div>
                 <div class="dms-lbl">ຍອດລວມ (ກີບ)</div>
             </div>
             <div class="dms-cell">
@@ -1098,7 +1098,7 @@ body { background: #ffffff !important; }
             <a id="sdmExportLink" href="#" class="ic-btn" style="width:auto;padding:0 16px;background:linear-gradient(135deg,#1d6f42,#2ea05a);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.85rem;">
                 <i class="fas fa-file-excel"></i> Export Excel
             </a>
-            <a id="sdmInvoiceLink" href="#" target="_blank" class="ic-btn" style="width:auto;padding:0 16px;background:linear-gradient(135deg,#10b981,#3b82f6);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.85rem;">
+            <a id="sdmInvoiceLink" href="#" target="_blank" class="ic-btn" style="width:auto;padding:0 16px;background:linear-gradient(135deg,#0f172a,#3b82f6);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.85rem;">
                 <i class="fas fa-receipt"></i> ອອກໃບບິນ
             </a>
         </div>
@@ -1128,7 +1128,7 @@ Chart.defaults.font.family = "'Lexend','Noto Sans Lao'";
             labels: DAILY_LABELS,
             datasets: [
                 { type:'bar', label:'ອໍເດີ', data:DAILY_ORDERS, backgroundColor:'rgba(124,58,237,.55)', borderRadius:5, yAxisID:'y' },
-                { type:'line', label:'ຍອດຂາຍ', data:DAILY_AMOUNTS, borderColor:'#10b981', backgroundColor:'rgba(190,24,93,.07)', fill:true, tension:.4, pointRadius:2, borderWidth:2, yAxisID:'y1' }
+                { type:'line', label:'ຍອດຂາຍ', data:DAILY_AMOUNTS, borderColor:'#0f172a', backgroundColor:'rgba(190,24,93,.07)', fill:true, tension:.4, pointRadius:2, borderWidth:2, yAxisID:'y1' }
             ]
         },
         options: {
@@ -1137,7 +1137,7 @@ Chart.defaults.font.family = "'Lexend','Noto Sans Lao'";
             scales:{
                 x:{ grid:{display:false}, ticks:{ maxTicksLimit:10, font:{size:10} } },
                 y:{ grid:{color:'rgba(124,58,237,.06)'}, ticks:{font:{size:10}}, position:'left' },
-                y1:{ grid:{display:false}, ticks:{color:'#10b981',font:{size:10}}, position:'right' }
+                y1:{ grid:{display:false}, ticks:{color:'#0f172a',font:{size:10}}, position:'right' }
             },
             onClick(e, els) {
                 if (!els.length) { openSalesModal(); return; }
@@ -1160,7 +1160,7 @@ Chart.defaults.font.family = "'Lexend','Noto Sans Lao'";
         { key:'Pending',    label:'⏳ ຮັບອໍເດີ',       title:'⏳ ຮັບ/ລໍຖ້າຢືນຢັນ', color:'#f59e0b' },
         { key:'Confirmed',  label:'✅ ຢືນຢັນ',          title:'✅ ຢືນຢັນອໍເດີ',     color:'#6366f1' },
         { key:'Processing', label:'🚚 ກຳລັງຈັດສົ່ງ',   title:'🚚 ກຳລັງຈັດສົ່ງ',   color:'#2563eb' },
-        { key:'Delivered',  label:'🏠 ສຳເລັດ',          title:'🏠 ຈັດສົ່ງສຳເລັດ',  color:'#10b981' },
+        { key:'Delivered',  label:'🏠 ສຳເລັດ',          title:'🏠 ຈັດສົ່ງສຳເລັດ',  color:'#0f172a' },
         { key:'Cancelled',  label:'❌ ຍົກເລີກ',         title:'❌ ຍົກເລີກ',         color:'#ef4444' },
     ];
     const todayData = [
@@ -1224,7 +1224,7 @@ function openSalesModal() {
                 <td style="padding:11px 16px;text-align:center;">
                     ${o>0?`<span style="background:rgba(124,58,237,.1);color:#2563eb;padding:3px 11px;border-radius:20px;font-weight:700;">${o}</span>`:'<span style="color:#94a3b8;">—</span>'}
                 </td>
-                <td style="padding:11px 16px;text-align:right;color:${a>0?'#10b981':'#94a3b8'};font-weight:700;">
+                <td style="padding:11px 16px;text-align:right;color:${a>0?'#0f172a':'#94a3b8'};font-weight:700;">
                     ${a>0?Number(a).toLocaleString()+' ກີບ':'—'}
                 </td>
             </tr>`);
@@ -1237,7 +1237,7 @@ function openSalesModal() {
             labels:DAILY_LABELS,
             datasets:[
                 { label:'ອໍເດີ', data:DAILY_ORDERS, backgroundColor:'rgba(124,58,237,.55)', borderRadius:5, yAxisID:'y' },
-                { label:'ຍອດ', type:'line', data:DAILY_AMOUNTS, borderColor:'#10b981', tension:.4, pointRadius:2, borderWidth:2, yAxisID:'y1', fill:false }
+                { label:'ຍອດ', type:'line', data:DAILY_AMOUNTS, borderColor:'#0f172a', tension:.4, pointRadius:2, borderWidth:2, yAxisID:'y1', fill:false }
             ]
         },
         options:{
@@ -1246,7 +1246,7 @@ function openSalesModal() {
             scales:{
                 x:{grid:{display:false},ticks:{maxTicksLimit:15}},
                 y:{grid:{color:'rgba(124,58,237,.06)'},position:'left'},
-                y1:{grid:{display:false},ticks:{color:'#10b981'},position:'right'}
+                y1:{grid:{display:false},ticks:{color:'#0f172a'},position:'right'}
             },
             onClick(e, els) {
                 if (!els.length) return;

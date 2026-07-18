@@ -229,7 +229,7 @@ def ajax_send_otp(request):
         from twilio.rest import Client as _TwilioClient
         client = _TwilioClient(sid, token)
         client.messages.create(
-            body=f'VOLT EV\nລະຫັດ OTP: {otp}\n(ໃຊ້ໄດ້ 5 ນາທີ - ຢ່າໃຫ້ໃຜ)',
+            body=f'EX ມໍເຕີ້\nລະຫັດ OTP: {otp}\n(ໃຊ້ໄດ້ 5 ນາທີ - ຢ່າໃຫ້ໃຜ)',
             from_=frm,
             to=mobile,
         )
@@ -889,7 +889,7 @@ def export_walkin_excel_view(request):
     c.font = hfont(size=14); c.fill = fill("7C3AED"); c.alignment = center
     ws.row_dimensions[1].height = 36
     ws.merge_cells("A2:F2")
-    s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+    s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
     s.font = dfont(color="94A3B8", size=10); s.fill = fill("1E293B"); s.alignment = center
     ws.row_dimensions[2].height = 22
 
@@ -926,7 +926,7 @@ def export_walkin_excel_view(request):
         ws.column_dimensions[col].width = w
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = f'attachment; filename="VOLT_ຍອດຂາຍໜ້າຮ້ານ_{invoice_no}.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename="EX_ຍອດຂາຍໜ້າຮ້ານ_{invoice_no}.xlsx"'
     wb.save(response)
     return response
 
@@ -1353,7 +1353,7 @@ def export_advance_bookings_excel(request):
     c.font = hfont(size=14); c.fill = fill("7C3AED"); c.alignment = center
     ws.row_dimensions[1].height = 36
     ws.merge_cells("A2:H2")
-    s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+    s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
     s.font = dfont(color="94A3B8", size=10); s.fill = fill("1E293B"); s.alignment = center
     ws.row_dimensions[2].height = 22
 
@@ -1399,7 +1399,7 @@ def export_advance_bookings_excel(request):
 
     fname_suffix = pickup_date_obj.strftime('%Y-%m-%d') if pickup_date_obj else 'ທັງໝົດ'
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = f'attachment; filename="VOLT_ຈອງລ່ວງໜ້າ_{fname_suffix}.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename="EX_ຈອງລ່ວງໜ້າ_{fname_suffix}.xlsx"'
     wb.save(response)
     return response
 
@@ -3580,7 +3580,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("3B82F6"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:E2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, (h, fc) in enumerate(zip(
@@ -3614,7 +3614,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCDE", [8, 28, 10, 18, 14]):
                 ws.column_dimensions[col].width = w
-            filename = f"VOLT_ລາຍຮັບ_{sel_date_d}.xlsx"
+            filename = f"EX_ລາຍຮັບ_{sel_date_d}.xlsx"
 
         elif sel_type == 'expense':
             expenses = list(models.Expense.objects.filter(
@@ -3628,7 +3628,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("B91C1C"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:D2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, (h, fc) in enumerate(zip(
@@ -3661,7 +3661,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCD", [8, 20, 32, 18]):
                 ws.column_dimensions[col].width = w
-            filename = f"VOLT_ລາຍຈ່າຍ_{sel_date_d}.xlsx"
+            filename = f"EX_ລາຍຈ່າຍ_{sel_date_d}.xlsx"
 
         else:  # profit
             orders = list(_revenue_orders_qs(day_start, day_end).values('id', 'product__name', 'quantity', 'amount'))
@@ -3680,7 +3680,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("065F46"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:C2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
 
@@ -3742,7 +3742,7 @@ def export_finance_excel(request):
 
             for col, w in zip("ABC", [28, 32, 20]):
                 ws.column_dimensions[col].width = w
-            filename = f"VOLT_ກຳໄລ_{sel_date_d}.xlsx"
+            filename = f"EX_ກຳໄລ_{sel_date_d}.xlsx"
 
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -3792,7 +3792,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("1D4ED8"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:F2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, (h, fc) in enumerate(zip(
@@ -3827,7 +3827,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCDEF", [8, 13, 26, 10, 16, 14]):
                 ws.column_dimensions[col].width = w
-            filename = f"VOLT_ລາຍຮັບ_{fname_lbl}.xlsx"
+            filename = f"EX_ລາຍຮັບ_{fname_lbl}.xlsx"
 
         elif sel_type == 'expense':
             expenses = list(models.Expense.objects.filter(
@@ -3841,7 +3841,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("B91C1C"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:E2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, (h, fc) in enumerate(zip(
@@ -3874,7 +3874,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCDE", [8, 14, 20, 32, 18]):
                 ws.column_dimensions[col].width = w
-            filename = f"VOLT_ລາຍຈ່າຍ_{fname_lbl}.xlsx"
+            filename = f"EX_ລາຍຈ່າຍ_{fname_lbl}.xlsx"
 
         else:  # profit — aggregated per-day (month scope) or per-month (year scope)
             rev_map, exp_map = {}, {}
@@ -3890,7 +3890,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("065F46"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:D2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             LAO_DAYS3 = ['ຈັນ','ອັງຄານ','ພຸດ','ພະຫັດ','ສຸກ','ເສົາ','ອາທິດ']
@@ -3951,7 +3951,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCD", [18, 18, 18, 18]):
                 ws.column_dimensions[col].width = w
-            filename = f"VOLT_ກຳໄລ_{fname_lbl}.xlsx"
+            filename = f"EX_ກຳໄລ_{fname_lbl}.xlsx"
 
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -3986,7 +3986,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("1D4ED8"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:F2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, h in enumerate(["ລຳດັບ","ວັນທີ","ສິນຄ້າ","ຈຳນວນ","ລາຍຮັບ (ກີບ)","ສະຖານະ"], 1):
@@ -4015,7 +4015,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCDEF", [8, 14, 26, 10, 16, 14]):
                 ws.column_dimensions[col].width = w
-            filename = "VOLT_ລາຍຮັບ_ທັງໝົດ.xlsx"
+            filename = "EX_ລາຍຮັບ_ທັງໝົດ.xlsx"
 
         elif sel_type == 'expense':
             expenses = list(models.Expense.objects.all().order_by('date', 'id').values(
@@ -4029,7 +4029,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("B91C1C"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:E2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, h in enumerate(["ລຳດັບ","ວັນທີ","ໝວດໝູ່","ລາຍລະອຽດ","ຈຳນວນ (ກີບ)"], 1):
@@ -4056,7 +4056,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCDE", [8, 14, 18, 32, 16]):
                 ws.column_dimensions[col].width = w
-            filename = "VOLT_ລາຍຈ່າຍ_ທັງໝົດ.xlsx"
+            filename = "EX_ລາຍຈ່າຍ_ທັງໝົດ.xlsx"
 
         else:  # profit — year-by-year summary across every year that has any data
             from django.db.models import Min as _Min, Max as _Max
@@ -4073,7 +4073,7 @@ def export_finance_excel(request):
             c.font = _hfont(size=14); c.fill = _fill("065F46"); c.alignment = _center
             ws.row_dimensions[1].height = 36
             ws.merge_cells("A2:D2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             for ci, (h, fc) in enumerate(zip(["ປີ","ລາຍຮັບ (ກີບ)","ລາຍຈ່າຍ (ກີບ)","ກຳໄລ (ກີບ)"], ["1E3A5F","1D4ED8","B91C1C","065F46"]), 1):
@@ -4112,7 +4112,7 @@ def export_finance_excel(request):
             ws.row_dimensions[tr].height = 28
             for col, w in zip("ABCD", [14, 18, 18, 18]):
                 ws.column_dimensions[col].width = w
-            filename = "VOLT_ກຳໄລ_ທັງໝົດ.xlsx"
+            filename = "EX_ກຳໄລ_ທັງໝົດ.xlsx"
 
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -4144,7 +4144,7 @@ def export_finance_excel(request):
     # Sub-title row
     ws_day.merge_cells("A2:G2")
     sub = ws_day["A2"]
-    sub.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+    sub.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
     sub.font  = _hfont(bold=False, color="94A3B8", size=10)
     sub.fill  = _fill("1E293B")
     sub.alignment = _center
@@ -4251,7 +4251,7 @@ def export_finance_excel(request):
 
     ws_mon.merge_cells("A2:G2")
     s2 = ws_mon["A2"]
-    s2.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+    s2.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
     s2.font  = _hfont(bold=False, color="94A3B8", size=10)
     s2.fill  = _fill("1E293B")
     s2.alignment = _center
@@ -4365,7 +4365,7 @@ def export_finance_excel(request):
             ws.row_dimensions[1].height = 36
             ws.merge_cells(f"A2:{chr(64+cols)}2")
             s = ws["A2"]
-            s.value = f"Export: {today}  |  ຮ້ານ VOLT EV"
+            s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
             s.font  = _hfont(bold=False, color="94A3B8", size=10)
             s.fill  = _fill("1E293B")
             s.alignment = _center
@@ -4480,7 +4480,7 @@ def export_finance_excel(request):
             ws2.row_dimensions[tr2].height = 28
             for col, w in zip("ABCD", [8,20,16,22]):
                 ws2.column_dimensions[col].width = w
-            filename = f"VOLT_ລາຍຮັບ_{sel_year}_{sel_month:02d}.xlsx"
+            filename = f"EX_ລາຍຮັບ_{sel_year}_{sel_month:02d}.xlsx"
 
         # ════════════ EXPENSE EXPORT ════════════
         elif sel_type == 'expense':
@@ -4557,7 +4557,7 @@ def export_finance_excel(request):
             ws2.row_dimensions[tr2].height = 28
             for col, w in zip("ABC", [8,22,22]):
                 ws2.column_dimensions[col].width = w
-            filename = f"VOLT_ລາຍຈ່າຍ_{sel_year}_{sel_month:02d}.xlsx"
+            filename = f"EX_ລາຍຈ່າຍ_{sel_year}_{sel_month:02d}.xlsx"
 
         # ════════════ PROFIT EXPORT ════════════
         elif sel_type == 'profit':
@@ -4656,11 +4656,11 @@ def export_finance_excel(request):
             ws2.row_dimensions[tr2].height = 28
             for col, w in zip("ABCDE", [8,20,22,22,22]):
                 ws2.column_dimensions[col].width = w
-            filename = f"VOLT_ກຳໄລ_{sel_year}_{sel_month:02d}.xlsx"
+            filename = f"EX_ກຳໄລ_{sel_year}_{sel_month:02d}.xlsx"
 
     else:
         # default (type=all) — use the wb already built above (daily + monthly sheets)
-        filename = f"VOLT_ສະຫຼຸບ_{sel_year}_{sel_month:02d}.xlsx"
+        filename = f"EX_ສະຫຼຸບ_{sel_year}_{sel_month:02d}.xlsx"
 
     # ── Response ──
     response = HttpResponse(

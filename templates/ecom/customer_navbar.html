@@ -11,8 +11,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <style>
 :root {
-    --pk:   #10b981; --pk2:  #34d399; --pk-lt: #ecfdf5;
-    --pk-d: #10b981;
+    --pk:   #0f172a; --pk2:  #3b82f6; --pk-lt: #f8fafc;
+    --pk-d: #0f172a;
     --pu:   #2563eb; --pu2:  #3b82f6; --pu-lt: #eff6ff;
     --lav:  #dbeafe; --lav2: #bfdbfe;
     --text: #1e3a5f;
@@ -98,13 +98,15 @@ body {
 }
 .logo-icon {
     width: 68px; height: 68px; border-radius: 20px; flex-shrink: 0;
-    background: linear-gradient(145deg, #34d399 0%, #10b981 40%, #3b82f6 100%);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 2.1rem; color: #fff; position: relative; overflow: hidden;
-    box-shadow: 0 10px 32px rgba(236,72,153,.40);
+    background: linear-gradient(145deg, #3b82f6 0%, #0f172a 40%, #3b82f6 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    color: #fff; position: relative; overflow: hidden;
+    box-shadow: 0 10px 32px rgba(15,23,42,.40);
     transition: .35s;
     animation: float 3.5s ease-in-out infinite;
 }
+.logo-icon .li-car { font-size: 1.7rem; line-height: 1; position: relative; z-index: 1; }
+.logo-icon .li-ex { font-size: .58rem; font-weight: 900; letter-spacing: 1.5px; line-height: 1; position: relative; z-index: 1; }
 .logo-icon::before {
     content: '';
     position: absolute; inset: 0;
@@ -113,15 +115,15 @@ body {
 @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 .brand-logo:hover .logo-icon {
     transform: rotate(-8deg) scale(1.1); animation: none;
-    box-shadow: 0 18px 48px rgba(236,72,153,.5);
+    box-shadow: 0 18px 48px rgba(15,23,42,.5);
 }
 .logo-text { display: flex; flex-direction: column; line-height: 1.1; }
-.logo-text .t2 { font-size: 2rem; font-weight: 900; color: #047857; letter-spacing: -.5px; }
+.logo-text .t2 { font-size: 2rem; font-weight: 900; color: #1e293b; letter-spacing: -.5px; }
 .logo-text .t3 { font-size: .82rem; font-weight: 700; color: var(--pk); margin-top: 2px; }
 
 /* SEARCH */
 .search-wrapper {
-    background: #ecfdf5; border-radius: 50px; padding: 5px;
+    background: #f8fafc; border-radius: 50px; padding: 5px;
     display: flex; align-items: center;
     border: 2px solid #a7f3d0; transition: .3s;
 }
@@ -191,7 +193,9 @@ body {
     .av { width: 24px; height: 24px; font-size: .65rem; }
     .main-navbar { flex-direction: column; align-items: stretch; gap: 8px; }
     .brand-logo { justify-content: center; gap: 8px; }
-    .logo-icon { width: 36px; height: 36px; border-radius: 12px; font-size: 1.1rem; }
+    .logo-icon { width: 36px; height: 36px; border-radius: 12px; }
+    .logo-icon .li-car { font-size: 1rem; }
+    .logo-icon .li-ex { font-size: .38rem; }
     .logo-text .t2 { font-size: 2.1rem; }
     .logo-text .t3 { font-size: .68rem; }
     .navbar-input { padding: 7px 12px; font-size: .85rem; }
@@ -224,7 +228,7 @@ body {
                         <li>
                             <form action="{% url 'logout' %}" method="post" id="logout-form-c" style="display:none;">{% csrf_token %}</form>
                             <a href="javascript:void(0)" onclick="document.getElementById('logout-form-c').submit();"
-                               style="color:#10b981 !important;">
+                               style="color:#0f172a !important;">
                                 <i class="fas fa-sign-out-alt"></i> ອອກຈາກລະບົບ
                             </a>
                         </li>
@@ -245,9 +249,9 @@ body {
     <div class="main-navbar">
         <!-- LOGO -->
         <a class="brand-logo" href="/">
-            <div class="logo-icon"><i class="fas fa-blender"></i></div>
+            <div class="logo-icon"><i class="fas fa-car-side li-car"></i><span class="li-ex">EX</span></div>
             <div class="logo-text">
-                <span class="t2">VOLT EV</span>
+                <span class="t2">EX ມໍເຕີ້</span>
             </div>
         </a>
 
@@ -327,7 +331,7 @@ function _showToast() {
     t.innerHTML = '<i class="fas fa-check-circle"></i> ເພີ່ມສິນຄ້າສຳເລັດ';
     Object.assign(t.style, {
         position:'fixed', bottom:'28px', right:'28px',
-        background:'linear-gradient(135deg,#10b981,#2563eb)',
+        background:'linear-gradient(135deg,#0f172a,#2563eb)',
         color:'#fff', padding:'14px 22px', borderRadius:'50px',
         fontWeight:'800', fontSize:'15px', zIndex:'99999',
         boxShadow:'0 12px 32px rgba(124,58,237,.35)',

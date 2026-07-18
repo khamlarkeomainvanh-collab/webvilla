@@ -8,14 +8,14 @@
 
 <style>
 :root {
-  --pk:  #10b981; --pk2: #34d399; --pk-lt: #ecfdf5;
+  --pk:  #0f172a; --pk2: #3b82f6; --pk-lt: #f8fafc;
   --pu:  #2563eb; --pu2: #3b82f6; --pu-lt: #eff6ff;
   --lav: #dbeafe; --lav2:#bfdbfe; --text:#1e3a5f;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Lexend','Noto Sans Lao', sans-serif;
-  background: linear-gradient(155deg,#eff6ff 0%,#eff6ff 50%,#ecfdf5 100%);
+  background: linear-gradient(155deg,#eff6ff 0%,#eff6ff 50%,#f8fafc 100%);
   background-attachment: fixed;
   min-height: 100vh;
 }
@@ -200,7 +200,7 @@ body {
     <div class="banner-icon">🎉</div>
     <div class="banner-text">
       <h1>ສັ່ງຊື້ສຳເລັດ!</h1>
-      <p>ຂອບໃຈທີ່ໃຊ້ VOLT EV  — ກຳລັງກຽມໃຫ້ທ່ານ</p>
+      <p>ຂອບໃຈທີ່ໃຊ້ EX ມໍເຕີ້  — ກຳລັງກຽມໃຫ້ທ່ານ</p>
     </div>
     <div class="queue-badge">
       <div class="qb-lbl">ຄິວທີ</div>
@@ -224,7 +224,7 @@ body {
         {% for item in ordered_products %}
         <div class="order-item">
           {% if item.is_custom %}
-          <div class="oi-img" style="background:linear-gradient(135deg,#3b82f6,#10b981);"><span style="color:#fff;">✍️</span></div>
+          <div class="oi-img" style="background:linear-gradient(135deg,#3b82f6,#0f172a);"><span style="color:#fff;">✍️</span></div>
           <div class="oi-info">
             <div class="oi-name">{{ item.custom_message }}</div>
             <div class="oi-cust">
@@ -354,7 +354,7 @@ body {
         </a>
       </div>
 
-      <div class="footer-note">⚡ VOLT EV &nbsp;·&nbsp; ຈອງງ່າຍ ຮັບໄວ ໝັ້ນໃຈທຸກຄັນ</div>
+      <div class="footer-note">⚡ EX ມໍເຕີ້ &nbsp;·&nbsp; ຈອງງ່າຍ ຮັບໄວ ໝັ້ນໃຈທຸກຄັນ</div>
 
     </div><!-- /.right-col -->
 
@@ -367,7 +367,7 @@ body {
 <script>
 (function() {
   var end = Date.now() + 2800;
-  var colors = ['#10b981','#3b82f6','#34d399','#bfdbfe','#ecfdf5','#ffffff'];
+  var colors = ['#0f172a','#3b82f6','#3b82f6','#bfdbfe','#f8fafc','#ffffff'];
   (function frame() {
     confetti({ particleCount: 4, angle: 60,  spread: 55, origin: {x:0}, colors: colors });
     confetti({ particleCount: 4, angle: 120, spread: 55, origin: {x:1}, colors: colors });

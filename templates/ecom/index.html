@@ -10,8 +10,8 @@
   --ink:      #0b1220;
   --ink2:     #142236;
   --blue:     #2563eb;
-  --green:    #10b981;
-  --grad:     linear-gradient(120deg, #2563eb 0%, #10b981 100%);
+  --green:    #0f172a;
+  --grad:     linear-gradient(120deg, #2563eb 0%, #0f172a 100%);
   --paper:    #ffffff;
   --panel:    #f6f8fb;
   --line:     #e6eaf1;
@@ -39,7 +39,7 @@ body {
 .hero::before {
   content:''; position:absolute; top:-30%; right:-10%;
   width: 620px; height: 620px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(16,185,129,.22) 0%, transparent 68%);
+  background: radial-gradient(circle, rgba(15,23,42,.22) 0%, transparent 68%);
   pointer-events: none;
 }
 .hero::after {
@@ -76,9 +76,9 @@ body {
 }
 .hero-btn-main {
   background: var(--grad); color: #fff;
-  box-shadow: 0 14px 34px rgba(16,185,129,.28);
+  box-shadow: 0 14px 34px rgba(15,23,42,.28);
 }
-.hero-btn-main:hover { transform: translateY(-3px); box-shadow: 0 20px 44px rgba(16,185,129,.4); color:#fff; }
+.hero-btn-main:hover { transform: translateY(-3px); box-shadow: 0 20px 44px rgba(15,23,42,.4); color:#fff; }
 .hero-btn-sec {
   background: rgba(255,255,255,.06); color: #fff;
   border: 1.5px solid rgba(255,255,255,.18); backdrop-filter: blur(6px);
@@ -233,6 +233,7 @@ body {
   font-size: .7rem; font-weight: 700; border: 1px solid var(--line);
 }
 
+.view-trigger { cursor: pointer; display: block; }
 .img-box {
   height: 200px; background: linear-gradient(160deg,#eef1f6,#e2e8f0);
   display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;
@@ -240,8 +241,16 @@ body {
 .img-box img { width: 100%; height: 100%; object-fit: cover; object-position: center; transition: .5s; }
 .card:hover .img-box img { transform: scale(1.05); }
 .img-ph { font-size: 3.4rem; color: #b6c0cf; }
+.img-zoom-hint {
+  position: absolute; left: 50%; bottom: 12px; transform: translate(-50%,8px);
+  background: rgba(15,23,42,.82); color: #fff; padding: 7px 14px; border-radius: 8px;
+  font-size: .74rem; font-weight: 700; display: flex; align-items: center; gap: 7px;
+  opacity: 0; transition: .25s; white-space: nowrap; pointer-events: none;
+}
+.card:hover .img-zoom-hint { opacity: 1; transform: translate(-50%,0); }
 
-.card-body { padding: 18px 18px 20px; }
+.card-body-top { padding: 18px 18px 0; }
+.card-body { padding: 0 18px 20px; }
 .c-name { font-size: clamp(1rem, 1.2vw + .7rem, 1.18rem); font-weight: 800; color: var(--text); margin-bottom: 3px; line-height: 1.3; letter-spacing: -.2px; }
 .c-cat  { font-size: .76rem; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
 .c-desc {
@@ -275,7 +284,7 @@ body {
   cursor: pointer; transition: .25s;
   display: flex; align-items: center; justify-content: center; gap: 9px;
 }
-.add-btn:hover { background: var(--grad); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(16,185,129,.3); }
+.add-btn:hover { background: var(--grad); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(15,23,42,.3); }
 .add-btn:active { transform: scale(.97); }
 
 /* ====== SOLD-OUT ====== */
@@ -326,7 +335,7 @@ body {
   background: var(--ink); color:#fff !important; text-decoration:none !important;
   padding:15px; border-radius:11px; font-weight:700; font-size:15px; margin-bottom:11px; transition:.25s;
 }
-.auth-btn-main:hover { background: var(--grad); transform:translateY(-2px); box-shadow: 0 10px 24px rgba(16,185,129,.3); }
+.auth-btn-main:hover { background: var(--grad); transform:translateY(-2px); box-shadow: 0 10px 24px rgba(15,23,42,.3); }
 .auth-btn-sec {
   display:flex; align-items:center; justify-content:center; gap:10px;
   background: var(--panel); color: var(--text) !important; text-decoration:none !important;
@@ -334,6 +343,61 @@ body {
 }
 .auth-btn-sec:hover { background:#eef1f6; border-color:#cbd5e1; transform:translateY(-2px); }
 .auth-divider { text-align:center; color:#cbd5e1; font-size:11px; margin:13px 0; font-weight:700; letter-spacing:1px; text-transform: uppercase; }
+
+/* ====== PRODUCT DETAIL MODAL ====== */
+@keyframes pmPop { from { opacity:0; transform:scale(.94) translateY(24px); } to { opacity:1; transform:scale(1) translateY(0); } }
+#productModalOverlay {
+  display: none; position: fixed; inset: 0; z-index: 99998;
+  background: rgba(6,10,20,.68); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+#productModalOverlay.open { display: flex; }
+.product-modal {
+  position: relative; background: #fff; border-radius: 22px; overflow: hidden;
+  max-width: 460px; width: 100%; max-height: 92vh; overflow-y: auto;
+  box-shadow: 0 30px 80px rgba(6,10,20,.4);
+  animation: pmPop .3s cubic-bezier(.175,.885,.32,1.275);
+}
+.pm-close {
+  position: absolute; top: 16px; right: 16px; z-index: 2;
+  background: rgba(6,10,20,.55); border: none; color: #fff;
+  width: 34px; height: 34px; border-radius: 9px; font-size: 19px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: .2s;
+}
+.pm-close:hover { background: rgba(6,10,20,.75); }
+.pm-image-wrap {
+  position: relative; width: 100%; aspect-ratio: 4/3;
+  background: linear-gradient(160deg,#eef1f6,#e2e8f0);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.pm-image-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.pm-img-ph { font-size: 4.5rem; color: #b6c0cf; }
+.pm-sold-badge {
+  position: absolute; top: 16px; left: 16px; z-index: 2;
+  background: rgba(15,23,42,.9); color: #fff; padding: 7px 16px; border-radius: 8px;
+  font-size: .74rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+  display: none; align-items: center;
+}
+.pm-body { padding: 26px 26px 28px; }
+.pm-cat { font-size: .78rem; color: var(--muted); font-weight: 700; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 6px; }
+.pm-name { font-size: 1.4rem; font-weight: 800; color: var(--text); letter-spacing: -.4px; margin-bottom: 12px; line-height: 1.3; }
+.pm-desc { font-size: .9rem; color: var(--muted); line-height: 1.75; margin-bottom: 22px; white-space: pre-line; }
+.pm-price-box {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  padding: 16px 20px; margin-bottom: 18px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pm-price-label { font-size: .82rem; color: var(--muted); font-weight: 700; }
+.pm-price { font-size: 1.6rem; font-weight: 800; color: var(--text); letter-spacing: -.5px; }
+.pm-unit { font-size: .82rem; font-weight: 600; color: var(--muted); }
+.pm-add-btn {
+  width: 100%; padding: 15px; border: none; border-radius: 12px;
+  background: var(--ink); color: #fff; font-size: .95rem; font-weight: 700;
+  font-family:'Lexend','Noto Sans Lao',sans-serif; letter-spacing: .2px;
+  cursor: pointer; transition: .25s;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+}
+.pm-add-btn:hover { background: var(--grad); transform: translateY(-2px); box-shadow: 0 12px 26px rgba(15,23,42,.3); }
 </style>
 
 <!-- SHOP CLOSURE ANNOUNCEMENT -->
@@ -368,7 +432,7 @@ body {
 <div class="hero">
   <div class="hero-inner">
     <div class="hero-kicker"><i class="fas fa-bolt"></i> ຕົວແທນຈຳໜ່າຍລົດໄຟຟ້າ</div>
-    <h1>VOLT <span>EV</span></h1>
+    <h1>EX ມໍເຕີ້ <span>EV</span></h1>
     <p>ຈອງຄິວເລືອກຊົມ ແລະ ຮັບລົດໄຟຟ້າຂອງທ່ານ — ລົດຈັກ, ລົດຖີບ ແລະ ລົດໃຫຍ່ ຄັດສັນຄຸນນະພາບ ພ້ອມການຮັບປະກັນ</p>
     <div class="hero-cta">
       <a href="/queue#payment" class="hero-btn hero-btn-main"><i class="fas fa-qrcode"></i> ສະແກນຊຳລະ</a>
@@ -384,36 +448,36 @@ body {
 
 <!-- PROMO CAROUSEL -->
 <div class="promo-wrap">
-  <div class="promo-label">Showroom · VOLT EV</div>
+  <div class="promo-label">Showroom · EX ມໍເຕີ້</div>
   <div class="promo-frame">
     <div class="promo-track" id="promoTrack">
       {% for _rep in "12" %}
       <div class="promo-slide">
-        <img src="{% static 'images/shop1.jpg' %}" alt="ໜ້າຮ້ານ VOLT EV"
+        <img src="{% static 'images/shop1.jpg' %}" alt="ໜ້າຮ້ານ EX ມໍເຕີ້"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span><i class="fas fa-store"></i></span><span>ໜ້າຮ້ານ VOLT EV</span></div>
+        <div class="ps-ph" style="display:none;"><span><i class="fas fa-store"></i></span><span>ໜ້າຮ້ານ EX ມໍເຕີ້</span></div>
         <div class="ps-overlay"></div>
         <div class="ps-cap"><div class="pt">Showroom ວຽງຈັນ</div><div class="ps">ບ້ານ ໄຊສົມບູນ · ເປີດທຸກມື້</div></div>
       </div>
 
       <div class="promo-slide">
-        <img src="{% static 'images/shop2.jpg' %}" alt="ລົດໄຟຟ້າ VOLT"
+        <img src="{% static 'images/shop2.jpg' %}" alt="ລົດໄຟຟ້າ EX ມໍເຕີ້"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span><i class="fas fa-bolt"></i></span><span>ລົດໄຟຟ້າ VOLT</span></div>
+        <div class="ps-ph" style="display:none;"><span><i class="fas fa-bolt"></i></span><span>ລົດໄຟຟ້າ EX ມໍເຕີ້</span></div>
         <div class="ps-overlay"></div>
         <div class="ps-cap"><div class="pt">ລົດໄຟຟ້າ Premium</div><div class="ps">ຄຸນນະພາບແທ້ · ຮັບປະກັນ</div></div>
       </div>
 
       <div class="promo-slide">
-        <img src="{% static 'images/shop3.jpg' %}" alt="Showroom VOLT"
+        <img src="{% static 'images/shop3.jpg' %}" alt="Showroom EX ມໍເຕີ້"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="ps-ph" style="display:none;"><span><i class="fas fa-motorcycle"></i></span><span>Showroom VOLT</span></div>
+        <div class="ps-ph" style="display:none;"><span><i class="fas fa-motorcycle"></i></span><span>Showroom EX ມໍເຕີ້</span></div>
         <div class="ps-overlay"></div>
         <div class="ps-cap"><div class="pt">ລົດຫຼາກຫຼາຍຮຸ່ນ</div><div class="ps">ພ້ອມໃຫ້ບໍລິການ ແລະ ທົດລອງຂັບ</div></div>
       </div>
 
       <div class="promo-slide">
-        <img src="{% static 'images/shop4.jpg' %}" alt="ແບັດເຕີຣີ VOLT"
+        <img src="{% static 'images/shop4.jpg' %}" alt="ແບັດເຕີຣີ EX ມໍເຕີ້"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="ps-ph" style="display:none;"><span><i class="fas fa-car-battery"></i></span><span>ແບັດເຕີຣີ</span></div>
         <div class="ps-overlay"></div>
@@ -421,7 +485,7 @@ body {
       </div>
 
       <div class="promo-slide">
-        <img src="{% static 'images/shop5.jpg' %}" alt="ບໍລິການຫຼັງການຂາຍ VOLT"
+        <img src="{% static 'images/shop5.jpg' %}" alt="ບໍລິການຫຼັງການຂາຍ EX ມໍເຕີ້"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="ps-ph" style="display:none;"><span><i class="fas fa-headset"></i></span><span>ບໍລິການຫຼັງການຂາຍ</span></div>
         <div class="ps-overlay"></div>
@@ -457,7 +521,7 @@ body {
   {% for p in products %}
   <div class="card {% if not p.is_available %}is-sold-out{% endif %}">
 
-    <div class="card-badge">VOLT</div>
+    <div class="card-badge">EX</div>
     {% if p.category %}
     <div class="cat-badge">{{ p.category.name }}</div>
     {% endif %}
@@ -465,19 +529,31 @@ body {
     <div class="sold-out-ribbon">ໝົດແລ້ວ</div>
     {% endif %}
 
-    <div class="img-box">
-      {% if p.product_image %}
-        <img src="{{ p.product_image.url }}" alt="{{ p.name }}" loading="lazy">
-      {% else %}
-        <div class="img-ph"><i class="fas fa-motorcycle"></i></div>
-      {% endif %}
+    <div class="view-trigger"
+         onclick="openProductModal(this)"
+         data-name="{{ p.name }}"
+         data-cat="{{ p.category.name|default:'' }}"
+         data-desc="{{ p.description|default:'ຄຸນນະພາບແທ້ ຮັບປະກັນທຸກຄັນ' }}"
+         data-price="{{ p.price }}"
+         data-img="{% if p.product_image %}{{ p.product_image.url }}{% endif %}"
+         data-available="{% if p.is_available %}1{% else %}0{% endif %}">
+      <div class="img-box">
+        {% if p.product_image %}
+          <img src="{{ p.product_image.url }}" alt="{{ p.name }}" loading="lazy">
+        {% else %}
+          <div class="img-ph"><i class="fas fa-motorcycle"></i></div>
+        {% endif %}
+        <div class="img-zoom-hint"><i class="fas fa-expand"></i> ເບິ່ງລາຍລະອຽດ</div>
+      </div>
+
+      <div class="card-body-top">
+        <div class="c-name">{{ p.name }}</div>
+        {% if p.category %}<div class="c-cat">{{ p.category.name }}</div>{% endif %}
+        <div class="c-desc">{{ p.description|default:"ຄຸນນະພາບແທ້ ຮັບປະກັນທຸກຄັນ ⚡" }}</div>
+      </div>
     </div>
 
     <div class="card-body">
-      <div class="c-name">{{ p.name }}</div>
-      {% if p.category %}<div class="c-cat">{{ p.category.name }}</div>{% endif %}
-      <div class="c-desc">{{ p.description|default:"ຄຸນນະພາບແທ້ ຮັບປະກັນທຸກຄັນ ⚡" }}</div>
-
       <div class="c-price">
         <span class="amount">{{ p.price }}</span>
         <span class="unit">ກີບ</span>
@@ -505,6 +581,30 @@ body {
   <a href="/" class="back-a"><i class="fas fa-store"></i> ທັງໝົດ</a>
 </div>
 {% endif %}
+
+<!-- PRODUCT DETAIL MODAL -->
+<div id="productModalOverlay">
+  <div class="product-modal">
+    <button class="pm-close" onclick="closeProductModal()">&times;</button>
+    <div class="pm-image-wrap">
+      <img id="pmImage" src="" alt="" style="display:none;">
+      <div id="pmImagePh" class="pm-img-ph"><i class="fas fa-motorcycle"></i></div>
+      <div id="pmSoldBadge" class="pm-sold-badge">ໝົດແລ້ວ</div>
+    </div>
+    <div class="pm-body">
+      <div id="pmCat" class="pm-cat"></div>
+      <h3 id="pmName" class="pm-name"></h3>
+      <p id="pmDesc" class="pm-desc"></p>
+      <div class="pm-price-box">
+        <span class="pm-price-label">ລາຄາ</span>
+        <span><span id="pmPrice" class="pm-price"></span> <span class="pm-unit">ກີບ</span></span>
+      </div>
+      <button class="pm-add-btn" onclick="closeProductModal(); openAuthModal();">
+        <i class="fas fa-cart-plus"></i> ເພີ່ມລົງກະຕ່າ
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- AUTH MODAL -->
 <div id="authOverlay">
@@ -538,7 +638,28 @@ function closeAuthModal() { document.getElementById('authOverlay').classList.rem
 document.getElementById('authOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeAuthModal();
 });
-document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAuthModal(); });
+
+function openProductModal(el) {
+  const img      = el.dataset.img;
+  const pmImage  = document.getElementById('pmImage');
+  const pmImagePh= document.getElementById('pmImagePh');
+  document.getElementById('pmName').textContent  = el.dataset.name;
+  document.getElementById('pmCat').textContent   = el.dataset.cat;
+  document.getElementById('pmDesc').textContent  = el.dataset.desc;
+  document.getElementById('pmPrice').textContent = el.dataset.price;
+  document.getElementById('pmSoldBadge').style.display = el.dataset.available === '0' ? 'flex' : 'none';
+  if (img) { pmImage.src = img; pmImage.style.display = 'block'; pmImagePh.style.display = 'none'; }
+  else     { pmImage.removeAttribute('src'); pmImage.style.display = 'none'; pmImagePh.style.display = 'flex'; }
+  document.getElementById('productModalOverlay').classList.add('open');
+}
+function closeProductModal() { document.getElementById('productModalOverlay').classList.remove('open'); }
+document.getElementById('productModalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeProductModal();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeAuthModal(); closeProductModal(); }
+});
 </script>
 
 {% endblock content %}

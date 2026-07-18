@@ -11,8 +11,8 @@
     --bg:     #ffffff;
     --card:   #ffffff;
     --blue:   #2563eb;
-    --purple: #10b981;
-    --green:  #10b981;
+    --purple: #0f172a;
+    --green:  #0f172a;
     --amber:  #f59e0b;
     --red:    #ef4444;
     --dim:    #64748b;
@@ -20,7 +20,7 @@
     --border: rgba(124,58,237,.13);
     --lav:    #eff6ff;
     --lav2:   #f0fdf4;
-    --grad:   linear-gradient(135deg, #2563eb, #10b981);
+    --grad:   linear-gradient(135deg, #2563eb, #0f172a);
 }
 
 body { background: #ffffff !important; }
@@ -72,9 +72,9 @@ body { background: #ffffff !important; }
 .stab.s-processing:hover { background:rgba(245,158,11,.14); }
 .stab.s-processing.active { background:var(--amber); color:#fff; border-color:var(--amber); box-shadow:0 4px 16px rgba(245,158,11,.4); }
 .stab.s-processing.active .stab-count { background:rgba(255,255,255,.25); }
-.stab.s-delivered { color:var(--green); background:rgba(16,185,129,.06); border-color:rgba(16,185,129,.15); }
-.stab.s-delivered:hover { background:rgba(16,185,129,.14); }
-.stab.s-delivered.active { background:var(--green); color:#fff; border-color:var(--green); box-shadow:0 4px 16px rgba(16,185,129,.4); }
+.stab.s-delivered { color:var(--green); background:rgba(15,23,42,.06); border-color:rgba(15,23,42,.15); }
+.stab.s-delivered:hover { background:rgba(15,23,42,.14); }
+.stab.s-delivered.active { background:var(--green); color:#fff; border-color:var(--green); box-shadow:0 4px 16px rgba(15,23,42,.4); }
 .stab.s-delivered.active .stab-count { background:rgba(255,255,255,.25); }
 .stab.s-cancelled { color:var(--red); background:rgba(239,68,68,.06); border-color:rgba(239,68,68,.15); }
 .stab.s-cancelled:hover { background:rgba(239,68,68,.14); }
@@ -134,7 +134,7 @@ body { background: #ffffff !important; }
 .cur-status.cs-pending    { background:rgba(8,145,178,.1);  color:#0891b2; }
 .cur-status.cs-confirmed  { background:rgba(124,58,237,.1); color:var(--blue); }
 .cur-status.cs-processing { background:rgba(245,158,11,.1); color:var(--amber); }
-.cur-status.cs-delivered  { background:rgba(16,185,129,.1); color:var(--green); }
+.cur-status.cs-delivered  { background:rgba(15,23,42,.1); color:var(--green); }
 .cur-status.cs-cancelled  { background:rgba(239,68,68,.1);  color:var(--red); }
 
 .status-btns { display:flex; gap:6px; flex-wrap:wrap; max-width:270px; }
@@ -146,18 +146,18 @@ body { background: #ffffff !important; }
 .sb-pending    { background:rgba(8,145,178,.1);   color:#0891b2; }
 .sb-confirmed  { background:rgba(124,58,237,.1);  color:var(--blue); }
 .sb-processing { background:rgba(245,158,11,.1);  color:var(--amber); }
-.sb-delivered  { background:rgba(16,185,129,.1);  color:var(--green); }
+.sb-delivered  { background:rgba(15,23,42,.1);  color:var(--green); }
 .sb-cancelled  { background:rgba(239,68,68,.1);   color:var(--red); }
 .sb-pending.active    { background:#0891b2;        color:#fff; box-shadow:0 4px 14px rgba(8,145,178,.35); }
 .sb-confirmed.active  { background:var(--blue);   color:#fff; box-shadow:0 4px 14px rgba(124,58,237,.35); }
 .sb-processing.active { background:var(--amber);  color:#fff; box-shadow:0 4px 14px rgba(245,158,11,.4); }
-.sb-delivered.active  { background:var(--green);  color:#fff; box-shadow:0 4px 14px rgba(16,185,129,.4); }
+.sb-delivered.active  { background:var(--green);  color:#fff; box-shadow:0 4px 14px rgba(15,23,42,.4); }
 .sb-cancelled.active  { background:var(--red);    color:#fff; box-shadow:0 4px 14px rgba(239,68,68,.4); }
 .sb:hover { filter:brightness(1.1); transform:translateY(-1px); }
 
 .act { display:flex; gap:8px; justify-content:flex-end; align-items:center; }
 .ic-btn { width:46px; height:46px; border-radius:13px; display:flex; align-items:center; justify-content:center; text-decoration:none; border:none; cursor:pointer; font-size:1.1rem; transition:.2s; flex-shrink:0; }
-.ic-inv { background:rgba(16,185,129,.1); color:var(--green); }
+.ic-inv { background:rgba(15,23,42,.1); color:var(--green); }
 .ic-inv:hover { background:var(--green); color:#fff; }
 .ic-del { background:rgba(239,68,68,.1);  color:var(--red); }
 .ic-del:hover { background:var(--red); color:#fff; }
@@ -190,10 +190,10 @@ body { background: #ffffff !important; }
             <a href="{% url 'export-advance-bookings-excel' %}?status={{ active_status }}" id="advExportExcelLink" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#1d6f42,#2ea05a);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
                 <i class="fas fa-file-excel"></i> Export Excel
             </a>
-            <a href="{% url 'advance-bookings-invoice' %}?status={{ active_status }}" id="advInvoiceLink" target="_blank" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#10b981,#3b82f6);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
+            <a href="{% url 'advance-bookings-invoice' %}?status={{ active_status }}" id="advInvoiceLink" target="_blank" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#0f172a,#3b82f6);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
                 <i class="fas fa-receipt"></i> ອອກໃບບິນ
             </a>
-            <a href="{% url 'admin-view-booking' %}" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#2563eb,#10b981);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
+            <a href="{% url 'admin-view-booking' %}" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#2563eb,#0f172a);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
                 <i class="fas fa-calendar-day"></i> ໄປລາຍການຈອງຄິວ
             </a>
         </div>

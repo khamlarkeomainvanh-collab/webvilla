@@ -8,14 +8,14 @@
 
 <style>
 :root {
-    --pk:  #10b981; --pk2: #34d399; --pk-lt: #ecfdf5;
+    --pk:  #0f172a; --pk2: #3b82f6; --pk-lt: #f8fafc;
     --pu:  #3b82f6; --pu2: #c084fc; --pu-lt: #eff6ff;
     --lav: #dbeafe; --text: #1e3a5f; --gray: #94a3b8;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
     font-family: 'Lexend','Noto Sans Lao',sans-serif;
-    background: linear-gradient(160deg,#eff6ff 0%,#ecfdf5 50%,#eff6ff 100%);
+    background: linear-gradient(160deg,#eff6ff 0%,#f8fafc 50%,#eff6ff 100%);
     background-attachment: fixed;
     min-height: 100vh;
 }
@@ -100,7 +100,7 @@ body {
 }
 
 /* CUSTOMIZATION PANEL */
-.cust-panel { display:none; background:linear-gradient(135deg,#eff6ff,#ecfdf5); border-top:1.5px solid var(--lav); padding:24px 28px 28px; }
+.cust-panel { display:none; background:linear-gradient(135deg,#eff6ff,#f8fafc); border-top:1.5px solid var(--lav); padding:24px 28px 28px; }
 .cust-panel.open { display:block; animation:slideDown .25s ease; }
 @keyframes slideDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
 
@@ -225,14 +225,14 @@ body {
 
 .cart-closed-banner {
   background: linear-gradient(135deg,#a7f3d0 0%,#93c5fd 55%,#ffffff 100%);
-  color: #831843; border: 2px solid #34d399; border-radius: 22px;
+  color: #831843; border: 2px solid #3b82f6; border-radius: 22px;
   padding: 20px 22px; margin-bottom: 24px;
   display: flex; flex-direction: column; align-items: center; text-align: center; gap: 5px;
   box-shadow: 0 10px 28px rgba(236,72,153,.22);
 }
 .cart-closed-banner .ccb-icon { font-size: 2rem; }
 .cart-closed-banner .ccb-title { font-weight: 900; font-size: clamp(1.1rem, 1vw + .95rem, 1.35rem); }
-.cart-closed-banner .ccb-msg { font-size: .92rem; color: #047857; font-weight: 600; }
+.cart-closed-banner .ccb-msg { font-size: .92rem; color: #1e293b; font-weight: 600; }
 
 /* ── Shop-closed alert modal (replaces the native browser alert()) ── */
 #closedAlertOverlay {
@@ -312,7 +312,7 @@ body {
 
                     <div class="item-info">
                         <div class="item-name">{{ p.name }}</div>
-                        <div class="item-desc">⚡ ພ້ອມມາຮັບ &nbsp;·&nbsp; VOLT EV</div>
+                        <div class="item-desc">⚡ ພ້ອມມາຮັບ &nbsp;·&nbsp; EX ມໍເຕີ້</div>
                         <div class="item-uprice" id="uprice-{{ p.line_key }}">
                             {{ p.unit_price|dotformat }} ກີບ / ອັນ
                         </div>

@@ -4,14 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ກ່ຽວກັບຮ້ານ | VOLT EV & Coffee</title>
+  <title>ກ່ຽວກັບຮ້ານ | EX ມໍເຕີ້</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800;900&family=Noto+Sans+Lao:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
   <style>
   :root {
-    --pk:   #10b981; --pk2: #34d399; --pk-lt: #ecfdf5;
+    --pk:   #0f172a; --pk2: #3b82f6; --pk-lt: #f8fafc;
     --pu:   #2563eb; --pu2: #3b82f6; --pu-lt: #eff6ff;
     --lav:  #dbeafe; --lav2: #bfdbfe;
     --leaf: #22c55e; --lime: #a3e635;
@@ -23,7 +23,7 @@
   html { scroll-behavior:smooth; font-size:17px; }
   body {
     font-family:'Lexend','Noto Sans Lao',sans-serif;
-    background: linear-gradient(155deg,#eff6ff 0%,#eff6ff 50%,#ecfdf5 100%);
+    background: linear-gradient(155deg,#eff6ff 0%,#eff6ff 50%,#f8fafc 100%);
     background-attachment: fixed;
     color: var(--text); overflow-x:hidden;
   }
@@ -32,7 +32,7 @@
      PROMO TICKER
   ════════════════════════════════════════ */
   .promo-bar {
-    background: linear-gradient(135deg, #eff6ff 0%, #ecfdf5 50%, #f0f4ff 100%);
+    background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 50%, #f0f4ff 100%);
     overflow: hidden;
     padding: 14px 0;
     position: relative;
@@ -43,7 +43,7 @@
     content: ''; position: absolute; top:0; bottom:0; width: 60px; z-index:2; pointer-events:none;
   }
   .promo-bar::before { left:0;  background: linear-gradient(90deg, #eff6ff, transparent); }
-  .promo-bar::after  { right:0; background: linear-gradient(-90deg, #ecfdf5, transparent); }
+  .promo-bar::after  { right:0; background: linear-gradient(-90deg, #f8fafc, transparent); }
 
   .promo-track {
     display:flex; gap: 60px; white-space:nowrap;
@@ -56,7 +56,7 @@
   }
   .promo-track span { display:inline-flex; align-items:center; gap: 10px; }
   .promo-track span::after {
-    content: '·'; font-size: 1.4em; opacity: .4; color:#10b981;
+    content: '·'; font-size: 1.4em; opacity: .4; color:#0f172a;
   }
   @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
@@ -462,13 +462,13 @@
     <span>🍓 ນ້ຳໝາກໄມ້ສົດ 100%</span>
     <span>🥑 ໄຮ້ສານກັນເສຍ</span>
     <span>🍊 Premium Smoothie &amp; Coffee</span>
-    <span>🥝 ສຸຂະພາບດີ ເລີ່ມທີ່ VOLT</span>
+    <span>🥝 ສຸຂະພາບດີ ເລີ່ມທີ່ EX ມໍເຕີ້</span>
     <span>🍍 ເປີດທຸກວັນ 09:00 — 18:00</span>
     <span>🧋 ສັ່ງ Online ຮອດໜ້າ</span>
     <span>🍓 ນ້ຳໝາກໄມ້ສົດ 100%</span>
     <span>🥑 ໄຮ້ສານກັນເສຍ</span>
     <span>🍊 Premium Smoothie &amp; Coffee</span>
-    <span>🥝 ສຸຂະພາບດີ ເລີ່ມທີ່ VOLT</span>
+    <span>🥝 ສຸຂະພາບດີ ເລີ່ມທີ່ EX ມໍເຕີ້</span>
     <span>🍍 ເປີດທຸກວັນ 09:00 — 18:00</span>
     <span>🧋 ສັ່ງ Online ຮອດໜ້າ</span>
   </div>
@@ -477,50 +477,50 @@
 <!-- ══ PHOTO GALLERY SLIDER ══ -->
 <div class="gallery-section">
   <div class="sec-eyebrow">ຮູບພາບຮ້ານຂອງພວກເຮົາ</div>
-  <h2>ບັນຍາກາດ<span class="g">VOLT</span></h2>
+  <h2>ບັນຍາກາດ<span class="g">EX ມໍເຕີ້</span></h2>
 
   <div class="slider-wrap" id="sliderWrap">
     <div class="slider-track" id="sliderTrack">
 
       <!-- SLIDE 1 — ຂ້າງນອກຮ້ານ -->
       <div class="slider-slide">
-        <img src="{% static 'images/shop1.jpg' %}" alt="ຂ້າງນອກຮ້ານ VOLT"
+        <img src="{% static 'images/shop1.jpg' %}" alt="ຂ້າງນອກຮ້ານ EX ມໍເຕີ້"
              onerror="this.style.display='none';this.parentElement.querySelector('.slide-ph').style.display='flex'">
-        <div class="slide-ph" style="display:none;"><span class="ph-icon">🏪</span><span class="ph-txt">ຮ້ານ VOLT EV</span></div>
+        <div class="slide-ph" style="display:none;"><span class="ph-icon">🏪</span><span class="ph-txt">ຮ້ານ EX ມໍເຕີ້</span></div>
         <div class="slide-overlay"></div>
         <div class="slide-caption">
-          <div><div class="cap-text">🏪 ຂ້າງນອກຮ້ານ VOLT</div><div class="cap-sub">ບ້ານ ໄຊສົມບູນ · ວຽງຈັນ</div></div>
+          <div><div class="cap-text">🏪 ຂ້າງນອກຮ້ານ EX ມໍເຕີ້</div><div class="cap-sub">ບ້ານ ໄຊສົມບູນ · ວຽງຈັນ</div></div>
           <div class="slide-num" id="slideNumEl">1 / 5</div>
         </div>
       </div>
 
       <!-- SLIDE 2 — ເຄື່ອງດື່ມ Volt -->
       <div class="slider-slide">
-        <img src="{% static 'images/shop2.jpg' %}" alt="ເຄື່ອງດື່ມ VOLT"
+        <img src="{% static 'images/shop2.jpg' %}" alt="ເຄື່ອງດື່ມ EX ມໍເຕີ້"
              onerror="this.style.display='none';this.parentElement.querySelector('.slide-ph').style.display='flex'">
-        <div class="slide-ph" style="display:none;"><span class="ph-icon">🥤</span><span class="ph-txt">ເຄື່ອງດື່ມ VOLT</span></div>
+        <div class="slide-ph" style="display:none;"><span class="ph-icon">🥤</span><span class="ph-txt">ເຄື່ອງດື່ມ EX ມໍເຕີ້</span></div>
         <div class="slide-overlay"></div>
         <div class="slide-caption">
-          <div><div class="cap-text">🥤 ເຄື່ອງດື່ມ VOLT</div><div class="cap-sub">ສົດໃໝ່ · ອ່ອຍຫວານ · Premium</div></div>
+          <div><div class="cap-text">🥤 ເຄື່ອງດື່ມ EX ມໍເຕີ້</div><div class="cap-sub">ສົດໃໝ່ · ອ່ອຍຫວານ · Premium</div></div>
           <div class="slide-num">2 / 5</div>
         </div>
       </div>
 
       <!-- SLIDE 3 — ໜ້ຮ້ານ/ບໍລິເວນ counter -->
       <div class="slider-slide">
-        <img src="{% static 'images/shop3.jpg' %}" alt="ໜ້ຮ້ານ VOLT"
+        <img src="{% static 'images/shop3.jpg' %}" alt="ໜ້ຮ້ານ EX ມໍເຕີ້"
              onerror="this.style.display='none';this.parentElement.querySelector('.slide-ph').style.display='flex'">
-        <div class="slide-ph" style="display:none;"><span class="ph-icon">🍹</span><span class="ph-txt">ໜ້ຮ້ານ VOLT</span></div>
+        <div class="slide-ph" style="display:none;"><span class="ph-icon">🍹</span><span class="ph-txt">ໜ້ຮ້ານ EX ມໍເຕີ້</span></div>
         <div class="slide-overlay"></div>
         <div class="slide-caption">
-          <div><div class="cap-text">🍹 Counter ຮ້ານ VOLT</div><div class="cap-sub">ສ້ວຍທຸກໂຄ້ດ · ສົດທຸກຄັ້ງ</div></div>
+          <div><div class="cap-text">🍹 Counter ຮ້ານ EX ມໍເຕີ້</div><div class="cap-sub">ສ້ວຍທຸກໂຄ້ດ · ສົດທຸກຄັ້ງ</div></div>
           <div class="slide-num">3 / 5</div>
         </div>
       </div>
 
       <!-- SLIDE 4 — ວັດຖຸດິບ / ໝາກໄມ້ -->
       <div class="slider-slide">
-        <img src="{% static 'images/shop4.jpg' %}" alt="ວັດຖຸດິບສົດ VOLT"
+        <img src="{% static 'images/shop4.jpg' %}" alt="ວັດຖຸດິບສົດ EX ມໍເຕີ້"
              onerror="this.style.display='none';this.parentElement.querySelector('.slide-ph').style.display='flex'">
         <div class="slide-ph" style="display:none;"><span class="ph-icon">🍑</span><span class="ph-txt">ວັດຖຸດິບສົດ</span></div>
         <div class="slide-overlay"></div>
@@ -532,12 +532,12 @@
 
       <!-- SLIDE 5 — Signature Drinks -->
       <div class="slider-slide">
-        <img src="{% static 'images/shop5.jpg' %}" alt="Signature Drinks VOLT"
+        <img src="{% static 'images/shop5.jpg' %}" alt="Signature Drinks EX ມໍເຕີ້"
              onerror="this.style.display='none';this.parentElement.querySelector('.slide-ph').style.display='flex'">
         <div class="slide-ph" style="display:none;"><span class="ph-icon">🧋</span><span class="ph-txt">Signature Drinks</span></div>
         <div class="slide-overlay"></div>
         <div class="slide-caption">
-          <div><div class="cap-text">🧋 Signature Drinks</div><div class="cap-sub">ລົດຊາດສະເພາະຂອງ VOLT</div></div>
+          <div><div class="cap-text">🧋 Signature Drinks</div><div class="cap-sub">ລົດຊາດສະເພາະຂອງ EX ມໍເຕີ້</div></div>
           <div class="slide-num">5 / 5</div>
         </div>
       </div>
@@ -564,7 +564,7 @@
   <!-- THUMBNAILS -->
   <div class="thumb-row" id="thumbRow">
     <div class="thumb-item active" onclick="slideTo(0)">
-      <img src="{% static 'images/shop1.jpg' %}" alt="ຮ້ານ VOLT"
+      <img src="{% static 'images/shop1.jpg' %}" alt="ຮ້ານ EX ມໍເຕີ້"
            onerror="this.parentElement.style.background='var(--lav)';this.remove()">
     </div>
     <div class="thumb-item" onclick="slideTo(1)">
