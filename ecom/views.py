@@ -24,12 +24,14 @@ def home_view(request):
     if request.user.is_authenticated and not is_customer(request.user):
         return HttpResponseRedirect('afterlogin')
     cat_id = request.GET.get('cat')
+    sub_id = request.GET.get('sub')
+    products = models.Product.objects.all()
     if cat_id:
-        products = models.Product.objects.filter(category_id=cat_id)
-    else:
-        products = models.Product.objects.all()
+        products = products.filter(category_id=cat_id)
+    if sub_id:
+        products = products.filter(subcategory_id=sub_id)
     products = products.prefetch_related('colors', 'extra_images')
-    categories = models.Category.objects.all()
+    categories = models.Category.objects.prefetch_related('subcategories')
     if request.user.is_authenticated:
         cart = request.session.get('cart', {})
         product_count_in_cart = sum(cart.values())
@@ -43,6 +45,7 @@ def home_view(request):
         'products': products,
         'categories': categories,
         'active_cat': cat_id,
+        'active_sub': sub_id,
         'product_count_in_cart': product_count_in_cart,
         'closure_announcement': models.Announcement.objects.filter(kind='closed', is_active=True).order_by('-id').first(),
         'promo_announcements': models.Announcement.objects.filter(kind='promo', is_active=True),
@@ -1059,14 +1062,17 @@ def update_customer_view(request,pk):
 def admin_products_view(request):
     categories = models.Category.objects.all()
     cat_id = request.GET.get('cat')
+    sub_id = request.GET.get('sub')
+    products = models.Product.objects.all()
     if cat_id:
-        products = models.Product.objects.filter(category_id=cat_id)
-    else:
-        products = models.Product.objects.all()
+        products = products.filter(category_id=cat_id)
+    if sub_id:
+        products = products.filter(subcategory_id=sub_id)
     return render(request, 'ecom/admin_products.html', {
         'products': products,
         'categories': categories,
         'selected_cat': int(cat_id) if cat_id else None,
+        'selected_sub': int(sub_id) if sub_id else None,
     })
 
 
@@ -1128,6 +1134,14 @@ def _sync_product_gallery(request, product):
             models.ProductImage.objects.create(product=product, image=f)
 
 
+def _subcategories_by_category_json():
+    """{category_id: [{id, name}, ...]} for the category→subcategory JS picker."""
+    data = {}
+    for sub in models.SubCategory.objects.select_related('category'):
+        data.setdefault(str(sub.category_id), []).append({'id': sub.id, 'name': sub.name})
+    return json.dumps(data)
+
+
 # admin add product by clicking on floating button
 @login_required(login_url='adminlogin')
 def admin_add_product_view(request):
@@ -1139,7 +1153,10 @@ def admin_add_product_view(request):
             _sync_product_colors(request, product)
             _sync_product_gallery(request, product)
         return HttpResponseRedirect('admin-products')
-    return render(request,'ecom/admin_add_products.html',{'productForm':productForm})
+    return render(request,'ecom/admin_add_products.html',{
+        'productForm': productForm,
+        'subcategories_json': _subcategories_by_category_json(),
+    })
 
 
 @login_required(login_url='adminlogin')
@@ -1160,7 +1177,12 @@ def update_product_view(request,pk):
             _sync_product_colors(request, product)
             _sync_product_gallery(request, product)
             return redirect('admin-products')
-    return render(request,'ecom/admin_update_product.html',{'productForm':productForm, 'colors': product.colors.all(), 'gallery': product.extra_images.all()})
+    return render(request,'ecom/admin_update_product.html',{
+        'productForm': productForm,
+        'colors': product.colors.all(),
+        'gallery': product.extra_images.all(),
+        'subcategories_json': _subcategories_by_category_json(),
+    })
 
 
 @login_required(login_url='adminlogin')
@@ -3093,14 +3115,29 @@ def ajax_order_detail(request, pk):
 @login_required(login_url='adminlogin')
 def admin_categories_view(request):
     if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
-        if name:
-            models.Category.objects.create(name=name)
+        if request.POST.get('form_type') == 'subcategory':
+            sub_name = request.POST.get('sub_name', '').strip()
+            cat_id = request.POST.get('category_id')
+            if sub_name and cat_id:
+                try:
+                    parent = models.Category.objects.get(id=cat_id)
+                    models.SubCategory.objects.create(category=parent, name=sub_name)
+                except models.Category.DoesNotExist:
+                    pass
+        else:
+            name = request.POST.get('name', '').strip()
+            if name:
+                models.Category.objects.create(name=name)
     categories = models.Category.objects.annotate(
         product_count=Count('products', distinct=True),
         color_count=Count('products__colors', distinct=True),
-    )
+    ).prefetch_related('subcategories')
     return render(request, 'ecom/admin_categories.html', {'categories': categories})
+
+@login_required(login_url='adminlogin')
+def delete_subcategory_view(request, pk):
+    models.SubCategory.objects.filter(id=pk).delete()
+    return redirect('admin-categories')
 
 @login_required(login_url='adminlogin')
 def delete_category_view(request, pk):

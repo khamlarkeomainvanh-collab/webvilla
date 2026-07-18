@@ -22,8 +22,21 @@ class Category(models.Model):
         return self.name
 
 
+class SubCategory(models.Model):
+    """A body-type/sub-group within a Category (e.g. ລົດໃຫຍ່ → SUV, Pickup, MPV)."""
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='subcategories')
+    name     = models.CharField(max_length=60)
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return f"{self.category.name} → {self.name}"
+
+
 class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
     name=models.CharField(max_length=40)
     product_image= models.ImageField(upload_to='product_image/',null=True,blank=True)
     price = models.PositiveIntegerField()

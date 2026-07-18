@@ -186,6 +186,22 @@ body {
   background: var(--ink); color: #fff; font-weight: 800;
 }
 
+.subcat-nav {
+  display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+  padding: 0 20px 14px; max-width: 1320px; margin: 0 auto;
+}
+.subcat-nav::-webkit-scrollbar { display: none; }
+.subcat-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border-radius: 20px;
+  font-size: .8rem; font-weight: 600; white-space: nowrap;
+  text-decoration: none; border: 1.5px solid var(--line);
+  transition: .2s; flex-shrink: 0; color: var(--muted); background: var(--panel);
+  font-family:'Lexend','Noto Sans Lao',sans-serif;
+}
+.subcat-btn:hover { border-color: var(--blue); color: var(--blue); }
+.subcat-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 700; }
+
 /* ====== SECTION HEAD ====== */
 .sec-head {
   max-width: 1320px; margin: 0 auto;
@@ -544,6 +560,16 @@ body {
     <a href="/?cat={{ cat.id }}" class="cat-btn {% if active_cat == cat.id|stringformat:'s' %}active{% endif %}">{{ cat.name }}</a>
     {% endfor %}
   </div>
+  {% for cat in categories %}
+    {% if active_cat == cat.id|stringformat:'s' and cat.subcategories.all %}
+    <div class="subcat-nav">
+      <a href="/?cat={{ cat.id }}" class="subcat-btn {% if not active_sub %}active{% endif %}">ທັງໝົດ</a>
+      {% for sub in cat.subcategories.all %}
+      <a href="/?cat={{ cat.id }}&sub={{ sub.id }}" class="subcat-btn {% if active_sub == sub.id|stringformat:'s' %}active{% endif %}">{{ sub.name }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endfor %}
 </div>
 
 <!-- SECTION HEAD -->
@@ -574,7 +600,7 @@ body {
          onclick="openProductModal(this)"
          data-id="{{ p.id }}"
          data-name="{{ p.name }}"
-         data-cat="{{ p.category.name|default:'' }}"
+         data-cat="{{ p.category.name|default:'' }}{% if p.subcategory %} · {{ p.subcategory.name }}{% endif %}"
          data-desc="{{ p.description|default:'ຄຸນນະພາບແທ້ ຮັບປະກັນທຸກຄັນ' }}"
          data-price="{{ p.price }}"
          data-available="{% if p.is_available %}1{% else %}0{% endif %}"

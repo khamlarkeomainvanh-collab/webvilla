@@ -98,6 +98,7 @@ urlpatterns = [
     path('delete-feedback/<int:pk>', views.delete_feedback_view, name='delete-feedback'),
     path('admin-categories', views.admin_categories_view, name='admin-categories'),
     path('delete-category/<int:pk>', views.delete_category_view, name='delete-category'),
+    path('delete-subcategory/<int:pk>', views.delete_subcategory_view, name='delete-subcategory'),
     path('admin-announcements', views.admin_announcements_view, name='admin-announcements'),
     path('toggle-announcement/<int:pk>', views.toggle_announcement_view, name='toggle-announcement'),
     path('delete-announcement/<int:pk>', views.delete_announcement_view, name='delete-announcement'),

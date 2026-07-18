@@ -322,7 +322,12 @@
 
       <div class="field-group">
         <label class="field-label"><i class="fa-solid fa-tags"></i> ໝວດໝູ່</label>
-        {% render_field productForm.category class="styled-input" %}
+        {% render_field productForm.category class="styled-input" onchange="refreshSubcatOptions()" %}
+      </div>
+
+      <div class="field-group">
+        <label class="field-label"><i class="fa-solid fa-sitemap"></i> ສາຂາຍ່ອຍ (ຖ້າມີ)</label>
+        {% render_field productForm.subcategory class="styled-input" %}
       </div>
 
       <div class="field-group">
@@ -465,6 +470,28 @@
       reader.readAsDataURL(input.files[0]);
     }
   }
+
+  /* ── Category → Subcategory picker ── */
+  const SUBCAT_DATA = {{ subcategories_json|safe }};
+  const CURRENT_SUBCAT_ID = "{{ productForm.instance.subcategory_id|default_if_none:'' }}";
+  function refreshSubcatOptions(keepValue) {
+    const catSel = document.getElementById('id_category');
+    const subSel = document.getElementById('id_subcategory');
+    if (!catSel || !subSel) return;
+    const opts = SUBCAT_DATA[catSel.value] || [];
+    const prev = keepValue !== undefined ? keepValue : subSel.value;
+    subSel.innerHTML = '';
+    const blank = document.createElement('option');
+    blank.value = ''; blank.textContent = '——';
+    subSel.appendChild(blank);
+    opts.forEach(function(o) {
+      const opt = document.createElement('option');
+      opt.value = o.id; opt.textContent = o.name;
+      if (String(o.id) === String(prev)) opt.selected = true;
+      subSel.appendChild(opt);
+    });
+  }
+  document.addEventListener('DOMContentLoaded', function() { refreshSubcatOptions(CURRENT_SUBCAT_ID); });
 
   function addColorRow() {
     const wrap = document.getElementById('colorRows');

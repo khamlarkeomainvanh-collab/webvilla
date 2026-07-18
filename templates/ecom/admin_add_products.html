@@ -238,7 +238,12 @@ input[type="file"].form-control::-webkit-file-upload-button {
 
             <div class="field-group">
                 <label>ໝວດໝູ່ສິນຄ້າ</label>
-                {% render_field productForm.category class="form-control" %}
+                {% render_field productForm.category class="form-control" onchange="refreshSubcatOptions()" %}
+            </div>
+
+            <div class="field-group">
+                <label>ສາຂາຍ່ອຍ (ຖ້າມີ)</label>
+                {% render_field productForm.subcategory class="form-control" %}
             </div>
 
             <div class="field-group">
@@ -315,6 +320,27 @@ function removeColorRow(btn) {
         btn.closest('.color-row').querySelectorAll('input').forEach(i => i.value = '');
     }
 }
+
+/* ── Category → Subcategory picker ── */
+const SUBCAT_DATA = {{ subcategories_json|safe }};
+function refreshSubcatOptions(keepValue) {
+    const catSel = document.getElementById('id_category');
+    const subSel = document.getElementById('id_subcategory');
+    if (!catSel || !subSel) return;
+    const opts = SUBCAT_DATA[catSel.value] || [];
+    const prev = keepValue !== undefined ? keepValue : subSel.value;
+    subSel.innerHTML = '';
+    const blank = document.createElement('option');
+    blank.value = ''; blank.textContent = '——';
+    subSel.appendChild(blank);
+    opts.forEach(function(o) {
+        const opt = document.createElement('option');
+        opt.value = o.id; opt.textContent = o.name;
+        if (String(o.id) === String(prev)) opt.selected = true;
+        subSel.appendChild(opt);
+    });
+}
+document.addEventListener('DOMContentLoaded', function() { refreshSubcatOptions(); });
 </script>
 
 {% endblock content %}

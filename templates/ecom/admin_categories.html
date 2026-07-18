@@ -194,6 +194,43 @@
     .empty-state { text-align: center; padding: 80px 20px; color: var(--dim); }
     .empty-state i { font-size: 4rem; opacity: 0.22; margin-bottom: 16px; display: block; color: var(--purple); }
     .empty-state p { font-size: 1.1rem; }
+
+    /* Subcategories */
+    .subcat-toggle {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px 12px; border-radius: 12px; background: var(--lav);
+        color: var(--purple); font-size: .92rem; font-weight: 700; cursor: pointer;
+        transition: .2s;
+    }
+    .subcat-toggle:hover { background: #dbeafe; }
+    .subcat-toggle i.fa-chevron-down { transition: .2s; font-size: .8rem; }
+    .subcat-toggle.open i.fa-chevron-down { transform: rotate(180deg); }
+    .subcat-panel { display: none; flex-direction: column; gap: 8px; padding: 4px 2px 0; }
+    .subcat-panel.open { display: flex; }
+    .subcat-row { display: flex; align-items: center; gap: 8px; }
+    .subcat-chip {
+        flex: 1; padding: 8px 14px; border-radius: 10px; background: #f8fafc;
+        border: 1.5px solid var(--border); color: var(--bright); text-decoration: none;
+        font-size: .88rem; font-weight: 600; transition: .2s;
+    }
+    .subcat-chip:hover { border-color: var(--purple); color: var(--purple); text-decoration: none; }
+    .subcat-del {
+        width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+        background: rgba(239,68,68,.08); color: var(--red); border: 1px solid rgba(239,68,68,.2);
+        display: flex; align-items: center; justify-content: center; text-decoration: none; transition: .2s;
+    }
+    .subcat-del:hover { background: var(--red); color: #fff; }
+    .subcat-empty { font-size: .84rem; color: var(--dim); padding: 4px 2px; }
+    .subcat-add-form { display: flex; gap: 8px; margin-top: 2px; }
+    .subcat-add-form input {
+        flex: 1; padding: 8px 12px; border-radius: 10px; border: 1.5px solid var(--border);
+        background: #fff; font-size: .85rem; outline: none; font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
+    }
+    .subcat-add-form input:focus { border-color: var(--purple); }
+    .subcat-add-form button {
+        width: 34px; height: 34px; border-radius: 10px; border: none; background: var(--grad);
+        color: #fff; cursor: pointer; flex-shrink: 0; font-size: .85rem;
+    }
 </style>
 
 <div class="cat-section">
@@ -241,6 +278,30 @@
                     </div>
                 </div>
             </a>
+
+            <div class="subcat-toggle" onclick="toggleSubcat({{ cat.id }})">
+                <span><i class="fas fa-sitemap"></i> ສາຂາຍ່ອຍ ({{ cat.subcategories.all|length }})</span>
+                <i class="fas fa-chevron-down" id="subcat-chevron-{{ cat.id }}"></i>
+            </div>
+            <div class="subcat-panel" id="subcat-panel-{{ cat.id }}">
+                {% for sub in cat.subcategories.all %}
+                <div class="subcat-row">
+                    <a href="{% url 'admin-products' %}?cat={{ cat.id }}&sub={{ sub.id }}" class="subcat-chip">{{ sub.name }}</a>
+                    <a href="{% url 'delete-subcategory' sub.id %}" class="subcat-del"
+                       onclick="return confirm('ລຶບສາຂາຍ່ອຍ {{ sub.name }} ອອກ?')"><i class="fas fa-times"></i></a>
+                </div>
+                {% empty %}
+                <div class="subcat-empty">ຍັງບໍ່ມີສາຂາຍ່ອຍ</div>
+                {% endfor %}
+                <form method="post" class="subcat-add-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="subcategory">
+                    <input type="hidden" name="category_id" value="{{ cat.id }}">
+                    <input type="text" name="sub_name" placeholder="ເຊັ່ນ: SUV, Pickup, MPV..." required>
+                    <button type="submit"><i class="fas fa-plus"></i></button>
+                </form>
+            </div>
+
             <a href="{% url 'delete-category' cat.id %}"
                class="btn-delete-cat"
                onclick="return confirm('ລຶບໝວດໝູ່ {{ cat.name }} ອອກ?')">
@@ -257,5 +318,14 @@
     {% endif %}
 
 </div>
+
+<script>
+function toggleSubcat(catId) {
+    const panel = document.getElementById('subcat-panel-' + catId);
+    const chevron = document.getElementById('subcat-chevron-' + catId).closest('.subcat-toggle');
+    panel.classList.toggle('open');
+    chevron.classList.toggle('open');
+}
+</script>
 
 {% endblock content %}

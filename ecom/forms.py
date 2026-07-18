@@ -19,7 +19,7 @@ class CustomerForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model=models.Product
-        fields=['category','name','price','description','product_image','is_available']
+        fields=['category','subcategory','name','price','description','product_image','is_available']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
         }
