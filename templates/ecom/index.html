@@ -257,6 +257,11 @@ body {
   font-size: .82rem; color: var(--muted); margin-bottom: 16px; line-height: 1.6;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
+.c-colors-hint {
+  font-size: .74rem; color: var(--muted); font-weight: 700; margin: -10px 0 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.c-colors-hint i { color: var(--blue); }
 
 .c-price { display: flex; align-items: baseline; gap: 6px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px dashed var(--line); }
 .c-price .amount { font-size: clamp(1.2rem, 1.3vw + .8rem, 1.5rem); font-weight: 800; color: var(--text); letter-spacing: -.5px; }
@@ -370,8 +375,26 @@ body {
   background: linear-gradient(160deg,#eef1f6,#e2e8f0);
   display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
-.pm-image-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.pm-gallery {
+  display: flex; width: 100%; height: 100%; overflow-x: auto;
+  scroll-snap-type: x mandatory; scrollbar-width: none;
+}
+.pm-gallery::-webkit-scrollbar { display: none; }
+.pm-gallery img { width: 100%; height: 100%; object-fit: cover; flex: 0 0 100%; scroll-snap-align: start; }
 .pm-img-ph { font-size: 4.5rem; color: #b6c0cf; }
+.pm-nav {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+  width: 36px; height: 36px; border-radius: 50%; border: none;
+  background: rgba(6,10,20,.55); color: #fff; cursor: pointer; transition: .2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.pm-nav:hover { background: rgba(6,10,20,.75); }
+.pm-nav-prev { left: 12px; }
+.pm-nav-next { right: 12px; }
+.pm-nav.hide { display: none; }
+.pm-dots { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 2; display: flex; gap: 6px; }
+.pm-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.55); cursor: pointer; transition: .2s; }
+.pm-dot.active { background: #fff; width: 18px; border-radius: 4px; }
 .pm-sold-badge {
   position: absolute; top: 16px; left: 16px; z-index: 2;
   background: rgba(15,23,42,.9); color: #fff; padding: 7px 16px; border-radius: 8px;
@@ -390,6 +413,18 @@ body {
 .pm-price-label { font-size: .82rem; color: var(--muted); font-weight: 700; }
 .pm-price { font-size: 1.6rem; font-weight: 800; color: var(--text); letter-spacing: -.5px; }
 .pm-unit { font-size: .82rem; font-weight: 600; color: var(--muted); }
+
+.pm-colors-box { margin-bottom: 20px; }
+.pm-colors-label { font-size: .78rem; color: var(--muted); font-weight: 700; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 9px; }
+.pm-colors-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.pm-color-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 14px; border-radius: 20px; font-size: .82rem; font-weight: 700;
+  border: 1.5px solid var(--line); background: var(--panel); color: var(--text);
+}
+.pm-color-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); flex-shrink: 0; }
+.pm-color-pill.out { color: #94a3b8; border-color: #e2e8f0; }
+.pm-color-pill.out .dot { background: #cbd5e1; }
 .pm-add-btn {
   width: 100%; padding: 15px; border: none; border-radius: 12px;
   background: var(--ink); color: #fff; font-size: .95rem; font-weight: 700;
@@ -512,7 +547,7 @@ body {
     <h2>ລົດທັງໝົດ</h2>
     <div class="sub">ຄັດສັນຄຸນນະພາບ ພ້ອມຮັບປະກັນທຸກຄັນ</div>
   </div>
-  <span class="count-tag">{{ products|length }} ລາຍການ</span>
+  <span class="count-tag">{{ products|length }} ລຸ້ນ</span>
 </div>
 
 <!-- PRODUCTS GRID -->
@@ -535,8 +570,9 @@ body {
          data-cat="{{ p.category.name|default:'' }}"
          data-desc="{{ p.description|default:'ຄຸນນະພາບແທ້ ຮັບປະກັນທຸກຄັນ' }}"
          data-price="{{ p.price }}"
-         data-img="{% if p.product_image %}{{ p.product_image.url }}{% endif %}"
-         data-available="{% if p.is_available %}1{% else %}0{% endif %}">
+         data-available="{% if p.is_available %}1{% else %}0{% endif %}"
+         data-colors="{% for c in p.colors.all %}{{ c.color_name }}::{{ c.remaining_qty }}{% if not forloop.last %}||{% endif %}{% endfor %}"
+         data-images="{% if p.product_image %}{{ p.product_image.url }}{% endif %}||{% for g in p.extra_images.all %}{{ g.image.url }}{% if not forloop.last %}||{% endif %}{% endfor %}">
       <div class="img-box">
         {% if p.product_image %}
           <img src="{{ p.product_image.url }}" alt="{{ p.name }}" loading="lazy">
@@ -550,6 +586,7 @@ body {
         <div class="c-name">{{ p.name }}</div>
         {% if p.category %}<div class="c-cat">{{ p.category.name }}</div>{% endif %}
         <div class="c-desc">{{ p.description|default:"ຄຸນນະພາບແທ້ ຮັບປະກັນທຸກຄັນ ⚡" }}</div>
+        {% if p.colors.all %}<div class="c-colors-hint"><i class="fas fa-palette"></i> {{ p.colors.count }} ສີ</div>{% endif %}
       </div>
     </div>
 
@@ -587,14 +624,21 @@ body {
   <div class="product-modal">
     <button class="pm-close" onclick="closeProductModal()">&times;</button>
     <div class="pm-image-wrap">
-      <img id="pmImage" src="" alt="" style="display:none;">
+      <div id="pmGallery" class="pm-gallery" style="display:none;"></div>
       <div id="pmImagePh" class="pm-img-ph"><i class="fas fa-motorcycle"></i></div>
+      <button type="button" class="pm-nav pm-nav-prev hide" id="pmPrevBtn" onclick="pmSlide(-1)"><i class="fas fa-chevron-left"></i></button>
+      <button type="button" class="pm-nav pm-nav-next hide" id="pmNextBtn" onclick="pmSlide(1)"><i class="fas fa-chevron-right"></i></button>
+      <div class="pm-dots" id="pmDots" style="display:none;"></div>
       <div id="pmSoldBadge" class="pm-sold-badge">ໝົດແລ້ວ</div>
     </div>
     <div class="pm-body">
       <div id="pmCat" class="pm-cat"></div>
       <h3 id="pmName" class="pm-name"></h3>
       <p id="pmDesc" class="pm-desc"></p>
+      <div id="pmColorsBox" class="pm-colors-box" style="display:none;">
+        <div class="pm-colors-label">ສີທີ່ມີ</div>
+        <div id="pmColorsList" class="pm-colors-list"></div>
+      </div>
       <div class="pm-price-box">
         <span class="pm-price-label">ລາຄາ</span>
         <span><span id="pmPrice" class="pm-price"></span> <span class="pm-unit">ກີບ</span></span>
@@ -639,17 +683,89 @@ document.getElementById('authOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeAuthModal();
 });
 
+let pmImages = [];
+let pmIndex  = 0;
+
+function pmRenderGallery() {
+  const gallery = document.getElementById('pmGallery');
+  const dots    = document.getElementById('pmDots');
+  const prevBtn = document.getElementById('pmPrevBtn');
+  const nextBtn = document.getElementById('pmNextBtn');
+  gallery.innerHTML = '';
+  dots.innerHTML = '';
+  pmImages.forEach(function(url, i) {
+    const img = document.createElement('img');
+    img.src = url; img.alt = '';
+    gallery.appendChild(img);
+    const dot = document.createElement('span');
+    dot.className = 'pm-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = function() { pmGoTo(i); };
+    dots.appendChild(dot);
+  });
+  const multi = pmImages.length > 1;
+  prevBtn.classList.toggle('hide', !multi);
+  nextBtn.classList.toggle('hide', !multi);
+  dots.style.display = multi ? 'flex' : 'none';
+  pmIndex = 0;
+  gallery.scrollLeft = 0;
+}
+function pmGoTo(i) {
+  const gallery = document.getElementById('pmGallery');
+  pmIndex = ((i % pmImages.length) + pmImages.length) % pmImages.length;
+  gallery.scrollTo({ left: gallery.clientWidth * pmIndex, behavior: 'smooth' });
+  document.querySelectorAll('#pmDots .pm-dot').forEach(function(d, idx) { d.classList.toggle('active', idx === pmIndex); });
+}
+function pmSlide(dir) { pmGoTo(pmIndex + dir); }
+document.getElementById('pmGallery').addEventListener('scroll', function() {
+  if (!pmImages.length) return;
+  const i = Math.round(this.scrollLeft / this.clientWidth);
+  if (i !== pmIndex) {
+    pmIndex = i;
+    document.querySelectorAll('#pmDots .pm-dot').forEach(function(d, idx) { d.classList.toggle('active', idx === pmIndex); });
+  }
+});
+
 function openProductModal(el) {
-  const img      = el.dataset.img;
-  const pmImage  = document.getElementById('pmImage');
-  const pmImagePh= document.getElementById('pmImagePh');
+  const gallery   = document.getElementById('pmGallery');
+  const pmImagePh = document.getElementById('pmImagePh');
   document.getElementById('pmName').textContent  = el.dataset.name;
   document.getElementById('pmCat').textContent   = el.dataset.cat;
   document.getElementById('pmDesc').textContent  = el.dataset.desc;
   document.getElementById('pmPrice').textContent = el.dataset.price;
   document.getElementById('pmSoldBadge').style.display = el.dataset.available === '0' ? 'flex' : 'none';
-  if (img) { pmImage.src = img; pmImage.style.display = 'block'; pmImagePh.style.display = 'none'; }
-  else     { pmImage.removeAttribute('src'); pmImage.style.display = 'none'; pmImagePh.style.display = 'flex'; }
+
+  const imagesRaw = el.dataset.images || '';
+  pmImages = imagesRaw.split('||').filter(Boolean);
+  if (pmImages.length) {
+    pmRenderGallery();
+    gallery.style.display = 'flex';
+    pmImagePh.style.display = 'none';
+  } else {
+    gallery.style.display = 'none';
+    pmImagePh.style.display = 'flex';
+  }
+
+  const colorsBox  = document.getElementById('pmColorsBox');
+  const colorsList = document.getElementById('pmColorsList');
+  colorsList.innerHTML = '';
+  const colorsRaw = el.dataset.colors || '';
+  const colors = colorsRaw ? colorsRaw.split('||').map(function(pair) {
+    const parts = pair.split('::');
+    return { name: parts[0], remaining: parseInt(parts[1], 10) || 0 };
+  }) : [];
+  if (colors.length) {
+    colors.forEach(function(c) {
+      const out = c.remaining <= 0;
+      const pill = document.createElement('span');
+      pill.className = 'pm-color-pill' + (out ? ' out' : '');
+      pill.innerHTML = '<span class="dot"></span>' + c.name + ' &middot; ' + (out ? 'ໝົດແລ້ວ' : 'ເຫຼືອ ' + c.remaining);
+      colorsList.appendChild(pill);
+    });
+    colorsBox.style.display = 'block';
+  } else {
+    colorsBox.style.display = 'none';
+  }
+
   document.getElementById('productModalOverlay').classList.add('open');
 }
 function closeProductModal() { document.getElementById('productModalOverlay').classList.remove('open'); }

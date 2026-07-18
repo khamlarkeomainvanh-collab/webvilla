@@ -28,6 +28,7 @@ def home_view(request):
         products = models.Product.objects.filter(category_id=cat_id)
     else:
         products = models.Product.objects.all()
+    products = products.prefetch_related('colors', 'extra_images')
     categories = models.Category.objects.all()
     if 'product_ids' in request.COOKIES:
         product_ids = request.COOKIES['product_ids']
@@ -1111,6 +1112,19 @@ def _sync_product_colors(request, product):
     product.colors.exclude(id__in=kept_ids).delete()
 
 
+def _sync_product_gallery(request, product):
+    """Add newly-uploaded gallery photos (up to 5 total including the primary
+    product_image) and delete any the admin marked for removal."""
+    remove_ids = request.POST.getlist('remove_image[]')
+    if remove_ids:
+        product.extra_images.filter(id__in=remove_ids).delete()
+    new_files = request.FILES.getlist('extra_images')
+    if new_files:
+        room = max(5 - (1 + product.extra_images.count()), 0)
+        for f in new_files[:room]:
+            models.ProductImage.objects.create(product=product, image=f)
+
+
 # admin add product by clicking on floating button
 @login_required(login_url='adminlogin')
 def admin_add_product_view(request):
@@ -1120,6 +1134,7 @@ def admin_add_product_view(request):
         if productForm.is_valid():
             product = productForm.save()
             _sync_product_colors(request, product)
+            _sync_product_gallery(request, product)
         return HttpResponseRedirect('admin-products')
     return render(request,'ecom/admin_add_products.html',{'productForm':productForm})
 
@@ -1140,8 +1155,9 @@ def update_product_view(request,pk):
         if productForm.is_valid():
             productForm.save()
             _sync_product_colors(request, product)
+            _sync_product_gallery(request, product)
             return redirect('admin-products')
-    return render(request,'ecom/admin_update_product.html',{'productForm':productForm, 'colors': product.colors.all()})
+    return render(request,'ecom/admin_update_product.html',{'productForm':productForm, 'colors': product.colors.all(), 'gallery': product.extra_images.all()})
 
 
 @login_required(login_url='adminlogin')
@@ -1950,6 +1966,7 @@ def customer_home_view(request):
             products = models.Product.objects.all()
     else:
         products = models.Product.objects.all()
+    products = products.prefetch_related('colors', 'extra_images')
     cart = request.session.get('cart', {})
     product_count_in_cart = sum(cart.values())
     return render(request, 'ecom/customer_home.html', {

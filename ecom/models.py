@@ -41,6 +41,19 @@ class Product(models.Model):
         return sum(c.remaining_qty for c in self.colors.all())
 
 
+class ProductImage(models.Model):
+    """An extra gallery photo for a Product, beyond its primary product_image —
+    lets the customer swipe through up to 5 photos total in the detail view."""
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='extra_images')
+    image   = models.ImageField(upload_to='product_image/gallery/')
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return f"{self.product.name} — photo #{self.id}"
+
+
 class ProductColor(models.Model):
     """A single color variant of a Product, with its own stock ledger —
     admin sets stock_qty when receiving units and sold_qty as they sell."""
