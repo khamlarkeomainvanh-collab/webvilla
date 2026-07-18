@@ -25,12 +25,24 @@ def home_view(request):
         return HttpResponseRedirect('afterlogin')
     cat_id = request.GET.get('cat')
     sub_id = request.GET.get('sub')
-    products = models.Product.objects.all()
+    color  = request.GET.get('color')
+
+    base_qs = models.Product.objects.all()
     if cat_id:
-        products = products.filter(category_id=cat_id)
+        base_qs = base_qs.filter(category_id=cat_id)
     if sub_id:
-        products = products.filter(subcategory_id=sub_id)
+        base_qs = base_qs.filter(subcategory_id=sub_id)
+
+    available_colors = list(
+        models.ProductColor.objects.filter(product__in=base_qs)
+        .values_list('color_name', flat=True).distinct().order_by('color_name')
+    )
+
+    products = base_qs
+    if color:
+        products = products.filter(colors__color_name=color).distinct()
     products = products.prefetch_related('colors', 'extra_images')
+
     categories = models.Category.objects.prefetch_related('subcategories')
     if request.user.is_authenticated:
         cart = request.session.get('cart', {})
@@ -46,6 +58,8 @@ def home_view(request):
         'categories': categories,
         'active_cat': cat_id,
         'active_sub': sub_id,
+        'active_color': color,
+        'available_colors': available_colors,
         'product_count_in_cart': product_count_in_cart,
         'closure_announcement': models.Announcement.objects.filter(kind='closed', is_active=True).order_by('-id').first(),
         'promo_announcements': models.Announcement.objects.filter(kind='promo', is_active=True),
