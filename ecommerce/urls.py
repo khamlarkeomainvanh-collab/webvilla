@@ -106,6 +106,7 @@ urlpatterns = [
     path('export-customers-excel', views.export_customers_excel, name='export-customers-excel'),
     path('export-feedbacks-excel', views.export_feedbacks_excel, name='export-feedbacks-excel'),
     path('admin-finance', views.admin_finance_view, name='admin-finance'),
+    path('set-profit-percent', views.set_profit_percent_view, name='set-profit-percent'),
     path('add-expense', views.add_expense_view, name='add-expense'),
     path('delete-expense/<int:pk>', views.delete_expense_view, name='delete-expense'),
     path('admin-walkin-sale', views.admin_walkin_sale_view, name='admin-walkin-sale'),

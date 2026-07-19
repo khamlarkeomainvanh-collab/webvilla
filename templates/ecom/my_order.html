@@ -397,7 +397,7 @@ body {
                 <div class="status-pill sp-mixed" id="grp-badge-{{ g.first_order.id }}">
                     <i class="fas fa-layer-group fa-xs"></i>
                     {% if g.status_counts.Delivered %}<span>✅{{ g.status_counts.Delivered }}</span>{% endif %}
-                    {% if g.status_counts.Processing %}<span>🚚{{ g.status_counts.Processing }}</span>{% endif %}
+                    {% if g.status_counts.Processing %}<span>🔧{{ g.status_counts.Processing }}</span>{% endif %}
                     {% if g.status_counts.Confirmed %}<span>☑️{{ g.status_counts.Confirmed }}</span>{% endif %}
                     {% if g.status_counts.Pending %}<span>⏳{{ g.status_counts.Pending }}</span>{% endif %}
                     {% if g.status_counts.Cancelled %}<span>❌{{ g.status_counts.Cancelled }}</span>{% endif %}
@@ -416,9 +416,9 @@ body {
                 {% elif gs == 'Confirmed' %}
                 <div class="status-pill sp-confirmed"><i class="fas fa-check fa-xs"></i> ຢືນຢັນແລ້ວ</div>
                 {% elif gs == 'Processing' %}
-                <div class="status-pill sp-process"><i class="fas fa-truck-fast fa-xs"></i> ກຳລັງຈັດສົ່ງ</div>
+                <div class="status-pill sp-process"><i class="fas fa-screwdriver-wrench fa-xs"></i> ກຳລັງກຽມລົດໃຫ້</div>
                 {% elif gs == 'Delivered' %}
-                <div class="status-pill sp-done"><i class="fas fa-check-circle fa-xs"></i> ຈັດສົ່ງສຳເລັດ</div>
+                <div class="status-pill sp-done"><i class="fas fa-check-circle fa-xs"></i> ຮັບລົດສຳເລັດແລ້ວ</div>
                 {% elif gs == 'Cancelled' %}
                 <div class="status-pill sp-cancel"><i class="fas fa-ban fa-xs"></i> ຍົກເລີກທັງໝົດ</div>
                 {% endif %}
@@ -451,10 +451,10 @@ body {
                                     {% elif item.status == 'Cancelled' %}ib-cancel
                                     {% endif %}"
                                     id="item-badge-{{ item.id }}">
-                                    {% if item.status == 'Pending' %}⏳ ລໍຖ້າການຢືນຢັນ
-                                    {% elif item.status == 'Confirmed' %}✅ ຮັບອໍເດີ້
-                                    {% elif item.status == 'Processing' %}🚚 ກຳລັງຈັດສົ່ງ
-                                    {% elif item.status == 'Delivered' %}🏠 ຈັດສົ່ງສຳເລັດ
+                                    {% if item.status == 'Pending' %}⏳ ລໍຖ້າການຢືນຢັນການສັ່ງຈອງ
+                                    {% elif item.status == 'Confirmed' %}✅ ຢືນຢັນການຈອງແລ້ວ
+                                    {% elif item.status == 'Processing' %}🔧 ກຳລັງກຽມລົດໃຫ້
+                                    {% elif item.status == 'Delivered' %}🎉 ຮັບລົດສຳເລັດແລ້ວ
                                     {% elif item.status == 'Cancelled' %}❌ ຍົກເລີກ
                                     {% endif %}
                                 </span>
@@ -475,22 +475,22 @@ body {
                                 <div class="mini-track-bar">
                                     <div class="mt-step done">
                                         <div class="mt-dot">⏳</div>
-                                        <div class="mt-lbl">ລໍຖ້າການຢືນຢັນ</div>
+                                        <div class="mt-lbl">ລໍຖ້າການຢືນຢັນການສັ່ງຈອງ</div>
                                     </div>
                                     <div class="mt-line {% if item.status == 'Confirmed' or item.status == 'Processing' or item.status == 'Delivered' %}filled{% endif %}"></div>
                                     <div class="mt-step {% if item.status == 'Confirmed' or item.status == 'Processing' or item.status == 'Delivered' %}done{% endif %} {% if item.status == 'Confirmed' %}curr{% endif %}">
                                         <div class="mt-dot">✅</div>
-                                        <div class="mt-lbl">ຮັບອໍເດີ້</div>
+                                        <div class="mt-lbl">ຢືນຢັນການຈອງແລ້ວ</div>
                                     </div>
                                     <div class="mt-line {% if item.status == 'Processing' or item.status == 'Delivered' %}filled{% endif %}"></div>
                                     <div class="mt-step {% if item.status == 'Processing' or item.status == 'Delivered' %}done{% endif %} {% if item.status == 'Processing' %}curr{% endif %}">
-                                        <div class="mt-dot">🚚</div>
-                                        <div class="mt-lbl">ກຳລັງຈັດສົ່ງ</div>
+                                        <div class="mt-dot">🔧</div>
+                                        <div class="mt-lbl">ກຳລັງກຽມລົດໃຫ້</div>
                                     </div>
                                     <div class="mt-line {% if item.status == 'Delivered' %}filled{% endif %}"></div>
                                     <div class="mt-step {% if item.status == 'Delivered' %}done curr{% endif %}">
-                                        <div class="mt-dot">🏠</div>
-                                        <div class="mt-lbl">ຈັດສົ່ງສຳເລັດ</div>
+                                        <div class="mt-dot">🎉</div>
+                                        <div class="mt-lbl">ຮັບລົດສຳເລັດແລ້ວ</div>
                                     </div>
                                 </div>
                             </div>
@@ -617,10 +617,10 @@ const ALL_ITEM_IDS = [
 ].filter(Boolean);
 
 const STATUS_LABEL = {
-    Pending:   '⏳ ລໍຖ້າການຢືນຢັນ',
-    Confirmed: '✅ ຮັບອໍເດີ້',
-    Processing:'🚚 ກຳລັງຈັດສົ່ງ',
-    Delivered: '🏠 ຈັດສົ່ງສຳເລັດ',
+    Pending:   '⏳ ລໍຖ້າການຢືນຢັນການສັ່ງຈອງ',
+    Confirmed: '✅ ຢືນຢັນການຈອງແລ້ວ',
+    Processing:'🔧 ກຳລັງກຽມລົດໃຫ້',
+    Delivered: '🎉 ຮັບລົດສຳເລັດແລ້ວ',
     Cancelled: '❌ ຍົກເລີກ',
 };
 const STATUS_CLASS = {
@@ -632,13 +632,13 @@ const TRACKER_FILL = { Pending:0, Confirmed:1, Processing:2, Delivered:3, Cancel
 function buildMiniTracker(st) {
     const s = TRACKER_FILL[st] ?? 0;
     return `<div class="mini-track-bar">
-        <div class="mt-step done"><div class="mt-dot">⏳</div><div class="mt-lbl">ລໍຖ້າການຢືນຢັນ</div></div>
+        <div class="mt-step done"><div class="mt-dot">⏳</div><div class="mt-lbl">ລໍຖ້າການຢືນຢັນການສັ່ງຈອງ</div></div>
         <div class="mt-line ${s>=1?'filled':''}"></div>
-        <div class="mt-step ${s>=1?'done':''} ${s===1?'curr':''}"><div class="mt-dot">✅</div><div class="mt-lbl">ຮັບອໍເດີ້</div></div>
+        <div class="mt-step ${s>=1?'done':''} ${s===1?'curr':''}"><div class="mt-dot">✅</div><div class="mt-lbl">ຢືນຢັນການຈອງແລ້ວ</div></div>
         <div class="mt-line ${s>=2?'filled':''}"></div>
-        <div class="mt-step ${s>=2?'done':''} ${s===2?'curr':''}"><div class="mt-dot">🚚</div><div class="mt-lbl">ກຳລັງຈັດສົ່ງ</div></div>
+        <div class="mt-step ${s>=2?'done':''} ${s===2?'curr':''}"><div class="mt-dot">🔧</div><div class="mt-lbl">ກຳລັງກຽມລົດໃຫ້</div></div>
         <div class="mt-line ${s>=3?'filled':''}"></div>
-        <div class="mt-step ${s>=3?'done curr':''}"><div class="mt-dot">🏠</div><div class="mt-lbl">ຈັດສົ່ງສຳເລັດ</div></div>
+        <div class="mt-step ${s>=3?'done curr':''}"><div class="mt-dot">🎉</div><div class="mt-lbl">ຮັບລົດສຳເລັດແລ້ວ</div></div>
     </div>`;
 }
 
@@ -704,8 +704,8 @@ function updateQueueBadge(group, data) {
     const badgeEl = document.getElementById('qbadge-' + group);
     const aheadEl = document.getElementById('qahead-' + group);
     if (!badgeEl) return;
-    if (data.status === 'Processing') { badgeEl.outerHTML = `<div class="status-pill sp-process"><i class="fas fa-truck-fast fa-xs"></i> ກຳລັງຈັດສົ່ງ</div>`; return; }
-    if (data.status === 'Delivered')  { badgeEl.outerHTML = `<div class="status-pill sp-done"><i class="fas fa-check-circle fa-xs"></i> ຈັດສົ່ງສຳເລັດ</div>`; return; }
+    if (data.status === 'Processing') { badgeEl.outerHTML = `<div class="status-pill sp-process"><i class="fas fa-screwdriver-wrench fa-xs"></i> ກຳລັງກຽມລົດໃຫ້</div>`; return; }
+    if (data.status === 'Delivered')  { badgeEl.outerHTML = `<div class="status-pill sp-done"><i class="fas fa-check-circle fa-xs"></i> ຮັບລົດສຳເລັດແລ້ວ</div>`; return; }
     if (data.status === 'Cancelled')  { badgeEl.outerHTML = `<div class="status-pill sp-cancel"><i class="fas fa-ban fa-xs"></i> ຍົກເລີກ</div>`; return; }
     if (data.pos && aheadEl) {
         const numEl = badgeEl.querySelector('.q-num-big');

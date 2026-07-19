@@ -140,7 +140,7 @@
         <div class="info-block">
             <div class="block-title">ສະຫຼຸບ</div>
             <div class="detail" style="font-size:1rem; color:#374151; line-height:1.6;">
-                📦 {{ revenue_items|length }} ອໍເດີ &nbsp;·&nbsp; 🛒 {{ expense_items|length }} ລາຍຈ່າຍ
+                📦 {{ revenue_items|length }} ອໍເດີ &nbsp;·&nbsp; 💰 ອັດຕາກຳໄລ {{ profit_percent }}%
             </div>
         </div>
     </div>
@@ -150,12 +150,8 @@
             <div class="lbl">ລາຍຮັບ</div>
             <div class="val">{{ total_revenue|dotformat }}</div>
         </div>
-        <div class="sum-tile exp">
-            <div class="lbl">ລາຍຈ່າຍ</div>
-            <div class="val">{{ total_expense|dotformat }}</div>
-        </div>
         <div class="sum-tile prof {% if total_profit < 0 %}neg{% endif %}">
-            <div class="lbl">ກຳໄລສຸດທິ</div>
+            <div class="lbl">ກຳໄລສຸດທິ ({{ profit_percent }}%)</div>
             <div class="val">{% if total_profit >= 0 %}+{% endif %}{{ total_profit|dotformat }}</div>
         </div>
     </div>
@@ -182,28 +178,6 @@
         </div>
     </div>
 
-    <div class="invoice-items">
-        <div class="items-title">ລາຍລະອຽດລາຍຈ່າຍ</div>
-        <div class="table-scroll">
-        {% if expense_items %}
-        <table class="exp-table-inv">
-            <thead class="exp-head"><tr><th class="num-cell">#</th><th>ວັນທີ</th><th>ໝວດໝູ່</th><th>ລາຍລະອຽດ</th><th>ຈຳນວນ</th></tr></thead>
-            <tbody>
-                {% for item in expense_items %}
-                <tr>
-                    <td class="num-cell">{{ forloop.counter }}</td>
-                    <td>{{ item.date|date:"d/m/Y" }}</td>
-                    <td style="font-weight:600;">{{ item.category }}</td>
-                    <td>{{ item.description|default:"—" }}</td>
-                    <td>{{ item.amount|dotformat }} ກີບ</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}<div class="empty-mini">📭 ບໍ່ມີລາຍຈ່າຍໃນໄລຍະເວລານີ້</div>{% endif %}
-        </div>
-    </div>
-
     <div class="invoice-total">
         <div class="total-box {% if total_profit < 0 %}neg{% endif %}">
             <div class="total-row-item">
@@ -211,8 +185,8 @@
                 <span>{{ total_revenue|dotformat }} ກີບ</span>
             </div>
             <div class="total-row-item">
-                <span>ລາຍຈ່າຍລວມ</span>
-                <span>{{ total_expense|dotformat }} ກີບ</span>
+                <span>ອັດຕາກຳໄລ</span>
+                <span>{{ profit_percent }}%</span>
             </div>
             <div class="total-row-item grand">
                 <span>ກຳໄລສຸດທິ</span>

@@ -526,6 +526,8 @@ def admin_finance_view(request):
     now_lao  = _dt.datetime.now(_lao_tz)
     real_today = now_lao.date()
 
+    profit_percent = float(models.FinanceSettings.get_solo().profit_percent)
+
     # ── Single date param controls all stats ──
     sel_date_param = request.GET.get('sel_date', str(real_today))
     try:
@@ -548,9 +550,7 @@ def admin_finance_view(request):
     sd_orders = _revenue_orders_qs(sd_start, sd_end).select_related('product')
     today_revenue = float(sd_orders.aggregate(t=Sum('amount'))['t'] or 0)
     today_count   = sd_orders.count()
-    today_expenses_qs = models.Expense.objects.filter(date=sel_date_obj)
-    today_expense = float(today_expenses_qs.aggregate(t=Sum('amount'))['t'] or 0)
-    today_profit  = today_revenue - today_expense
+    today_profit  = round(today_revenue * profit_percent / 100, 2)
     today_status  = {
         'Pending':    sd_orders.filter(status='Pending').count(),
         'Processing': sd_orders.filter(status='Processing').count(),
@@ -562,9 +562,7 @@ def admin_finance_view(request):
         def default(self, o):
             return float(o) if isinstance(o, Decimal) else super().default(o)
 
-    today_exp_list  = list(today_expenses_qs.values('id', 'category', 'description', 'amount'))
     sel_orders_list = list(sd_orders.values('id', 'product__name', 'quantity', 'amount', 'status', 'delivery_type'))
-    today_exp_json  = json.dumps(today_exp_list,  cls=_Dec)
     sel_orders_json = json.dumps(sel_orders_list, cls=_Dec)
 
     # ── Month stats (selected year/month) ──
@@ -578,10 +576,7 @@ def admin_finance_view(request):
     month_count   = month_orders.count()
     month_start_d = month_start.date()
     month_end_d   = month_end.date()
-    month_expense = float(models.Expense.objects.filter(
-        date__gte=month_start_d, date__lte=month_end_d
-    ).aggregate(t=Sum('amount'))['t'] or 0)
-    month_profit = month_revenue - month_expense
+    month_profit  = round(month_revenue * profit_percent / 100, 2)
 
     # ── Year stats ──
     year_start = _dt.datetime(sel_year, 1, 1, tzinfo=_lao_tz)
@@ -589,10 +584,7 @@ def admin_finance_view(request):
     year_orders  = _revenue_orders_qs(year_start, year_end)
     year_revenue = float(year_orders.aggregate(t=Sum('amount'))['t'] or 0)
     year_count   = year_orders.count()
-    year_expense = float(models.Expense.objects.filter(
-        date__year=sel_year
-    ).aggregate(t=Sum('amount'))['t'] or 0)
-    year_profit  = year_revenue - year_expense
+    year_profit  = round(year_revenue * profit_percent / 100, 2)
 
     # ── Monthly breakdown ──
     month_labels = ['ມ.ກ','ກ.ພ','ມີ.ນ','ເມ.ສ','ພ.ພ','ມິ.ຖ','ກ.ລ','ສ.ຫ','ກ.ຍ','ຕ.ລ','ພ.ຈ','ທ.ວ']
@@ -604,10 +596,7 @@ def admin_finance_view(request):
         m = revenue_dt.astimezone(_lao_tz).month - 1
         monthly_revenue[m] += float(o['amount'] or 0)
         monthly_count[m]   += 1
-    monthly_expense = [0.0] * 12
-    for e in models.Expense.objects.filter(date__year=sel_year).values('date', 'amount'):
-        monthly_expense[e['date'].month - 1] += float(e['amount'] or 0)
-    monthly_profit = [round(monthly_revenue[i] - monthly_expense[i], 2) for i in range(12)]
+    monthly_profit = [round(monthly_revenue[i] * profit_percent / 100, 2) for i in range(12)]
 
     # ── Status all time ──
     status_all = {s: models.Orders.objects.filter(status=s).count()
@@ -616,51 +605,12 @@ def admin_finance_view(request):
     # ── Daily breakdown for selected month ──
     _, days_in_month = _cal.monthrange(sel_year, sel_month)
     daily_rev  = [0.0] * days_in_month
-    daily_exp  = [0.0] * days_in_month
     for o in month_orders.values('order_date', 'amount', 'pickup_date', 'fulfilled_at'):
         revenue_dt = o['fulfilled_at'] if o['pickup_date'] else o['order_date']
         d_idx = (revenue_dt.astimezone(_lao_tz).date() - month_start_d).days
         if 0 <= d_idx < days_in_month:
             daily_rev[d_idx] += float(o['amount'] or 0)
-    for e in models.Expense.objects.filter(date__gte=month_start_d, date__lte=month_end_d).values('date', 'amount'):
-        d_idx = (e['date'] - month_start_d).days
-        if 0 <= d_idx < days_in_month:
-            daily_exp[d_idx] += float(e['amount'] or 0)
-    daily_profit = [round(daily_rev[i] - daily_exp[i], 2) for i in range(days_in_month)]
-
-    # ── Expense filter params (default to sel_month/sel_year) ──
-    has_any_exp_param = any(k in request.GET for k in ('exp_day', 'exp_month', 'exp_year'))
-    exp_month_param = request.GET.get('exp_month', str(sel_month))
-    exp_year_param  = request.GET.get('exp_year',  str(sel_year))
-    exp_day_param   = request.GET.get('exp_day', '')
-    try:
-        exp_month_filter = int(exp_month_param)
-    except (ValueError, TypeError):
-        exp_month_filter = sel_month
-    try:
-        exp_year_filter = int(exp_year_param)
-    except (ValueError, TypeError):
-        exp_year_filter = sel_year
-
-    exp_day_filter = None
-    if exp_day_param:
-        try:
-            exp_day_filter = _dt.date.fromisoformat(exp_day_param)
-        except (ValueError, TypeError):
-            exp_day_filter = None
-    elif not has_any_exp_param:
-        # Fresh page load, no filter chosen yet — default to today (per-day view)
-        # instead of dumping the whole month on screen.
-        exp_day_filter = real_today
-
-    if exp_day_filter:
-        recent_expenses  = models.Expense.objects.filter(date=exp_day_filter).order_by('-id')
-        exp_filter_label = f"ວັນທີ {exp_day_filter.strftime('%d/%m/%Y')}"
-    else:
-        recent_expenses  = models.Expense.objects.filter(
-            date__year=exp_year_filter, date__month=exp_month_filter
-        ).order_by('-date', '-id')
-        exp_filter_label = f"ເດືອນ {exp_month_filter:02d}/{exp_year_filter}"
+    daily_profit = [round(daily_rev[i] * profit_percent / 100, 2) for i in range(days_in_month)]
 
     available_years  = list(range(real_today.year, real_today.year - 5, -1))
     total_orders_all = sum(status_all.values())
@@ -668,10 +618,7 @@ def admin_finance_view(request):
     mydict = {
         'today_revenue':    today_revenue,
         'today_count':      today_count,
-        'today_expense':    today_expense,
         'today_profit':     today_profit,
-        'today_exp_list':   today_exp_list,
-        'today_exp_json':   today_exp_json,
         'sel_orders_json':  sel_orders_json,
         'today_status':     today_status,
         'is_sel_today':     is_sel_today,
@@ -680,33 +627,42 @@ def admin_finance_view(request):
         'today':            sel_date_obj,
         'month_revenue':    month_revenue,
         'month_count':      month_count,
-        'month_expense':    month_expense,
         'month_profit':     month_profit,
         'year_revenue':     year_revenue,
         'year_count':       year_count,
-        'year_expense':     year_expense,
         'year_profit':      year_profit,
         'sel_year':         sel_year,
         'sel_month':        sel_month,
         'month_labels':     month_labels,
         'monthly_revenue':  monthly_revenue,
         'monthly_count':    monthly_count,
-        'monthly_expense':  monthly_expense,
         'monthly_profit':   monthly_profit,
         'status_all':       status_all,
         'daily_rev':        daily_rev,
-        'daily_exp':        daily_exp,
         'daily_profit':     daily_profit,
-        'recent_expenses':  recent_expenses,
         'available_years':  available_years,
         'total_orders_all': total_orders_all,
-        'expense_form':     forms.ExpenseForm(initial={'date': real_today}),
-        'exp_month_filter': exp_month_filter,
-        'exp_year_filter':  exp_year_filter,
-        'exp_filter_label': exp_filter_label,
-        'exp_day_filter':   exp_day_filter.strftime('%Y-%m-%d') if exp_day_filter else '',
+        'profit_percent':   profit_percent,
     }
     return render(request, 'ecom/admin_finance.html', context=mydict)
+
+
+@login_required(login_url='adminlogin')
+def set_profit_percent_view(request):
+    from decimal import Decimal, InvalidOperation
+    if request.method == 'POST':
+        try:
+            pct = Decimal(request.POST.get('profit_percent', '30'))
+            if pct < 0:
+                pct = Decimal('0')
+            if pct > 100:
+                pct = Decimal('100')
+        except (InvalidOperation, ValueError, TypeError):
+            pct = Decimal('30')
+        settings_obj = models.FinanceSettings.get_solo()
+        settings_obj.profit_percent = pct
+        settings_obj.save(update_fields=['profit_percent'])
+    return redirect(request.META.get('HTTP_REFERER', 'admin-finance'))
 
 
 @login_required(login_url='adminlogin')
@@ -984,13 +940,10 @@ def walkin_invoice_view(request):
 
 @login_required(login_url='adminlogin')
 def finance_month_daily_data(request):
-    """Return daily revenue/expense/profit for a given year+month as JSON."""
+    """Return daily revenue/profit for a given year+month as JSON."""
     import datetime as _dt
     import calendar as _cal
-    import json
-    from decimal import Decimal
     from datetime import timezone as _dtz, timedelta as _td
-    from django.db.models import Sum
     from django.http import JsonResponse
 
     _lao_tz = _dtz(_td(hours=7))
@@ -1002,10 +955,10 @@ def finance_month_daily_data(request):
     except (ValueError, TypeError):
         return JsonResponse({'error': 'invalid params'}, status=400)
 
+    profit_percent = float(models.FinanceSettings.get_solo().profit_percent)
     days_in_month = _cal.monthrange(year, month)[1]
 
     daily_rev    = [0.0] * days_in_month
-    daily_exp    = [0.0] * days_in_month
     daily_orders = [0]   * days_in_month
 
     month_start = _dt.datetime(year, month, 1,  0, 0, 0, tzinfo=_lao_tz)
@@ -1019,19 +972,13 @@ def finance_month_daily_data(request):
             daily_rev[idx]    += float(o['amount'] or 0)
             daily_orders[idx] += 1
 
-    for e in models.Expense.objects.filter(date__year=year, date__month=month).values('date', 'amount'):
-        idx = e['date'].day - 1
-        if 0 <= idx < days_in_month:
-            daily_exp[idx] += float(e['amount'] or 0)
-
-    daily_profit = [round(daily_rev[i] - daily_exp[i], 2) for i in range(days_in_month)]
+    daily_profit = [round(daily_rev[i] * profit_percent / 100, 2) for i in range(days_in_month)]
 
     return JsonResponse({
         'year':         year,
         'month':        month,
         'days':         days_in_month,
         'daily_rev':    daily_rev,
-        'daily_exp':    daily_exp,
         'daily_profit': daily_profit,
         'daily_orders': daily_orders,
     })
@@ -1865,6 +1812,7 @@ def cart_view(request):
     return render(request, 'ecom/cart.html', {
         'products':          products_list,
         'total':             total,
+        'deposit_amount':    round(total * 0.10),
         'queue_number':      queue_number,
         'custom_cart_items': custom_cart_items,
         'cart_total_items':  sum(cart.values()) + sum(c['qty'] for c in custom_cart_items),
@@ -2713,7 +2661,7 @@ def profit_invoice_view(request):
     r_end   = _tz.make_aware(_dtt(end_d.year, end_d.month, end_d.day, 23, 59, 59))
 
     orders = models.Orders.objects.filter(order_date__gte=r_start, order_date__lte=r_end).select_related('product').order_by('order_date')
-    expenses = models.Expense.objects.filter(date__gte=start_d, date__lte=end_d).order_by('date', 'id')
+    profit_percent = float(models.FinanceSettings.get_solo().profit_percent)
 
     STATUS_LAO = {'Delivered':'ສຳເລັດ','Cancelled':'ຍົກເລີກ','Processing':'ກຳລັງຈັດ','Confirmed':'ຢືນຢັນ','Pending':'ລໍຖ້າ'}
     revenue_items = []
@@ -2729,19 +2677,11 @@ def profit_invoice_view(request):
             'date': o.order_date.astimezone(_lao_tz) if o.order_date else None,
         })
 
-    expense_items = []
-    total_exp = 0.0
-    for e in expenses:
-        amt = float(e.amount or 0)
-        total_exp += amt
-        expense_items.append({'date': e.date, 'category': e.category, 'description': e.description, 'amount': amt})
-
     context = {
         'revenue_items': revenue_items,
-        'expense_items': expense_items,
         'total_revenue': total_rev,
-        'total_expense': total_exp,
-        'total_profit': total_rev - total_exp,
+        'profit_percent': profit_percent,
+        'total_profit': round(total_rev * profit_percent / 100, 2),
         'period_label': period_label,
         'invoice_no': invoice_no,
         'generated_at': _tz.localtime(),
@@ -3767,12 +3707,9 @@ def export_finance_excel(request):
 
         else:  # profit
             orders = list(_revenue_orders_qs(day_start, day_end).values('id', 'product__name', 'quantity', 'amount'))
-            expenses = list(models.Expense.objects.filter(
-                date=sel_date_d
-            ).values('id', 'category', 'description', 'amount'))
+            profit_percent = float(models.FinanceSettings.get_solo().profit_percent)
             total_rev  = sum(float(o['amount'] or 0) for o in orders)
-            total_exp  = sum(float(e['amount'] or 0) for e in expenses)
-            total_prof = total_rev - total_exp
+            total_prof = round(total_rev * profit_percent / 100, 2)
             pcolor     = "065F46" if total_prof >= 0 else "B91C1C"
             pbg        = "F0FDF4" if total_prof >= 0 else "FEF2F2"
 
@@ -3788,8 +3725,7 @@ def export_finance_excel(request):
 
             for ri, (lbl, val, fc, bg) in enumerate([
                 ("📦 ລາຍຮັບ", total_rev, "1D4ED8", "EFF6FF"),
-                ("🛒 ລາຍຈ່າຍ", total_exp, "B91C1C", "FEF2F2"),
-                ("💰 ກຳໄລສຸດທິ", total_prof, pcolor, pbg),
+                (f"💰 ກຳໄລສຸດທິ ({profit_percent:g}%)", total_prof, pcolor, pbg),
             ], 3):
                 ws.merge_cells(f"A{ri}:B{ri}")
                 cl = ws.cell(row=ri, column=1, value=lbl)
@@ -3799,7 +3735,7 @@ def export_finance_excel(request):
                 ws.row_dimensions[ri].height = 32
 
             # Revenue detail block
-            r_start = 7
+            r_start = 6
             ws.merge_cells(f"A{r_start}:C{r_start}")
             hd = ws.cell(row=r_start, column=1, value="ລາຍຮັບ — ລາຍລະອຽດ")
             hd.font = _hfont(size=12, color="1D4ED8"); hd.fill = _fill("DBEAFE"); hd.alignment = _center; hd.border = _border
@@ -3817,28 +3753,6 @@ def export_finance_excel(request):
                 ), 1):
                     cell = ws.cell(row=r, column=ci, value=v)
                     cell.font = _dfont(color="1D4ED8" if ci==3 else "374151")
-                    cell.fill = rf; cell.alignment = a; cell.border = _border
-                ws.row_dimensions[r].height = 20
-
-            # Expense detail block
-            e_start = r_start + 2 + len(orders) + 2
-            ws.merge_cells(f"A{e_start}:C{e_start}")
-            he = ws.cell(row=e_start, column=1, value="ລາຍຈ່າຍ — ລາຍລະອຽດ")
-            he.font = _hfont(size=12, color="B91C1C"); he.fill = _fill("FEE2E2"); he.alignment = _center; he.border = _border
-            ws.row_dimensions[e_start].height = 26
-            for ci, h in enumerate(["ໝວດໝູ່","ລາຍລະອຽດ","ຈຳນວນ (ກີບ)"], 1):
-                cell = ws.cell(row=e_start+1, column=ci, value=h)
-                cell.font = _hfont(size=10); cell.fill = _fill("B91C1C"); cell.alignment = _center; cell.border = _border
-            ws.row_dimensions[e_start+1].height = 24
-            for i, e in enumerate(expenses):
-                r = e_start + 2 + i; rf = _fill("FEF2F2") if i%2==0 else _fill("FFFFFF")
-                amt_e = float(e['amount'] or 0)
-                for ci, (v, a) in enumerate(zip(
-                    [e['category'], e['description'] or '—', _dotfmt(amt_e) if amt_e else '—'],
-                    [_center, _left, _right]
-                ), 1):
-                    cell = ws.cell(row=r, column=ci, value=v)
-                    cell.font = _dfont(color="EF4444" if ci==3 else "374151")
                     cell.fill = rf; cell.alignment = a; cell.border = _border
                 ws.row_dimensions[r].height = 20
 
@@ -3979,46 +3893,45 @@ def export_finance_excel(request):
             filename = f"EX_ລາຍຈ່າຍ_{fname_lbl}.xlsx"
 
         else:  # profit — aggregated per-day (month scope) or per-month (year scope)
-            rev_map, exp_map = {}, {}
+            profit_percent = float(models.FinanceSettings.get_solo().profit_percent)
+            rev_map = {}
             for o in _revenue_orders_qs(_tz_start, _tz_end).values('order_date', 'amount', 'pickup_date', 'fulfilled_at'):
                 d = _revenue_date(o).astimezone(_LAO_TZ).date()
                 rev_map[d] = rev_map.get(d, 0.0) + float(o['amount'] or 0)
-            for e in models.Expense.objects.filter(date__gte=range_start, date__lte=range_end).values('date', 'amount'):
-                exp_map[e['date']] = exp_map.get(e['date'], 0.0) + float(e['amount'] or 0)
 
             ws.title = f"ກຳໄລ {fname_lbl}"[:31]
-            ws.merge_cells("A1:D1")
+            ws.merge_cells("A1:C1")
             c = ws["A1"]; c.value = f"ສະຫຼຸບກຳໄລ — {period_lbl}"
             c.font = _hfont(size=14); c.fill = _fill("065F46"); c.alignment = _center
             ws.row_dimensions[1].height = 36
-            ws.merge_cells("A2:D2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
+            ws.merge_cells("A2:C2")
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້  |  ອັດຕາກຳໄລ {profit_percent:g}%"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
             LAO_DAYS3 = ['ຈັນ','ອັງຄານ','ພຸດ','ພະຫັດ','ສຸກ','ເສົາ','ອາທິດ']
             LAO_MONTHS3 = ['ມັງກອນ','ກຸມພາ','ມີນາ','ເມສາ','ພຶດສະພາ','ມິຖຸນາ','ກໍລະກົດ','ສິງຫາ','ກັນຍາ','ຕຸລາ','ພະຈິກ','ທັນວາ']
-            headers_p = ["ວັນ/ເດືອນ","ລາຍຮັບ (ກີບ)","ລາຍຈ່າຍ (ກີບ)","ກຳໄລ (ກີບ)"]
-            for ci, (h, fc) in enumerate(zip(headers_p, ["1E3A5F","1D4ED8","B91C1C","065F46"]), 1):
+            headers_p = ["ວັນ/ເດືອນ","ລາຍຮັບ (ກີບ)","ກຳໄລ (ກີບ)"]
+            for ci, (h, fc) in enumerate(zip(headers_p, ["1E3A5F","1D4ED8","065F46"]), 1):
                 cell = ws.cell(row=3, column=ci, value=h)
                 cell.font = _hfont(size=11); cell.fill = _fill(fc); cell.alignment = _center; cell.border = _border
             ws.row_dimensions[3].height = 28
 
-            total_r = total_e = total_p = 0.0
+            total_r = total_p = 0.0
             if sel_scope == 'month':
                 _, dim = _cal.monthrange(sel_year, sel_month)
                 for i in range(dim):
                     cur = _dt.date(sel_year, sel_month, i + 1)
-                    r = rev_map.get(cur, 0.0); e = exp_map.get(cur, 0.0); p = r - e
-                    total_r += r; total_e += e; total_p += p
+                    r = rev_map.get(cur, 0.0); p = round(r * profit_percent / 100, 2)
+                    total_r += r; total_p += p
                     row = i + 4; rf = _fill("F8F7FF") if i % 2 == 0 else _fill("FFFFFF")
                     lbl = f"{cur.day:02d} ({LAO_DAYS3[cur.weekday()]})"
                     pcolor = "065F46" if p >= 0 else "B91C1C"
                     for ci, (v, a) in enumerate(zip(
-                        [lbl, _dotfmt_s(r) if r else '—', _dotfmt_s(e) if e else '—', (('+' if p >= 0 else '') + _dotfmt_s(p)) if (r or e) else '—'],
-                        [_left, _right, _right, _right]
+                        [lbl, _dotfmt_s(r) if r else '—', (('+' if p >= 0 else '') + _dotfmt_s(p)) if r else '—'],
+                        [_left, _right, _right]
                     ), 1):
                         cell = ws.cell(row=row, column=ci, value=v)
-                        cell.font = _dfont(color=pcolor if ci == 4 else "374151", bold=(ci == 4))
+                        cell.font = _dfont(color=pcolor if ci == 3 else "374151", bold=(ci == 3))
                         cell.fill = rf; cell.alignment = a; cell.border = _border
                     ws.row_dimensions[row].height = 22
                 tr = dim + 4
@@ -4026,32 +3939,31 @@ def export_finance_excel(request):
                 for m in range(1, 13):
                     _, dim = _cal.monthrange(sel_year, m)
                     r = sum(rev_map.get(_dt.date(sel_year, m, dd), 0.0) for dd in range(1, dim + 1))
-                    e = sum(exp_map.get(_dt.date(sel_year, m, dd), 0.0) for dd in range(1, dim + 1))
-                    p = r - e
-                    total_r += r; total_e += e; total_p += p
+                    p = round(r * profit_percent / 100, 2)
+                    total_r += r; total_p += p
                     row = m + 3; rf = _fill("F8F7FF") if m % 2 == 0 else _fill("FFFFFF")
                     pcolor = "065F46" if p >= 0 else "B91C1C"
                     for ci, (v, a) in enumerate(zip(
-                        [LAO_MONTHS3[m-1], _dotfmt_s(r) if r else '—', _dotfmt_s(e) if e else '—', (('+' if p >= 0 else '') + _dotfmt_s(p)) if (r or e) else '—'],
-                        [_left, _right, _right, _right]
+                        [LAO_MONTHS3[m-1], _dotfmt_s(r) if r else '—', (('+' if p >= 0 else '') + _dotfmt_s(p)) if r else '—'],
+                        [_left, _right, _right]
                     ), 1):
                         cell = ws.cell(row=row, column=ci, value=v)
-                        cell.font = _dfont(color=pcolor if ci == 4 else "374151", bold=(ci == 4))
+                        cell.font = _dfont(color=pcolor if ci == 3 else "374151", bold=(ci == 3))
                         cell.fill = rf; cell.alignment = a; cell.border = _border
                     ws.row_dimensions[row].height = 22
                 tr = 16
 
             total_pcolor = "065F46" if total_p >= 0 else "B91C1C"
             for ci, (v, a) in enumerate(zip(
-                [f"ລວມ {period_lbl}", _dotfmt_s(total_r), _dotfmt_s(total_e), ('+' if total_p >= 0 else '') + _dotfmt_s(total_p)],
-                [_left, _right, _right, _right]
+                [f"ລວມ {period_lbl}", _dotfmt_s(total_r), ('+' if total_p >= 0 else '') + _dotfmt_s(total_p)],
+                [_left, _right, _right]
             ), 1):
                 cell = ws.cell(row=tr, column=ci, value=v)
-                cell.font = _hfont(size=12, color=total_pcolor if ci == 4 else "FFFFFF")
-                cell.fill = _fill(total_pcolor) if ci == 4 else _fill("1E3A5F")
+                cell.font = _hfont(size=12, color=total_pcolor if ci == 3 else "FFFFFF")
+                cell.fill = _fill(total_pcolor) if ci == 3 else _fill("1E3A5F")
                 cell.alignment = a; cell.border = _border
             ws.row_dimensions[tr].height = 28
-            for col, w in zip("ABCD", [18, 18, 18, 18]):
+            for col, w in zip("ABC", [18, 18, 18]):
                 ws.column_dimensions[col].width = w
             filename = f"EX_ກຳໄລ_{fname_lbl}.xlsx"
 
@@ -4162,57 +4074,55 @@ def export_finance_excel(request):
 
         else:  # profit — year-by-year summary across every year that has any data
             from django.db.models import Min as _Min, Max as _Max
+            profit_percent = float(models.FinanceSettings.get_solo().profit_percent)
             order_bounds = models.Orders.objects.aggregate(mn=_Min('order_date'), mx=_Max('order_date'))
-            exp_bounds    = models.Expense.objects.aggregate(mn=_Min('date'), mx=_Max('date'))
             years = set()
             if order_bounds['mn']: years.update(range(order_bounds['mn'].astimezone(_LAO_TZ).year, order_bounds['mx'].astimezone(_LAO_TZ).year + 1))
-            if exp_bounds['mn']:   years.update(range(exp_bounds['mn'].year, exp_bounds['mx'].year + 1))
             years = sorted(years) or [today.year]
 
             ws.title = "ກຳໄລ ທັງໝົດ"[:31]
-            ws.merge_cells("A1:D1")
+            ws.merge_cells("A1:C1")
             c = ws["A1"]; c.value = "ຜົນກຳໄລ — ທັງໝົດ (ທຸກປີ)"
             c.font = _hfont(size=14); c.fill = _fill("065F46"); c.alignment = _center
             ws.row_dimensions[1].height = 36
-            ws.merge_cells("A2:D2")
-            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
+            ws.merge_cells("A2:C2")
+            s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້  |  ອັດຕາກຳໄລ {profit_percent:g}%"
             s.font = _hfont(bold=False, color="94A3B8", size=10); s.fill = _fill("1E293B"); s.alignment = _center
             ws.row_dimensions[2].height = 22
-            for ci, (h, fc) in enumerate(zip(["ປີ","ລາຍຮັບ (ກີບ)","ລາຍຈ່າຍ (ກີບ)","ກຳໄລ (ກີບ)"], ["1E3A5F","1D4ED8","B91C1C","065F46"]), 1):
+            for ci, (h, fc) in enumerate(zip(["ປີ","ລາຍຮັບ (ກີບ)","ກຳໄລ (ກີບ)"], ["1E3A5F","1D4ED8","065F46"]), 1):
                 cell = ws.cell(row=3, column=ci, value=h)
                 cell.font = _hfont(size=11); cell.fill = _fill(fc); cell.alignment = _center; cell.border = _border
             ws.row_dimensions[3].height = 28
 
-            total_r = total_e = total_p = 0.0
+            total_r = total_p = 0.0
             for i, yr in enumerate(years):
                 y_start = _dt.datetime(yr, 1, 1, tzinfo=_LAO_TZ)
                 y_end   = _dt.datetime(yr, 12, 31, 23, 59, 59, tzinfo=_LAO_TZ)
                 r = float(_revenue_orders_qs(y_start, y_end).aggregate(t=_Sum('amount'))['t'] or 0)
-                e = float(models.Expense.objects.filter(date__gte=_dt.date(yr, 1, 1), date__lte=_dt.date(yr, 12, 31)).aggregate(t=_Sum('amount'))['t'] or 0)
-                p = r - e
-                total_r += r; total_e += e; total_p += p
+                p = round(r * profit_percent / 100, 2)
+                total_r += r; total_p += p
                 row = i + 4; rf = _fill("F8F7FF") if i % 2 == 0 else _fill("FFFFFF")
                 pcolor = "065F46" if p >= 0 else "B91C1C"
                 for ci, (v, a) in enumerate(zip(
-                    [str(yr), _dotfmt_all(r) if r else '—', _dotfmt_all(e) if e else '—', (('+' if p >= 0 else '') + _dotfmt_all(p)) if (r or e) else '—'],
-                    [_left, _right, _right, _right]
+                    [str(yr), _dotfmt_all(r) if r else '—', (('+' if p >= 0 else '') + _dotfmt_all(p)) if r else '—'],
+                    [_left, _right, _right]
                 ), 1):
                     cell = ws.cell(row=row, column=ci, value=v)
-                    cell.font = _dfont(color=pcolor if ci == 4 else "374151", bold=(ci == 4))
+                    cell.font = _dfont(color=pcolor if ci == 3 else "374151", bold=(ci == 3))
                     cell.fill = rf; cell.alignment = a; cell.border = _border
                 ws.row_dimensions[row].height = 22
             tr = len(years) + 4
             total_pcolor = "065F46" if total_p >= 0 else "B91C1C"
             for ci, (v, a) in enumerate(zip(
-                ["ລວມທັງໝົດ", _dotfmt_all(total_r), _dotfmt_all(total_e), ('+' if total_p >= 0 else '') + _dotfmt_all(total_p)],
-                [_left, _right, _right, _right]
+                ["ລວມທັງໝົດ", _dotfmt_all(total_r), ('+' if total_p >= 0 else '') + _dotfmt_all(total_p)],
+                [_left, _right, _right]
             ), 1):
                 cell = ws.cell(row=tr, column=ci, value=v)
-                cell.font = _hfont(size=12, color=total_pcolor if ci == 4 else "FFFFFF")
-                cell.fill = _fill(total_pcolor) if ci == 4 else _fill("1E3A5F")
+                cell.font = _hfont(size=12, color=total_pcolor if ci == 3 else "FFFFFF")
+                cell.fill = _fill(total_pcolor) if ci == 3 else _fill("1E3A5F")
                 cell.alignment = a; cell.border = _border
             ws.row_dimensions[tr].height = 28
-            for col, w in zip("ABCD", [14, 18, 18, 18]):
+            for col, w in zip("ABC", [14, 18, 18]):
                 ws.column_dimensions[col].width = w
             filename = "EX_ກຳໄລ_ທັງໝົດ.xlsx"
 

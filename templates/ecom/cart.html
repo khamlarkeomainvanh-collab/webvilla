@@ -189,6 +189,42 @@ body {
 .checkout.is-disabled { opacity:.6; cursor:not-allowed; box-shadow:none; }
 .checkout.is-disabled:hover { transform:none; box-shadow:none; }
 
+/* ── DEPOSIT / QR WIDGET ── */
+.deposit-box {
+    background: linear-gradient(160deg,#eff6ff,#f8fafc);
+    border: 1.5px solid #bfdbfe; border-radius: 22px;
+    padding: 22px 24px; margin: 4px 0 20px; text-align: center;
+}
+.deposit-head {
+    font-size: .82rem; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--pu); display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px;
+}
+.deposit-amt { font-size: 2rem; font-weight: 900; color: var(--pk); line-height: 1; }
+.deposit-amt small { font-size: .95rem; font-weight: 700; color: var(--pu); }
+.deposit-sub { font-size: .8rem; color: #64748b; font-weight: 600; margin: 8px 0 18px; line-height: 1.6; }
+
+.deposit-qr-wrap {
+    width: 170px; height: 170px; margin: 0 auto 14px; border-radius: 18px;
+    background: #fff; border: 2px dashed #93c5fd; padding: 10px;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.deposit-qr-wrap img { width: 100%; height: 100%; object-fit: contain; }
+.deposit-qr-ph { font-size: 3rem; color: #93c5fd; }
+
+.deposit-acct { margin-bottom: 18px; }
+.da-bank { display: inline-flex; align-items: center; gap: 6px; background: var(--pk); color: #fff; padding: 5px 14px; border-radius: 50px; font-size: .78rem; font-weight: 800; margin-bottom: 6px; }
+.da-name { font-size: .92rem; font-weight: 800; color: var(--text); }
+
+.deposit-confirm-btn {
+    width: 100%; padding: 15px; border: none; border-radius: 16px;
+    background: linear-gradient(135deg,#22c55e,#16a34a); color: #fff;
+    font-family: 'Lexend','Noto Sans Lao',sans-serif; font-size: .96rem; font-weight: 800;
+    cursor: pointer; transition: .25s; box-shadow: 0 10px 26px rgba(34,197,94,.32);
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.deposit-confirm-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(34,197,94,.42); }
+.deposit-confirm-btn:active { transform: scale(.98); }
+
 /* custom ("ສັ່ງເມນູຕາມໃຈ") cart item */
 .custom-item {
     display:flex; align-items:center; gap:16px; padding:20px 28px;
@@ -448,6 +484,26 @@ body {
                     <div class="total-v" id="grand-total">{{ total|dotformat }}<small> ກີບ</small></div>
                 </div>
 
+                <div class="deposit-box">
+                    <div class="deposit-head"><i class="fas fa-hand-holding-dollar"></i> ມັດຈຳຈອງລົດ (10%)</div>
+                    <div class="deposit-amt">{{ deposit_amount|dotformat }}<small> ກີບ</small></div>
+                    <div class="deposit-sub">ສະແກນ QR ຊຳລະມັດຈຳ ເພື່ອຈອງລົດໄວ້ກ່ອນ<br>ສ່ວນທີ່ເຫຼືອຈ່າຍຕອນມາຮັບລົດ</div>
+
+                    <div class="deposit-qr-wrap">
+                        <img src="{% static 'images/qr_payment.png' %}" alt="QR ຊຳລະ"
+                             onerror="this.style.display='none';document.getElementById('depQrPh').style.display='flex';">
+                        <div id="depQrPh" class="deposit-qr-ph" style="display:none;"><i class="fas fa-qrcode"></i></div>
+                    </div>
+                    <div class="deposit-acct">
+                        <div class="da-bank"><i class="fas fa-university"></i> BCEL</div>
+                        <div class="da-name">THIPDAVAN SENGDALA MS</div>
+                    </div>
+
+                    <button type="button" class="deposit-confirm-btn" onclick="confirmDeposit()">
+                        <i class="fab fa-whatsapp"></i> ຂ້ອຍໂອນແລ້ວ — ສົ່ງສະລິບໃຫ້ຮ້ານ
+                    </button>
+                </div>
+
                 <a href="/customer-address" class="checkout {% if closed_error %}is-disabled{% endif %}"
                    onclick="{% if closed_error %}return blockCheckoutIfClosed(event){% endif %}">
                     <i class="fas fa-paper-plane"></i> ດຳເນີນການສັ່ງຊື້
@@ -477,6 +533,13 @@ function blockCheckoutIfClosed(e) {
 }
 function closeClosedAlert() {
     document.getElementById('closedAlertOverlay').classList.remove('open');
+}
+
+function confirmDeposit() {
+    var msg = 'ສະບາຍດີ ຂ້ອຍໄດ້ໂອນມັດຈຳ {{ deposit_amount|dotformat }} ກີບ ສຳລັບການຈອງລົດແລ້ວ ' +
+              '(ລວມ {{ cart_total_items }} ລາຍການ, ຍອດລວມ {{ total|dotformat }} ກີບ). ' +
+              'ນີ້ແມ່ນ slip ການໂອນເງິນ 👇';
+    window.open('https://wa.me/8562099540663?text=' + encodeURIComponent(msg), '_blank');
 }
 </script>
 

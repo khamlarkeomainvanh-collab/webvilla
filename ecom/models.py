@@ -165,6 +165,20 @@ class CustomOrderRequest(models.Model):
         return self.message[:40]
 
 
+class FinanceSettings(models.Model):
+    """Singleton row holding the admin-editable profit-margin percentage used
+    on the finance dashboard: profit = revenue * (profit_percent / 100)."""
+    profit_percent = models.DecimalField(max_digits=5, decimal_places=2, default=30)
+
+    def __str__(self):
+        return f"ອັດຕາກຳໄລ {self.profit_percent}%"
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 EXPENSE_CATEGORY_CHOICES = (
     ('ອະໄຫຼ່ລົດ', 'ອະໄຫຼ່ລົດ'),
     ('ແບັດເຕີຣີ', 'ແບັດເຕີຣີ'),

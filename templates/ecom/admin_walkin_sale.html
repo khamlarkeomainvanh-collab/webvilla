@@ -130,6 +130,10 @@ button.ws-stat-card {
     width:40px; height:40px; border-radius:12px; flex-shrink:0; background:linear-gradient(135deg,#dbeafe,#f8fafc);
     display:flex; align-items:center; justify-content:center; font-size:1.1rem;
 }
+.ws-prod-img {
+    width:40px; height:40px; border-radius:12px; flex-shrink:0; object-fit:cover;
+    border:1.5px solid #dbeafe;
+}
 .ws-qty-pill {
     display:inline-block; background:var(--lav); color:var(--purple); padding:3px 12px; border-radius:50px;
     font-weight:800; font-size:.82rem;
@@ -328,7 +332,7 @@ button.ws-stat-card {
         <!-- Item picker → add to queue -->
         <div class="ws-add-row">
             <div class="ws-field" style="position:relative;">
-                <label>🥤 ສິນຄ້າ</label>
+                <label>🏍️ ສິນຄ້າ</label>
                 <div style="display:flex; gap:8px;">
                     <input type="text" id="wsProductInput" class="ws-select" list="wsProductDatalist"
                            placeholder="ພິມຄົ້ນຫາ ຫຼື ພິມຊື່ສິນຄ້າໃໝ່..." autocomplete="off" oninput="wsProductChanged()" style="flex:1;">
@@ -450,15 +454,15 @@ button.ws-stat-card {
         <button type="button" class="ws-stat-card --purple" data-filter="all" onclick="wsFilterSales('all')">
             <div class="ws-stat-ico"><i class="fas fa-receipt"></i></div>
             <div>
-                <div class="ws-stat-lbl">ຈຳນວນລາຍການ</div>
-                <div class="ws-stat-val">{{ sales|length }} ລາຍການ</div>
+                <div class="ws-stat-lbl">ຈຳນວນລຸ້ນ</div>
+                <div class="ws-stat-val">{{ sales|length }} ລຸ້ນ</div>
             </div>
         </button>
         <div class="ws-stat-card --amber">
             <div class="ws-stat-ico"><i class="fas fa-cup-straw"></i></div>
             <div>
-                <div class="ws-stat-lbl">ຈຳນວນອັນທັງໝົດ</div>
-                <div class="ws-stat-val">{{ qty_today }} ອັນ</div>
+                <div class="ws-stat-lbl">ຈຳນວນລົດທັງໝົດ</div>
+                <div class="ws-stat-val">{{ qty_today }} ຄັນ</div>
             </div>
         </div>
     </div>
@@ -481,7 +485,13 @@ button.ws-stat-card {
                     <td><span class="ws-row-num">{{ forloop.counter }}</span></td>
                     <td>
                         <div class="ws-prod-cell">
-                            <div class="ws-prod-ico">{% if s.product %}🥤{% else %}✍️{% endif %}</div>
+                            {% if s.product and s.product.product_image %}
+                                <img src="{{ s.product.product_image.url }}" class="ws-prod-img" alt="{{ s.product.name }}">
+                            {% elif s.product %}
+                                <div class="ws-prod-ico"><i class="fas fa-motorcycle"></i></div>
+                            {% else %}
+                                <div class="ws-prod-ico">✍️</div>
+                            {% endif %}
                             <span>
                                 {% if s.product %}{{ s.product.name }}{% else %}{{ s.note|default:"—" }}<span class="ws-custom-badge">ນອກລາຍການ</span>{% endif %}
                             </span>
