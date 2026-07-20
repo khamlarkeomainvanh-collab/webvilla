@@ -444,7 +444,34 @@ body {
                     </div>
                     <div class="f-group" style="flex:1; min-width:150px;">
                         <label>🕐 ໂມງທີ່ຈະມາຮັບ</label>
-                        <input type="time" name="pickup_time" id="f_pickup_time" required>
+                        <input type="hidden" name="pickup_time" id="f_pickup_time" required>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div class="select-wrap" style="flex:1;">
+                                <select id="pt_hour" onchange="syncPickupTime()">
+                                    <option value="">-- ໂມງ --</option>
+                                    <option value="09">09</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                </select>
+                            </div>
+                            <span style="font-weight:900; color:var(--dim);">:</span>
+                            <div class="select-wrap" style="flex:1;">
+                                <select id="pt_min" onchange="syncPickupTime()">
+                                    <option value="">-- ນາທີ --</option>
+                                    <option value="00">00</option>
+                                    <option value="15">15</option>
+                                    <option value="30">30</option>
+                                    <option value="45">45</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -469,34 +496,31 @@ body {
 
                 <!-- Delivery inputs -->
                 <div id="box-del">
-                    <div class="f-group">
-                        <label>📍 ທີ່ຢູ່ຈັດສົ່ງ</label>
-                        <textarea name="Address" id="f_addr" rows="2"
-                                  placeholder="ບ້ານ, ເມືອງ, ຈຸດໝາຍ...">{{ prefill.Address }}</textarea>
-                    </div>
                     <div class="f-group zone-box">
-                        <label>🗺 ເລືອກເຂດຈັດສົ່ງ</label>
+                        <label>🚚 ເລືອກຂົນສົ່ງ</label>
                         <div class="select-wrap">
-                            <select id="zone-sel" onchange="checkZone()">
-                                <option value="">-- ເລືອກເຂດ --</option>
-                                <option value="ຫົວຊຽງ">ຫົວຊຽງ</option>
-                                <option value="ນິຄົມ">ເຂດນິຄົມອຸດສາຫະກຳ</option>
-                                <option value="ບ້ານໃໝ່">ເຂດບ້ານໃໝ່ໄຊສົມບູນ</option>
-                                <option value="ຫລັກ21">ເຂດຫລັກ 21</option>
-                                <option value="ຫລັກ23">ເຂດຫລັກ 23</option>
-                                <option value="ນອກເຂດ">ອື່ນໆ (ນອກເຂດ)</option>
+                            <select id="courier-sel" name="courier_name" onchange="checkCourier()">
+                                <option value="">-- ເລືອກຂົນສົ່ງ --</option>
+                                <option value="ຮຸ່ງອະລຸນ">ຮຸ່ງອະລຸນ</option>
+                                <option value="ມີໄຊ">ມີໄຊ</option>
+                                <option value="ອະນຸສິດ">ອະນຸສິດ</option>
+                                <option value="ອື່ນໆ">ອື່ນໆ (ລະບຸເອງ)</option>
                             </select>
                         </div>
-                        <div class="zone-warning" id="zone-warn">
-                            <span class="zw-ico">🚫</span>
-                            <strong>ໝາຍເຫດ:</strong> ທ່ານຢູ່ນອກເຂດທີ່ສາມາດຈັດສົ່ງໄດ້<br>
-                            ເນື່ອງຈາກລົດຕ້ອງກວດເຊັກສະພາບ ຈຶ່ງບໍ່ສາມາດຈັດສົ່ງໄລຍະໄກໄດ້<br>
-                            ກາລຸນາ <strong>ຮັບໜ້າຮ້ານ</strong> ຫລື ເລືອກເຂດທີ່ຮອງຮັບ
+                        <div class="f-group" id="courier-other-wrap" style="display:none; margin-top:10px;">
+                            <label>✏️ ຊື່ຂົນສົ່ງ</label>
+                            <input type="text" id="courier-other" name="courier_other"
+                                   placeholder="ພິມຊື່ບໍລິສັດຂົນສົ່ງ..." oninput="checkCourier()">
                         </div>
                     </div>
+                    <div class="f-group">
+                        <label>🏢 ສາຂາທີ່ຈະຮັບເຄື່ອງ</label>
+                        <input type="text" id="courier-branch" name="courier_branch"
+                               placeholder="ຕົວຢ່າງ: ສາຂາຫຼວງພະບາງ" oninput="checkCourier()">
+                    </div>
                     <div class="fee-pill" style="margin-top:4px;">
-                        <span>ຄ່າຈັດສົ່ງ</span>
-                        <span class="fee-amt" id="fee-show">-- ກີບ</span>
+                        <span>ຄ່າຂົນສົ່ງ</span>
+                        <span class="fee-amt" id="fee-show">ຈ່າຍໂດຍກົງກັບຂົນສົ່ງ</span>
                     </div>
                 </div>
 
@@ -611,8 +635,8 @@ body {
                     <span class="tv">{{ subtotal|dotformat }} ກີບ</span>
                 </div>
                 <div class="tot-row">
-                    <span class="tl">ຄ່າຈັດສົ່ງ</span>
-                    <span class="tv" id="sum-fee">5,000 ກີບ</span>
+                    <span class="tl">ຄ່າຂົນສົ່ງ</span>
+                    <span class="tv" id="sum-fee">ຈ່າຍໂດຍກົງກັບຂົນສົ່ງ</span>
                 </div>
                 <div class="tot-grand">
                     <span class="tg-l">ຍອດລວມທັງໝົດ</span>
@@ -636,13 +660,6 @@ body {
 
 <script>
 const SUBTOTAL = {{ subtotal|default:0 }};
-const ZONE_FEES = {
-    'ຫົວຊຽງ':  15000,
-    'ນິຄົມ':   10000,
-    'ບ້ານໃໝ່': 10000,
-    'ຫລັກ21':  15000,
-    'ຫລັກ23':  15000,
-};
 
 var _currentDel = 'Delivery';
 
@@ -651,11 +668,18 @@ function fmtNum(n) {
 }
 
 function _setFeeDisplay(fee) {
-    var feeText = fee > 0 ? fmtNum(fee) + ' ກີບ' : '-- ກີບ';
-    try { document.getElementById('fee-show').textContent = feeText; } catch(e) {}
+    var feeText = fee > 0 ? fmtNum(fee) + ' ກີບ' : '0 ກີບ';
     try { document.getElementById('sum-fee').textContent  = feeText; } catch(e) {}
     try { document.getElementById('sum-grand').textContent = fmtNum(SUBTOTAL + fee) + ' ກີບ'; } catch(e) {}
     document.getElementById('h_fee').value = fee;
+    document.getElementById('h_km').value  = 0;
+}
+
+function _setCourierFeeNote() {
+    try { document.getElementById('fee-show').textContent = 'ຈ່າຍໂດຍກົງກັບຂົນສົ່ງ'; } catch(e) {}
+    try { document.getElementById('sum-fee').textContent  = 'ຈ່າຍໂດຍກົງກັບຂົນສົ່ງ'; } catch(e) {}
+    try { document.getElementById('sum-grand').textContent = fmtNum(SUBTOTAL) + ' ກີບ'; } catch(e) {}
+    document.getElementById('h_fee').value = 0;
     document.getElementById('h_km').value  = 0;
 }
 
@@ -665,6 +689,12 @@ function _setFeeDisplay(fee) {
     var pd = document.getElementById('f_pickup_date');
     if (pd) { pd.min = today; pd.value = today; }
 })();
+
+function syncPickupTime() {
+    var h = document.getElementById('pt_hour').value;
+    var m = document.getElementById('pt_min').value;
+    document.getElementById('f_pickup_time').value = (h && m) ? (h + ':' + m) : '';
+}
 
 document.getElementById('mainForm').addEventListener('submit', function(e) {
     if (!document.getElementById('f_pickup_date').value) {
@@ -694,22 +724,14 @@ function setDel(t) {
         document.getElementById('opt-store').style.display = '';
         setPay('InStore');
         _setFeeDisplay(0);
-        document.getElementById('sum-fee').textContent   = '0 ກີບ';
-        document.getElementById('sum-grand').textContent = fmtNum(SUBTOTAL) + ' ກີບ';
-        document.getElementById('zone-warn').style.display = 'none';
         document.getElementById('submitBtn').disabled = false;
-        var addr = document.getElementById('f_addr');
-        if (addr) addr.value = 'ຮັບໜ້າຮ້ານ';
     } else {
-        // ── DELIVERY: ຈ່າຍປາຍທາງອຍ່າງດຽວ, ຕ້ອງເລືອກເຂດ ──
+        // ── DELIVERY: ຈ່າຍປາຍທາງອຍ່າງດຽວ, ຕ້ອງເລືອກຂົນສົ່ງ+ສາຂາ ──
         document.getElementById('opt-cod').style.display   = '';
         document.getElementById('opt-store').style.display = 'none';
         setPay('COD');
-        var sel = document.getElementById('zone-sel');
-        if (sel) sel.value = '';
-        _setFeeDisplay(0);
-        document.getElementById('zone-warn').style.display = 'none';
-        document.getElementById('submitBtn').disabled = true;
+        _setCourierFeeNote();
+        checkCourier();
     }
 }
 
@@ -721,21 +743,22 @@ function setPay(m) {
     if (store) store.className = 'pay-card' + (m === 'InStore' ? ' active-store' : '');
 }
 
-function checkZone() {
-    var sel  = document.getElementById('zone-sel');
-    var warn = document.getElementById('zone-warn');
-    var btn  = document.getElementById('submitBtn');
+function checkCourier() {
+    if (_currentDel !== 'Delivery') return;
+    var sel      = document.getElementById('courier-sel');
+    var otherWrap = document.getElementById('courier-other-wrap');
+    var other    = document.getElementById('courier-other');
+    var branch   = document.getElementById('courier-branch');
+    var btn      = document.getElementById('submitBtn');
     if (!sel) return;
 
-    var v    = sel.value;
-    var isOut = (v === 'ນອກເຂດ');
-    var noSel = (v === '');
+    var isOther = (sel.value === 'ອື່ນໆ');
+    otherWrap.style.display = isOther ? '' : 'none';
 
-    warn.style.display = isOut ? 'block' : 'none';
-    btn.disabled = isOut || noSel;
+    var courierOk = sel.value !== '' && (!isOther || other.value.trim() !== '');
+    var branchOk  = branch.value.trim() !== '';
 
-    var fee = (!isOut && !noSel) ? (ZONE_FEES[v] || 0) : 0;
-    _setFeeDisplay(fee);
+    btn.disabled = !(courierOk && branchOk);
 }
 
 document.getElementById('submitBtn').addEventListener('click', function(e) {
@@ -744,10 +767,10 @@ document.getElementById('submitBtn').addEventListener('click', function(e) {
     this.style.opacity = '0.7';
 });
 
-// init: delivery mode → hide InStore, disable submit until zone chosen
+// init: delivery mode → hide InStore, disable submit until courier+branch chosen
 document.getElementById('opt-store').style.display = 'none';
 document.getElementById('submitBtn').disabled = true;
-_setFeeDisplay(0);
+_setCourierFeeNote();
 
 /* ── COLLAPSE ORDER SUMMARY ON MOBILE ── */
 function toggleSumItems() {

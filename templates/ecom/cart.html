@@ -212,8 +212,28 @@ body {
 .deposit-qr-ph { font-size: 3rem; color: #93c5fd; }
 
 .deposit-acct { margin-bottom: 18px; }
-.da-bank { display: inline-flex; align-items: center; gap: 6px; background: var(--pk); color: #fff; padding: 5px 14px; border-radius: 50px; font-size: .78rem; font-weight: 800; margin-bottom: 6px; }
+.da-bank {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--pk); color: #fff;
+    padding: 5px 14px; border-radius: 50px; font-size: .78rem; font-weight: 800; margin-bottom: 6px;
+    border: none; cursor: pointer; font-family: 'Lexend','Noto Sans Lao',sans-serif;
+}
+.da-bank:hover { filter: brightness(1.08); }
 .da-name { font-size: .92rem; font-weight: 800; color: var(--text); }
+
+.copy-amt-btn {
+    display: inline-flex; align-items: center; gap: 6px; margin: 8px 0 4px; padding: 7px 16px;
+    border: 1.5px solid var(--pk); background: #fff; color: var(--pk); border-radius: 50px;
+    font-family: 'Lexend','Noto Sans Lao',sans-serif; font-size: .8rem; font-weight: 800;
+    cursor: pointer; transition: .2s;
+}
+.copy-amt-btn:hover { background: var(--pk); color: #fff; }
+.copy-amt-btn.copied { background: #16a34a; border-color: #16a34a; color: #fff; }
+
+.bcel-tip {
+    display: none; text-align: left; font-size: .78rem; color: #374151; line-height: 1.7;
+    background: #fff; border: 1px dashed #bfdbfe; border-radius: 12px; padding: 10px 12px; margin-top: 8px;
+}
+.bcel-tip.show { display: block; }
 
 .deposit-confirm-btn {
     width: 100%; padding: 15px; border: none; border-radius: 16px;
@@ -500,7 +520,10 @@ body {
 
                 <div class="deposit-box">
                     <div class="deposit-head"><i class="fas fa-hand-holding-dollar"></i> ມັດຈຳຈອງລົດ (10%)</div>
-                    <div class="deposit-amt">{{ deposit_amount|dotformat }}<small> ກີບ</small></div>
+                    <div class="deposit-amt" id="depAmtVal" data-raw="{{ deposit_amount }}">{{ deposit_amount|dotformat }}<small> ກີບ</small></div>
+                    <button type="button" class="copy-amt-btn" id="copyAmtBtn" onclick="copyDepositAmount()">
+                        <i class="fas fa-copy"></i> ຄັດລອກຍອດເງິນ
+                    </button>
                     <div class="deposit-sub">ສະແກນ QR ຊຳລະມັດຈຳ ເພື່ອຈອງລົດໄວ້ກ່ອນ<br>ສ່ວນທີ່ເຫຼືອຈ່າຍຕອນມາຮັບລົດ</div>
 
                     <div class="deposit-qr-wrap">
@@ -509,8 +532,11 @@ body {
                         <div id="depQrPh" class="deposit-qr-ph" style="display:none;"><i class="fas fa-qrcode"></i></div>
                     </div>
                     <div class="deposit-acct">
-                        <div class="da-bank"><i class="fas fa-university"></i> BCEL</div>
+                        <button type="button" class="da-bank" onclick="toggleBcelTip()"><i class="fas fa-university"></i> BCEL <i class="fas fa-circle-info fa-xs"></i></button>
                         <div class="da-name">THIPDAVAN SENGDALA MS</div>
+                        <div id="bcelTip" class="bcel-tip">
+                            📱 ເປີດແອັບ <b>BCEL One</b> → ເລືອກ <b>ໂອນເງິນ</b> ຫຼື <b>ສະແກນ QR</b> → ສະແກນ QR ຂ້າງເທິງ ຫຼືພິມເລກບັນຊີ → <b>ວາງ (paste)</b> ຍອດເງິນທີ່ຄັດລອກໄວ້ → ຢືນຢັນໂອນ
+                        </div>
                     </div>
 
                     <div class="deposit-ref">
@@ -559,6 +585,28 @@ function blockCheckoutIfClosed(e) {
 }
 function closeClosedAlert() {
     document.getElementById('closedAlertOverlay').classList.remove('open');
+}
+
+function toggleBcelTip() {
+    document.getElementById('bcelTip').classList.toggle('show');
+}
+
+function copyDepositAmount() {
+    var raw = document.getElementById('depAmtVal').dataset.raw;
+    var btn = document.getElementById('copyAmtBtn');
+    var done = function() {
+        btn.innerHTML = '<i class="fas fa-check"></i> ຄັດລອກແລ້ວ';
+        btn.classList.add('copied');
+        setTimeout(function() {
+            btn.innerHTML = '<i class="fas fa-copy"></i> ຄັດລອກຍອດເງິນ';
+            btn.classList.remove('copied');
+        }, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(raw).then(done).catch(function(){ alert('ຍອດເງິນ: ' + raw + ' ກີບ'); });
+    } else {
+        alert('ຍອດເງິນ: ' + raw + ' ກີບ');
+    }
 }
 
 var depositConfirmed = false;

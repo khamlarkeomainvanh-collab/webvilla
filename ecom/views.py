@@ -2098,11 +2098,17 @@ def customer_address_view(request):
         if not mobile and customer:
             mobile = customer.mobile or ''
 
-        # Get address — for Pickup always use store name
+        # Get address — for Pickup always use store name; for Delivery it's
+        # composed from the chosen courier company + branch the customer
+        # will collect the package from (no more door-to-door zone delivery).
         if delivery_type == 'Pickup':
             address = 'ຮັບໜ້າຮ້ານ'
         else:
-            address = request.POST.get('Address', '').strip()
+            courier_name = request.POST.get('courier_name', '').strip()
+            if courier_name == 'ອື່ນໆ':
+                courier_name = request.POST.get('courier_other', '').strip() or 'ອື່ນໆ'
+            courier_branch = request.POST.get('courier_branch', '').strip()
+            address = f"ຂົນສົ່ງ: {courier_name} | ສາຂາ: {courier_branch}" if courier_name or courier_branch else ''
             if not address and customer:
                 address = customer.address or ''
 
