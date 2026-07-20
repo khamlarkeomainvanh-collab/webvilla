@@ -224,6 +224,17 @@ body {
 }
 .deposit-confirm-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(34,197,94,.42); }
 .deposit-confirm-btn:active { transform: scale(.98); }
+.deposit-confirm-btn.confirmed { background: linear-gradient(135deg,#0ea5e9,#0284c7); box-shadow: 0 10px 26px rgba(14,165,233,.32); cursor: default; }
+.deposit-confirm-btn.confirmed:hover { transform: none; }
+.deposit-ref { margin: 10px 0 16px; font-size: .78rem; font-weight: 700; color: #64748b; background: #fff; border: 1px dashed #bfdbfe; border-radius: 12px; padding: 8px 12px; line-height: 1.6; }
+.deposit-ref b { color: var(--pu); }
+
+.deposit-warn {
+    display: none; align-items: center; gap: 8px; background: #fef2f2; border: 1.5px solid #fecaca;
+    color: #b91c1c; font-size: .82rem; font-weight: 700; border-radius: 14px; padding: 12px 14px;
+    margin: 4px 0 12px; text-align: left;
+}
+.deposit-warn.show { display: flex; }
 
 /* custom ("ສັ່ງເມນູຕາມໃຈ") cart item */
 .custom-item {
@@ -348,9 +359,12 @@ body {
 
                     <div class="item-info">
                         <div class="item-name">{{ p.name }}</div>
-                        <div class="item-desc">⚡ ພ້ອມມາຮັບ &nbsp;·&nbsp; EX ມໍເຕີ້</div>
+                        <div class="item-desc">
+                            {% if p.category_name %}🏍️ {{ p.category_name }}{% else %}⚡ ພ້ອມມາຮັບ{% endif %}
+                            {% if p.color_names %}&nbsp;·&nbsp;🎨 {{ p.color_names }}{% endif %}
+                        </div>
                         <div class="item-uprice" id="uprice-{{ p.line_key }}">
-                            {{ p.unit_price|dotformat }} ກີບ / ອັນ
+                            {{ p.unit_price|dotformat }} ກີບ / ຄັນ
                         </div>
                     </div>
 
@@ -499,13 +513,25 @@ body {
                         <div class="da-name">THIPDAVAN SENGDALA MS</div>
                     </div>
 
-                    <button type="button" class="deposit-confirm-btn" onclick="confirmDeposit()">
+                    <div class="deposit-ref">
+                        ຄິວທີ: <b>#{{ queue_number }}</b> &nbsp;·&nbsp;
+                        ຊື່ຜູ້ຈອງ: <b>{{ customer_name|default:"-" }}</b> &nbsp;·&nbsp;
+                        ເບີໂທ: <b>{{ customer_mobile|default:"-" }}</b><br>
+                        ⚠ ຍອດໂອນຕ້ອງກົງກັບຍອດມັດຈຳຂ້າງເທິງເປັນຈຳນວນເງິນເທົ່າກັນເທົ່ານັ້ນ
+                    </div>
+
+                    <button type="button" id="depositConfirmBtn" class="deposit-confirm-btn" onclick="confirmDeposit()">
                         <i class="fab fa-whatsapp"></i> ຂ້ອຍໂອນແລ້ວ — ສົ່ງສະລິບໃຫ້ຮ້ານ
                     </button>
                 </div>
 
-                <a href="/customer-address" class="checkout {% if closed_error %}is-disabled{% endif %}"
-                   onclick="{% if closed_error %}return blockCheckoutIfClosed(event){% endif %}">
+                <div id="depositWarn" class="deposit-warn">
+                    <i class="fas fa-triangle-exclamation"></i> ກະລຸນາໂອນມັດຈຳ ແລະກົດ "ຂ້ອຍໂອນແລ້ວ — ສົ່ງສະລິບໃຫ້ຮ້ານ" ກ່ອນດຳເນີນການສັ່ງຊື້
+                </div>
+
+                <a href="/customer-address" id="checkoutBtn" class="checkout is-disabled"
+                   data-closed="{% if closed_error %}1{% else %}0{% endif %}"
+                   onclick="return handleCheckoutClick(event)">
                     <i class="fas fa-paper-plane"></i> ດຳເນີນການສັ່ງຊື້
                 </a>
             </div>
@@ -535,11 +561,42 @@ function closeClosedAlert() {
     document.getElementById('closedAlertOverlay').classList.remove('open');
 }
 
+var depositConfirmed = false;
+
+function handleCheckoutClick(e) {
+    var btn = document.getElementById('checkoutBtn');
+    if (btn.dataset.closed === '1') {
+        return blockCheckoutIfClosed(e);
+    }
+    if (!depositConfirmed) {
+        e.preventDefault();
+        document.getElementById('depositWarn').classList.add('show');
+        document.querySelector('.deposit-box').scrollIntoView({behavior:'smooth', block:'center'});
+        return false;
+    }
+    return true;
+}
+
 function confirmDeposit() {
-    var msg = 'ສະບາຍດີ ຂ້ອຍໄດ້ໂອນມັດຈຳ {{ deposit_amount|dotformat }} ກີບ ສຳລັບການຈອງລົດແລ້ວ ' +
-              '(ລວມ {{ cart_total_items }} ລາຍການ, ຍອດລວມ {{ total|dotformat }} ກີບ). ' +
-              'ນີ້ແມ່ນ slip ການໂອນເງິນ 👇';
+    var msg = '📌 ແຈ້ງການໂອນມັດຈຳຈອງລົດ\n' +
+              'ຄິວທີ: #{{ queue_number }}\n' +
+              'ຊື່ຜູ້ຈອງ: {{ customer_name|default:"-" }}\n' +
+              'ເບີໂທຜູ້ຈອງ: {{ customer_mobile|default:"-" }}\n' +
+              'ຍອດມັດຈຳ: {{ deposit_amount|dotformat }} ກີບ (ກະລຸນາກວດຍອດເງິນທີ່ໂອນເຂົ້າໃຫ້ກົງກັນເປົ໊ະ)\n' +
+              'ລວມ {{ cart_total_items }} ລາຍການ, ຍອດລວມ {{ total|dotformat }} ກີບ\n' +
+              'ນີ້ແມ່ນ slip ການໂອນເງິນ 👇 (ກະລຸນາແນບຮູບ slip ຕໍ່ໃນແຊັດນີ້)';
     window.open('https://wa.me/8562099540663?text=' + encodeURIComponent(msg), '_blank');
+
+    depositConfirmed = true;
+    var dbtn = document.getElementById('depositConfirmBtn');
+    dbtn.innerHTML = '<i class="fas fa-circle-check"></i> ແຈ້ງການໂອນແລ້ວ — ດຳເນີນການສັ່ງຊື້ໄດ້ເລີຍ';
+    dbtn.classList.add('confirmed');
+    document.getElementById('depositWarn').classList.remove('show');
+
+    var cbtn = document.getElementById('checkoutBtn');
+    if (cbtn.dataset.closed !== '1') {
+        cbtn.classList.remove('is-disabled');
+    }
 }
 </script>
 

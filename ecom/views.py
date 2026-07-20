@@ -1760,7 +1760,7 @@ def _cart_lines(cart_dict):
     if not cart_dict:
         return
     base_ids = {key.split('-')[0] for key in cart_dict.keys()}
-    products_by_id = {str(p.id): p for p in models.Product.objects.filter(id__in=base_ids)}
+    products_by_id = {str(p.id): p for p in models.Product.objects.filter(id__in=base_ids).select_related('category').prefetch_related('colors')}
     for line_key, qty in cart_dict.items():
         pid = line_key.split('-')[0]
         product = products_by_id.get(pid)
@@ -1780,6 +1780,7 @@ def cart_view(request):
 
     for line_key, product, item_qty, unit_price, subtotal in _cart_lines(cart):
         total += subtotal
+        color_names = list(product.colors.values_list('color_name', flat=True))
         products_list.append({
             'id':           product.id,
             'line_key':     line_key,
@@ -1789,6 +1790,8 @@ def cart_view(request):
             'qty':          item_qty,
             'subtotal':     subtotal,
             'product_image': product.product_image,
+            'category_name': product.category.name if product.category else '',
+            'color_names':  ', '.join(color_names) if color_names else '',
         })
 
     custom_cart_items = request.session.get('custom_cart_items', [])
@@ -1809,11 +1812,23 @@ def cart_view(request):
     ).values('order_group').distinct().count()
     queue_number = pending_count + 1
 
+    customer_name = ''
+    customer_mobile = ''
+    if request.user.is_authenticated:
+        try:
+            _cust = models.Customer.objects.get(user=request.user)
+            customer_name = _cust.get_name
+            customer_mobile = _cust.mobile
+        except models.Customer.DoesNotExist:
+            pass
+
     return render(request, 'ecom/cart.html', {
         'products':          products_list,
         'total':             total,
         'deposit_amount':    round(total * 0.10),
         'queue_number':      queue_number,
+        'customer_name':     customer_name,
+        'customer_mobile':   customer_mobile,
         'custom_cart_items': custom_cart_items,
         'cart_total_items':  sum(cart.values()) + sum(c['qty'] for c in custom_cart_items),
         'closed_error':      _shop_closed_message() if not _is_shop_open() else None,
