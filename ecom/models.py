@@ -118,6 +118,10 @@ class Orders(models.Model):
     # Set when an advance booking is actually collected (marked "ຮັບແລ້ວ") —
     # revenue for advance bookings counts on this day, not the booking day.
     fulfilled_at   = models.DateTimeField(null=True, blank=True)
+    # Admin manually checks the shop's bank account (amount + sender phone
+    # number match the booking) before flipping this — required before an
+    # online booking can move past "Pending".
+    deposit_verified = models.BooleanField(default=False)
 
 
 

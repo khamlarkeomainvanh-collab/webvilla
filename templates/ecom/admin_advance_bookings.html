@@ -137,6 +137,19 @@ body { background: #ffffff !important; }
 .cur-status.cs-delivered  { background:rgba(15,23,42,.1); color:var(--green); }
 .cur-status.cs-cancelled  { background:rgba(239,68,68,.1);  color:var(--red); }
 
+.dep-badge { margin-top:8px; }
+.dep-ok {
+    display:inline-flex; align-items:center; gap:5px; padding:5px 11px; border-radius:9px;
+    font-size:.8rem; font-weight:800; background:rgba(16,185,129,.12); color:#059669;
+}
+.dep-verify-btn {
+    display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:9px;
+    border:1.5px solid #fbbf24; background:rgba(251,191,36,.12); color:#b45309;
+    font-family:'Noto Sans Lao','Lexend',sans-serif; font-size:.78rem; font-weight:800;
+    cursor:pointer; transition:.18s; white-space:normal; max-width:220px; text-align:left; line-height:1.3;
+}
+.dep-verify-btn:hover { background:rgba(251,191,36,.24); }
+
 .status-btns { display:flex; gap:6px; flex-wrap:wrap; max-width:270px; }
 .sb {
     padding:7px 12px; border-radius:9px; border:none; cursor:pointer;
@@ -283,6 +296,17 @@ body { background: #ffffff !important; }
                             <div style="font-size:1rem; margin-top:6px;">
                                 <i class="fas fa-phone-alt" style="color:var(--purple); font-size:.9rem;"></i>
                                 {{ group.customer.mobile }}
+                            </div>
+                            {% endif %}
+                            {% if not group.is_walkin %}
+                            <div id="dep-badge-{{ forloop.counter }}" class="dep-badge {% if group.deposit_verified %}dep-ok{% else %}dep-pending{% endif %}">
+                                {% if group.deposit_verified %}
+                                    <i class="fas fa-circle-check fa-xs"></i> ຢືນຢັນມັດຈຳແລ້ວ
+                                {% else %}
+                                    <button type="button" class="dep-verify-btn" onclick="verifyDeposit('{{ group.key }}', {{ forloop.counter }})">
+                                        <i class="fas fa-shield-halved fa-xs"></i> ຢືນຢັນມັດຈຳ (ກວດເບີ+ຍອດເງິນ)
+                                    </button>
+                                {% endif %}
                             </div>
                             {% endif %}
                         </td>
@@ -493,7 +517,14 @@ function setGroupStatus(groupKey, groupIdx, newStatus) {
     })
     .then(r => r.json())
     .then(d => {
-        if (!d.ok) { alert('ອັບເດດບໍ່ສຳເລັດ'); return; }
+        if (!d.ok) {
+            if (d.error === 'deposit_not_verified') {
+                alert('❌ ຍັງບໍ່ໄດ້ຢືນຢັນມັດຈຳ\n\nກະລຸນາກວດຍອດເງິນທີ່ໂອນເຂົ້າ ແລະເບີໂທຜູ້ໂອນວ່າກົງກັບລູກຄ້າຄົນນີ້ ແລ້ວກົດ "ຢືນຢັນມັດຈຳ" ກ່ອນ ຈຶ່ງຈະປ່ຽນສະຖານະໄດ້');
+            } else {
+                alert('ອັບເດດບໍ່ສຳເລັດ');
+            }
+            return;
+        }
 
         const container = document.getElementById(`grp-btns-${groupIdx}`);
         if (container) {
@@ -521,6 +552,26 @@ function setGroupStatus(groupKey, groupIdx, newStatus) {
     .catch(() => alert('ອັບເດດບໍ່ສຳເລັດ'));
 }
 
+/* ─── Admin manually confirms the deposit slip matches this booking ─── */
+function verifyDeposit(groupKey, groupIdx) {
+    if (!confirm('ຢືນຢັນວ່າ:\n• ຍອດເງິນທີ່ໂອນເຂົ້າກົງກັບຍອດມັດຈຳ\n• ເບີໂທຜູ້ໂອນ ຕົງກັບເບີລູກຄ້າທີ່ຈອງ\n\nກົດ OK ຖ້າກວດແລ້ວຖືກຕ້ອງ')) return;
+    fetch('/ajax-verify-deposit', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `group_key=${encodeURIComponent(groupKey)}`,
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (!d.ok) { alert('ຢືນຢັນບໍ່ສຳເລັດ'); return; }
+        const badge = document.getElementById(`dep-badge-${groupIdx}`);
+        if (badge) {
+            badge.innerHTML = '<i class="fas fa-circle-check fa-xs"></i> ຢືນຢັນມັດຈຳແລ້ວ';
+            badge.className = 'dep-badge dep-ok';
+        }
+    })
+    .catch(() => alert('ຢືນຢັນບໍ່ສຳເລັດ'));
+}
+
 /* ─── Update a single item's status ─── */
 function setStatus(orderId, newStatus) {
     fetch(`/ajax-update-order-status/${orderId}`, {
@@ -530,7 +581,14 @@ function setStatus(orderId, newStatus) {
     })
     .then(r => r.json())
     .then(d => {
-        if (!d.ok) { alert('ອັບເດດບໍ່ສຳເລັດ'); return; }
+        if (!d.ok) {
+            if (d.error === 'deposit_not_verified') {
+                alert('❌ ຍັງບໍ່ໄດ້ຢືນຢັນມັດຈຳ\n\nກະລຸນາຢືນຢັນມັດຈຳຂອງລູກຄ້າຄົນນີ້ກ່ອນ ຈຶ່ງຈະປ່ຽນສະຖານະໄດ້');
+            } else {
+                alert('ອັບເດດບໍ່ສຳເລັດ');
+            }
+            return;
+        }
 
         const container = document.getElementById(`item-btns-${orderId}`);
         if (container) {

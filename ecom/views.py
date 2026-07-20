@@ -684,6 +684,7 @@ def delete_expense_view(request, pk):
 
 
 WALKIN_DELIVERY_TYPE = 'Walkin'
+_DEPOSIT_GATE_STATUSES = {'Confirmed', 'Processing', 'Delivered'}
 
 
 @login_required(login_url='adminlogin')
@@ -1229,6 +1230,7 @@ def admin_view_booking_view(request):
         g['item_count'] = len(g['orders'])
         g['total_amount'] = sum(float(o.amount or 0) for o in g['orders'])
         g['order_ids'] = [o.id for o in g['orders']]
+        g['deposit_verified'] = g['is_walkin'] or any(o.deposit_verified for o in g['orders'])
 
     # Status counts per GROUP (canonical order's status)
     status_counts = {'All': 0, 'Pending': 0, 'Confirmed': 0, 'Processing': 0, 'Delivered': 0, 'Cancelled': 0}
@@ -1300,6 +1302,8 @@ def admin_advance_bookings_view(request):
         g['order_ids']    = [o.id for o in g['orders']]
         non_cancelled = [o for o in g['orders'] if o.status != 'Cancelled']
         g['canonical']    = non_cancelled[0] if non_cancelled else g['orders'][0]
+        g['is_walkin']    = g['canonical'].delivery_type == WALKIN_DELIVERY_TYPE
+        g['deposit_verified'] = g['is_walkin'] or any(o.deposit_verified for o in g['orders'])
         s = g['canonical'].status or 'Pending'
         status_counts['All'] += 1
         if s in status_counts:
@@ -2749,15 +2753,24 @@ def ajax_update_group_status(request):
     if not group_key or status not in ['Pending', 'Confirmed', 'Processing', 'Delivered', 'Cancelled']:
         return JsonResponse({'ok': False}, status=400)
     group_orders = models.Orders.objects.filter(order_group=group_key)
-    customer, delivery_type = group_orders.select_related('customer__user').values_list('customer', 'delivery_type').first() or (None, None)
-    updated = group_orders.update(status=status)
-    if updated == 0:
+    if not group_orders.exists():
         try:
             group_orders = models.Orders.objects.filter(id=int(group_key))
-            customer, delivery_type = group_orders.values_list('customer', 'delivery_type').first() or (None, None)
-            updated = group_orders.update(status=status)
         except (ValueError, TypeError):
             return JsonResponse({'ok': False}, status=400)
+    if not group_orders.exists():
+        return JsonResponse({'ok': False}, status=400)
+
+    customer, delivery_type = group_orders.select_related('customer__user').values_list('customer', 'delivery_type').first() or (None, None)
+
+    # Online customer bookings must have their deposit manually verified
+    # (bank amount + sender phone checked against the booking) before moving
+    # past Pending — walk-in sales entered by staff in person skip this.
+    if status in _DEPOSIT_GATE_STATUSES and delivery_type != WALKIN_DELIVERY_TYPE:
+        if not group_orders.filter(deposit_verified=True).exists():
+            return JsonResponse({'ok': False, 'error': 'deposit_not_verified'}, status=400)
+
+    updated = group_orders.update(status=status)
     # Advance ("ຈອງລ່ວງໜ້າ") bookings track when they were actually collected —
     # revenue for them counts on this day, not the (earlier) booking day.
     if status == 'Delivered':
@@ -2899,6 +2912,9 @@ def ajax_update_order_status(request, pk):
     order = models.Orders.objects.select_related('customer__user').get(id=pk)
     status = request.POST.get('status')
     if status in ['Pending', 'Confirmed', 'Processing', 'Delivered', 'Cancelled']:
+        if (status in _DEPOSIT_GATE_STATUSES and order.delivery_type != WALKIN_DELIVERY_TYPE
+                and not order.deposit_verified):
+            return JsonResponse({'ok': False, 'error': 'deposit_not_verified'}, status=400)
         order.status = status
         if status == 'Delivered' and order.pickup_date:
             order.fulfilled_at = timezone.now()
@@ -2907,6 +2923,27 @@ def ajax_update_order_status(request, pk):
             _notify_customer_status(order.customer, status, delivery_type=order.delivery_type)
         return JsonResponse({'ok': True, 'status': status})
     return JsonResponse({'ok': False}, status=400)
+
+
+# ---- AJAX: admin manually confirms the deposit slip matches this booking
+# (bank amount + sender phone checked by hand) — required before an online
+# booking's status can move past Pending ----
+@login_required(login_url='adminlogin')
+@require_POST
+def ajax_verify_deposit(request):
+    group_key = request.POST.get('group_key', '').strip()
+    if not group_key:
+        return JsonResponse({'ok': False}, status=400)
+    group_orders = models.Orders.objects.filter(order_group=group_key)
+    if not group_orders.exists():
+        try:
+            group_orders = models.Orders.objects.filter(id=int(group_key))
+        except (ValueError, TypeError):
+            return JsonResponse({'ok': False}, status=400)
+    updated = group_orders.update(deposit_verified=True)
+    if updated == 0:
+        return JsonResponse({'ok': False}, status=400)
+    return JsonResponse({'ok': True})
 
 
 # ---- AJAX: admin quotes a price for a custom ("ສັ່ງເມນູຕາມໃຈ") order ----

@@ -88,6 +88,7 @@ urlpatterns = [
     path('ajax-update-order-status/<int:pk>', views.ajax_update_order_status, name='ajax-update-order-status'),
     path('ajax-set-order-price/<int:pk>', views.ajax_set_order_price, name='ajax-set-order-price'),
     path('ajax-update-group-status', views.ajax_update_group_status, name='ajax-update-group-status'),
+    path('ajax-verify-deposit', views.ajax_verify_deposit, name='ajax-verify-deposit'),
     path('ajax-delete-group', views.ajax_delete_group, name='ajax-delete-group'),
     path('ajax-order-detail/<int:pk>', views.ajax_order_detail, name='ajax-order-detail'),
     path('ajax-check-new-orders', views.ajax_check_new_orders, name='ajax-check-new-orders'),
