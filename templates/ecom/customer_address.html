@@ -346,6 +346,24 @@ body {
 .tot-grand .tg-l { font-size: 1rem; font-weight: 900; color: #0f172a; }
 .tot-grand .tg-v { font-size: 1.7rem; font-weight: 900; color: #1e293b; }
 
+.deposit-summary-box {
+    margin: 14px 20px 0; padding: 14px 18px; background: #eff6ff;
+    border: 1.5px solid #bfdbfe; border-radius: 14px;
+}
+.dsb-title { font-size: .8rem; font-weight: 800; color: #1e3a8a; margin-bottom: 8px; }
+.dsb-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: .88rem; font-weight: 700; color: #475569; }
+.dsb-row span:last-child { color: #1d4ed8; font-weight: 900; }
+.dsb-row.dsb-owed { border-top: 1px dashed #bfdbfe; margin-top: 4px; padding-top: 10px; }
+.dsb-row.dsb-owed span:last-child { color: #b45309; }
+
+.no-refund-note {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin: 14px 20px 0; padding: 12px 16px;
+    background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 12px;
+    font-size: .82rem; color: #9f1239; line-height: 1.6;
+}
+.no-refund-note i { margin-top: 2px; flex-shrink: 0; }
+
 /* EMPTY */
 .empty-wrap {
     max-width: 480px; margin: 80px auto; padding: 0 16px;
@@ -434,8 +452,9 @@ body {
                 </div>
             </div>
 
-            <!-- BOOKING TIME — every reservation needs a pickup day+time -->
-            <div class="form-sec">
+            <!-- BOOKING TIME — only applies to "ຮັບໜ້າຮ້ານ" (store pickup); courier
+                 deliveries don't have a scheduled collection day/time -->
+            <div class="form-sec" id="pickupTimeSec" style="display:none;">
                 <div class="sec-label"><i class="fas fa-calendar-check"></i> ຈອງຄິວມາຮັບລົດ</div>
                 <div style="display:flex; gap:12px; flex-wrap:wrap;">
                     <div class="f-group" style="flex:1; min-width:150px;">
@@ -644,6 +663,23 @@ body {
                 </div>
             </div>
 
+            <div class="deposit-summary-box">
+                <div class="dsb-title">🧾 ລາຍລະອຽດການຊຳລະ</div>
+                <div class="dsb-row">
+                    <span>ມັດຈຳ (10%)</span>
+                    <span id="sum-deposit">{{ deposit_amount|dotformat }} ກີບ</span>
+                </div>
+                <div class="dsb-row dsb-owed">
+                    <span>ຍອດຄ້າງ (ຈ່າຍຕອນຮັບລົດ)</span>
+                    <span id="sum-remaining">{{ remaining_amount|dotformat }} ກີບ</span>
+                </div>
+            </div>
+
+            <div class="no-refund-note">
+                <i class="fas fa-triangle-exclamation"></i>
+                <span><b>ໝາຍເຫດ:</b> ເມື່ອທ່ານຢືນຢັນການຈອງແລ້ວ ເງິນມັດຈຳຈະ<b>ບໍ່ຄືນທຸກກໍລະນີ</b> ຫາກລູກຄ້າບໍ່ມາຮັບເຄື່ອງ</span>
+            </div>
+
         </div>
     </div>
 
@@ -667,12 +703,19 @@ function fmtNum(n) {
     return n.toLocaleString('en').replace(/,/g, '.');
 }
 
+function _updateDepositDisplay(grand) {
+    var dep = Math.round(grand * 0.10);
+    try { document.getElementById('sum-deposit').textContent   = fmtNum(dep) + ' ກີບ'; } catch(e) {}
+    try { document.getElementById('sum-remaining').textContent = fmtNum(grand - dep) + ' ກີບ'; } catch(e) {}
+}
+
 function _setFeeDisplay(fee) {
     var feeText = fee > 0 ? fmtNum(fee) + ' ກີບ' : '0 ກີບ';
     try { document.getElementById('sum-fee').textContent  = feeText; } catch(e) {}
     try { document.getElementById('sum-grand').textContent = fmtNum(SUBTOTAL + fee) + ' ກີບ'; } catch(e) {}
     document.getElementById('h_fee').value = fee;
     document.getElementById('h_km').value  = 0;
+    _updateDepositDisplay(SUBTOTAL + fee);
 }
 
 function _setCourierFeeNote() {
@@ -681,6 +724,7 @@ function _setCourierFeeNote() {
     try { document.getElementById('sum-grand').textContent = fmtNum(SUBTOTAL) + ' ກີບ'; } catch(e) {}
     document.getElementById('h_fee').value = 0;
     document.getElementById('h_km').value  = 0;
+    _updateDepositDisplay(SUBTOTAL);
 }
 
 (function() {
@@ -697,14 +741,16 @@ function syncPickupTime() {
 }
 
 document.getElementById('mainForm').addEventListener('submit', function(e) {
-    if (!document.getElementById('f_pickup_date').value) {
-        e.preventDefault();
-        alert('ກະລຸນາເລືອກວັນທີ່ຈະມາຮັບລົດ');
-        return;
-    }
-    if (!document.getElementById('f_pickup_time').value) {
-        e.preventDefault();
-        alert('ກະລຸນາລະບຸໂມງທີ່ຈະມາຮັບລົດ');
+    if (_currentDel !== 'Delivery') {
+        if (!document.getElementById('f_pickup_date').value) {
+            e.preventDefault();
+            alert('ກະລຸນາເລືອກວັນທີ່ຈະມາຮັບລົດ');
+            return;
+        }
+        if (!document.getElementById('f_pickup_time').value) {
+            e.preventDefault();
+            alert('ກະລຸນາລະບຸໂມງທີ່ຈະມາຮັບລົດ');
+        }
     }
 });
 
@@ -717,6 +763,9 @@ function setDel(t) {
     document.getElementById('opt-p').className = 'del-card' + (!isD ? ' active-p' : '');
     document.getElementById('box-del').style.display  = isD ? '' : 'none';
     document.getElementById('box-pick').style.display = isD ? 'none' : '';
+    // Pickup day/time only matters for "ຮັບໜ້າຮ້ານ" — courier deliveries ship
+    // out whenever ready, no scheduled collection slot to book.
+    document.getElementById('pickupTimeSec').style.display = isD ? 'none' : '';
 
     if (!isD) {
         // ── PICKUP: ຈ່າຍໜ້າຮ້ານອຍ່າງດຽວ, ບໍ່ຕ້ອງເລືອກເຂດ ──

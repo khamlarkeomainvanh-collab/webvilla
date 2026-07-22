@@ -2075,23 +2075,25 @@ def customer_address_view(request):
         delivery_km    = request.POST.get('delivery_km',    '0') or '0'
         delivery_fee   = request.POST.get('delivery_fee',   '0') or '0'
 
-        # Every booking reserves a specific pickup day+time to come buy/collect
-        # the vehicle — falls back to today if the date is missing/invalid.
+        # Pickup day+time only applies to "ຮັບໜ້າຮ້ານ" (store pickup) — falls
+        # back to today if missing/invalid. Courier deliveries ship out
+        # whenever ready, so they carry no scheduled pickup slot at all.
         pickup_date_str = ''
         pickup_time_str = ''
         from datetime import datetime as _dt_parse
-        try:
-            _pd = _dt_parse.strptime(request.POST.get('pickup_date', ''), '%Y-%m-%d').date()
-            if _pd < timezone.localdate():
-                _pd = timezone.localdate()
-            pickup_date_str = _pd.isoformat()
-        except (ValueError, TypeError):
-            pickup_date_str = timezone.localdate().isoformat()
-        try:
-            _pt = _dt_parse.strptime(request.POST.get('pickup_time', ''), '%H:%M').time()
-            pickup_time_str = _pt.strftime('%H:%M')
-        except (ValueError, TypeError):
-            pickup_time_str = ''
+        if delivery_type == 'Pickup':
+            try:
+                _pd = _dt_parse.strptime(request.POST.get('pickup_date', ''), '%Y-%m-%d').date()
+                if _pd < timezone.localdate():
+                    _pd = timezone.localdate()
+                pickup_date_str = _pd.isoformat()
+            except (ValueError, TypeError):
+                pickup_date_str = timezone.localdate().isoformat()
+            try:
+                _pt = _dt_parse.strptime(request.POST.get('pickup_time', ''), '%H:%M').time()
+                pickup_time_str = _pt.strftime('%H:%M')
+            except (ValueError, TypeError):
+                pickup_time_str = ''
 
         # Get mobile — fallback to customer profile
         mobile = request.POST.get('Mobile', '').strip()
@@ -2148,6 +2150,8 @@ def customer_address_view(request):
         'cart_items': cart_items,
         'custom_cart_items': custom_cart_items,
         'subtotal': subtotal,
+        'deposit_amount': round(subtotal * 0.10),
+        'remaining_amount': subtotal - round(subtotal * 0.10),
         'closed_error': closed_error,
         'queue_warning': _queue_warning_message(_active_batch_qty()) if not closed_error else None,
     })
@@ -2305,6 +2309,9 @@ def payment_success_view(request):
     address        = _uq(request.COOKIES.get('address', ''))
     mobile         = _uq(request.COOKIES.get('mobile', ''))
 
+    deposit_amount = round(float(grand_total) * 0.10)
+    remaining_amount = float(grand_total) - deposit_amount
+
     return render(request, 'ecom/payment_success.html', {
         'queue_number':    queue_number,
         'grand_total':     grand_total,
@@ -2315,6 +2322,8 @@ def payment_success_view(request):
         'payment_method':  payment_method,
         'address':         address,
         'mobile':          mobile,
+        'deposit_amount':  deposit_amount,
+        'remaining_amount': remaining_amount,
     })
 
 

@@ -137,6 +137,22 @@ body {
 .total-bar .tb-v { font-size:2rem; font-weight:900; color:var(--pk); }
 .total-bar .tb-v small { font-size:.85rem; color:var(--pu2); font-weight:700; }
 
+/* DEPOSIT BREAKDOWN */
+.deposit-detail-box {
+  background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:16px;
+  padding:16px 20px; margin-top:12px;
+}
+.deposit-detail-box .dd-title { font-size:.82rem; font-weight:800; color:#1e3a8a; margin-bottom:10px; }
+.deposit-detail-box .dd-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:6px 0; font-size:.9rem; font-weight:700; color:#475569;
+}
+.deposit-detail-box .dd-row.dd-paid span:last-child { color:#1d4ed8; font-weight:900; font-size:1.05rem; }
+.deposit-detail-box .dd-row.dd-owed {
+  border-top:1px dashed #bfdbfe; margin-top:4px; padding-top:12px;
+}
+.deposit-detail-box .dd-row.dd-owed span:last-child { color:#b45309; font-weight:900; font-size:1.05rem; }
+
 /* RIGHT COL */
 .right-col {
   padding:28px 28px;
@@ -287,6 +303,18 @@ body {
       <div class="total-bar">
         <span class="tb-l">💰 ລາຄາລວມທັງໝົດ</span>
         <span class="tb-v">{{ grand_total|dotformat }}<small> ກີບ</small></span>
+      </div>
+
+      <div class="deposit-detail-box">
+        <div class="dd-title">🧾 ລາຍລະອຽດການຊຳລະ</div>
+        <div class="dd-row dd-paid">
+          <span>ມັດຈຳທີ່ໂອນແລ້ວ (10%)</span>
+          <span>{{ deposit_amount|dotformat }} ກີບ</span>
+        </div>
+        <div class="dd-row dd-owed">
+          <span>ຍັງບໍ່ໄດ້ຈ່າຍ (ຈ່າຍຕອນຮັບລົດ)</span>
+          <span>{{ remaining_amount|dotformat }} ກີບ</span>
+        </div>
       </div>
       {% endif %}
 
