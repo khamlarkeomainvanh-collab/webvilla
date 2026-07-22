@@ -268,6 +268,24 @@
         color: #1e3a5f;
     }
 
+    .deposit-box {
+        background: #eff6ff;
+        border: 2px solid #bfdbfe;
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-top: 14px;
+    }
+    .deposit-box .total-row-item { color: #1e3a5f; }
+    .deposit-box .total-row-item.dep-amt span:last-child { color: #1d4ed8; font-weight: 800; }
+    .deposit-box .total-row-item.dep-remain { border-top: 1px dashed #bfdbfe; margin-top: 6px; padding-top: 10px; }
+    .deposit-box .total-row-item.dep-remain span:last-child { font-weight: 800; }
+    .dep-status {
+        display: inline-flex; align-items: center; gap: 6px; font-size: .8rem; font-weight: 800;
+        padding: 3px 12px; border-radius: 20px;
+    }
+    .dep-status.ok { background: #dcfce7; color: #15803d; }
+    .dep-status.pending { background: #fef3c7; color: #b45309; }
+
     /* Footer */
     .invoice-footer {
         background: #f8faff;
@@ -437,6 +455,23 @@
             <div class="total-row-item grand">
                 <span>ລວມທັງໝົດ</span>
                 <span>{{ grandTotal|dotformat }} ກີບ</span>
+            </div>
+        </div>
+
+        <div class="deposit-box">
+            <div class="total-row-item">
+                <span>💰 ລາຍລະອຽດມັດຈຳ</span>
+                <span class="dep-status {% if depositVerified %}ok{% else %}pending{% endif %}">
+                    {% if depositVerified %}✅ ຢືນຢັນມັດຈຳແລ້ວ{% else %}⏳ ຍັງບໍ່ໄດ້ຢືນຢັນ{% endif %}
+                </span>
+            </div>
+            <div class="total-row-item dep-amt">
+                <span>ມັດຈຳ (10%)</span>
+                <span>{{ depositAmount|dotformat }} ກີບ</span>
+            </div>
+            <div class="total-row-item dep-remain">
+                <span>ຍອດຄ້າງ (ຈ່າຍຕອນຮັບລົດ)</span>
+                <span>{{ remainingAmount|dotformat }} ກີບ</span>
             </div>
         </div>
     </div>

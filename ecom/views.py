@@ -2539,6 +2539,13 @@ def download_group_invoice_view(request, orderID):
     grand_total = subtotal_sum + delivery_fee
     has_cancelled = any(i['cancelled'] for i in items)
 
+    # Deposit is always 10% of the grand total (same rate quoted at checkout
+    # in cart.html) — shown here so the printed invoice states exactly how
+    # much the customer already transferred vs. what's still owed at pickup.
+    deposit_amount = round(float(grand_total) * 0.10)
+    remaining_amount = float(grand_total) - deposit_amount
+    deposit_verified = orders.filter(deposit_verified=True).exists()
+
     context = {
         'orderDate': _tz.localtime(canonical.order_date),
         'orderID': invoice_number,
@@ -2553,6 +2560,9 @@ def download_group_invoice_view(request, orderID):
         'subtotalSum': subtotal_sum,
         'grandTotal': grand_total,
         'hasCancelled': has_cancelled,
+        'depositAmount': deposit_amount,
+        'remainingAmount': remaining_amount,
+        'depositVerified': deposit_verified,
     }
     return render(request, 'ecom/download_group_invoice.html', context)
 
