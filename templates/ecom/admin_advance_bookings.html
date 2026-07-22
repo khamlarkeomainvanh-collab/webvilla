@@ -105,6 +105,14 @@ body { background: #ffffff !important; }
 .pickup-badge .pb-date { font-size:1rem; font-weight:800; line-height:1.2; }
 .pickup-badge .pb-time { font-size:.85rem; font-weight:700; color:var(--purple); margin-top:2px; }
 
+.kind-badge {
+    display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    width:84px; padding:10px 4px; border-radius:16px; font-size:.76rem; font-weight:800;
+    font-family:'Noto Sans Lao','Lexend',sans-serif;
+}
+.kind-badge.kind-delivery { background:rgba(245,158,11,.1); border:1.5px solid rgba(245,158,11,.25); color:var(--amber); }
+.kind-badge.kind-walkin   { background:rgba(15,23,42,.06);  border:1.5px solid rgba(15,23,42,.15);  color:var(--green); }
+
 .prod-summary { display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap; }
 .thumbs { display:flex; gap:6px; flex-shrink:0; }
 .img-ring-sm { width:54px; height:54px; padding:2px; background:var(--grad); border-radius:14px; flex-shrink:0; }
@@ -189,8 +197,8 @@ body { background: #ffffff !important; }
     <!-- Top -->
     <div class="top-bar">
         <div>
-            <h1>ຈອງ <span>ລ່ວງໜ້າ</span> 📅</h1>
-            <p>ອໍເດີທີ່ລູກຄ້າຈອງໄວ້ ແລ້ວຈະມາຮັບພາຍຫຼັງ — ແຍກຕ່າງຫາກຈາກຄິວມື້ນີ້</p>
+            <h1>ຈັດການ <span>ອໍເດີ້</span> 📅</h1>
+            <p>ອໍເດີ້ທັງໝົດ — ຮັບໜ້າຮ້ານ, ຈັດສົ່ງຂົນສົ່ງ, ແລະຂາຍໜ້າຮ້ານ ຢູ່ບ່ອນດຽວກັນ</p>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
             <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:8px 14px;">
@@ -206,21 +214,27 @@ body { background: #ffffff !important; }
             <a href="{% url 'advance-bookings-invoice' %}?status={{ active_status }}" id="advInvoiceLink" target="_blank" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#0f172a,#3b82f6);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
                 <i class="fas fa-receipt"></i> ອອກໃບບິນ
             </a>
-            <a href="{% url 'admin-view-booking' %}" class="ic-btn" style="width:auto;padding:0 18px;background:linear-gradient(135deg,#2563eb,#0f172a);color:#fff;text-decoration:none;gap:8px;font-weight:800;font-size:.95rem;">
-                <i class="fas fa-calendar-day"></i> ໄປລາຍການຈອງຄິວ
-            </a>
         </div>
+    </div>
+
+    <!-- Kind Filter Chips -->
+    <div class="status-tabs">
+        <span class="tabs-label"><i class="fas fa-layer-group"></i> ປະເພດ:</span>
+        <a href="?status={{ active_status }}&kind=All"      class="stab s-all       {% if kind_filter == 'All'      %}active{% endif %}"><i class="fas fa-border-all fa-xs"></i> ທັງໝົດ<span class="stab-count">{{ kind_counts.All }}</span></a>
+        <a href="?status={{ active_status }}&kind=pickup"   class="stab s-confirmed {% if kind_filter == 'pickup'   %}active{% endif %}"><i class="fas fa-store fa-xs"></i> ຮັບໜ້າຮ້ານ<span class="stab-count">{{ kind_counts.pickup }}</span></a>
+        <a href="?status={{ active_status }}&kind=delivery" class="stab s-processing{% if kind_filter == 'delivery' %}active{% endif %}"><i class="fas fa-truck fa-xs"></i> ຈັດສົ່ງຂົນສົ່ງ<span class="stab-count">{{ kind_counts.delivery }}</span></a>
+        <a href="?status={{ active_status }}&kind=walkin"   class="stab s-delivered {% if kind_filter == 'walkin'   %}active{% endif %}"><i class="fas fa-cash-register fa-xs"></i> ຂາຍໜ້າຮ້ານ<span class="stab-count">{{ kind_counts.walkin }}</span></a>
     </div>
 
     <!-- Status Filter Tabs -->
     <div class="status-tabs">
         <span class="tabs-label"><i class="fas fa-filter"></i> ສະຖານະ:</span>
-        <a href="?status=All"        class="stab s-all        {% if active_status == 'All'        %}active{% endif %}"><i class="fas fa-border-all fa-xs"></i> ທັງໝົດ<span class="stab-count">{{ status_counts.All }}</span></a>
-        <a href="?status=Pending"    class="stab s-pending    {% if active_status == 'Pending'    %}active{% endif %}"><i class="fas fa-clock fa-xs"></i> ລໍຖ້າມາຮັບ<span class="stab-count">{{ status_counts.Pending }}</span></a>
-        <a href="?status=Confirmed"  class="stab s-confirmed  {% if active_status == 'Confirmed'  %}active{% endif %}"><i class="fas fa-inbox fa-xs"></i> ຢືນຢັນ<span class="stab-count">{{ status_counts.Confirmed }}</span></a>
-        <a href="?status=Processing" class="stab s-processing {% if active_status == 'Processing' %}active{% endif %}"><i class="fas fa-truck fa-xs"></i> ກຽມພ້ອມ<span class="stab-count">{{ status_counts.Processing }}</span></a>
-        <a href="?status=Delivered"  class="stab s-delivered  {% if active_status == 'Delivered'  %}active{% endif %}"><i class="fas fa-check-circle fa-xs"></i> ຮັບແລ້ວ<span class="stab-count">{{ status_counts.Delivered }}</span></a>
-        <a href="?status=Cancelled"  class="stab s-cancelled  {% if active_status == 'Cancelled'  %}active{% endif %}"><i class="fas fa-ban fa-xs"></i> ຍົກເລີກ<span class="stab-count">{{ status_counts.Cancelled }}</span></a>
+        <a href="?kind={{ kind_filter }}&status=All"        class="stab s-all        {% if active_status == 'All'        %}active{% endif %}"><i class="fas fa-border-all fa-xs"></i> ທັງໝົດ<span class="stab-count">{{ status_counts.All }}</span></a>
+        <a href="?kind={{ kind_filter }}&status=Pending"    class="stab s-pending    {% if active_status == 'Pending'    %}active{% endif %}"><i class="fas fa-clock fa-xs"></i> ລໍຖ້າມາຮັບ<span class="stab-count">{{ status_counts.Pending }}</span></a>
+        <a href="?kind={{ kind_filter }}&status=Confirmed"  class="stab s-confirmed  {% if active_status == 'Confirmed'  %}active{% endif %}"><i class="fas fa-inbox fa-xs"></i> ຢືນຢັນ<span class="stab-count">{{ status_counts.Confirmed }}</span></a>
+        <a href="?kind={{ kind_filter }}&status=Processing" class="stab s-processing {% if active_status == 'Processing' %}active{% endif %}"><i class="fas fa-truck fa-xs"></i> ກຽມພ້ອມ<span class="stab-count">{{ status_counts.Processing }}</span></a>
+        <a href="?kind={{ kind_filter }}&status=Delivered"  class="stab s-delivered  {% if active_status == 'Delivered'  %}active{% endif %}"><i class="fas fa-check-circle fa-xs"></i> ຮັບແລ້ວ<span class="stab-count">{{ status_counts.Delivered }}</span></a>
+        <a href="?kind={{ kind_filter }}&status=Cancelled"  class="stab s-cancelled  {% if active_status == 'Cancelled'  %}active{% endif %}"><i class="fas fa-ban fa-xs"></i> ຍົກເລີກ<span class="stab-count">{{ status_counts.Cancelled }}</span></a>
     </div>
 
     <!-- Table -->
@@ -245,12 +259,18 @@ body { background: #ffffff !important; }
                         data-group-key="{{ group.key }}"
                         data-order-ids="{% for oid in group.order_ids %}{{ oid }}{% if not forloop.last %},{% endif %}{% endfor %}">
 
-                        <!-- Pickup date/time -->
+                        <!-- Pickup date/time OR courier/walk-in kind badge -->
                         <td style="text-align:center;">
+                            {% if group.kind == 'pickup' %}
                             <div class="pickup-badge">
                                 <span class="pb-date">{{ group.pickup_date|date:"d/m" }}</span>
                                 {% if group.pickup_time %}<span class="pb-time">{{ group.pickup_time|time:"H:i" }}</span>{% endif %}
                             </div>
+                            {% elif group.kind == 'walkin' %}
+                            <div class="kind-badge kind-walkin"><i class="fas fa-cash-register"></i> ໜ້າຮ້ານ</div>
+                            {% else %}
+                            <div class="kind-badge kind-delivery"><i class="fas fa-truck"></i> ຂົນສົ່ງ</div>
+                            {% endif %}
                         </td>
 
                         <!-- Products summary -->

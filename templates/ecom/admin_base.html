@@ -350,13 +350,9 @@
         <i class="fa-solid fa-user-astronaut"></i>
         <span class="nav-label">ຂໍ້ມູນລູກຄ້າ</span>
       </a>
-      <a href="/admin-view-booking" class="nav-item-custom {% if '/admin-view-booking' in request.path %}active{% endif %}">
-        <i class="fa-solid fa-calendar-days"></i>
-        <span class="nav-label">ລາຍການຈອງຄິວ</span>
-      </a>
       <a href="/admin-advance-bookings" class="nav-item-custom {% if '/admin-advance-bookings' in request.path %}active{% endif %}">
         <i class="fa-solid fa-calendar-check"></i>
-        <span class="nav-label">ຈອງລ່ວງໜ້າ</span>
+        <span class="nav-label">ຈັດການອໍເດີ້</span>
       </a>
       <a href="/admin-products" class="nav-item-custom {% if '/admin-products' in request.path or '/admin-add-product' in request.path or '/update-product' in request.path %}active{% endif %}">
         <i class="fa-solid fa-layer-group"></i>
@@ -512,7 +508,7 @@
     </div>
     <div class="notif-items" id="notifItems"></div>
     <div class="notif-foot">
-      <a href="/admin-view-booking" id="notifViewLink" style="background:linear-gradient(135deg,#2563eb,#0f172a);color:#fff;">ເບີ່ງອໍເດີ</a>
+      <a href="/admin-advance-bookings" id="notifViewLink" style="background:linear-gradient(135deg,#2563eb,#0f172a);color:#fff;">ເບີ່ງອໍເດີ</a>
       <button onclick="closeNotif()" style="background:#eff6ff;border:1.5px solid rgba(124,58,237,.18);color:#64748b;">ປິດ</button>
     </div>
   </div>
@@ -693,10 +689,8 @@
           <div><div class="ni-prod">${o.product}</div><div class="ni-cust">${o.customer}</div></div>
           <div class="ni-amt">₭ ${Number(o.amount).toLocaleString()}</div>
         </div>`).join('');
-      // ຈອງລ່ວງໜ້າ → ພາໄປໜ້າຈອງລ່ວງໜ້າ, ຈອງໜ້າເວັບ (ຫຼືອື່ນໆ) → ພາໄປໜ້າລາຍການຈອງປົກກະຕິ
-      const hasAdvance = orders.some(o => o.is_advance);
       const viewLink = document.getElementById('notifViewLink');
-      if (viewLink) viewLink.href = hasAdvance ? '/admin-advance-bookings' : '/admin-view-booking';
+      if (viewLink) viewLink.href = '/admin-advance-bookings';
       const p = document.getElementById('notifPopup');
       p.style.display = 'block'; p.className = 'notif-popup show';
       try {

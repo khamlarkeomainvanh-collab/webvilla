@@ -75,7 +75,7 @@ def process_order(request):
         payload = {
             "title": "🥤 ມີອໍເດີໃໝ່ເຂົ້າມາ!",
             "body": f"ອໍເດີຈາກ: {request.user.username} ລາຄາ {total_price} ກີບ",
-            "url": "/admin-view-booking/" # Link ໄປໜ້າຈັດການ
+            "url": "/admin-advance-bookings/" # Link ໄປໜ້າຈັດການ
         }
         
         # ສົ່ງແຈ້ງເຕືອນ
@@ -1159,123 +1159,12 @@ def toggle_product_stock_view(request, pk):
 
 
 @login_required(login_url='adminlogin')
-def admin_view_booking_view(request):
-    from datetime import date as date_cls, timedelta, timezone as _dtz
-    from datetime import datetime as dt_cls
-    from django.utils import timezone as _tz2
-
-    show_all = request.GET.get('show_all', '') == '1'
-
-    date_str = request.GET.get('date', '')
-    try:
-        selected_date = date_cls.fromisoformat(date_str)
-    except ValueError:
-        selected_date = date_cls.today()
-
-    prev_date = selected_date - timedelta(days=1)
-    next_date = selected_date + timedelta(days=1)
-    is_today  = (selected_date == date_cls.today())
-
-    _LAO_TZ = _dtz(timedelta(hours=7))
-
-    # Source filter — separates online ("ຈອງໜ້າເວັບ") orders from admin-entered
-    # walk-in ("ຊື້ໜ້າຮ້ານ") sales. Advance ("ຈອງລ່ວງໜ້າ") bookings live entirely
-    # on their own dedicated page, so they're always excluded from this view.
-    source = request.GET.get('source', 'online')
-    if source not in ('online', 'walkin'):
-        source = 'online'
-
-    if show_all:
-        all_orders = models.Orders.objects.filter(pickup_date__isnull=True).select_related('product', 'customer__user').order_by('id')
-    else:
-        day_start = _tz2.make_aware(dt_cls(selected_date.year, selected_date.month, selected_date.day, 0, 0, 0))
-        day_end   = _tz2.make_aware(dt_cls(selected_date.year, selected_date.month, selected_date.day, 23, 59, 59))
-        all_orders = models.Orders.objects.filter(
-            order_date__gte=day_start, order_date__lte=day_end, pickup_date__isnull=True
-        ).select_related('product', 'customer__user').order_by('id')
-
-    if source == 'walkin':
-        all_orders = all_orders.filter(delivery_type=WALKIN_DELIVERY_TYPE)
-    else:
-        all_orders = all_orders.exclude(delivery_type=WALKIN_DELIVERY_TYPE)
-
-    # Build groups ordered by first-seen (oldest first)
-    all_groups = {}
-    group_order = []
-    for order in all_orders:
-        key = order.order_group or str(order.id)
-        if key not in all_groups:
-            all_groups[key] = {
-                'key': key,
-                'canonical': order,
-                'orders': [],
-                'customer': order.customer,
-                'local_time': order.order_date.astimezone(_LAO_TZ).strftime("%H:%M") if order.order_date else "--:--",
-            }
-            group_order.append(key)
-        all_groups[key]['orders'].append(order)
-
-    # Group-level queue numbers — walk-in (in-store) sales never waited in a
-    # queue, so only online orders consume a Q# position; walk-in groups still
-    # show up in the list (per delivery type badge) but with no queue number.
-    queue_counter = 0
-    for key in group_order:
-        g = all_groups[key]
-        g['is_walkin'] = g['canonical'].delivery_type == WALKIN_DELIVERY_TYPE
-        if g['is_walkin']:
-            g['queue_num'] = None
-        else:
-            queue_counter += 1
-            g['queue_num'] = queue_counter
-        g['item_count'] = len(g['orders'])
-        g['total_amount'] = sum(float(o.amount or 0) for o in g['orders'])
-        g['order_ids'] = [o.id for o in g['orders']]
-        g['deposit_verified'] = g['is_walkin'] or any(o.deposit_verified for o in g['orders'])
-
-    # Status counts per GROUP (canonical order's status)
-    status_counts = {'All': 0, 'Pending': 0, 'Confirmed': 0, 'Processing': 0, 'Delivered': 0, 'Cancelled': 0}
-    for key in group_order:
-        s = all_groups[key]['canonical'].status or 'Pending'
-        status_counts['All'] += 1
-        if s in status_counts:
-            status_counts[s] += 1
-
-    day_count = len(group_order)
-
-    active_status = request.GET.get('status', 'Pending')
-    if active_status not in ['Pending', 'Confirmed', 'Processing', 'Delivered', 'Cancelled', 'All']:
-        active_status = 'Pending'
-
-    # Filter groups by canonical order's status
-    if active_status == 'All':
-        filtered_groups = [all_groups[key] for key in group_order]
-        filtered_groups.reverse()
-    else:
-        filtered_groups = [
-            all_groups[key] for key in group_order
-            if (all_groups[key]['canonical'].status or 'Pending') == active_status
-        ]
-        # Pending: oldest first; others: newest first
-        if active_status != 'Pending':
-            filtered_groups.reverse()
-
-    return render(request, 'ecom/admin_view_booking.html', {
-        'data':          filtered_groups,
-        'selected_date': selected_date,
-        'prev_date':     prev_date,
-        'next_date':     next_date,
-        'is_today':      is_today,
-        'day_count':     day_count,
-        'active_status': active_status,
-        'status_counts': status_counts,
-        'show_all':      show_all,
-        'source':        source,
-    })
-
-
-@login_required(login_url='adminlogin')
 def admin_advance_bookings_view(request):
-    orders = models.Orders.objects.filter(pickup_date__isnull=False) \
+    # Unified order-management page — every order (scheduled store-pickup
+    # bookings, courier-delivery bookings, and admin-entered walk-in sales)
+    # lives here now; there used to be a separate "ລາຍການຈອງຄິວ" page for
+    # non-scheduled orders, merged into this one so admins have one place.
+    orders = models.Orders.objects.all() \
         .select_related('product', 'customer__user').order_by('pickup_date', 'pickup_time', 'order_date')
 
     groups = {}
@@ -1295,6 +1184,7 @@ def admin_advance_bookings_view(request):
         groups[key]['orders'].append(order)
 
     status_counts = {'All': 0, 'Pending': 0, 'Confirmed': 0, 'Processing': 0, 'Delivered': 0, 'Cancelled': 0}
+    kind_counts = {'All': 0, 'pickup': 0, 'delivery': 0, 'walkin': 0}
     for key in group_order:
         g = groups[key]
         g['item_count']   = len(g['orders'])
@@ -1304,24 +1194,39 @@ def admin_advance_bookings_view(request):
         g['canonical']    = non_cancelled[0] if non_cancelled else g['orders'][0]
         g['is_walkin']    = g['canonical'].delivery_type == WALKIN_DELIVERY_TYPE
         g['deposit_verified'] = g['is_walkin'] or any(o.deposit_verified for o in g['orders'])
+        if g['canonical'].pickup_date:
+            g['kind'] = 'pickup'
+        elif g['is_walkin']:
+            g['kind'] = 'walkin'
+        else:
+            g['kind'] = 'delivery'
         s = g['canonical'].status or 'Pending'
         status_counts['All'] += 1
         if s in status_counts:
             status_counts[s] += 1
+        kind_counts['All'] += 1
+        kind_counts[g['kind']] += 1
 
     active_status = request.GET.get('status', 'All')
     if active_status not in ['Pending', 'Confirmed', 'Processing', 'Delivered', 'Cancelled', 'All']:
         active_status = 'All'
 
-    if active_status == 'All':
-        data = [groups[key] for key in group_order]
-    else:
-        data = [groups[key] for key in group_order if (groups[key]['canonical'].status or 'Pending') == active_status]
+    kind_filter = request.GET.get('kind', 'All')
+    if kind_filter not in ('All', 'pickup', 'delivery', 'walkin'):
+        kind_filter = 'All'
+
+    data = [groups[key] for key in group_order]
+    if active_status != 'All':
+        data = [g for g in data if (g['canonical'].status or 'Pending') == active_status]
+    if kind_filter != 'All':
+        data = [g for g in data if g['kind'] == kind_filter]
 
     return render(request, 'ecom/admin_advance_bookings.html', {
         'data': data,
         'active_status': active_status,
         'status_counts': status_counts,
+        'kind_filter': kind_filter,
+        'kind_counts': kind_counts,
     })
 
 
@@ -1331,7 +1236,7 @@ def admin_advance_bookings_view(request):
 # an optional ?pickup_date=YYYY-MM-DD so admins can export/print just one
 # specific pickup day instead of everything. ――
 def _advance_bookings_for_export(request):
-    orders = models.Orders.objects.filter(pickup_date__isnull=False) \
+    orders = models.Orders.objects.all() \
         .select_related('product', 'customer__user').order_by('pickup_date', 'pickup_time', 'order_date')
 
     pickup_date_str = request.GET.get('pickup_date', '')
@@ -1361,6 +1266,13 @@ def _advance_bookings_for_export(request):
         g['total_amount'] = sum(float(o.amount or 0) for o in g['orders'])
         g['item_names']   = ', '.join(o.product.name if o.product else (o.note or '—') for o in g['orders'])
         g['item_qty']     = sum(o.quantity for o in g['orders'])
+        g['is_walkin']    = g['canonical'].delivery_type == WALKIN_DELIVERY_TYPE
+        if g['canonical'].pickup_date:
+            g['kind'] = 'pickup'
+        elif g['is_walkin']:
+            g['kind'] = 'walkin'
+        else:
+            g['kind'] = 'delivery'
 
     active_status = request.GET.get('status', 'All')
     if active_status not in ['Pending', 'Confirmed', 'Processing', 'Delivered', 'Cancelled', 'All']:
@@ -1482,7 +1394,7 @@ def delete_order_view(request,pk):
     referer = request.META.get('HTTP_REFERER')
     if referer:
         return redirect(referer)
-    return redirect('admin-view-booking')
+    return redirect('admin-advance-bookings')
 
 # for changing status of order (pending,delivered...)
 @login_required(login_url='adminlogin')
@@ -1493,7 +1405,7 @@ def update_order_view(request,pk):
         orderForm=forms.OrderForm(request.POST,instance=order)
         if orderForm.is_valid():
             orderForm.save()
-            return redirect('admin-view-booking')
+            return redirect('admin-advance-bookings')
     return render(request,'ecom/update_order.html',{'orderForm':orderForm})
 
 
@@ -2925,7 +2837,7 @@ def update_order_status(request, id):
         form = forms.OrderForm(request.POST, instance=order)
         if form.is_valid():
             form.save()
-            return redirect('admin-view-booking')
+            return redirect('admin-advance-bookings')
 
     return render(request, 'ecom/update_status.html', {'orderForm': form})
 

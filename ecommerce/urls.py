@@ -52,7 +52,6 @@ urlpatterns = [
     path('remove-from-cart/<int:pk>/', views.remove_from_cart_view, name='remove-from-cart'),
 
 
-    path('admin-view-booking', views.admin_view_booking_view,name='admin-view-booking'),
     path('admin-advance-bookings', views.admin_advance_bookings_view, name='admin-advance-bookings'),
     path('export-advance-bookings-excel', views.export_advance_bookings_excel, name='export-advance-bookings-excel'),
     path('advance-bookings-invoice', views.advance_bookings_invoice_view, name='advance-bookings-invoice'),
