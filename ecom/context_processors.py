@@ -15,3 +15,11 @@ def cart_count(request):
             pass
 
     return {'cart_total_items': total, 'unread_notif_count': unread_notif_count}
+
+
+def admin_missed_orders(request):
+    """Pops a one-time session flag set at admin login — orders that came in
+    while the admin was signed out, shown as a notification popup on the
+    first admin page they land on after signing back in."""
+    data = request.session.pop('admin_missed_orders', None)
+    return {'admin_missed_orders_json': data}

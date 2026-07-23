@@ -91,6 +91,41 @@ def adminclick_view(request):
     return HttpResponseRedirect('adminlogin')
 
 
+def admin_login_view(request):
+    """Custom admin login (replaces Django's built-in LoginView) — on a
+    successful login it also checks for orders that arrived while the admin
+    was signed out, and stashes them in the session so the dashboard can pop
+    up a "missed while you were away" notification once, every time they log in."""
+    from django.contrib.auth import login as _auth_login
+    from django.contrib.auth.forms import AuthenticationForm
+    import json as _json
+
+    form = AuthenticationForm(request, data=request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        user = form.get_user()
+        previous_last_login = user.last_login  # capture before login() overwrites it
+        _auth_login(request, user)
+
+        if previous_last_login and user.is_staff:
+            missed = models.Orders.objects.filter(order_date__gt=previous_last_login) \
+                .exclude(delivery_type=WALKIN_DELIVERY_TYPE) \
+                .select_related('product', 'customer__user').order_by('-order_date')[:20]
+            if missed:
+                request.session['admin_missed_orders'] = _json.dumps({
+                    'count': len(missed),
+                    'orders': [
+                        {
+                            'product':  o.product.name if o.product else (o.note or 'ສັ່ງເມນູຕາມໃຈ'),
+                            'customer': o.customer.get_name if o.customer else '—',
+                            'amount':   float(o.amount or 0),
+                        }
+                        for o in missed
+                    ],
+                })
+        return HttpResponseRedirect('afterlogin')
+    return render(request, 'ecom/adminlogin.html', {'form': form})
+
+
 LAO_MOBILE_RE = re.compile(r'^20[259]\d{7}$')
 
 
@@ -1447,7 +1482,9 @@ def advance_bookings_invoice_view(request):
 
 @login_required(login_url='adminlogin')
 def delete_order_view(request,pk):
-    order=models.Orders.objects.get(id=pk)
+    order=models.Orders.objects.select_related('product').get(id=pk)
+    if order.status != 'Cancelled' and order.color and order.product:
+        _adjust_color_stock(order.product, order.color, -order.quantity)
     order.delete()
     referer = request.META.get('HTTP_REFERER')
     if referer:
@@ -1679,12 +1716,14 @@ def remove_from_cart_view(request, pk):
 def add_to_cart_view(request, pk):
     # 1. ດຶງຈຳນວນຈາກ URL (?quantity=5) ຖ້າບໍ່ມີໃຫ້ເປັນ 1
     quantity = int(request.GET.get('quantity', 1))
-    
+
     # 2. ດຶງຂໍ້ມູນກະຕ່າຈາກ Session (Dictionary)
     cart = request.session.get('cart', {})
 
-    # 3. ບວກຈຳນວນໃໝ່ໃສ່ຈຳນວນເກົ່າ
-    product_id = str(pk)
+    # 3. ບວກຈຳນວນໃໝ່ໃສ່ຈຳນວນເກົ່າ — ສີທີ່ເລືອກ (ຖ້າມີ) ຝັງໄວ້ໃນ line_key
+    # ("id-color") ເພື່ອໃຫ້ສີດຽວກັນລວມກັນ ແລະສີຕ່າງກັນແຍກເປັນຄົນລະແຖວໃນກະຕ່າ.
+    color = request.GET.get('color', '').strip()
+    product_id = f"{pk}-{color}" if color else str(pk)
     if product_id in cart:
         cart[product_id] += quantity
     else:
@@ -1745,6 +1784,28 @@ def _cart_lines(cart_dict):
         yield line_key, product, qty, unit_price, subtotal
 
 
+def _line_key_color(line_key):
+    """Extracts the color name from a cart line_key of the form 'id-color',
+    or None if this line has no color (product has no color variants)."""
+    if '-' in line_key:
+        return line_key.split('-', 1)[1] or None
+    return None
+
+
+def _adjust_color_stock(product, color_name, delta):
+    """Moves a ProductColor's sold_qty by delta (positive = a booking just
+    consumed `delta` units, negative = a cancelled booking gives them back).
+    No-op if the product has no matching color row."""
+    if not color_name:
+        return
+    try:
+        pc = models.ProductColor.objects.get(product=product, color_name=color_name)
+    except models.ProductColor.DoesNotExist:
+        return
+    pc.sold_qty = max(0, pc.sold_qty + delta)
+    pc.save(update_fields=['sold_qty'])
+
+
 # for checkout of cart
 
 def cart_view(request):
@@ -1754,7 +1815,11 @@ def cart_view(request):
 
     for line_key, product, item_qty, unit_price, subtotal in _cart_lines(cart):
         total += subtotal
-        color_names = list(product.colors.values_list('color_name', flat=True))
+        chosen_color = _line_key_color(line_key)
+        if chosen_color:
+            color_display = chosen_color
+        else:
+            color_display = ', '.join(product.colors.values_list('color_name', flat=True))
         products_list.append({
             'id':           product.id,
             'line_key':     line_key,
@@ -1765,7 +1830,7 @@ def cart_view(request):
             'subtotal':     subtotal,
             'product_image': product.product_image,
             'category_name': product.category.name if product.category else '',
-            'color_names':  ', '.join(color_names) if color_names else '',
+            'color_names':  color_display,
         })
 
     custom_cart_items = request.session.get('custom_cart_items', [])
@@ -2187,6 +2252,7 @@ def payment_success_view(request):
         for line_key, product, qty, unit_price, total_amount in _cart_lines(cart):
             grand_total += total_amount
             note_str = ''
+            chosen_color = _line_key_color(line_key)
 
             ordered_products.append({'product': product, 'qty': qty, 'subtotal': total_amount, 'unit_price': unit_price, 'note': note_str})
 
@@ -2208,7 +2274,11 @@ def payment_success_view(request):
                     note=note_str,
                     pickup_date=_order_pickup_date,
                     pickup_time=_order_pickup_time,
+                    color=chosen_color,
                 )
+                # ຈອງແລ້ວ = ຫລົດສະຕອກສີນັ້ນທັນທີ (ບໍ່ລໍຖ້າຢືນຢັນ) — ຄືນຄືນເມື່ອອໍເດີ້ຖືກຍົກເລີກ.
+                if chosen_color:
+                    _adjust_color_stock(product, chosen_color, qty)
                 print(f"  ✓ Created order for product {product.id}")
             except Exception as e:
                 print(f"  ✗ ERROR creating order for product {product.id}: {e}")
@@ -2765,7 +2835,26 @@ def ajax_update_group_status(request):
         if not group_orders.filter(deposit_verified=True).exists():
             return JsonResponse({'ok': False, 'error': 'deposit_not_verified'}, status=400)
 
+    # Snapshot old statuses before the bulk update — needed to restore/re-deduct
+    # per-color stock exactly on the Pending↔Cancelled transition edge.
+    orders_snapshot = list(group_orders.values_list('id', 'status', 'product_id', 'color', 'quantity'))
+
     updated = group_orders.update(status=status)
+
+    if status == 'Cancelled' or any(s == 'Cancelled' for _, s, _, _, _ in orders_snapshot):
+        product_ids = {pid for _, _, pid, _, _ in orders_snapshot if pid}
+        products_by_id = {p.id: p for p in models.Product.objects.filter(id__in=product_ids)}
+        for oid, old_status, pid, color, qty in orders_snapshot:
+            was_cancelled = (old_status == 'Cancelled')
+            is_cancelled  = (status == 'Cancelled')
+            if was_cancelled == is_cancelled or not color or not pid:
+                continue
+            product = products_by_id.get(pid)
+            if not product:
+                continue
+            # Cancelling gives the color stock back; un-cancelling re-deducts it.
+            _adjust_color_stock(product, color, -qty if is_cancelled else qty)
+
     # Advance ("ຈອງລ່ວງໜ້າ") bookings track when they were actually collected —
     # revenue for them counts on this day, not the (earlier) booking day.
     if status == 'Delivered':
@@ -2783,12 +2872,18 @@ def ajax_delete_group(request):
     group_key = request.POST.get('group_key', '').strip()
     if not group_key:
         return JsonResponse({'ok': False}, status=400)
-    deleted, _ = models.Orders.objects.filter(order_group=group_key).delete()
-    if deleted == 0:
+    group_orders = models.Orders.objects.filter(order_group=group_key)
+    if not group_orders.exists():
         try:
-            deleted, _ = models.Orders.objects.filter(id=int(group_key)).delete()
+            group_orders = models.Orders.objects.filter(id=int(group_key))
         except (ValueError, TypeError):
             return JsonResponse({'ok': False}, status=400)
+
+    for o in group_orders.select_related('product').exclude(status='Cancelled').exclude(color__isnull=True).exclude(color=''):
+        if o.product:
+            _adjust_color_stock(o.product, o.color, -o.quantity)
+
+    deleted, _ = group_orders.delete()
     return JsonResponse({'ok': True, 'deleted': deleted})
 
 
@@ -2904,16 +2999,20 @@ def update_order_status(request, id):
 @login_required(login_url='adminlogin')
 @require_POST
 def ajax_update_order_status(request, pk):
-    order = models.Orders.objects.select_related('customer__user').get(id=pk)
+    order = models.Orders.objects.select_related('customer__user', 'product').get(id=pk)
     status = request.POST.get('status')
     if status in ['Pending', 'Confirmed', 'Processing', 'Delivered', 'Cancelled']:
         if (status in _DEPOSIT_GATE_STATUSES and order.delivery_type != WALKIN_DELIVERY_TYPE
                 and not order.deposit_verified):
             return JsonResponse({'ok': False, 'error': 'deposit_not_verified'}, status=400)
+        was_cancelled = (order.status == 'Cancelled')
+        is_cancelled  = (status == 'Cancelled')
         order.status = status
         if status == 'Delivered' and order.pickup_date:
             order.fulfilled_at = timezone.now()
         order.save()
+        if was_cancelled != is_cancelled and order.color and order.product:
+            _adjust_color_stock(order.product, order.color, -order.quantity if is_cancelled else order.quantity)
         if order.customer:
             _notify_customer_status(order.customer, status, delivery_type=order.delivery_type)
         return JsonResponse({'ok': True, 'status': status})

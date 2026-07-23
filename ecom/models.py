@@ -111,6 +111,9 @@ class Orders(models.Model):
     delivery_fee   = models.DecimalField(max_digits=10, decimal_places=0, null=True, blank=True)
     payment_method = models.CharField(max_length=20, null=True, blank=True, default='COD')
     note           = models.CharField(max_length=300, blank=True, default='')
+    # Which ProductColor variant this booking is for (if the product has
+    # color variants) — drives automatic per-color stock deduction.
+    color          = models.CharField(max_length=40, null=True, blank=True)
     # Set only for "ຈອງລ່ວງໜ້າ" (advance booking) orders — the day/time the
     # customer will come collect it, instead of being prepared/queued today.
     pickup_date    = models.DateField(null=True, blank=True)

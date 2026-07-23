@@ -396,10 +396,14 @@ body {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 8px 14px; border-radius: 20px; font-size: .82rem; font-weight: 700;
   border: 1.5px solid var(--line); background: var(--panel); color: var(--text);
+  cursor: pointer; transition: .2s;
 }
+.pm-color-pill:hover { border-color: var(--blue); transform: translateY(-1px); }
 .pm-color-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); flex-shrink: 0; }
-.pm-color-pill.out { color: #94a3b8; border-color: #e2e8f0; }
+.pm-color-pill.out { color: #94a3b8; border-color: #e2e8f0; background: #f8fafc; cursor: not-allowed; }
+.pm-color-pill.out:hover { transform: none; border-color: #e2e8f0; }
 .pm-color-pill.out .dot { background: #cbd5e1; }
+.pm-color-pill.picked { border-color: var(--blue); background: rgba(37,99,235,.1); color: var(--blue); box-shadow: 0 0 0 2px rgba(37,99,235,.15); }
 .pm-add-btn {
   width: 100%; padding: 15px; border: none; border-radius: 12px;
   background: var(--ink); color: #fff; font-size: .95rem; font-weight: 700;
@@ -542,7 +546,7 @@ body {
         <button class="q-btn" onclick="chgQty('{{ p.id }}',1)"><i class="fas fa-plus"></i></button>
       </div>
 
-      <button class="add-btn" id="btn-{{ p.id }}" onclick="{% if request.user.is_authenticated %}addCart('{{ p.id }}'){% else %}openAuthModal(){% endif %}">
+      <button class="add-btn" id="btn-{{ p.id }}" onclick="{% if request.user.is_authenticated %}handleQuickAdd('{{ p.id }}'){% else %}openAuthModal(){% endif %}">
         {% if p.is_available %}<i class="fas fa-cart-plus"></i> ເພີ່ມການສັ່ງຈອງ{% else %}<i class="fas fa-ban"></i> ໝົດແລ້ວ{% endif %}
       </button>
     </div>
@@ -617,14 +621,29 @@ function chgQty(id, d) {
   const v = parseInt(el.textContent) + d;
   if (v >= 1 && v <= 20) el.textContent = v;
 }
-function addCart(id) {
+function addCart(id, color) {
   const qty = document.getElementById('qty-' + id).textContent;
   const btn = document.getElementById('btn-' + id);
-  btn.innerHTML = '<i class="fas fa-check"></i> ເພີ່ມສຳເລັດ!';
-  btn.classList.add('added');
+  if (btn) {
+    btn.innerHTML = '<i class="fas fa-check"></i> ເພີ່ມສຳເລັດ!';
+    btn.classList.add('added');
+  }
+  let url = '/add-to-cart/' + id + '?quantity=' + qty;
+  if (color) url += '&color=' + encodeURIComponent(color);
   setTimeout(() => {
-    window.location.href = '/add-to-cart/' + id + '?quantity=' + qty;
-  }, 400);
+    window.location.href = url;
+  }, btn ? 400 : 0);
+}
+
+/* Product-card quick-add — if the product has color variants, force the
+   customer to pick one via the detail modal first instead of adding blind. */
+function handleQuickAdd(id) {
+  const trigger = document.querySelector('.view-trigger[data-id="' + id + '"]');
+  if (trigger && trigger.dataset.colors) {
+    openProductModal(trigger);
+    return;
+  }
+  addCart(id);
 }
 function openAuthModal()  { document.getElementById('authOverlay').classList.add('open'); }
 function closeAuthModal() { document.getElementById('authOverlay').classList.remove('open'); }
@@ -635,6 +654,8 @@ document.getElementById('authOverlay').addEventListener('click', function(e) {
 let pmImages = [];
 let pmIndex  = 0;
 let currentModalProductId = null;
+let pmSelectedColor = null;
+let pmHasColors = false;
 
 function pmRenderGallery() {
   const gallery = document.getElementById('pmGallery');
@@ -699,17 +720,26 @@ function openProductModal(el) {
   const colorsBox  = document.getElementById('pmColorsBox');
   const colorsList = document.getElementById('pmColorsList');
   colorsList.innerHTML = '';
+  pmSelectedColor = null;
   const colorsRaw = el.dataset.colors || '';
   const colors = colorsRaw ? colorsRaw.split('||').map(function(pair) {
     const parts = pair.split('::');
     return { name: parts[0], remaining: parseInt(parts[1], 10) || 0 };
   }) : [];
+  pmHasColors = colors.length > 0;
   if (colors.length) {
     colors.forEach(function(c) {
       const out = c.remaining <= 0;
       const pill = document.createElement('span');
       pill.className = 'pm-color-pill' + (out ? ' out' : '');
       pill.innerHTML = '<span class="dot"></span>' + c.name + ' &middot; ' + (out ? 'ໝົດແລ້ວ' : 'ເຫຼືອ ' + c.remaining);
+      if (!out) {
+        pill.onclick = function() {
+          pmSelectedColor = c.name;
+          colorsList.querySelectorAll('.pm-color-pill').forEach(function(p) { p.classList.remove('picked'); });
+          pill.classList.add('picked');
+        };
+      }
       colorsList.appendChild(pill);
     });
     colorsBox.style.display = 'block';
@@ -732,8 +762,12 @@ document.getElementById('productModalOverlay').addEventListener('click', functio
 
 function addCartFromModal() {
   if (!currentModalProductId) return;
+  if (pmHasColors && !pmSelectedColor) {
+    alert('ກະລຸນາເລືອກສີກ່ອນ');
+    return;
+  }
   closeProductModal();
-  addCart(currentModalProductId);
+  addCart(currentModalProductId, pmSelectedColor);
 }
 
 document.addEventListener('keydown', function(e) {

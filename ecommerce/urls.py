@@ -5,7 +5,7 @@ Developed By : somphone bounthanh
 from django.contrib import admin
 from django.urls import path
 from ecom import views
-from django.contrib.auth.views import LoginView,LogoutView
+from django.contrib.auth.views import LogoutView
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
@@ -32,7 +32,7 @@ urlpatterns = [
     path('ajax-check-new-custom-orders', views.ajax_check_new_custom_orders, name='ajax-check-new-custom-orders'),
 
     path('adminclick', views.adminclick_view),
-    path('adminlogin', LoginView.as_view(template_name='ecom/adminlogin.html'),name='adminlogin'),
+    path('adminlogin', views.admin_login_view,name='adminlogin'),
     path('admin-dashboard', views.admin_dashboard_view,name='admin-dashboard'),
 
     path('view-customer', views.view_customer_view,name='view-customer'),

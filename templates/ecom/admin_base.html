@@ -657,6 +657,16 @@
       clearTimeout(coTimer);
     }
 
+    /* ═══ Orders that arrived while signed out — shown once right after login ═══ */
+    {% if admin_missed_orders_json %}
+    (function() {
+      var missed = {{ admin_missed_orders_json|safe }};
+      if (missed && missed.count > 0) {
+        showOrderNotification(missed.count, missed.orders, '🔔 ' + missed.count + ' ອໍເດີ້ເຂົ້າມາຕອນທ່ານບໍ່ຢູ່!');
+      }
+    })();
+    {% endif %}
+
     /* ═══ New-order notification polling (fires on every admin page) ═══ */
     let orderLastId  = null;
     let orderNotifTimer = null;
@@ -682,8 +692,8 @@
         .catch(() => {});
     }
 
-    function showOrderNotification(count, orders) {
-      document.getElementById('notifBody').textContent = count + ' ອໍເດີໃໝ່ເຂົ້າມາ';
+    function showOrderNotification(count, orders, label) {
+      document.getElementById('notifBody').textContent = label || (count + ' ອໍເດີໃໝ່ເຂົ້າມາ');
       document.getElementById('notifItems').innerHTML = orders.map(o => `
         <div class="notif-item">
           <div><div class="ni-prod">${o.product}</div><div class="ni-cust">${o.customer}</div></div>
