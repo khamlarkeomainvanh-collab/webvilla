@@ -458,6 +458,7 @@
             </div>
         </div>
 
+        {% if deliveryType != 'Walkin' %}
         <div class="deposit-box">
             <div class="total-row-item">
                 <span>💰 ລາຍລະອຽດມັດຈຳ</span>
@@ -466,7 +467,7 @@
                 </span>
             </div>
             <div class="total-row-item dep-amt">
-                <span>ມັດຈຳ (10%)</span>
+                <span>ມັດຈຳ (20%)</span>
                 <span>{{ depositAmount|dotformat }} ກີບ</span>
             </div>
             <div class="total-row-item dep-remain">
@@ -474,6 +475,7 @@
                 <span>{{ remainingAmount|dotformat }} ກີບ</span>
             </div>
         </div>
+        {% endif %}
     </div>
 
     <!-- Footer -->

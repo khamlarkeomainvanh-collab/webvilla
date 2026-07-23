@@ -566,91 +566,72 @@ body { background: #ffffff !important; }
         </div>
     </div>
 
-    <!-- ===== DATE PICKER + STAT CARDS ===== -->
+    <!-- ===== ALL-TIME SUMMARY CARDS ===== -->
     <div class="today-section-head">
-        <h2>📅 ສະຖິຕິ {% if is_today %}ມື້ນີ້{% else %}ວັນທີ {{ current_date }}{% endif %}</h2>
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-            <a href="?date={{ prev_date|date:'Y-m-d' }}"
-               style="width:36px;height:36px;border-radius:10px;background:#eff6ff;border:1.5px solid #bfdbfe;display:flex;align-items:center;justify-content:center;color:#2563eb;text-decoration:none;font-size:1.1rem;transition:.2s;"
-               title="ວັນກ່ອນໜ້າ">‹</a>
-            <form method="GET" id="datepickerForm" style="display:inline;">
-                <input type="date" name="date" value="{{ current_date }}"
-                    max="{{ today_str }}"
-                    onchange="document.getElementById('datepickerForm').submit()"
-                    style="
-                        background:linear-gradient(135deg,#2563eb,#0f172a);
-                        color:#fff; border:none; border-radius:12px;
-                        padding:8px 16px; font-weight:800; font-size:.92rem;
-                        cursor:pointer; outline:none;
-                        font-family:'Lexend','Noto Sans Lao',sans-serif;
-                        box-shadow:0 4px 14px rgba(124,58,237,.3);
-                    ">
-            </form>
-            {% if not is_today %}
-            <a href="?date={{ today_str }}"
-               style="background:linear-gradient(135deg,#0f172a,#059669);color:#fff;border-radius:10px;padding:8px 14px;text-decoration:none;font-weight:800;font-size:.82rem;box-shadow:0 4px 12px rgba(15,23,42,.3);">
-                ກັບມື້ນີ້
-            </a>
-            {% endif %}
-            <a href="?date={{ next_date|date:'Y-m-d' }}"
-               style="width:36px;height:36px;border-radius:10px;background:#eff6ff;border:1.5px solid #bfdbfe;display:flex;align-items:center;justify-content:center;color:#2563eb;text-decoration:none;font-size:1.1rem;transition:.2s;{% if is_today %}pointer-events:none;opacity:.35;{% endif %}"
-               title="ວັນຖັດໄປ">›</a>
-        </div>
+        <h2>📊 ພາບລວມທັງໝົດ</h2>
     </div>
     <div class="stat-grid">
-        <!-- Orders today -->
-        <div class="stat-card" onclick="openStatModal('All','{{ current_date }}','📦 ອໍເດີທັງໝົດມື້ນີ້')" style="--card-line:linear-gradient(90deg,#2563eb,#0f172a); --icon-bg:rgba(124,58,237,.1);">
+        <a href="{% url 'admin-advance-bookings' %}?status=All" class="stat-card" style="--card-line:linear-gradient(90deg,#2563eb,#0f172a); --icon-bg:rgba(124,58,237,.1);">
             <div class="sc-top">
                 <div class="sc-icon">📦</div>
-                <span class="sc-badge" style="--tag-bg:rgba(124,58,237,.1);--tag-col:var(--purple);">ມື້ນີ້</span>
+                <span class="sc-badge" style="--tag-bg:rgba(124,58,237,.1);--tag-col:var(--purple);">ທັງໝົດ</span>
             </div>
-            <div class="sc-num" style="color:var(--purple);">{{ today_order_count }}</div>
-            <div class="sc-lbl">ອໍເດີທັງໝົດ <span style="font-size:.7rem;color:rgba(124,58,237,.5);">— ຄລິກລາຍລະອຽດ</span></div>
-        </div>
-        <!-- Revenue today -->
-        <div class="stat-card" onclick="openStatModal('All','{{ current_date }}','💰 ລາຍຮັບມື້ນີ້')" style="--card-line:linear-gradient(90deg,#0f172a,#3b82f6); --icon-bg:rgba(15,23,42,.1);">
+            <div class="sc-num" style="color:var(--purple);">{{ total_units_alltime }}</div>
+            <div class="sc-lbl">ອໍເດີ້ທັງໝົດ <span style="font-size:.7rem;color:rgba(124,58,237,.5);">— ຄລິກລາຍລະອຽດ</span></div>
+        </a>
+        <a href="{% url 'admin-finance' %}" class="stat-card" style="--card-line:linear-gradient(90deg,#0f172a,#3b82f6); --icon-bg:rgba(15,23,42,.1);">
             <div class="sc-top">
                 <div class="sc-icon">💰</div>
                 <span class="sc-badge" style="--tag-bg:rgba(15,23,42,.1);--tag-col:#059669;">ກີບ</span>
             </div>
-            <div class="sc-num" style="color:#0f172a;font-size:1.6rem;">{{ today_revenue|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
-            <div class="sc-lbl">ລາຍຮັບມື້ນີ້ <span style="font-size:.7rem;color:rgba(15,23,42,.5);">— ຄລິກລາຍລະອຽດ</span></div>
-        </div>
-        <!-- Pending today -->
-        <div class="stat-card" onclick="openStatModal('Pending','{{ current_date }}','⏳ ລໍຖ້າຢືນຢັນ')" style="--card-line:linear-gradient(90deg,#f59e0b,#fbbf24); --icon-bg:rgba(245,158,11,.1);">
+            <div class="sc-num" style="color:#0f172a;font-size:1.6rem;">{{ total_revenue_alltime|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
+            <div class="sc-lbl">ລາຍຮັບທັງໝົດ <span style="font-size:.7rem;color:rgba(15,23,42,.5);">— ຄລິກລາຍລະອຽດ</span></div>
+        </a>
+        <a href="{% url 'admin-advance-bookings' %}?verified=1" class="stat-card" style="--card-line:linear-gradient(90deg,#059669,#34d399); --icon-bg:rgba(5,150,105,.1);">
+            <div class="sc-top">
+                <div class="sc-icon">🏦</div>
+                <span class="sc-badge" style="--tag-bg:rgba(5,150,105,.1);--tag-col:#059669;">ຢືນຢັນແລ້ວ</span>
+            </div>
+            <div class="sc-num" style="color:#059669;font-size:1.6rem;">{{ total_deposit_alltime|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
+            <div class="sc-lbl">ມັດຈຳທັງໝົດ <span style="font-size:.7rem;color:rgba(5,150,105,.5);">— ຄລິກລາຍລະອຽດ</span></div>
+        </a>
+        <a href="{% url 'admin-advance-bookings' %}?unpaid=1" class="stat-card" style="--card-line:linear-gradient(90deg,#f59e0b,#fbbf24); --icon-bg:rgba(245,158,11,.1);">
             <div class="sc-top">
                 <div class="sc-icon">⏳</div>
-                <span class="sc-badge" style="--tag-bg:rgba(245,158,11,.1);--tag-col:#d97706;">ລໍຖ້າ</span>
+                <span class="sc-badge" style="--tag-bg:rgba(245,158,11,.1);--tag-col:#d97706;">ຄ້າງ</span>
             </div>
-            <div class="sc-num" style="color:#f59e0b;">{{ today_pending_count }}</div>
-            <div class="sc-lbl">ຮັບອໍເດີ <span style="font-size:.7rem;color:rgba(245,158,11,.5);">— ຄລິກລາຍລະອຽດ</span></div>
-        </div>
-        <!-- Confirmed today -->
-        <div class="stat-card" onclick="openStatModal('Confirmed','{{ current_date }}','✅ ຢືນຢັນອໍເດີ')" style="--card-line:linear-gradient(90deg,#6366f1,#818cf8); --icon-bg:rgba(99,102,241,.1);">
+            <div class="sc-num" style="color:#d97706;font-size:1.6rem;">{{ total_outstanding_alltime|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
+            <div class="sc-lbl">ຍອດຄ້າງຊຳລະ <span style="font-size:.7rem;color:rgba(245,158,11,.5);">— ຄລິກລາຍລະອຽດ</span></div>
+        </a>
+        <button type="button" onclick="openModelSalesModal()" class="stat-card" style="--card-line:linear-gradient(90deg,#7c3aed,#a855f7); --icon-bg:rgba(124,58,237,.1); text-align:left; border:1.5px solid var(--border); font-family:'Lexend','Noto Sans Lao',sans-serif;">
             <div class="sc-top">
-                <div class="sc-icon">✅</div>
-                <span class="sc-badge" style="--tag-bg:rgba(99,102,241,.1);--tag-col:#6366f1;">ຢືນຢັນ</span>
+                <div class="sc-icon">🏍️</div>
+                <span class="sc-badge" style="--tag-bg:rgba(124,58,237,.1);--tag-col:var(--purple);">ມື້ນີ້</span>
             </div>
-            <div class="sc-num" style="color:#6366f1;">{{ today_confirmed_count }}</div>
-            <div class="sc-lbl">ຢືນຢັນອໍເດີ <span style="font-size:.7rem;color:rgba(99,102,241,.5);">— ຄລິກລາຍລະອຽດ</span></div>
-        </div>
-        <!-- Processing today -->
-        <div class="stat-card" onclick="openStatModal('Processing','{{ current_date }}','🚚 ກຳລັງຈັດສົ່ງ')" style="--card-line:linear-gradient(90deg,#f97316,#fb923c); --icon-bg:rgba(249,115,22,.1);">
-            <div class="sc-top">
-                <div class="sc-icon">🚚</div>
-                <span class="sc-badge" style="--tag-bg:rgba(249,115,22,.1);--tag-col:#ea580c;">ສົ່ງ</span>
+            <div class="sc-num" style="color:var(--purple);">{{ today_model_sales_total }}</div>
+            <div class="sc-lbl">ລຸ້ນທີ່ຂາຍມື້ນີ້ <span style="font-size:.7rem;color:rgba(124,58,237,.5);">— ຄລິກລາຍລະອຽດ</span></div>
+        </button>
+    </div>
+
+    <!-- ===== TODAY'S MODEL SALES MODAL ===== -->
+    <div class="modal-backdrop" id="modelSalesModal" onclick="if(event.target===this)closeModelSalesModal()">
+        <div class="modal-box" style="max-width:480px;">
+            <div class="modal-head">
+                <h4>🏍️ ລຸ້ນທີ່ຂາຍໄດ້ມື້ນີ້</h4>
+                <button class="modal-close" onclick="closeModelSalesModal()">✕</button>
             </div>
-            <div class="sc-num" style="color:#f97316;">{{ today_processing_count }}</div>
-            <div class="sc-lbl">ກຳລັງຈັດສົ່ງ <span style="font-size:.7rem;color:rgba(249,115,22,.5);">— ຄລິກລາຍລະອຽດ</span></div>
-        </div>
-        <!-- Delivered today -->
-        <div class="stat-card" onclick="openStatModal('Delivered','{{ current_date }}','🏠 ຈັດສົ່ງສຳເລັດ')" style="--card-line:linear-gradient(90deg,#0f172a,#059669); --icon-bg:rgba(15,23,42,.1);">
-            <div class="sc-top">
-                <div class="sc-icon">🏠</div>
-                <span class="sc-badge" style="--tag-bg:rgba(15,23,42,.1);--tag-col:#059669;">ສຳເລັດ</span>
+            {% if today_model_sales %}
+            <div style="display:grid; gap:10px;">
+                {% for m in today_model_sales %}
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 18px; background:var(--lav); border-radius:14px; border:1px solid var(--border);">
+                    <span style="font-size:1rem; font-weight:700; color:var(--bright);">{{ m.product__name }}</span>
+                    <span style="font-size:1.15rem; font-weight:900; color:var(--purple);">{{ m.qty }} ຄັນ</span>
+                </div>
+                {% endfor %}
             </div>
-            <div class="sc-num" style="color:#0f172a;">{{ today_delivered_count }}</div>
-            <div class="sc-lbl">ຈັດສົ່ງສຳເລັດ <span style="font-size:.7rem;color:rgba(15,23,42,.5);">— ຄລິກລາຍລະອຽດ</span></div>
+            {% else %}
+            <div style="text-align:center; padding:40px; color:var(--dim);">📭 ຍັງບໍ່ມີການຂາຍມື້ນີ້</div>
+            {% endif %}
         </div>
     </div>
 
@@ -668,30 +649,30 @@ body { background: #ffffff !important; }
         <div class="chart-card">
             <h3>
                 <i class="fas fa-circle-half-stroke"></i> ສັດສ່ວນສະຖານະ
-                <span style="font-size:.72rem;color:rgba(124,58,237,.5);font-weight:600;font-family:'Noto Sans Lao',sans-serif;text-transform:none;letter-spacing:0;">— ມື້ນີ້ {{ current_date }}</span>
+                <span style="font-size:.72rem;color:rgba(124,58,237,.5);font-weight:600;font-family:'Noto Sans Lao',sans-serif;text-transform:none;letter-spacing:0;">— ທັງໝົດ</span>
             </h3>
             <div class="chart-wrap" style="height:170px;"><canvas id="statusChart"></canvas></div>
             <div class="donut-legend">
-                <div class="dl-row" onclick="openStatModal('Pending','{{ current_date }}','⏳ ຮັບ/ລໍຖ້າຢືນຢັນ')">
+                <a href="/admin-advance-bookings?status=Pending" class="dl-row">
                     <span class="dl-lbl"><span class="dl-dot" style="background:#f59e0b;"></span>⏳ ຮັບອໍເດີ <span style="font-size:.7rem;color:rgba(0,0,0,.35);">— ຄລິກ</span></span>
-                    <span class="dl-val" style="color:#f59e0b;">{{ today_pending_count }}</span>
-                </div>
-                <div class="dl-row" onclick="openStatModal('Confirmed','{{ current_date }}','✅ ຢືນຢັນອໍເດີ')">
+                    <span class="dl-val" style="color:#f59e0b;">{{ pending_count }}</span>
+                </a>
+                <a href="/admin-advance-bookings?status=Confirmed" class="dl-row">
                     <span class="dl-lbl"><span class="dl-dot" style="background:#6366f1;"></span>✅ ຢືນຢັນ <span style="font-size:.7rem;color:rgba(0,0,0,.35);">— ຄລິກ</span></span>
-                    <span class="dl-val" style="color:#6366f1;">{{ today_confirmed_count }}</span>
-                </div>
-                <div class="dl-row" onclick="openStatModal('Processing','{{ current_date }}','🚚 ກຳລັງຈັດສົ່ງ')">
+                    <span class="dl-val" style="color:#6366f1;">{{ confirmed_count }}</span>
+                </a>
+                <a href="/admin-advance-bookings?status=Processing" class="dl-row">
                     <span class="dl-lbl"><span class="dl-dot" style="background:#2563eb;"></span>🚚 ກຳລັງຈັດສົ່ງ <span style="font-size:.7rem;color:rgba(0,0,0,.35);">— ຄລິກ</span></span>
-                    <span class="dl-val" style="color:#2563eb;">{{ today_processing_count }}</span>
-                </div>
-                <div class="dl-row" onclick="openStatModal('Delivered','{{ current_date }}','🏠 ຈັດສົ່ງສຳເລັດ')">
+                    <span class="dl-val" style="color:#2563eb;">{{ processing_count }}</span>
+                </a>
+                <a href="/admin-advance-bookings?status=Delivered" class="dl-row">
                     <span class="dl-lbl"><span class="dl-dot" style="background:#0f172a;"></span>🏠 ຈັດສົ່ງສຳເລັດ <span style="font-size:.7rem;color:rgba(0,0,0,.35);">— ຄລິກ</span></span>
-                    <span class="dl-val" style="color:#0f172a;">{{ today_delivered_count }}</span>
-                </div>
-                <div class="dl-row" onclick="openStatModal('Cancelled','{{ current_date }}','❌ ຍົກເລີກ')">
+                    <span class="dl-val" style="color:#0f172a;">{{ delivered_count }}</span>
+                </a>
+                <a href="/admin-advance-bookings?status=Cancelled" class="dl-row">
                     <span class="dl-lbl"><span class="dl-dot" style="background:#ef4444;"></span>❌ ຍົກເລີກ <span style="font-size:.7rem;color:rgba(0,0,0,.35);">— ຄລິກ</span></span>
-                    <span class="dl-val" style="color:#ef4444;">{{ today_cancelled_count }}</span>
-                </div>
+                    <span class="dl-val" style="color:#ef4444;">{{ cancelled_count }}</span>
+                </a>
             </div>
         </div>
     </div>
@@ -840,31 +821,30 @@ Chart.defaults.font.family = "'Lexend','Noto Sans Lao'";
     });
 })();
 
-/* ===== STATUS DONUT (TODAY) ===== */
+/* ===== STATUS DONUT (ALL-TIME) ===== */
 (function() {
     const ctx = document.getElementById('statusChart').getContext('2d');
-    const TODAY = '{{ current_date }}';
     const STATUSES = [
-        { key:'Pending',    label:'⏳ ຮັບອໍເດີ',       title:'⏳ ຮັບ/ລໍຖ້າຢືນຢັນ', color:'#f59e0b' },
-        { key:'Confirmed',  label:'✅ ຢືນຢັນ',          title:'✅ ຢືນຢັນອໍເດີ',     color:'#6366f1' },
-        { key:'Processing', label:'🚚 ກຳລັງຈັດສົ່ງ',   title:'🚚 ກຳລັງຈັດສົ່ງ',   color:'#2563eb' },
-        { key:'Delivered',  label:'🏠 ສຳເລັດ',          title:'🏠 ຈັດສົ່ງສຳເລັດ',  color:'#0f172a' },
-        { key:'Cancelled',  label:'❌ ຍົກເລີກ',         title:'❌ ຍົກເລີກ',         color:'#ef4444' },
+        { key:'Pending',    label:'⏳ ຮັບອໍເດີ',       color:'#f59e0b' },
+        { key:'Confirmed',  label:'✅ ຢືນຢັນ',          color:'#6366f1' },
+        { key:'Processing', label:'🚚 ກຳລັງຈັດສົ່ງ',   color:'#2563eb' },
+        { key:'Delivered',  label:'🏠 ສຳເລັດ',          color:'#0f172a' },
+        { key:'Cancelled',  label:'❌ ຍົກເລີກ',         color:'#ef4444' },
     ];
-    const todayData = [
-        {{ today_pending_count }},
-        {{ today_confirmed_count }},
-        {{ today_processing_count }},
-        {{ today_delivered_count }},
-        {{ today_cancelled_count }},
+    const allData = [
+        {{ pending_count }},
+        {{ confirmed_count }},
+        {{ processing_count }},
+        {{ delivered_count }},
+        {{ cancelled_count }},
     ];
-    const hasData = todayData.some(v => v > 0);
+    const hasData = allData.some(v => v > 0);
     new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: STATUSES.map(s => s.label),
             datasets: [{
-                data: hasData ? todayData : [1],
+                data: hasData ? allData : [1],
                 backgroundColor: hasData ? STATUSES.map(s => s.color) : ['#e2e8f0'],
                 borderColor: '#ffffff', borderWidth: 4, hoverOffset: 10,
             }]
@@ -876,8 +856,8 @@ Chart.defaults.font.family = "'Lexend','Noto Sans Lao'";
                 tooltip: {
                     callbacks: {
                         label: function(c) {
-                            if (!hasData) return ' ຍັງບໍ່ມີອໍເດີມື້ນີ້';
-                            const total = todayData.reduce((a,b)=>a+b,0);
+                            if (!hasData) return ' ຍັງບໍ່ມີອໍເດີ';
+                            const total = allData.reduce((a,b)=>a+b,0);
                             const pct = total > 0 ? Math.round(c.parsed/total*100) : 0;
                             return ` ${c.label}: ${c.parsed} ອໍເດີ (${pct}%)`;
                         }
@@ -887,7 +867,7 @@ Chart.defaults.font.family = "'Lexend','Noto Sans Lao'";
             onClick(e, els) {
                 if (!hasData || !els.length) return;
                 const s = STATUSES[els[0].index];
-                openStatModal(s.key, TODAY, s.title);
+                window.location.href = '/admin-advance-bookings?status=' + s.key;
             }
         }
     });
@@ -947,6 +927,9 @@ function openSalesModal() {
     });
 }
 function closeSalesModal() { document.getElementById('salesModal').style.display='none'; }
+
+function openModelSalesModal() { document.getElementById('modelSalesModal').style.display = 'flex'; }
+function closeModelSalesModal() { document.getElementById('modelSalesModal').style.display = 'none'; }
 
 /* ===== ORDER CARD BUILDER ===== */
 const STATUS_LABELS = {

@@ -324,11 +324,49 @@ def admin_dashboard_view(request):
     customercount   = models.Customer.objects.all().count()
     productcount    = models.Product.objects.all().count()
     ordercount      = models.Orders.objects.all().count()
-    delivered_count = models.Orders.objects.filter(status='Delivered').count()
-    pending_count   = models.Orders.objects.filter(status='Pending').count()
-    processing_count= models.Orders.objects.filter(status='Processing').count()
-    cancelled_count = models.Orders.objects.filter(status='Cancelled').count()
+    # Status donut counts vehicle QUANTITY (not row-count), so it always sums
+    # to the same "ອໍເດີ້ທັງໝົດ" total shown in the all-time summary card.
+    def _units_for(status):
+        return models.Orders.objects.filter(status=status).aggregate(q=Sum('quantity'))['q'] or 0
+    delivered_count = _units_for('Delivered')
+    pending_count   = _units_for('Pending')
+    confirmed_count = _units_for('Confirmed')
+    processing_count= _units_for('Processing')
+    cancelled_count = _units_for('Cancelled')
     other_count     = ordercount - (delivered_count + pending_count)
+
+    # ── All-time summary cards: real revenue/deposit/outstanding totals,
+    # not scoped to the selected day ──
+    _active_orders_qs = models.Orders.objects.exclude(status='Cancelled')
+    # "ອໍເດີ້ທັງໝົດ" counts actual vehicle QUANTITY, not line-item rows — a
+    # customer booking 4 vehicles across 2 different models is 4 orders, not 2.
+    total_units_alltime = _active_orders_qs.aggregate(q=Sum('quantity'))['q'] or 0
+    total_revenue_alltime = float(_active_orders_qs.aggregate(t=Sum('amount'))['t'] or 0)
+    # Deposit income only counts orders an admin has actually verified as
+    # paid (see the "ຢືນຢັນມັດຈຳ" step on admin-advance-bookings) — a real
+    # collected-cash figure, not just a theoretical 20% of everything booked.
+    total_deposit_alltime = round(
+        float(_active_orders_qs.filter(deposit_verified=True).aggregate(t=Sum('amount'))['t'] or 0) * 0.20
+    )
+    # Outstanding balance — the 80% still owed on bookings that haven't been
+    # collected yet (walk-in sales are paid in full on the spot, so excluded).
+    _outstanding_qs = models.Orders.objects.filter(
+        status__in=['Pending', 'Confirmed', 'Processing']
+    ).exclude(delivery_type=WALKIN_DELIVERY_TYPE)
+    total_outstanding_alltime = round(
+        float(_outstanding_qs.aggregate(t=Sum('amount'))['t'] or 0) * 0.80
+    )
+
+    # Which vehicle models have sold today, and how many of each.
+    today_model_sales = list(
+        models.Orders.objects.filter(order_date__gte=_ts, order_date__lte=_te)
+        .exclude(status='Cancelled')
+        .exclude(product__isnull=True)
+        .values('product__name')
+        .annotate(qty=Sum('quantity'))
+        .order_by('-qty')
+    )
+    today_model_sales_total = sum(m['qty'] for m in today_model_sales)
 
     # Stats ຂອງ selected_date — advance bookings only count once actually
     # fulfilled (see _revenue_orders_qs), not on the day they were booked.
@@ -384,7 +422,7 @@ def admin_dashboard_view(request):
         _key = _o.order_group or str(_o.id)
         if _key not in _all_groups:
             # ຈອງລ່ວງໜ້າ — ໃຊ້ເວລາ "ຮັບແທ້ຈິງ" (fulfilled_at) ແທນເວລາ "ຈອງ" (order_date)
-            _time_src = _o.fulfilled_at if (_o.pickup_date and _o.fulfilled_at) else _o.order_date
+            _time_src = _o.order_date
             _all_groups[_key] = {
                 'key': _key,
                 'canonical': _o,
@@ -431,11 +469,11 @@ def admin_dashboard_view(request):
     today = date_cls.today()
     range_start = _tz.make_aware(dt_dash(today.year, today.month, today.day, 0, 0, 0)) - timedelta(days=29)
     range_end   = _tz.make_aware(dt_dash(today.year, today.month, today.day, 23, 59, 59))
-    recent_rows = _revenue_orders_qs(range_start, range_end).values_list('order_date', 'amount', 'pickup_date', 'fulfilled_at')
+    recent_rows = _revenue_orders_qs(range_start, range_end).values_list('order_date', 'amount')
 
     date_map = {(today - timedelta(days=i)).isoformat(): {'orders': 0, 'amount': 0.0} for i in range(29, -1, -1)}
-    for odt, amt, pdate, fulfilled_at in recent_rows:
-        rev_dt = fulfilled_at if pdate else odt
+    for odt, amt in recent_rows:
+        rev_dt = odt
         if rev_dt is None:
             continue
         day_key = rev_dt.date().isoformat() if hasattr(rev_dt, 'date') else str(rev_dt)[:10]
@@ -459,8 +497,15 @@ def admin_dashboard_view(request):
         'delivered_count':  delivered_count,
         'pending_count':    pending_count,
         'processing_count': processing_count,
+        'confirmed_count':  confirmed_count,
         'cancelled_count':  cancelled_count,
         'other_count':      other_count,
+        'total_units_alltime':       total_units_alltime,
+        'total_revenue_alltime':     total_revenue_alltime,
+        'total_deposit_alltime':     total_deposit_alltime,
+        'total_outstanding_alltime': total_outstanding_alltime,
+        'today_model_sales':         today_model_sales,
+        'today_model_sales_total':   today_model_sales_total,
         'today_order_count':       today_order_count,
         'today_revenue':           today_revenue,
         'today_pending_count':     today_pending_count,
@@ -492,25 +537,20 @@ def admin_dashboard_view(request):
 
 
 def _revenue_orders_qs(start_dt=None, end_dt=None):
-    """Orders that count as revenue (optionally within [start_dt, end_dt]):
-    - normal orders (no pickup_date): counted on the day they were placed
-    - advance ("ຈອງລ່ວງໜ້າ") bookings: only once actually collected
-      (status Delivered), counted on the day they were fulfilled — not the
-      day they were booked, and not while still pending pickup.
-    Pass no bounds for an all-time queryset (still excludes un-fulfilled
-    advance bookings)."""
-    regular_q = Q(pickup_date__isnull=True)
-    advance_q = Q(pickup_date__isnull=False, status='Delivered')
+    """Orders that count as revenue (optionally within [start_dt, end_dt]) —
+    every order counts on the day it was placed (order_date), including
+    advance ("ຈອງລ່ວງໜ້າ") bookings that haven't been collected yet. Pass no
+    bounds for an all-time queryset."""
+    qs = models.Orders.objects.all()
     if start_dt is not None and end_dt is not None:
-        regular_q &= Q(order_date__gte=start_dt, order_date__lte=end_dt)
-        advance_q &= Q(fulfilled_at__gte=start_dt, fulfilled_at__lte=end_dt)
-    return models.Orders.objects.filter(regular_q | advance_q)
+        qs = qs.filter(order_date__gte=start_dt, order_date__lte=end_dt)
+    return qs
 
 
 def _revenue_date(order_dict):
-    """Given a dict with order_date/pickup_date/fulfilled_at keys (e.g. from
-    .values()), return whichever date the row's revenue should be attributed to."""
-    return order_dict['fulfilled_at'] if order_dict.get('pickup_date') else order_dict['order_date']
+    """Given a dict with an order_date key (e.g. from .values()), return the
+    date the row's revenue is attributed to — always the booking date."""
+    return order_dict['order_date']
 
 
 @login_required(login_url='adminlogin')
@@ -562,7 +602,7 @@ def admin_finance_view(request):
         def default(self, o):
             return float(o) if isinstance(o, Decimal) else super().default(o)
 
-    sel_orders_list = list(sd_orders.values('id', 'product__name', 'quantity', 'amount', 'status', 'delivery_type'))
+    sel_orders_list = list(sd_orders.values('id', 'product__name', 'quantity', 'amount', 'status', 'delivery_type', 'deposit_verified'))
     sel_orders_json = json.dumps(sel_orders_list, cls=_Dec)
 
     # ── Month stats (selected year/month) ──
@@ -592,7 +632,7 @@ def admin_finance_view(request):
     monthly_count   = [0]   * 12
     for o in year_orders.values('order_date', 'amount', 'pickup_date', 'fulfilled_at'):
         # advance bookings count on the day they were fulfilled, not booked
-        revenue_dt = o['fulfilled_at'] if o['pickup_date'] else o['order_date']
+        revenue_dt = o['order_date']
         m = revenue_dt.astimezone(_lao_tz).month - 1
         monthly_revenue[m] += float(o['amount'] or 0)
         monthly_count[m]   += 1
@@ -606,7 +646,7 @@ def admin_finance_view(request):
     _, days_in_month = _cal.monthrange(sel_year, sel_month)
     daily_rev  = [0.0] * days_in_month
     for o in month_orders.values('order_date', 'amount', 'pickup_date', 'fulfilled_at'):
-        revenue_dt = o['fulfilled_at'] if o['pickup_date'] else o['order_date']
+        revenue_dt = o['order_date']
         d_idx = (revenue_dt.astimezone(_lao_tz).date() - month_start_d).days
         if 0 <= d_idx < days_in_month:
             daily_rev[d_idx] += float(o['amount'] or 0)
@@ -966,7 +1006,7 @@ def finance_month_daily_data(request):
     month_end   = _dt.datetime(year, month, days_in_month, 23, 59, 59, tzinfo=_lao_tz)
 
     for o in _revenue_orders_qs(month_start, month_end).values('order_date', 'amount', 'pickup_date', 'fulfilled_at'):
-        revenue_dt = o['fulfilled_at'] if o['pickup_date'] else o['order_date']
+        revenue_dt = o['order_date']
         local_day = revenue_dt.astimezone(_lao_tz).day
         idx = local_day - 1
         if 0 <= idx < days_in_month:
@@ -1215,11 +1255,20 @@ def admin_advance_bookings_view(request):
     if kind_filter not in ('All', 'pickup', 'delivery', 'walkin'):
         kind_filter = 'All'
 
+    # Quick-link filters from the dashboard's all-time cards — "still owe
+    # money" (unpaid) and "deposit confirmed by admin" (verified).
+    unpaid_filter   = request.GET.get('unpaid')   == '1'
+    verified_filter = request.GET.get('verified') == '1'
+
     data = [groups[key] for key in group_order]
     if active_status != 'All':
         data = [g for g in data if (g['canonical'].status or 'Pending') == active_status]
     if kind_filter != 'All':
         data = [g for g in data if g['kind'] == kind_filter]
+    if unpaid_filter:
+        data = [g for g in data if not g['is_walkin'] and (g['canonical'].status or 'Pending') in ('Pending', 'Confirmed', 'Processing')]
+    if verified_filter:
+        data = [g for g in data if g['deposit_verified']]
 
     return render(request, 'ecom/admin_advance_bookings.html', {
         'data': data,
@@ -1227,6 +1276,8 @@ def admin_advance_bookings_view(request):
         'status_counts': status_counts,
         'kind_filter': kind_filter,
         'kind_counts': kind_counts,
+        'unpaid_filter': unpaid_filter,
+        'verified_filter': verified_filter,
     })
 
 
@@ -1266,6 +1317,7 @@ def _advance_bookings_for_export(request):
         g['total_amount'] = sum(float(o.amount or 0) for o in g['orders'])
         g['item_names']   = ', '.join(o.product.name if o.product else (o.note or '—') for o in g['orders'])
         g['item_qty']     = sum(o.quantity for o in g['orders'])
+        g['deposit_amount'] = round(g['total_amount'] * 0.20)
         g['is_walkin']    = g['canonical'].delivery_type == WALKIN_DELIVERY_TYPE
         if g['canonical'].pickup_date:
             g['kind'] = 'pickup'
@@ -1306,6 +1358,7 @@ def export_advance_bookings_excel(request):
         return f"{int(round(float(n))):,}".replace(',', '.') + ' ກີບ'
 
     STATUS_LAO = {'Pending': 'ລໍຖ້າມາຮັບ', 'Confirmed': 'ຢືນຢັນແລ້ວ', 'Processing': 'ກຳລັງກຽມ', 'Delivered': 'ຮັບແລ້ວ', 'Cancelled': 'ຍົກເລີກ'}
+    PAYMENT_LAO = {'COD': 'ຈ່າຍປາຍທາງ', 'InStore': 'ຈ່າຍໜ້າຮ້ານ', 'Cash': 'ເງິນສົດ', 'Transfer': 'ໂອນເງິນ'}
 
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -1313,53 +1366,58 @@ def export_advance_bookings_excel(request):
     ws.sheet_view.showGridLines = False
 
     date_label = pickup_date_obj.strftime('%d/%m/%Y') if pickup_date_obj else STATUS_LAO.get(active_status, 'ທັງໝົດ')
-    ws.merge_cells("A1:H1")
+    ws.merge_cells("A1:K1")
     c = ws["A1"]; c.value = f"ລາຍການຈອງລ່ວງໜ້າ — {date_label}"
     c.font = hfont(size=14); c.fill = fill("7C3AED"); c.alignment = center
     ws.row_dimensions[1].height = 36
-    ws.merge_cells("A2:H2")
+    ws.merge_cells("A2:K2")
     s = ws["A2"]; s.value = f"Export: {today}  |  ຮ້ານ EX ມໍເຕີ້"
     s.font = dfont(color="94A3B8", size=10); s.fill = fill("1E293B"); s.alignment = center
     ws.row_dimensions[2].height = 22
 
-    headers = ["ລຳດັບ", "ວັນທີມາຮັບ", "ໂມງມາຮັບ", "ສິນຄ້າ", "ລູກຄ້າ", "ເບີໂທ", "ຈຳນວນ", "ລາຄາລວມ (ກີບ)", "ສະຖານະ"]
+    headers = ["ລຳດັບ", "ວັນທີມາຮັບລົດ", "ໂມງມາຮັບ", "ລູກຄ້າ", "ເບີໂທ", "ຊື່ສິນຄ້າ",
+               "ຈຳນວນລົດ", "ລາຄາລວມເຕັມຂອງລົດ", "ໂອນມັດຈຳເທົ່າໃດ", "ສະຖານະ", "ການຈ່າຍເງິນ"]
     for ci, h in enumerate(headers, 1):
         cell = ws.cell(row=3, column=ci, value=h)
         cell.font = hfont(size=11); cell.fill = fill("1E3A5F"); cell.alignment = center; cell.border = border
     ws.row_dimensions[3].height = 28
 
     total = 0.0
+    total_deposit = 0.0
     for i, g in enumerate(data):
         amt = g['total_amount']
         total += amt
+        total_deposit += g['deposit_amount']
         r = i + 4; rf = fill("F5F3FF") if i % 2 == 0 else fill("FFFFFF")
         row_vals = [
             i + 1,
             g['pickup_date'].strftime('%d/%m/%Y') if g['pickup_date'] else '—',
             g['pickup_time'].strftime('%H:%M') if g['pickup_time'] else '—',
-            g['item_names'],
             g['customer'].get_name if g['customer'] else '—',
             g['customer'].mobile if g['customer'] else '—',
+            g['item_names'],
             g['item_qty'],
             dotfmt(amt),
+            dotfmt(g['deposit_amount']),
             STATUS_LAO.get(g['canonical'].status or 'Pending', g['canonical'].status),
+            PAYMENT_LAO.get(g['canonical'].payment_method, g['canonical'].payment_method or '—'),
         ]
-        aligns = [center, center, center, left, left, center, center, right, center]
+        aligns = [center, center, center, left, center, left, center, right, right, center, center]
         for ci, (v, a) in enumerate(zip(row_vals, aligns), 1):
             cell = ws.cell(row=r, column=ci, value=v)
-            cell.font = dfont(color="7C3AED" if ci == 8 else "374151", bold=(ci == 8))
+            cell.font = dfont(color="7C3AED" if ci == 8 else "374151", bold=(ci in (8, 9)))
             cell.fill = rf; cell.alignment = a; cell.border = border
         ws.row_dimensions[r].height = 22
 
     tr = len(data) + 4
-    tot_vals = ["", "", "", f"ລວມ {len(data)} ລາຍການ", "", "", "", dotfmt(total), ""]
-    for ci, (v, a) in enumerate(zip(tot_vals, [center]*8 + [right]), 1):
+    tot_vals = ["", "", "", "", "", f"ລວມ {len(data)} ລາຍການ", "", dotfmt(total), dotfmt(total_deposit), "", ""]
+    for ci, (v, a) in enumerate(zip(tot_vals, [center]*5 + [left] + [center] + [right]*2 + [center]*2), 1):
         cell = ws.cell(row=tr, column=ci, value=v)
         cell.font = hfont(size=12)
-        cell.fill = fill("7C3AED") if ci == 8 else fill("1E3A5F")
+        cell.fill = fill("7C3AED") if ci in (8, 9) else fill("1E3A5F")
         cell.alignment = a; cell.border = border
     ws.row_dimensions[tr].height = 28
-    for col, w in zip("ABCDEFGHI", [8, 13, 10, 28, 18, 15, 10, 16, 14]):
+    for col, w in zip("ABCDEFGHIJK", [8, 14, 10, 18, 15, 26, 10, 17, 16, 14, 14]):
         ws.column_dimensions[col].width = w
 
     fname_suffix = pickup_date_obj.strftime('%Y-%m-%d') if pickup_date_obj else 'ທັງໝົດ'
@@ -1741,7 +1799,7 @@ def cart_view(request):
     return render(request, 'ecom/cart.html', {
         'products':          products_list,
         'total':             total,
-        'deposit_amount':    round(total * 0.10),
+        'deposit_amount':    round(total * 0.20),
         'queue_number':      queue_number,
         'customer_name':     customer_name,
         'customer_mobile':   customer_mobile,
@@ -2062,8 +2120,8 @@ def customer_address_view(request):
         'cart_items': cart_items,
         'custom_cart_items': custom_cart_items,
         'subtotal': subtotal,
-        'deposit_amount': round(subtotal * 0.10),
-        'remaining_amount': subtotal - round(subtotal * 0.10),
+        'deposit_amount': round(subtotal * 0.20),
+        'remaining_amount': subtotal - round(subtotal * 0.20),
         'closed_error': closed_error,
         'queue_warning': _queue_warning_message(_active_batch_qty()) if not closed_error else None,
     })
@@ -2221,7 +2279,7 @@ def payment_success_view(request):
     address        = _uq(request.COOKIES.get('address', ''))
     mobile         = _uq(request.COOKIES.get('mobile', ''))
 
-    deposit_amount = round(float(grand_total) * 0.10)
+    deposit_amount = round(float(grand_total) * 0.20)
     remaining_amount = float(grand_total) - deposit_amount
 
     return render(request, 'ecom/payment_success.html', {
@@ -2460,10 +2518,10 @@ def download_group_invoice_view(request, orderID):
     grand_total = subtotal_sum + delivery_fee
     has_cancelled = any(i['cancelled'] for i in items)
 
-    # Deposit is always 10% of the grand total (same rate quoted at checkout
+    # Deposit is always 20% of the grand total (same rate quoted at checkout
     # in cart.html) — shown here so the printed invoice states exactly how
     # much the customer already transferred vs. what's still owed at pickup.
-    deposit_amount = round(float(grand_total) * 0.10)
+    deposit_amount = round(float(grand_total) * 0.20)
     remaining_amount = float(grand_total) - deposit_amount
     deposit_verified = orders.filter(deposit_verified=True).exists()
 
@@ -3011,7 +3069,7 @@ def ajax_day_orders(request):
                 img_url = o.product.product_image.url if (o.product and o.product.product_image) else None
             except Exception:
                 img_url = None
-            _time_src = o.fulfilled_at if (o.pickup_date and o.fulfilled_at) else o.order_date
+            _time_src = o.order_date
             orders_list.append({
                 'id':          o.id,
                 'product':     o.product.name if o.product else '—',

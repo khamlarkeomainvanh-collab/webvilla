@@ -194,6 +194,18 @@ body { background: #ffffff !important; }
 
 <div class="page">
 
+    {% if unpaid_filter %}
+    <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:14px;padding:12px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <span style="font-weight:800;color:#b45309;"><i class="fas fa-hourglass-half"></i> ກຳລັງສະແດງ: ອໍເດີ້ທີ່ຍັງບໍ່ທັນຮັບເຄື່ອງ (ຄ້າງຊຳລະ 90%)</span>
+        <a href="{% url 'admin-advance-bookings' %}" style="color:#b45309;font-weight:700;text-decoration:underline;">✕ ລ້າງຕົວກອງ</a>
+    </div>
+    {% elif verified_filter %}
+    <div style="background:#ecfdf5;border:1.5px solid #a7f3d0;border-radius:14px;padding:12px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <span style="font-weight:800;color:#059669;"><i class="fas fa-shield-check"></i> ກຳລັງສະແດງ: ອໍເດີ້ທີ່ຢືນຢັນມັດຈຳແລ້ວ</span>
+        <a href="{% url 'admin-advance-bookings' %}" style="color:#059669;font-weight:700;text-decoration:underline;">✕ ລ້າງຕົວກອງ</a>
+    </div>
+    {% endif %}
+
     <!-- Top -->
     <div class="top-bar">
         <div>

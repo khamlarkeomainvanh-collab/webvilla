@@ -494,23 +494,58 @@ function openModal(type){
             let rows = '';
             let tot  = 0;
             let walkinCount = 0;
+            let onlineCount = 0;
+            let depositOrderCount = 0;
+            let depositAmount = 0;
+            let outstandingAmount = 0;
             SEL_ORDERS.forEach(o => {
                 const amt  = parseFloat(o.amount) || 0;
                 tot += amt;
                 const isWalkin = o.delivery_type === 'Walkin';
-                if(isWalkin) walkinCount++;
+                if(isWalkin) {
+                    walkinCount++;
+                } else {
+                    onlineCount++;
+                    if(o.deposit_verified){
+                        depositOrderCount++;
+                        depositAmount += Math.round(amt * 0.20);
+                    }
+                    if(['Pending','Confirmed','Processing'].includes(o.status)){
+                        outstandingAmount += Math.round(amt * 0.80);
+                    }
+                }
                 const st   = STATUS_LAO[o.status] || { lbl: o.status, color:'#94a3b8' };
                 const walkinBadge = isWalkin ? ' <span style="background:rgba(124,58,237,.12);color:#2563eb;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:800;margin-left:4px;">🏪 ໜ້າຮ້ານ</span>' : '';
+                const depBadge = (!isWalkin && o.deposit_verified) ? ' <span style="background:rgba(5,150,105,.12);color:#059669;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:800;margin-left:4px;">✅ ມັດຈຳ</span>' : '';
                 rows += `<tr>
                     <td style="color:#94a3b8;font-size:.8rem;">#${o.id}</td>
-                    <td>${o['product__name'] || '—'}${walkinBadge}</td>
+                    <td>${o['product__name'] || '—'}${walkinBadge}${depBadge}</td>
                     <td style="text-align:center;">${o.quantity || 1}</td>
                     <td style="text-align:right;color:#3b82f6;font-weight:800;">${dotFmt(amt)} ກີບ</td>
                     <td><span style="background:${st.color}22;color:${st.color};padding:3px 10px;border-radius:20px;font-size:.82rem;font-weight:700;">${st.lbl}</span></td>
                 </tr>`;
             });
             const walkinNote = walkinCount > 0 ? ` (ໃນນັ້ນ ${walkinCount} ອໍເດີ ຂາຍໜ້າຮ້ານ)` : '';
-            body.innerHTML = `<table class="fin-modal-table">
+            body.innerHTML = `
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px;">
+                <div style="background:#eff6ff;border-radius:14px;padding:14px;text-align:center;">
+                    <div style="font-size:.72rem;color:#3b82f6;font-weight:700;text-transform:uppercase;margin-bottom:6px;">ລາຍຮັບລວມ</div>
+                    <div style="font-size:1.15rem;font-weight:900;color:#3b82f6;">${dotFmt(tot)}</div>
+                </div>
+                <div style="background:#ecfdf5;border-radius:14px;padding:14px;text-align:center;">
+                    <div style="font-size:.72rem;color:#059669;font-weight:700;text-transform:uppercase;margin-bottom:6px;">ໂອນມັດຈຳແລ້ວ</div>
+                    <div style="font-size:1.15rem;font-weight:900;color:#059669;">${dotFmt(depositAmount)}</div>
+                </div>
+                <div style="background:#fffbeb;border-radius:14px;padding:14px;text-align:center;">
+                    <div style="font-size:.72rem;color:#b45309;font-weight:700;text-transform:uppercase;margin-bottom:6px;">ຍັງເຫຼືອ (ຄ້າງຊຳລະ)</div>
+                    <div style="font-size:1.15rem;font-weight:900;color:#b45309;">${dotFmt(outstandingAmount)}</div>
+                </div>
+                <div style="background:#f5f3ff;border-radius:14px;padding:14px;text-align:center;">
+                    <div style="font-size:.72rem;color:#7c3aed;font-weight:700;text-transform:uppercase;margin-bottom:6px;">ອໍເດີ້ທີ່ມັດຈຳນຳ</div>
+                    <div style="font-size:1.15rem;font-weight:900;color:#7c3aed;">${depositOrderCount} / ${onlineCount}</div>
+                </div>
+            </div>
+            <table class="fin-modal-table">
                 <thead><tr><th>ID</th><th>ສິນຄ້າ</th><th style="text-align:center;">ຈຳນວນ</th><th style="text-align:right;">ລາຍຮັບ</th><th>ສະຖານະ</th></tr></thead>
                 <tbody>${rows}</tbody>
                 <tfoot><tr><td colspan="3" style="color:#2563eb;">ລວມ ${SEL_ORDERS.length} ອໍເດີ${walkinNote}</td><td style="text-align:right;color:#3b82f6;">${dotFmt(tot)} ກີບ</td><td></td></tr></tfoot>

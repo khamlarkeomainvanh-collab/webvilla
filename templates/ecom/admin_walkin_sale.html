@@ -154,6 +154,12 @@ button.ws-stat-card {
     color:var(--blue); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.2s;
 }
 .ws-edit-btn:hover { background:var(--blue); color:#fff; transform:scale(1.06); }
+.ws-inv-btn {
+    width:38px; height:38px; border-radius:11px; background:#f0fdf4; border:1.5px solid #bbf7d0;
+    color:#059669; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.2s;
+    text-decoration:none;
+}
+.ws-inv-btn:hover { background:#059669; color:#fff; transform:scale(1.06); }
 .ws-row-actions { display:flex; align-items:center; gap:8px; }
 .ws-empty { padding:70px 26px; text-align:center; color:var(--dim); }
 .ws-empty .ei { font-size:3.4rem; opacity:.35; margin-bottom:12px; }
@@ -508,6 +514,9 @@ button.ws-stat-card {
                     <td style="text-align:right;font-weight:900;color:#059669;">{{ s.amount|dotformat }}</td>
                     <td>
                         <div class="ws-row-actions">
+                            <a href="{% url 'download-group-invoice' s.id %}" target="_blank" class="ws-inv-btn" title="ອອກບິນ">
+                                <i class="fas fa-file-invoice"></i>
+                            </a>
                             <button type="button" class="ws-edit-btn"
                                     onclick="wsOpenEdit({{ s.id }}, {{ s.quantity }}, {{ s.amount|floatformat:0 }}, '{{ s.payment_method }}', '{% if s.product %}{{ s.product.name|escapejs }}{% else %}{{ s.note|default:"—"|escapejs }}{% endif %}')">
                                 <i class="fas fa-pen"></i>

@@ -666,7 +666,7 @@ body {
             <div class="deposit-summary-box">
                 <div class="dsb-title">🧾 ລາຍລະອຽດການຊຳລະ</div>
                 <div class="dsb-row">
-                    <span>ມັດຈຳ (10%)</span>
+                    <span>ມັດຈຳ (20%)</span>
                     <span id="sum-deposit">{{ deposit_amount|dotformat }} ກີບ</span>
                 </div>
                 <div class="dsb-row dsb-owed">
@@ -704,7 +704,7 @@ function fmtNum(n) {
 }
 
 function _updateDepositDisplay(grand) {
-    var dep = Math.round(grand * 0.10);
+    var dep = Math.round(grand * 0.20);
     try { document.getElementById('sum-deposit').textContent   = fmtNum(dep) + ' ກີບ'; } catch(e) {}
     try { document.getElementById('sum-remaining').textContent = fmtNum(grand - dep) + ' ກີບ'; } catch(e) {}
 }
