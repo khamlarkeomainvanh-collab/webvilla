@@ -571,7 +571,7 @@ body { background: #ffffff !important; }
         <h2>📊 ພາບລວມ{% if is_today %}ມື້ນີ້{% else %}ວັນທີ {{ current_date }}{% endif %}</h2>
     </div>
     <div class="stat-grid">
-        <a href="{% url 'admin-advance-bookings' %}?status=All&day={{ current_date }}" class="stat-card" style="--card-line:linear-gradient(90deg,#2563eb,#0f172a); --icon-bg:rgba(37,99,235,.1);">
+        <a href="{% url 'admin-advance-bookings' %}?status=All&day=all" class="stat-card" style="--card-line:linear-gradient(90deg,#2563eb,#0f172a); --icon-bg:rgba(37,99,235,.1);">
             <div class="sc-top">
                 <div class="sc-icon">📦</div>
                 <span class="sc-badge" style="--tag-bg:rgba(37,99,235,.1);--tag-col:var(--purple);">ມື້ນີ້</span>
@@ -587,7 +587,7 @@ body { background: #ffffff !important; }
             <div class="sc-num" style="color:#0f172a;font-size:1.6rem;">{{ total_revenue_today|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
             <div class="sc-lbl">ລາຍຮັບມື້ນີ້ <span style="font-size:.7rem;color:rgba(15,23,42,.5);">— ຄລິກລາຍລະອຽດ</span></div>
         </a>
-        <a href="{% url 'admin-advance-bookings' %}?verified=1&day={{ current_date }}" class="stat-card" style="--card-line:linear-gradient(90deg,#059669,#34d399); --icon-bg:rgba(5,150,105,.1);">
+        <a href="{% url 'admin-advance-bookings' %}?verified=1&day=all" class="stat-card" style="--card-line:linear-gradient(90deg,#059669,#34d399); --icon-bg:rgba(5,150,105,.1);">
             <div class="sc-top">
                 <div class="sc-icon">🏦</div>
                 <span class="sc-badge" style="--tag-bg:rgba(5,150,105,.1);--tag-col:#059669;">ຢືນຢັນແລ້ວ</span>
@@ -595,7 +595,7 @@ body { background: #ffffff !important; }
             <div class="sc-num" style="color:#059669;font-size:1.6rem;">{{ total_deposit_today|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
             <div class="sc-lbl">ມັດຈຳມື້ນີ້ <span style="font-size:.7rem;color:rgba(5,150,105,.5);">— ຄລິກລາຍລະອຽດ</span></div>
         </a>
-        <a href="{% url 'admin-advance-bookings' %}?unpaid=1&day={{ current_date }}" class="stat-card" style="--card-line:linear-gradient(90deg,#f59e0b,#fbbf24); --icon-bg:rgba(245,158,11,.1);">
+        <a href="{% url 'admin-advance-bookings' %}?unpaid=1&day=all" class="stat-card" style="--card-line:linear-gradient(90deg,#f59e0b,#fbbf24); --icon-bg:rgba(245,158,11,.1);">
             <div class="sc-top">
                 <div class="sc-icon">⏳</div>
                 <span class="sc-badge" style="--tag-bg:rgba(245,158,11,.1);--tag-col:#d97706;">ຄ້າງ</span>
