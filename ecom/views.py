@@ -504,16 +504,18 @@ def admin_dashboard_view(request):
     today = date_cls.today()
     range_start = _tz.make_aware(dt_dash(today.year, today.month, today.day, 0, 0, 0)) - timedelta(days=29)
     range_end   = _tz.make_aware(dt_dash(today.year, today.month, today.day, 23, 59, 59))
-    recent_rows = _revenue_orders_qs(range_start, range_end).values_list('order_date', 'amount')
+    recent_rows = _revenue_orders_qs(range_start, range_end).values_list('order_date', 'amount', 'quantity')
 
     date_map = {(today - timedelta(days=i)).isoformat(): {'orders': 0, 'amount': 0.0} for i in range(29, -1, -1)}
-    for odt, amt in recent_rows:
+    for odt, amt, qty in recent_rows:
         rev_dt = odt
         if rev_dt is None:
             continue
         day_key = rev_dt.date().isoformat() if hasattr(rev_dt, 'date') else str(rev_dt)[:10]
         if day_key in date_map:
-            date_map[day_key]['orders'] += 1
+            # "ອໍເດີ" counts vehicle QUANTITY (matches the "ອໍເດີ້ທັງໝົດ" card),
+            # not line-item rows — a 4-vehicle booking counts as 4, not 1.
+            date_map[day_key]['orders'] += (qty or 1)
             date_map[day_key]['amount'] += float(amt or 0)
 
     daily_labels = json.dumps([k[5:] for k in date_map.keys()])   # MM-DD
@@ -1275,6 +1277,12 @@ def admin_advance_bookings_view(request):
             g['kind'] = 'walkin'
         else:
             g['kind'] = 'delivery'
+        # "ຕໍ່ມື້" filtering — the day this booking is relevant to: the
+        # scheduled pickup day if there is one, otherwise the day it was placed.
+        _relevant_dt = g['canonical'].pickup_date or (
+            timezone.localtime(g['canonical'].order_date).date() if g['canonical'].order_date else None
+        )
+        g['relevant_date'] = _relevant_dt
         s = g['canonical'].status or 'Pending'
         status_counts['All'] += 1
         if s in status_counts:
@@ -1295,6 +1303,19 @@ def admin_advance_bookings_view(request):
     unpaid_filter   = request.GET.get('unpaid')   == '1'
     verified_filter = request.GET.get('verified') == '1'
 
+    # "ຕໍ່ມື້" (per-day) view — defaults to "all" (every booking, as before);
+    # ?day=YYYY-MM-DD narrows the list to just that day's bookings.
+    from datetime import date as _date_cls, timedelta as _timedelta
+    today_local = timezone.localdate()
+    day_str = request.GET.get('day', 'all')
+    selected_day = None
+    if day_str != 'all':
+        try:
+            selected_day = _date_cls.fromisoformat(day_str)
+        except ValueError:
+            selected_day = None
+            day_str = 'all'
+
     data = [groups[key] for key in group_order]
     if active_status != 'All':
         data = [g for g in data if (g['canonical'].status or 'Pending') == active_status]
@@ -1304,6 +1325,8 @@ def admin_advance_bookings_view(request):
         data = [g for g in data if not g['is_walkin'] and (g['canonical'].status or 'Pending') in ('Pending', 'Confirmed', 'Processing')]
     if verified_filter:
         data = [g for g in data if g['deposit_verified']]
+    if selected_day:
+        data = [g for g in data if g['relevant_date'] == selected_day]
 
     return render(request, 'ecom/admin_advance_bookings.html', {
         'data': data,
@@ -1313,6 +1336,13 @@ def admin_advance_bookings_view(request):
         'kind_counts': kind_counts,
         'unpaid_filter': unpaid_filter,
         'verified_filter': verified_filter,
+        'day_str': day_str,
+        'selected_day': selected_day,
+        'is_today': selected_day == today_local,
+        'today_str': today_local.isoformat(),
+        'prev_day_str': ((selected_day or today_local) - _timedelta(days=1)).isoformat(),
+        'next_day_str': ((selected_day or today_local) + _timedelta(days=1)).isoformat(),
+        'total_all_count': len(group_order),
     })
 
 

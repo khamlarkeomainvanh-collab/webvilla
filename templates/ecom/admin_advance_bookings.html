@@ -229,24 +229,44 @@ body { background: #ffffff !important; }
         </div>
     </div>
 
+    <!-- Day Filter — "ຕໍ່ມື້" vs "ອໍເດີ້ທັງໝົດ" -->
+    <div class="status-tabs">
+        <span class="tabs-label"><i class="fas fa-calendar-day"></i> ວັນທີ:</span>
+        <a href="?status={{ active_status }}&kind={{ kind_filter }}&day=all" class="stab s-all {% if day_str == 'all' %}active{% endif %}">
+            <i class="fas fa-border-all fa-xs"></i> ອໍເດີ້ທັງໝົດ<span class="stab-count">{{ total_all_count }}</span>
+        </a>
+        <a href="?status={{ active_status }}&kind={{ kind_filter }}&day={{ today_str }}" class="stab s-confirmed {% if is_today %}active{% endif %}">
+            <i class="fas fa-calendar-check fa-xs"></i> ມື້ນີ້
+        </a>
+        <a href="?status={{ active_status }}&kind={{ kind_filter }}&day={{ prev_day_str }}" class="stab s-pending" title="ວັນກ່ອນໜ້າ">
+            <i class="fas fa-chevron-left fa-xs"></i>
+        </a>
+        <span style="font-weight:800;color:var(--bright);padding:0 8px;white-space:nowrap;">
+            {% if selected_day %}{{ selected_day|date:"d/m/Y" }}{% else %}— ທຸກວັນ —{% endif %}
+        </span>
+        <a href="?status={{ active_status }}&kind={{ kind_filter }}&day={{ next_day_str }}" class="stab s-pending" title="ວັນຖັດໄປ">
+            <i class="fas fa-chevron-right fa-xs"></i>
+        </a>
+    </div>
+
     <!-- Kind Filter Chips -->
     <div class="status-tabs">
         <span class="tabs-label"><i class="fas fa-layer-group"></i> ປະເພດ:</span>
-        <a href="?status={{ active_status }}&kind=All"      class="stab s-all       {% if kind_filter == 'All'      %}active{% endif %}"><i class="fas fa-border-all fa-xs"></i> ທັງໝົດ<span class="stab-count">{{ kind_counts.All }}</span></a>
-        <a href="?status={{ active_status }}&kind=pickup"   class="stab s-confirmed {% if kind_filter == 'pickup'   %}active{% endif %}"><i class="fas fa-store fa-xs"></i> ຮັບໜ້າຮ້ານ<span class="stab-count">{{ kind_counts.pickup }}</span></a>
-        <a href="?status={{ active_status }}&kind=delivery" class="stab s-processing{% if kind_filter == 'delivery' %}active{% endif %}"><i class="fas fa-truck fa-xs"></i> ຈັດສົ່ງຂົນສົ່ງ<span class="stab-count">{{ kind_counts.delivery }}</span></a>
-        <a href="?status={{ active_status }}&kind=walkin"   class="stab s-delivered {% if kind_filter == 'walkin'   %}active{% endif %}"><i class="fas fa-cash-register fa-xs"></i> ຂາຍໜ້າຮ້ານ<span class="stab-count">{{ kind_counts.walkin }}</span></a>
+        <a href="?status={{ active_status }}&kind=All&day={{ day_str }}"      class="stab s-all       {% if kind_filter == 'All'      %}active{% endif %}"><i class="fas fa-border-all fa-xs"></i> ທັງໝົດ<span class="stab-count">{{ kind_counts.All }}</span></a>
+        <a href="?status={{ active_status }}&kind=pickup&day={{ day_str }}"   class="stab s-confirmed {% if kind_filter == 'pickup'   %}active{% endif %}"><i class="fas fa-store fa-xs"></i> ຮັບໜ້າຮ້ານ<span class="stab-count">{{ kind_counts.pickup }}</span></a>
+        <a href="?status={{ active_status }}&kind=delivery&day={{ day_str }}" class="stab s-processing{% if kind_filter == 'delivery' %}active{% endif %}"><i class="fas fa-truck fa-xs"></i> ຈັດສົ່ງຂົນສົ່ງ<span class="stab-count">{{ kind_counts.delivery }}</span></a>
+        <a href="?status={{ active_status }}&kind=walkin&day={{ day_str }}"   class="stab s-delivered {% if kind_filter == 'walkin'   %}active{% endif %}"><i class="fas fa-cash-register fa-xs"></i> ຂາຍໜ້າຮ້ານ<span class="stab-count">{{ kind_counts.walkin }}</span></a>
     </div>
 
     <!-- Status Filter Tabs -->
     <div class="status-tabs">
         <span class="tabs-label"><i class="fas fa-filter"></i> ສະຖານະ:</span>
-        <a href="?kind={{ kind_filter }}&status=All"        class="stab s-all        {% if active_status == 'All'        %}active{% endif %}"><i class="fas fa-border-all fa-xs"></i> ທັງໝົດ<span class="stab-count">{{ status_counts.All }}</span></a>
-        <a href="?kind={{ kind_filter }}&status=Pending"    class="stab s-pending    {% if active_status == 'Pending'    %}active{% endif %}"><i class="fas fa-clock fa-xs"></i> ລໍຖ້າມາຮັບ<span class="stab-count">{{ status_counts.Pending }}</span></a>
-        <a href="?kind={{ kind_filter }}&status=Confirmed"  class="stab s-confirmed  {% if active_status == 'Confirmed'  %}active{% endif %}"><i class="fas fa-inbox fa-xs"></i> ຢືນຢັນ<span class="stab-count">{{ status_counts.Confirmed }}</span></a>
-        <a href="?kind={{ kind_filter }}&status=Processing" class="stab s-processing {% if active_status == 'Processing' %}active{% endif %}"><i class="fas fa-truck fa-xs"></i> ກຽມພ້ອມ<span class="stab-count">{{ status_counts.Processing }}</span></a>
-        <a href="?kind={{ kind_filter }}&status=Delivered"  class="stab s-delivered  {% if active_status == 'Delivered'  %}active{% endif %}"><i class="fas fa-check-circle fa-xs"></i> ຮັບແລ້ວ<span class="stab-count">{{ status_counts.Delivered }}</span></a>
-        <a href="?kind={{ kind_filter }}&status=Cancelled"  class="stab s-cancelled  {% if active_status == 'Cancelled'  %}active{% endif %}"><i class="fas fa-ban fa-xs"></i> ຍົກເລີກ<span class="stab-count">{{ status_counts.Cancelled }}</span></a>
+        <a href="?kind={{ kind_filter }}&status=All&day={{ day_str }}"        class="stab s-all        {% if active_status == 'All'        %}active{% endif %}"><i class="fas fa-border-all fa-xs"></i> ທັງໝົດ<span class="stab-count">{{ status_counts.All }}</span></a>
+        <a href="?kind={{ kind_filter }}&status=Pending&day={{ day_str }}"    class="stab s-pending    {% if active_status == 'Pending'    %}active{% endif %}"><i class="fas fa-clock fa-xs"></i> ລໍຖ້າມາຮັບ<span class="stab-count">{{ status_counts.Pending }}</span></a>
+        <a href="?kind={{ kind_filter }}&status=Confirmed&day={{ day_str }}"  class="stab s-confirmed  {% if active_status == 'Confirmed'  %}active{% endif %}"><i class="fas fa-inbox fa-xs"></i> ຢືນຢັນ<span class="stab-count">{{ status_counts.Confirmed }}</span></a>
+        <a href="?kind={{ kind_filter }}&status=Processing&day={{ day_str }}" class="stab s-processing {% if active_status == 'Processing' %}active{% endif %}"><i class="fas fa-truck fa-xs"></i> ກຽມພ້ອມ<span class="stab-count">{{ status_counts.Processing }}</span></a>
+        <a href="?kind={{ kind_filter }}&status=Delivered&day={{ day_str }}"  class="stab s-delivered  {% if active_status == 'Delivered'  %}active{% endif %}"><i class="fas fa-check-circle fa-xs"></i> ຮັບແລ້ວ<span class="stab-count">{{ status_counts.Delivered }}</span></a>
+        <a href="?kind={{ kind_filter }}&status=Cancelled&day={{ day_str }}"  class="stab s-cancelled  {% if active_status == 'Cancelled'  %}active{% endif %}"><i class="fas fa-ban fa-xs"></i> ຍົກເລີກ<span class="stab-count">{{ status_counts.Cancelled }}</span></a>
     </div>
 
     <!-- Table -->
