@@ -17,7 +17,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 1.5rem;
     color: #fff;
-    box-shadow: 0 8px 24px rgba(124,58,237,.3);
+    box-shadow: 0 8px 24px rgba(37,99,235,.3);
     flex-shrink: 0;
   }
 
@@ -46,7 +46,7 @@
     color: #fff;
     text-decoration: none;
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(124,58,237,.25);
+    box-shadow: 0 6px 16px rgba(37,99,235,.25);
   }
 
   .form-grid {
@@ -115,7 +115,7 @@
 
   .styled-input:focus {
     border-color: var(--purple);
-    box-shadow: 0 0 0 4px rgba(124,58,237,.1);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.1);
   }
 
   select.styled-input {
@@ -260,9 +260,9 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    box-shadow: 0 6px 20px rgba(124,58,237,.3);
+    box-shadow: 0 6px 20px rgba(37,99,235,.3);
   }
-  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(124,58,237,.4); }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(37,99,235,.4); }
 
   /* COLOR / STOCK ROWS */
   .color-section { grid-column: 1 / -1; }
@@ -387,7 +387,12 @@
           {% endfor %}
         </div>
         {% endif %}
-        <input type="file" class="styled-input" name="extra_images" accept="image/*" multiple>
+        <input type="file" class="styled-input" id="extraImagesInput" name="extra_images" accept="image/*" multiple onchange="_extraImgPreview(this)">
+        <div style="font-size:.78rem;color:#64748b;margin-top:6px;">
+            💡 ເລືອກໄດ້ຫຼາຍຮູບພ້ອມກັນ: ກົດຄ້າງ <b>Ctrl</b> (Windows) ຫຼື <b>Cmd</b> (Mac) ແລ້ວກົດເລືອກແຕ່ລະຮູບ
+            (ຍັງເພີ່ມໄດ້ອີກ <b>{{ remaining_gallery_slots }}</b> ຮູບ)
+        </div>
+        <div id="extraImgCount" style="font-size:.82rem;font-weight:700;color:#2563eb;margin-top:6px;"></div>
       </div>
     </div>
 
@@ -459,6 +464,20 @@
 </form>
 
 <script>
+  const EXTRA_IMG_ROOM = {{ remaining_gallery_slots }};
+  function _extraImgPreview(input) {
+    const box = document.getElementById('extraImgCount');
+    const n = input.files.length;
+    if (n === 0) { box.textContent = ''; return; }
+    if (n > EXTRA_IMG_ROOM) {
+        box.innerHTML = `⚠️ ເລືອກໄວ້ ${n} ຮູບ — ຍັງເພີ່ມໄດ້ພຽງ ${EXTRA_IMG_ROOM} ຮູບ (ຮູບອື່ນຈະບໍ່ຖືກບັນທຶກ)`;
+        box.style.color = '#d97706';
+    } else {
+        const names = Array.from(input.files).map(f => f.name).join(', ');
+        box.innerHTML = `✅ ເລືອກແລ້ວ ${n}/${EXTRA_IMG_ROOM} ຮູບ — ${names}`;
+        box.style.color = '#059669';
+    }
+  }
   function previewImage(input) {
     const preview = document.getElementById('img-preview');
     if (input.files && input.files[0]) {

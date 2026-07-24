@@ -20,7 +20,7 @@
     --red:    #ef4444;
     --dim:    #64748b;
     --bright: #1e3a5f;
-    --border: rgba(124,58,237,.13);
+    --border: rgba(37,99,235,.13);
     --lav:    #eff6ff;
     --lav2:   #dbeafe;
 }
@@ -92,14 +92,14 @@ body { background: #ffffff !important; }
     border-radius: 20px; padding: 20px 18px 16px;
     position: relative; overflow: hidden;
     text-decoration: none; transition: .25s; cursor: pointer; display: block;
-    box-shadow: 0 3px 14px rgba(124,58,237,.05);
+    box-shadow: 0 3px 14px rgba(37,99,235,.05);
 }
 .stat-card::after {
     content: ''; position: absolute;
     top: 0; left: 0; right: 0; height: 3px;
     background: var(--card-line, var(--grad));
 }
-.stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(124,58,237,.12); }
+.stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(37,99,235,.12); }
 .sc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .sc-icon {
     width: 44px; height: 44px; border-radius: 13px;
@@ -121,7 +121,7 @@ body { background: #ffffff !important; }
     background: linear-gradient(135deg,#eff6ff,#f0fdf4);
     border: 1.5px solid var(--border); border-radius: 18px;
     padding: 14px 22px; margin-bottom: 24px;
-    box-shadow: 0 3px 12px rgba(124,58,237,.06);
+    box-shadow: 0 3px 12px rgba(37,99,235,.06);
 }
 .export-top-bar .etb-label {
     font-size: .82rem; font-weight: 800; color: var(--dim);
@@ -136,7 +136,7 @@ body { background: #ffffff !important; }
     border-radius: 20px; padding: 22px 28px;
     margin-bottom: 24px;
     display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
-    box-shadow: 0 4px 16px rgba(124,58,237,.06);
+    box-shadow: 0 4px 16px rgba(37,99,235,.06);
 }
 .export-panel-title {
     font-size: 1rem; font-weight: 800; color: var(--bright);
@@ -152,11 +152,11 @@ body { background: #ffffff !important; }
     border: 1.5px solid transparent; white-space: nowrap;
 }
 .xbtn-day   { background: rgba(15,23,42,.1);  color: #059669; border-color: rgba(15,23,42,.25); }
-.xbtn-month { background: rgba(124,58,237,.1);  color: var(--purple); border-color: rgba(124,58,237,.25); }
+.xbtn-month { background: rgba(37,99,235,.1);  color: var(--purple); border-color: rgba(37,99,235,.25); }
 .xbtn-year  { background: rgba(245,158,11,.1);  color: #d97706; border-color: rgba(245,158,11,.25); }
 .xbtn-all   { background: rgba(239,68,68,.1);   color: #dc2626; border-color: rgba(239,68,68,.25); }
 .xbtn-day:hover   { background: #0f172a; color: #fff; border-color: #0f172a; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(15,23,42,.3); }
-.xbtn-month:hover { background: var(--purple); color: #fff; border-color: var(--purple); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(124,58,237,.3); }
+.xbtn-month:hover { background: var(--purple); color: #fff; border-color: var(--purple); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(37,99,235,.3); }
 .xbtn-year:hover  { background: #f59e0b; color: #fff; border-color: #f59e0b; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(245,158,11,.3); }
 .xbtn-all:hover   { background: #ef4444; color: #fff; border-color: #ef4444; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(239,68,68,.3); }
 
@@ -171,7 +171,7 @@ body { background: #ffffff !important; }
     background: #ffffff;
     border: 1.5px solid var(--border);
     border-radius: 24px; padding: 28px;
-    box-shadow: 0 4px 18px rgba(124,58,237,.06);
+    box-shadow: 0 4px 18px rgba(37,99,235,.06);
 }
 .chart-card h3 {
     font-size: 1.12rem; font-weight: 700; color: var(--dim);
@@ -188,7 +188,7 @@ body { background: #ffffff !important; }
     border: 1px solid var(--border);
     text-decoration: none; transition: .2s; cursor: pointer;
 }
-.dl-row:hover { background: #dbeafe; border-color: rgba(124,58,237,.28); transform: translateX(3px); }
+.dl-row:hover { background: #dbeafe; border-color: rgba(37,99,235,.28); transform: translateX(3px); }
 .dl-dot { width: 14px; height: 14px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; }
 .dl-lbl { font-size: 1.08rem; color: var(--dim); display: flex; align-items: center; font-weight: 600; }
 .dl-val { font-size: 1.18rem; font-weight: 800; color: var(--bright); }
@@ -199,7 +199,7 @@ body { background: #ffffff !important; }
     border-radius: 28px;
     border: 1.5px solid var(--border);
     overflow: hidden;
-    box-shadow: 0 8px 36px rgba(124,58,237,.10);
+    box-shadow: 0 8px 36px rgba(37,99,235,.10);
 }
 .orders-head {
     padding: 22px 28px;
@@ -212,10 +212,10 @@ body { background: #ffffff !important; }
     display: flex; align-items: center; gap: 10px;
 }
 .count-badge {
-    background: rgba(124,58,237,.1); color: var(--purple);
+    background: rgba(37,99,235,.1); color: var(--purple);
     padding: 8px 18px; border-radius: 50px;
     font-size: 1.1rem; font-weight: 700;
-    border: 1px solid rgba(124,58,237,.2);
+    border: 1px solid rgba(37,99,235,.2);
 }
 .date-nav { display: flex; align-items: center; gap: 12px; margin-left: auto; }
 .arrow-btn {
@@ -224,27 +224,27 @@ body { background: #ffffff !important; }
     display: flex; align-items: center; justify-content: center;
     color: var(--dim); text-decoration: none; font-size: 1.6rem; transition: .2s;
 }
-.arrow-btn:hover { background: var(--lav); color: var(--purple); border-color: rgba(124,58,237,.3); }
+.arrow-btn:hover { background: var(--lav); color: var(--purple); border-color: rgba(37,99,235,.3); }
 .arrow-btn.disabled { opacity: .35; pointer-events: none; }
 .date-label { color: var(--bright); font-weight: 700; font-size: 1.7rem; text-align: center; }
 .date-label small { display: block; color: var(--dim); font-size: 1.1rem; font-weight: 400; }
-.btn-today { padding: 10px 20px; border-radius: 13px; font-size: 1.1rem; font-weight: 700; background: rgba(124,58,237,.1); color: var(--purple); border: 1px solid rgba(124,58,237,.2); text-decoration: none; transition: .2s; }
-.btn-today:hover { background: rgba(124,58,237,.18); color: var(--purple); }
+.btn-today { padding: 10px 20px; border-radius: 13px; font-size: 1.1rem; font-weight: 700; background: rgba(37,99,235,.1); color: var(--purple); border: 1px solid rgba(37,99,235,.2); text-decoration: none; transition: .2s; }
+.btn-today:hover { background: rgba(37,99,235,.18); color: var(--purple); }
 
 /* DATE PICKER WRAP */
 .date-pick-wrap {
     position: relative; cursor: pointer;
     padding: 12px 18px; border-radius: 16px;
-    border: 1.5px solid rgba(124,58,237,.18);
+    border: 1.5px solid rgba(37,99,235,.18);
     background: #eff6ff;
     transition: .22s;
     display: flex; align-items: center; gap: 12px;
     user-select: none;
 }
 .date-pick-wrap:hover {
-    border-color: rgba(124,58,237,.42);
+    border-color: rgba(37,99,235,.42);
     background: #dbeafe;
-    box-shadow: 0 4px 14px rgba(124,58,237,.12);
+    box-shadow: 0 4px 14px rgba(37,99,235,.12);
 }
 .date-pick-wrap .cal-icon { font-size: 1.6rem; color: var(--purple); flex-shrink: 0; }
 .date-pick-input {
@@ -270,15 +270,15 @@ body { background: #ffffff !important; }
     font-family: 'Noto Sans Lao','Lexend',sans-serif; white-space: nowrap;
 }
 .stab .scnt { background: rgba(0,0,0,.06); padding: 2px 10px; border-radius: 20px; font-size: 1rem; }
-.s-all       { color: var(--bright); border-color: rgba(124,58,237,.18); background: var(--lav); }
+.s-all       { color: var(--bright); border-color: rgba(37,99,235,.18); background: var(--lav); }
 .s-pending   { color: #0891b2;       border-color: rgba(8,145,178,.2);   background: rgba(8,145,178,.06); }
-.s-confirmed { color: var(--purple); border-color: rgba(124,58,237,.2);  background: rgba(124,58,237,.06); }
+.s-confirmed { color: var(--purple); border-color: rgba(37,99,235,.2);  background: rgba(37,99,235,.06); }
 .s-process   { color: var(--amber);  border-color: rgba(245,158,11,.2);  background: rgba(245,158,11,.06); }
 .s-delivered { color: var(--green);  border-color: rgba(15,23,42,.2);  background: rgba(15,23,42,.06); }
 .s-cancelled { color: var(--red);    border-color: rgba(239,68,68,.2);   background: rgba(239,68,68,.06); }
-.s-all.active       { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 4px 16px rgba(124,58,237,.3); }
+.s-all.active       { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 4px 16px rgba(37,99,235,.3); }
 .s-pending.active   { background: #0891b2;    color: #fff; border-color: #0891b2;    box-shadow: 0 4px 16px rgba(8,145,178,.35); }
-.s-confirmed.active { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 4px 16px rgba(124,58,237,.35); }
+.s-confirmed.active { background: var(--purple); color: #fff; border-color: var(--purple); box-shadow: 0 4px 16px rgba(37,99,235,.35); }
 .s-process.active   { background: var(--amber); color: #fff; border-color: var(--amber); box-shadow: 0 4px 16px rgba(245,158,11,.35); }
 .s-delivered.active { background: var(--green); color: #fff; border-color: var(--green); box-shadow: 0 4px 16px rgba(15,23,42,.35); }
 .s-cancelled.active { background: var(--red);   color: #fff; border-color: var(--red);   box-shadow: 0 4px 16px rgba(239,68,68,.35); }
@@ -291,10 +291,10 @@ body { background: #ffffff !important; }
     color: var(--purple); border-bottom: 1.5px solid var(--border);
     background: var(--lav); font-weight: 700; white-space: nowrap;
 }
-.group-row { border-bottom: 1.5px solid rgba(124,58,237,.08); transition: background .25s; }
-.group-row:hover { background: rgba(124,58,237,.03); }
+.group-row { border-bottom: 1.5px solid rgba(37,99,235,.08); transition: background .25s; }
+.group-row:hover { background: rgba(37,99,235,.03); }
 .group-row td { padding: 16px 22px; vertical-align: middle; }
-.item-row { border-bottom: 1px solid rgba(124,58,237,.06); background: rgba(124,58,237,.02); }
+.item-row { border-bottom: 1px solid rgba(37,99,235,.06); background: rgba(37,99,235,.02); }
 .item-row td { padding: 12px 22px; vertical-align: middle; font-size: 1.05rem; }
 .is-cancelled td { opacity: .65; }
 
@@ -302,8 +302,8 @@ body { background: #ffffff !important; }
 .q-badge {
     display: inline-flex; align-items: center; justify-content: center;
     width: 52px; height: 52px; border-radius: 14px;
-    background: linear-gradient(135deg,rgba(124,58,237,.12),rgba(190,24,93,.08));
-    border: 1.5px solid rgba(124,58,237,.22);
+    background: linear-gradient(135deg,rgba(37,99,235,.12),rgba(220,38,38,.08));
+    border: 1.5px solid rgba(37,99,235,.22);
     font-size: 1rem; font-weight: 800; color: var(--purple);
     flex-shrink: 0; font-family: 'Lexend',sans-serif;
 }
@@ -311,7 +311,7 @@ body { background: #ffffff !important; }
 .img-ring-sm { width: 44px; height: 44px; padding: 2px; background: var(--grad); border-radius: 12px; flex-shrink: 0; }
 .img-ring-sm img { width: 100%; height: 100%; border-radius: 10px; object-fit: cover; border: 2px solid #fff; display: block; }
 .img-ring-sm .emoji-ph { width: 100%; height: 100%; border-radius: 10px; background: var(--lav); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 2px solid #fff; }
-.item-count-chip { background: rgba(124,58,237,.1); border: 1px solid rgba(124,58,237,.2); color: var(--purple); border-radius: 9px; padding: 3px 10px; font-size: .92rem; font-weight: 800; white-space: nowrap; align-self: center; }
+.item-count-chip { background: rgba(37,99,235,.1); border: 1px solid rgba(37,99,235,.2); color: var(--purple); border-radius: 9px; padding: 3px 10px; font-size: .92rem; font-weight: 800; white-space: nowrap; align-self: center; }
 .prod-summary { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
 .summary-list { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .summary-line { font-size: .98rem; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
@@ -320,11 +320,11 @@ body { background: #ffffff !important; }
 .img-ring { width: 52px; height: 52px; padding: 2px; background: var(--grad); border-radius: 14px; flex-shrink: 0; }
 .img-ring img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; border: 2px solid #fff; display: block; }
 .prod-wrap { display: flex; align-items: center; gap: 12px; }
-.item-dot { width: 10px; height: 10px; background: rgba(124,58,237,.4); border-radius: 50%; margin: auto; }
+.item-dot { width: 10px; height: 10px; background: rgba(37,99,235,.4); border-radius: 50%; margin: auto; }
 
 .time-chip {
     display: inline-flex; align-items: center; gap: 5px;
-    background: rgba(124,58,237,.08); border: 1px solid rgba(124,58,237,.18);
+    background: rgba(37,99,235,.08); border: 1px solid rgba(37,99,235,.18);
     color: var(--purple); padding: 5px 12px; border-radius: 30px;
     font-size: .98rem; font-weight: 700; white-space: nowrap;
 }
@@ -339,12 +339,12 @@ body { background: #ffffff !important; }
 }
 .sbtn:hover { filter: brightness(1.1); transform: translateY(-1px); }
 .sbtn-pending   { background: rgba(8,145,178,.1);   color: #0891b2; }
-.sbtn-confirmed { background: rgba(124,58,237,.1);  color: var(--purple); }
+.sbtn-confirmed { background: rgba(37,99,235,.1);  color: var(--purple); }
 .sbtn-process   { background: rgba(245,158,11,.1);  color: var(--amber); }
 .sbtn-delivered { background: rgba(15,23,42,.1);  color: var(--green); }
 .sbtn-cancel    { background: rgba(239,68,68,.1);   color: var(--red); }
 .sbtn-pending.act   { background: #0891b2;       color: #fff; box-shadow: 0 4px 14px rgba(8,145,178,.35); }
-.sbtn-confirmed.act { background: var(--purple); color: #fff; box-shadow: 0 4px 14px rgba(124,58,237,.35); }
+.sbtn-confirmed.act { background: var(--purple); color: #fff; box-shadow: 0 4px 14px rgba(37,99,235,.35); }
 .sbtn-process.act   { background: var(--amber);  color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,.4); }
 .sbtn-delivered.act { background: var(--green);  color: #fff; box-shadow: 0 4px 14px rgba(15,23,42,.35); }
 .sbtn-cancel.act    { background: var(--red);    color: #fff; box-shadow: 0 4px 14px rgba(239,68,68,.4); }
@@ -355,14 +355,14 @@ body { background: #ffffff !important; }
 .ic-inv:hover { background: var(--green); color: #fff; }
 .ic-del { background: rgba(239,68,68,.1); color: var(--red); }
 .ic-del:hover { background: var(--red); color: #fff; }
-.ic-expand { background: rgba(124,58,237,.08); color: var(--purple); border: 1px solid rgba(124,58,237,.2) !important; }
-.ic-expand:hover { background: rgba(124,58,237,.18); }
+.ic-expand { background: rgba(37,99,235,.08); color: var(--purple); border: 1px solid rgba(37,99,235,.2) !important; }
+.ic-expand:hover { background: rgba(37,99,235,.18); }
 .ic-expand i { transition: transform .25s; }
 
 /* Custom ("ສັ່ງເມນູຕາມໃຈ") order badges + inline price-set control */
 .custom-badge {
     display:inline-flex; align-items:center; gap:5px;
-    background:rgba(124,58,237,.1); color:var(--purple); border:1px solid rgba(124,58,237,.25);
+    background:rgba(37,99,235,.1); color:var(--purple); border:1px solid rgba(37,99,235,.25);
     border-radius:8px; padding:2px 9px; font-size:.78rem; font-weight:800; white-space:nowrap;
 }
 .price-needed-chip {
@@ -390,12 +390,12 @@ body { background: #ffffff !important; }
 .d-status-btns { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
 .dsb { display:inline-flex; align-items:center; gap:5px; padding:7px 11px; border-radius:12px; border:none; font-size:.9rem; font-weight:700; cursor:pointer; font-family:'Noto Sans Lao','Lexend',sans-serif; transition:.18s; white-space:nowrap; }
 .dsb-pending    { background:rgba(8,145,178,.1);   color:#0891b2; }
-.dsb-confirmed  { background:rgba(124,58,237,.1);  color:var(--purple); }
+.dsb-confirmed  { background:rgba(37,99,235,.1);  color:var(--purple); }
 .dsb-processing { background:rgba(245,158,11,.1);  color:var(--amber); }
 .dsb-delivered  { background:rgba(15,23,42,.1);  color:var(--green); }
 .dsb-cancelled  { background:rgba(239,68,68,.1);   color:var(--red); }
 .dsb-pending.active    { background:#0891b2;      color:#fff; box-shadow:0 3px 10px rgba(8,145,178,.35); }
-.dsb-confirmed.active  { background:var(--purple);color:#fff; box-shadow:0 3px 10px rgba(124,58,237,.35); }
+.dsb-confirmed.active  { background:var(--purple);color:#fff; box-shadow:0 3px 10px rgba(37,99,235,.35); }
 .dsb-processing.active { background:var(--amber); color:#fff; box-shadow:0 3px 10px rgba(245,158,11,.4); }
 .dsb-delivered.active  { background:var(--green); color:#fff; box-shadow:0 3px 10px rgba(15,23,42,.35); }
 .dsb-cancelled.active  { background:var(--red);   color:#fff; box-shadow:0 3px 10px rgba(239,68,68,.4); }
@@ -409,14 +409,14 @@ body { background: #ffffff !important; }
 /* ===== MODAL ===== */
 .modal-backdrop {
     display: none; position: fixed; inset: 0;
-    background: rgba(45,20,87,.55); backdrop-filter: blur(6px);
+    background: rgba(15,23,42,.55); backdrop-filter: blur(6px);
     z-index: 9998; align-items: center; justify-content: center;
 }
 .modal-box {
     background: #ffffff; border-radius: 24px; padding: 28px;
     width: 90%; max-width: 500px;
     border: 1.5px solid var(--border);
-    box-shadow: 0 30px 80px rgba(124,58,237,.2);
+    box-shadow: 0 30px 80px rgba(37,99,235,.2);
     position: relative;
 }
 .modal-head {
@@ -440,7 +440,7 @@ body { background: #ffffff !important; }
 /* ===== DETAIL MODAL (day + status) ===== */
 .dmodal-backdrop {
     display: none; position: fixed; inset: 0;
-    background: rgba(15,10,40,.6); backdrop-filter: blur(8px);
+    background: rgba(15,23,42,.6); backdrop-filter: blur(8px);
     z-index: 10000; align-items: flex-start; justify-content: center;
     padding: 20px 14px; overflow-y: auto;
 }
@@ -448,7 +448,7 @@ body { background: #ffffff !important; }
     background: #ffffff; border-radius: 28px;
     width: 100%; max-width: 780px; margin: auto;
     border: 1.5px solid var(--border);
-    box-shadow: 0 40px 100px rgba(124,58,237,.25);
+    box-shadow: 0 40px 100px rgba(37,99,235,.25);
     overflow: hidden;
     animation: dmodalIn .35s cubic-bezier(.23,1,.32,1);
 }
@@ -512,7 +512,7 @@ body { background: #ffffff !important; }
     border: 1.5px solid var(--border); border-radius: 16px;
     margin-bottom: 12px; overflow: hidden; transition: .2s;
 }
-.m-order-card:hover { border-color: rgba(124,58,237,.3); box-shadow: 0 6px 20px rgba(124,58,237,.1); }
+.m-order-card:hover { border-color: rgba(37,99,235,.3); box-shadow: 0 6px 20px rgba(37,99,235,.1); }
 .m-card-head {
     display: flex; align-items: center; gap: 12px;
     padding: 13px 16px;
@@ -528,7 +528,7 @@ body { background: #ffffff !important; }
     font-size: .74rem; font-weight: 800; white-space: nowrap;
 }
 .msp-Pending    { background:#fef3c7;color:#92400e;border:1px solid #fde68a; }
-.msp-Confirmed  { background:rgba(124,58,237,.1);color:var(--purple);border:1px solid rgba(124,58,237,.2); }
+.msp-Confirmed  { background:rgba(37,99,235,.1);color:var(--purple);border:1px solid rgba(37,99,235,.2); }
 .msp-Processing { background:#fef9c3;color:#b45309;border:1px solid #fde68a; }
 .msp-Delivered  { background:#dcfce7;color:#16a34a;border:1px solid #86efac; }
 .msp-Cancelled  { background:#fff1f2;color:#be123c;border:1px solid #fecdd3; }
@@ -538,10 +538,10 @@ body { background: #ffffff !important; }
 
 /* clickable chart card */
 .chart-card.clickable-chart { cursor: pointer; position: relative; }
-.chart-card.clickable-chart:hover { border-color: rgba(124,58,237,.35); box-shadow: 0 8px 28px rgba(124,58,237,.12); }
+.chart-card.clickable-chart:hover { border-color: rgba(37,99,235,.35); box-shadow: 0 8px 28px rgba(37,99,235,.12); }
 .chart-click-badge {
     position: absolute; top: 18px; right: 18px;
-    background: rgba(124,58,237,.1); border: 1px solid rgba(124,58,237,.22);
+    background: rgba(37,99,235,.1); border: 1px solid rgba(37,99,235,.22);
     color: var(--purple); border-radius: 20px; padding: 4px 12px;
     font-size: .72rem; font-weight: 800; cursor: pointer;
     display: flex; align-items: center; gap: 5px;
@@ -566,50 +566,50 @@ body { background: #ffffff !important; }
         </div>
     </div>
 
-    <!-- ===== ALL-TIME SUMMARY CARDS ===== -->
+    <!-- ===== TODAY'S SUMMARY CARDS ===== -->
     <div class="today-section-head">
-        <h2>📊 ພາບລວມທັງໝົດ</h2>
+        <h2>📊 ພາບລວມ{% if is_today %}ມື້ນີ້{% else %}ວັນທີ {{ current_date }}{% endif %}</h2>
     </div>
     <div class="stat-grid">
-        <a href="{% url 'admin-advance-bookings' %}?status=All" class="stat-card" style="--card-line:linear-gradient(90deg,#2563eb,#0f172a); --icon-bg:rgba(124,58,237,.1);">
+        <a href="{% url 'admin-advance-bookings' %}?status=All&day={{ current_date }}" class="stat-card" style="--card-line:linear-gradient(90deg,#2563eb,#0f172a); --icon-bg:rgba(37,99,235,.1);">
             <div class="sc-top">
                 <div class="sc-icon">📦</div>
-                <span class="sc-badge" style="--tag-bg:rgba(124,58,237,.1);--tag-col:var(--purple);">ທັງໝົດ</span>
+                <span class="sc-badge" style="--tag-bg:rgba(37,99,235,.1);--tag-col:var(--purple);">ມື້ນີ້</span>
             </div>
-            <div class="sc-num" style="color:var(--purple);">{{ total_units_alltime }}</div>
-            <div class="sc-lbl">ອໍເດີ້ທັງໝົດ <span style="font-size:.7rem;color:rgba(124,58,237,.5);">— ຄລິກລາຍລະອຽດ</span></div>
+            <div class="sc-num" style="color:var(--purple);">{{ total_units_today }}</div>
+            <div class="sc-lbl">ອໍເດີ້ມື້ນີ້ <span style="font-size:.7rem;color:rgba(37,99,235,.5);">— ຄລິກລາຍລະອຽດ</span></div>
         </a>
         <a href="{% url 'admin-finance' %}" class="stat-card" style="--card-line:linear-gradient(90deg,#0f172a,#3b82f6); --icon-bg:rgba(15,23,42,.1);">
             <div class="sc-top">
                 <div class="sc-icon">💰</div>
                 <span class="sc-badge" style="--tag-bg:rgba(15,23,42,.1);--tag-col:#059669;">ກີບ</span>
             </div>
-            <div class="sc-num" style="color:#0f172a;font-size:1.6rem;">{{ total_revenue_alltime|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
-            <div class="sc-lbl">ລາຍຮັບທັງໝົດ <span style="font-size:.7rem;color:rgba(15,23,42,.5);">— ຄລິກລາຍລະອຽດ</span></div>
+            <div class="sc-num" style="color:#0f172a;font-size:1.6rem;">{{ total_revenue_today|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
+            <div class="sc-lbl">ລາຍຮັບມື້ນີ້ <span style="font-size:.7rem;color:rgba(15,23,42,.5);">— ຄລິກລາຍລະອຽດ</span></div>
         </a>
-        <a href="{% url 'admin-advance-bookings' %}?verified=1" class="stat-card" style="--card-line:linear-gradient(90deg,#059669,#34d399); --icon-bg:rgba(5,150,105,.1);">
+        <a href="{% url 'admin-advance-bookings' %}?verified=1&day={{ current_date }}" class="stat-card" style="--card-line:linear-gradient(90deg,#059669,#34d399); --icon-bg:rgba(5,150,105,.1);">
             <div class="sc-top">
                 <div class="sc-icon">🏦</div>
                 <span class="sc-badge" style="--tag-bg:rgba(5,150,105,.1);--tag-col:#059669;">ຢືນຢັນແລ້ວ</span>
             </div>
-            <div class="sc-num" style="color:#059669;font-size:1.6rem;">{{ total_deposit_alltime|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
-            <div class="sc-lbl">ມັດຈຳທັງໝົດ <span style="font-size:.7rem;color:rgba(5,150,105,.5);">— ຄລິກລາຍລະອຽດ</span></div>
+            <div class="sc-num" style="color:#059669;font-size:1.6rem;">{{ total_deposit_today|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
+            <div class="sc-lbl">ມັດຈຳມື້ນີ້ <span style="font-size:.7rem;color:rgba(5,150,105,.5);">— ຄລິກລາຍລະອຽດ</span></div>
         </a>
-        <a href="{% url 'admin-advance-bookings' %}?unpaid=1" class="stat-card" style="--card-line:linear-gradient(90deg,#f59e0b,#fbbf24); --icon-bg:rgba(245,158,11,.1);">
+        <a href="{% url 'admin-advance-bookings' %}?unpaid=1&day={{ current_date }}" class="stat-card" style="--card-line:linear-gradient(90deg,#f59e0b,#fbbf24); --icon-bg:rgba(245,158,11,.1);">
             <div class="sc-top">
                 <div class="sc-icon">⏳</div>
                 <span class="sc-badge" style="--tag-bg:rgba(245,158,11,.1);--tag-col:#d97706;">ຄ້າງ</span>
             </div>
-            <div class="sc-num" style="color:#d97706;font-size:1.6rem;">{{ total_outstanding_alltime|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
-            <div class="sc-lbl">ຍອດຄ້າງຊຳລະ <span style="font-size:.7rem;color:rgba(245,158,11,.5);">— ຄລິກລາຍລະອຽດ</span></div>
+            <div class="sc-num" style="color:#d97706;font-size:1.6rem;">{{ total_outstanding_today|dotformat }} <span style="font-size:.6em;opacity:.7;">ກີບ</span></div>
+            <div class="sc-lbl">ຄ້າງຊຳລະມື້ນີ້ <span style="font-size:.7rem;color:rgba(245,158,11,.5);">— ຄລິກລາຍລະອຽດ</span></div>
         </a>
-        <button type="button" onclick="openModelSalesModal()" class="stat-card" style="--card-line:linear-gradient(90deg,#7c3aed,#a855f7); --icon-bg:rgba(124,58,237,.1); text-align:left; border:1.5px solid var(--border); font-family:'Lexend','Noto Sans Lao',sans-serif;">
+        <button type="button" onclick="openModelSalesModal()" class="stat-card" style="--card-line:linear-gradient(90deg,#2563eb,#ef4444); --icon-bg:rgba(37,99,235,.1); text-align:left; border:1.5px solid var(--border); font-family:'Lexend','Noto Sans Lao',sans-serif;">
             <div class="sc-top">
                 <div class="sc-icon">🏍️</div>
-                <span class="sc-badge" style="--tag-bg:rgba(124,58,237,.1);--tag-col:var(--purple);">ມື້ນີ້</span>
+                <span class="sc-badge" style="--tag-bg:rgba(37,99,235,.1);--tag-col:var(--purple);">ມື້ນີ້</span>
             </div>
             <div class="sc-num" style="color:var(--purple);">{{ today_model_sales_total }}</div>
-            <div class="sc-lbl">ລຸ້ນທີ່ຂາຍມື້ນີ້ <span style="font-size:.7rem;color:rgba(124,58,237,.5);">— ຄລິກລາຍລະອຽດ</span></div>
+            <div class="sc-lbl">ລຸ້ນທີ່ຂາຍມື້ນີ້ <span style="font-size:.7rem;color:rgba(37,99,235,.5);">— ຄລິກລາຍລະອຽດ</span></div>
         </button>
     </div>
 
@@ -642,14 +642,14 @@ body { background: #ffffff !important; }
                 <i class="fas fa-expand-alt"></i> ເບີ່ງລາຍລະອຽດ
             </span>
             <h3><i class="fas fa-chart-bar"></i> ຍອດຂາຍ 30 ວັນ
-                <span style="font-size:.72rem;color:rgba(124,58,237,.5);font-weight:600;font-family:'Noto Sans Lao',sans-serif;text-transform:none;letter-spacing:0;">— ຄລິກເພື່ອເບີ່ງ</span>
+                <span style="font-size:.72rem;color:rgba(37,99,235,.5);font-weight:600;font-family:'Noto Sans Lao',sans-serif;text-transform:none;letter-spacing:0;">— ຄລິກເພື່ອເບີ່ງ</span>
             </h3>
             <div class="chart-wrap"><canvas id="salesChart"></canvas></div>
         </div>
         <div class="chart-card">
             <h3>
                 <i class="fas fa-circle-half-stroke"></i> ສັດສ່ວນສະຖານະ
-                <span style="font-size:.72rem;color:rgba(124,58,237,.5);font-weight:600;font-family:'Noto Sans Lao',sans-serif;text-transform:none;letter-spacing:0;">— ທັງໝົດ</span>
+                <span style="font-size:.72rem;color:rgba(37,99,235,.5);font-weight:600;font-family:'Noto Sans Lao',sans-serif;text-transform:none;letter-spacing:0;">— ທັງໝົດ</span>
             </h3>
             <div class="chart-wrap" style="height:170px;"><canvas id="statusChart"></canvas></div>
             <div class="donut-legend">
@@ -692,9 +692,9 @@ body { background: #ffffff !important; }
             <table style="width:100%;border-collapse:collapse;font-family:'Lexend','Noto Sans Lao',sans-serif;">
                 <thead>
                     <tr style="background:#eff6ff;">
-                        <th style="padding:13px 16px;color:#2563eb;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;text-align:left;border-bottom:1.5px solid rgba(124,58,237,.13);">ວັນທີ</th>
-                        <th style="padding:13px 16px;color:#2563eb;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;text-align:center;border-bottom:1.5px solid rgba(124,58,237,.13);">ອໍເດີ</th>
-                        <th style="padding:13px 16px;color:#2563eb;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;text-align:right;border-bottom:1.5px solid rgba(124,58,237,.13);">ຍອດ (ກີບ)</th>
+                        <th style="padding:13px 16px;color:#2563eb;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;text-align:left;border-bottom:1.5px solid rgba(37,99,235,.13);">ວັນທີ</th>
+                        <th style="padding:13px 16px;color:#2563eb;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;text-align:center;border-bottom:1.5px solid rgba(37,99,235,.13);">ອໍເດີ</th>
+                        <th style="padding:13px 16px;color:#2563eb;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;text-align:right;border-bottom:1.5px solid rgba(37,99,235,.13);">ຍອດ (ກີບ)</th>
                     </tr>
                 </thead>
                 <tbody id="salesTbody"></tbody>
@@ -790,14 +790,14 @@ Chart.defaults.font.family = "'Lexend','Noto Sans Lao'";
 (function() {
     const ctx = document.getElementById('salesChart').getContext('2d');
     const grad = ctx.createLinearGradient(0,0,0,220);
-    grad.addColorStop(0,'rgba(124,58,237,.22)');
-    grad.addColorStop(1,'rgba(124,58,237,0)');
+    grad.addColorStop(0,'rgba(37,99,235,.22)');
+    grad.addColorStop(1,'rgba(37,99,235,0)');
     new Chart(ctx, {
         data: {
             labels: DAILY_LABELS,
             datasets: [
-                { type:'bar', label:'ອໍເດີ', data:DAILY_ORDERS, backgroundColor:'rgba(124,58,237,.55)', borderRadius:5, yAxisID:'y' },
-                { type:'line', label:'ຍອດຂາຍ', data:DAILY_AMOUNTS, borderColor:'#0f172a', backgroundColor:'rgba(190,24,93,.07)', fill:true, tension:.4, pointRadius:2, borderWidth:2, yAxisID:'y1' }
+                { type:'bar', label:'ອໍເດີ', data:DAILY_ORDERS, backgroundColor:'rgba(37,99,235,.55)', borderRadius:5, yAxisID:'y' },
+                { type:'line', label:'ຍອດຂາຍ', data:DAILY_AMOUNTS, borderColor:'#0f172a', backgroundColor:'rgba(220,38,38,.07)', fill:true, tension:.4, pointRadius:2, borderWidth:2, yAxisID:'y1' }
             ]
         },
         options: {
@@ -805,7 +805,7 @@ Chart.defaults.font.family = "'Lexend','Noto Sans Lao'";
             plugins:{ legend:{ position:'top', labels:{ usePointStyle:true, padding:16 } } },
             scales:{
                 x:{ grid:{display:false}, ticks:{ maxTicksLimit:10, font:{size:10} } },
-                y:{ grid:{color:'rgba(124,58,237,.06)'}, ticks:{font:{size:10}}, position:'left' },
+                y:{ grid:{color:'rgba(37,99,235,.06)'}, ticks:{font:{size:10}}, position:'left' },
                 y1:{ grid:{display:false}, ticks:{color:'#0f172a',font:{size:10}}, position:'right' }
             },
             onClick(e, els) {
@@ -885,12 +885,12 @@ function openSalesModal() {
         const rowClick = o > 0 ? `style="cursor:pointer;" onclick="closeSalesModal();setTimeout(()=>openDayDetailModal('${fullDate}'),200)"` : '';
         const hoverStyle = o > 0 ? `onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background=''"` : '';
         tbody.insertAdjacentHTML('beforeend',`
-            <tr ${rowClick} ${hoverStyle} style="border-bottom:1px solid rgba(124,58,237,.08);${o>0?'cursor:pointer;':''}">
+            <tr ${rowClick} ${hoverStyle} style="border-bottom:1px solid rgba(37,99,235,.08);${o>0?'cursor:pointer;':''}">
                 <td style="padding:11px 16px;color:#1e3a5f;font-weight:600;">${fullDate}
-                    ${o>0?`<span style="font-size:.7rem;color:rgba(124,58,237,.5);margin-left:6px;">ຄລິກລາຍລະອຽດ</span>`:''}
+                    ${o>0?`<span style="font-size:.7rem;color:rgba(37,99,235,.5);margin-left:6px;">ຄລິກລາຍລະອຽດ</span>`:''}
                 </td>
                 <td style="padding:11px 16px;text-align:center;">
-                    ${o>0?`<span style="background:rgba(124,58,237,.1);color:#2563eb;padding:3px 11px;border-radius:20px;font-weight:700;">${o}</span>`:'<span style="color:#94a3b8;">—</span>'}
+                    ${o>0?`<span style="background:rgba(37,99,235,.1);color:#2563eb;padding:3px 11px;border-radius:20px;font-weight:700;">${o}</span>`:'<span style="color:#94a3b8;">—</span>'}
                 </td>
                 <td style="padding:11px 16px;text-align:right;color:${a>0?'#0f172a':'#94a3b8'};font-weight:700;">
                     ${a>0?Number(a).toLocaleString()+' ກີບ':'—'}
@@ -904,7 +904,7 @@ function openSalesModal() {
         data:{
             labels:DAILY_LABELS,
             datasets:[
-                { label:'ອໍເດີ', data:DAILY_ORDERS, backgroundColor:'rgba(124,58,237,.55)', borderRadius:5, yAxisID:'y' },
+                { label:'ອໍເດີ', data:DAILY_ORDERS, backgroundColor:'rgba(37,99,235,.55)', borderRadius:5, yAxisID:'y' },
                 { label:'ຍອດ', type:'line', data:DAILY_AMOUNTS, borderColor:'#0f172a', tension:.4, pointRadius:2, borderWidth:2, yAxisID:'y1', fill:false }
             ]
         },
@@ -913,7 +913,7 @@ function openSalesModal() {
             plugins:{legend:{position:'top',labels:{usePointStyle:true}}},
             scales:{
                 x:{grid:{display:false},ticks:{maxTicksLimit:15}},
-                y:{grid:{color:'rgba(124,58,237,.06)'},position:'left'},
+                y:{grid:{color:'rgba(37,99,235,.06)'},position:'left'},
                 y1:{grid:{display:false},ticks:{color:'#0f172a'},position:'right'}
             },
             onClick(e, els) {

@@ -35,7 +35,7 @@ body {
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border-bottom: 2.5px solid var(--lav2);
-    box-shadow: 0 4px 32px rgba(124,58,237,.12);
+    box-shadow: 0 4px 32px rgba(37,99,235,.12);
     padding: 10px 0 14px;
     transition: .3s;
 }
@@ -55,7 +55,7 @@ body {
     background: #ffffff; border: 1.5px solid var(--lav2);
     letter-spacing: .2px;
 }
-.links:hover { background: var(--lav); color: #1e40af; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124,58,237,.18); }
+.links:hover { background: var(--lav); color: #1e40af; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,.18); }
 .links b { color: #1e40af; font-weight: 900; }
 
 /* DROPDOWN — show/hide driven by our own JS toggling `.open` on `.dropdown` (see script below),
@@ -64,7 +64,7 @@ body {
 .dropdown-menu {
     display: none !important;
     border-radius: 20px !important; border: 2px solid #a7f3d0 !important;
-    box-shadow: 0 16px 48px rgba(236,72,153,.18) !important;
+    box-shadow: 0 16px 48px rgba(239,68,68,.18) !important;
     padding: 8px !important; margin-top: 10px !important;
     background: #ffffff !important;
 }
@@ -123,7 +123,7 @@ body {
 .search-wrapper:focus-within {
     border-color: var(--pk);
     background: #fff;
-    box-shadow: 0 0 0 4px rgba(236,72,153,.15);
+    box-shadow: 0 0 0 4px rgba(239,68,68,.15);
 }
 .navbar-input {
     border: none !important; background: transparent;
@@ -139,10 +139,10 @@ body {
     font-weight: 900; font-size: 1rem;
     display: flex; align-items: center; gap: 7px;
     transition: .3s; cursor: pointer;
-    box-shadow: 0 4px 14px rgba(236,72,153,.35);
+    box-shadow: 0 4px 14px rgba(239,68,68,.35);
     font-family:'Lexend','Noto Sans Lao',sans-serif;
 }
-.search-btn:hover { transform: scale(1.05); box-shadow: 0 8px 24px rgba(236,72,153,.5); }
+.search-btn:hover { transform: scale(1.05); box-shadow: 0 8px 24px rgba(239,68,68,.5); }
 
 /* CART */
 .cart-link {
@@ -151,10 +151,10 @@ body {
     padding: 15px 28px; border-radius: 50px;
     display: flex; align-items: center; gap: 12px;
     font-weight: 900; font-size: 1.1rem;
-    box-shadow: 0 10px 28px rgba(236,72,153,.35);
+    box-shadow: 0 10px 28px rgba(239,68,68,.35);
     transition: .35s; white-space: nowrap;
 }
-.cart-link:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 18px 40px rgba(236,72,153,.5); }
+.cart-link:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 18px 40px rgba(239,68,68,.5); }
 .badge-count {
     min-width: 28px; height: 28px;
     display: flex; align-items: center; justify-content: center;
@@ -255,7 +255,7 @@ body {
                 <a href="/adminclick" class="links"><i class="fas fa-gear"></i> ແອດມິນ</a>
                 <a href="/contactus"  class="links"><i class="fas fa-envelope"></i> ຕິດຕໍ່</a>
                 <a href="/aboutus"    class="links"><i class="fas fa-circle-info"></i> ກ່ຽວກັບ</a>
-                <a href="/queue" class="links" style="background:linear-gradient(135deg,#2563eb,#0f172a);color:#fff!important;border-color:transparent;box-shadow:0 4px 14px rgba(124,58,237,.3);">
+                <a href="/queue" class="links" style="background:linear-gradient(135deg,#2563eb,#0f172a);color:#fff!important;border-color:transparent;box-shadow:0 4px 14px rgba(37,99,235,.3);">
                     <i class="fas fa-qrcode"></i> ຊຳລະ &amp; ຕິດຕໍ່
                 </a>
             </div>
@@ -341,7 +341,7 @@ function _showToast() {
         background:'linear-gradient(135deg,#0f172a,#2563eb)',
         color:'#fff', padding:'14px 22px', borderRadius:'50px',
         fontWeight:'800', fontSize:'15px', zIndex:'99999',
-        boxShadow:'0 12px 32px rgba(124,58,237,.35)',
+        boxShadow:'0 12px 32px rgba(37,99,235,.35)',
         fontFamily:"'Lexend','Noto Sans Lao',sans-serif",
         display:'flex', alignItems:'center', gap:'10px'
     });

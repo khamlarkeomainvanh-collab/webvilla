@@ -11,7 +11,7 @@
     --grad-red: linear-gradient(135deg, #ef4444, #b91c1c);
     --green:  #0f172a; --red: #ef4444; --amber: #f59e0b;
     --bright: #1e3a5f; --dim: #64748b;
-    --border: rgba(124,58,237,.13);
+    --border: rgba(37,99,235,.13);
     --lav:    #eff6ff; --lav2: #f0fdf4;
 }
 body { background: #ffffff !important; }
@@ -23,7 +23,7 @@ body { background: #ffffff !important; }
 .an-head .ico {
     width:52px; height:52px; border-radius:16px; flex-shrink:0;
     background:var(--grad); color:#fff; display:flex; align-items:center; justify-content:center;
-    font-size:1.4rem; box-shadow:0 8px 22px rgba(124,58,237,.3);
+    font-size:1.4rem; box-shadow:0 8px 22px rgba(37,99,235,.3);
 }
 .an-head h1 { font-size:1.7rem; font-weight:900; color:var(--bright); margin:0; }
 .an-head p  { font-size:.88rem; color:var(--dim); margin-top:4px; }
@@ -31,11 +31,11 @@ body { background: #ffffff !important; }
 /* ── Section wrapper card ── */
 .an-section-card {
     background:#fff; border-radius:26px; border:1.5px solid var(--border);
-    box-shadow:0 4px 22px rgba(124,58,237,.08); margin-bottom:28px; overflow:hidden;
+    box-shadow:0 4px 22px rgba(37,99,235,.08); margin-bottom:28px; overflow:hidden;
 }
 .an-card-head {
     display:flex; align-items:flex-start; gap:14px; padding:24px 28px;
-    border-bottom:1.5px solid rgba(124,58,237,.08);
+    border-bottom:1.5px solid rgba(37,99,235,.08);
 }
 .an-card-head.red  { background:linear-gradient(135deg,#fff1f2,#f0fdf4); }
 .an-card-head.pink { background:linear-gradient(135deg,#f0f9ff,#eff6ff); }
@@ -44,7 +44,7 @@ body { background: #ffffff !important; }
     display:flex; align-items:center; justify-content:center; font-size:1.15rem;
 }
 .an-card-head.red .ach-ico  { background:var(--grad-red); box-shadow:0 6px 16px rgba(239,68,68,.32); }
-.an-card-head.pink .ach-ico { background:var(--grad); box-shadow:0 6px 16px rgba(124,58,237,.32); }
+.an-card-head.pink .ach-ico { background:var(--grad); box-shadow:0 6px 16px rgba(37,99,235,.32); }
 .ach-title { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-weight:900; color:var(--bright); font-size:1.15rem; }
 .ach-sub { color:var(--dim); font-size:.85rem; margin-top:6px; line-height:1.6; }
 .badge-live {
@@ -62,18 +62,18 @@ body { background: #ffffff !important; }
 @media(max-width:900px) { .an-form-row, .an-form-row.closed-row { grid-template-columns:1fr 1fr; } }
 .an-label { font-size:.76rem; font-weight:800; color:var(--purple); margin-bottom:7px; display:block; text-transform:uppercase; letter-spacing:.3px; }
 .an-input {
-    width:100%; padding:12px 15px; border-radius:13px; border:1.5px solid rgba(124,58,237,.18);
+    width:100%; padding:12px 15px; border-radius:13px; border:1.5px solid rgba(37,99,235,.18);
     background:var(--lav); color:var(--bright); font-weight:700; font-size:.92rem;
     font-family:'Lexend','Noto Sans Lao',sans-serif; outline:none; transition:.22s;
 }
-.an-input:focus { border-color:var(--purple); background:#fff; box-shadow:0 0 0 4px rgba(124,58,237,.1); }
+.an-input:focus { border-color:var(--purple); background:#fff; box-shadow:0 0 0 4px rgba(37,99,235,.1); }
 .an-btn-add {
     padding:13px 26px; border:none; border-radius:13px; background:var(--grad); color:#fff;
     font-weight:800; font-size:.9rem; cursor:pointer; display:flex; align-items:center; gap:8px;
-    box-shadow:0 8px 20px rgba(124,58,237,.32); transition:.25s; white-space:nowrap; height:47px;
+    box-shadow:0 8px 20px rgba(37,99,235,.32); transition:.25s; white-space:nowrap; height:47px;
 }
 .an-btn-add.danger { background:var(--grad-red); box-shadow:0 8px 20px rgba(239,68,68,.32); }
-.an-btn-add:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(124,58,237,.4); }
+.an-btn-add:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(37,99,235,.4); }
 .an-btn-add.danger:hover { box-shadow:0 12px 28px rgba(239,68,68,.4); }
 
 /* ── List ── */
@@ -84,7 +84,7 @@ body { background: #ffffff !important; }
     padding:16px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;
     transition:.22s;
 }
-.an-item:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(124,58,237,.1); }
+.an-item:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(37,99,235,.1); }
 .an-item.is-active { border-left-color:var(--green); background:rgba(15,23,42,.045); }
 .an-item.is-active.is-closed { border-left-color:var(--red); background:rgba(239,68,68,.05); }
 .an-icon {
@@ -136,7 +136,7 @@ body { background: #ffffff !important; }
                     🚫 ປິດຮ້ານສຸກເສີນ
                     {% if active_closure %}<span class="badge-live">🔴 ກຳລັງປິດຮ້ານຢູ່</span>{% endif %}
                 </div>
-                <div class="ach-sub">ໃຊ້ເມື່ອຕ້ອງການປິດຮ້ານກະທັນຫັນ (ນອກເໜືອຈາກເວລາປົກກະຕິ 09:00–18:00) — ລູກຄ້າຈະເຫັນຂໍ້ຄວາມນີ້ທັນທີ ແລະ ຈະສັ່ງຊື້ບໍ່ໄດ້ຈົນກວ່າຈະປິດການປະກາດ</div>
+                <div class="ach-sub">ໃຊ້ເມື່ອຕ້ອງການປິດຮ້ານກະທັນຫັນ (ເວັບຮັບອໍເດີ້ຕະຫຼອດ 24 ຊົ່ວໂມງ, ບໍ່ມີເວລາປິດອັດຕະໂນມັດ) — ລູກຄ້າຈະເຫັນຂໍ້ຄວາມນີ້ທັນທີ ແລະ ຈະສັ່ງຊື້ບໍ່ໄດ້ຈົນກວ່າຈະປິດການປະກາດ</div>
             </div>
         </div>
 

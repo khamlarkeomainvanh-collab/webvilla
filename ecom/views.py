@@ -370,25 +370,27 @@ def admin_dashboard_view(request):
     cancelled_count = _units_for('Cancelled')
     other_count     = ordercount - (delivered_count + pending_count)
 
-    # ── All-time summary cards: real revenue/deposit/outstanding totals,
-    # not scoped to the selected day ──
-    _active_orders_qs = models.Orders.objects.exclude(status='Cancelled')
-    # "ອໍເດີ້ທັງໝົດ" counts actual vehicle QUANTITY, not line-item rows — a
+    # ── Summary cards — scoped to just the selected day (defaults to today),
+    # not all-time — so admins get a fresh, per-day snapshot each visit ──
+    _active_orders_qs = models.Orders.objects.exclude(status='Cancelled') \
+        .filter(order_date__gte=_ts, order_date__lte=_te)
+    # "ອໍເດີ້" counts actual vehicle QUANTITY, not line-item rows — a
     # customer booking 4 vehicles across 2 different models is 4 orders, not 2.
-    total_units_alltime = _active_orders_qs.aggregate(q=Sum('quantity'))['q'] or 0
-    total_revenue_alltime = float(_active_orders_qs.aggregate(t=Sum('amount'))['t'] or 0)
+    total_units_today = _active_orders_qs.aggregate(q=Sum('quantity'))['q'] or 0
+    total_revenue_today = float(_active_orders_qs.aggregate(t=Sum('amount'))['t'] or 0)
     # Deposit income only counts orders an admin has actually verified as
     # paid (see the "ຢືນຢັນມັດຈຳ" step on admin-advance-bookings) — a real
     # collected-cash figure, not just a theoretical 20% of everything booked.
-    total_deposit_alltime = round(
+    total_deposit_today = round(
         float(_active_orders_qs.filter(deposit_verified=True).aggregate(t=Sum('amount'))['t'] or 0) * 0.20
     )
-    # Outstanding balance — the 80% still owed on bookings that haven't been
-    # collected yet (walk-in sales are paid in full on the spot, so excluded).
+    # Outstanding balance — the 80% still owed on bookings placed today that
+    # haven't been collected yet (walk-in sales are paid in full on the spot).
     _outstanding_qs = models.Orders.objects.filter(
-        status__in=['Pending', 'Confirmed', 'Processing']
+        status__in=['Pending', 'Confirmed', 'Processing'],
+        order_date__gte=_ts, order_date__lte=_te,
     ).exclude(delivery_type=WALKIN_DELIVERY_TYPE)
-    total_outstanding_alltime = round(
+    total_outstanding_today = round(
         float(_outstanding_qs.aggregate(t=Sum('amount'))['t'] or 0) * 0.80
     )
 
@@ -537,10 +539,10 @@ def admin_dashboard_view(request):
         'confirmed_count':  confirmed_count,
         'cancelled_count':  cancelled_count,
         'other_count':      other_count,
-        'total_units_alltime':       total_units_alltime,
-        'total_revenue_alltime':     total_revenue_alltime,
-        'total_deposit_alltime':     total_deposit_alltime,
-        'total_outstanding_alltime': total_outstanding_alltime,
+        'total_units_today':       total_units_today,
+        'total_revenue_today':     total_revenue_today,
+        'total_deposit_today':     total_deposit_today,
+        'total_outstanding_today': total_outstanding_today,
         'today_model_sales':         today_model_sales,
         'today_model_sales_total':   today_model_sales_total,
         'today_order_count':       today_order_count,
@@ -1220,6 +1222,7 @@ def update_product_view(request,pk):
         'productForm': productForm,
         'colors': product.colors.all(),
         'gallery': product.extra_images.all(),
+        'remaining_gallery_slots': max(4 - product.extra_images.count(), 0),
         'subcategories_json': _subcategories_by_category_json(),
     })
 
@@ -2034,7 +2037,7 @@ def customer_home_view(request):
 
 
 
-SHOP_CLOSED_MSG = 'ຂໍອະໄພ ຮ້ານຂອງເຮົາໄດ້ປິດແລ້ວ ເລີ່ມເປີດການຈອງຄິວໃໝ່ຂອງມື້ອື່ນໃນເວລາ 09:00 ຂໍຂອບໃຈ'
+SHOP_CLOSED_MSG = 'ຂໍອະໄພ ຮ້ານຂອງເຮົາປິດຊົ່ວຄາວ ກະລຸນາຕິດຕໍ່ຮ້ານ ຫຼືລອງໃໝ່ພາຍຫຼັງ ຂໍຂອບໃຈ'
 
 
 def _active_manual_closure():
@@ -2043,12 +2046,9 @@ def _active_manual_closure():
 
 
 def _is_shop_open():
-    from django.utils import timezone as _tz
-    from datetime import time as _time
-    if _active_manual_closure():
-        return False
-    now_t = _tz.localtime().time()
-    return _time(9, 0) <= now_t < _time(18, 0)
+    # The site takes orders 24/7 — no more automatic 09:00-18:00 window.
+    # The only way ordering is blocked is the admin's manual "ປິດຮ້ານ" toggle.
+    return not _active_manual_closure()
 
 
 def _shop_closed_message():
@@ -2241,7 +2241,6 @@ def payment_success_view(request):
     if not _is_shop_open():
         return render(request, 'ecom/shop_closed.html', {
             'closed_error': _shop_closed_message(),
-            'show_hours': not _active_manual_closure(),
         })
 
     cart = request.session.get('cart', {})

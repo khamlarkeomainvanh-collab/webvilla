@@ -11,7 +11,7 @@
     --grad:    linear-gradient(135deg, #2563eb, #0f172a);
     --bright:  #1e3a5f;
     --dim:     #64748b;
-    --border:  rgba(124,58,237,.15);
+    --border:  rgba(37,99,235,.15);
     --lav:     #eff6ff;
     --lav2:    #dbeafe;
 }
@@ -28,7 +28,7 @@ body {
     background: #ffffff;
     border-radius: 32px;
     overflow: hidden;
-    box-shadow: 0 24px 70px rgba(124,58,237,.14), 0 0 0 1.5px rgba(124,58,237,.12);
+    box-shadow: 0 24px 70px rgba(37,99,235,.14), 0 0 0 1.5px rgba(37,99,235,.12);
     animation: fade 0.5s ease;
 }
 
@@ -118,11 +118,11 @@ label {
     transition: 0.25s;
     box-sizing: border-box;
 }
-.form-control::placeholder { color: rgba(124,58,237,.38); }
+.form-control::placeholder { color: rgba(37,99,235,.38); }
 .form-control:focus {
     border-color: var(--purple);
     background: #fff;
-    box-shadow: 0 0 0 4px rgba(124,58,237,.1);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.1);
 }
 
 /* file input */
@@ -179,7 +179,7 @@ input[type="file"].form-control::-webkit-file-upload-button {
     cursor: pointer;
     transition: 0.3s;
     font-family: 'Lexend', 'Noto Sans Lao', sans-serif;
-    box-shadow: 0 10px 28px rgba(124,58,237,.32);
+    box-shadow: 0 10px 28px rgba(37,99,235,.32);
     display: flex; align-items: center; justify-content: center; gap: 10px;
     margin-top: 8px;
     position: relative; overflow: hidden;
@@ -191,7 +191,7 @@ input[type="file"].form-control::-webkit-file-upload-button {
     transform: translateX(-100%); transition: .5s;
 }
 .btn-submit:hover::after { transform: translateX(100%); }
-.btn-submit:hover { transform: translateY(-3px); box-shadow: 0 16px 38px rgba(190,24,93,.42); }
+.btn-submit:hover { transform: translateY(-3px); box-shadow: 0 16px 38px rgba(220,38,38,.42); }
 .btn-submit:active { transform: translateY(0); }
 
 /* COLOR / STOCK ROWS */
@@ -275,7 +275,11 @@ input[type="file"].form-control::-webkit-file-upload-button {
 
             <div class="field-group">
                 <label>ຮູບເພີ່ມເຕີມ (ສູງສຸດ 4 ຮູບ — ລວມຮູບຫຼັກ ໄດ້ 5 ຮູບ)</label>
-                <input type="file" class="form-control" name="extra_images" accept="image/*" multiple>
+                <input type="file" class="form-control" id="extraImagesInput" name="extra_images" accept="image/*" multiple onchange="_extraImgPreview(this)">
+                <div style="font-size:.78rem;color:#64748b;margin-top:6px;">
+                    💡 ເລືອກໄດ້ຫຼາຍຮູບພ້ອມກັນ: ກົດຄ້າງ <b>Ctrl</b> (Windows) ຫຼື <b>Cmd</b> (Mac) ແລ້ວກົດເລືອກແຕ່ລະຮູບ
+                </div>
+                <div id="extraImgCount" style="font-size:.82rem;font-weight:700;color:#2563eb;margin-top:6px;"></div>
             </div>
 
             <!-- Colors & Stock -->
@@ -301,6 +305,19 @@ input[type="file"].form-control::-webkit-file-upload-button {
 </form>
 
 <script>
+function _extraImgPreview(input) {
+    const box = document.getElementById('extraImgCount');
+    const n = input.files.length;
+    if (n === 0) { box.textContent = ''; return; }
+    if (n > 4) {
+        box.innerHTML = `⚠️ ເລືອກໄວ້ ${n} ຮູບ — ຈະບັນທຶກໄດ້ພຽງ 4 ຮູບທຳອິດ (ຮູບອື່ນຈະບໍ່ຖືກບັນທຶກ)`;
+        box.style.color = '#d97706';
+    } else {
+        const names = Array.from(input.files).map(f => f.name).join(', ');
+        box.innerHTML = `✅ ເລືອກແລ້ວ ${n}/4 ຮູບ — ${names}`;
+        box.style.color = '#059669';
+    }
+}
 function addColorRow() {
     const wrap = document.getElementById('colorRows');
     const row = document.createElement('div');
